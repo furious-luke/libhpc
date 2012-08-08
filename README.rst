@@ -30,6 +30,14 @@ require a more commercial friendly license, please contact me at
 Dependencies
 ============
 
+  scons-config
+    Some SCons configuration helper scripts. This is available from my github
+    page at <http://github.com/furious-luke/scons-config>.
+
+  scons-project
+    Some SCons C++ project helper scripts. This is available from my github
+    page at <http://github.com/furious-luke/scons-config>.
+
   BOOST
 
   MPI
