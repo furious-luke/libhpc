@@ -1,0 +1,3 @@
+Import('env', 'obj_map')
+Export('env', 'obj_map')
+

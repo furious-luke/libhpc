@@ -1,0 +1,6 @@
+Import('env')
+
+dst_dir = '#' + env['BUILD'] + '/bin/'
+libs = env.get('LIBS', []) + ['discrete', 'parallel', 'containers', 'debug']
+
+# env.Program(dst_dir + 'app_name', 'source.cc', LIBS=libs)

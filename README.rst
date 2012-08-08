@@ -16,6 +16,9 @@ The current feature set includes:
   * Convenience wrappers for MPI and HDF5 structures and functions.
   * Efficient memory profiling, logging and timing.
 
+*Please note that this is still a work in progress, and there may be many
+things that are still suboptimal.*
+
 License
 =======
 
@@ -26,6 +29,8 @@ require a more commercial friendly license, please contact me at
 
 Dependencies
 ============
+
+  BOOST
 
   MPI
     Message Passing Interface implementation. Tested with MPICH2 and OpenMPI.

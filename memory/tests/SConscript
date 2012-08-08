@@ -1,0 +1,15 @@
+Import('env', 'obj_map')
+Export('env', 'obj_map')
+
+srcs = (
+#     ('source.cc', 'dep1.cc', 'dep2.cc', (range(num_ranks)),),
+)
+
+for src in srcs:
+    if isinstance(src, str):
+        objs = []
+    else:
+        objs = src[1:] if (len(src) > 1) else []
+        objs = [obj_map[o] for o in objs]
+        src = src[0]
+    env.CxxTest([src] + objs)

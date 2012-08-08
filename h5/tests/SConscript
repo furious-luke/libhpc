@@ -1,0 +1,22 @@
+Import('env', 'obj_map')
+Export('env', 'obj_map')
+
+srcs = (
+    ('file_suite.t.hh', 'file.cc', 'location.cc', 'dataset.cc', 'dataspace.cc', 'datatype.cc', 'group.cc') + (range(1, 10),),
+)
+
+libs = ['hpcmpi', 'containers', 'logging', 'system', 'debug'] + env.get('LIBS', [])
+
+for src in srcs:
+    if isinstance(src, str):
+        objs = []
+    else:
+        if len(src) and isinstance(src[-1], (list, tuple)):
+            ranks = src[-1]
+            src = src[:-1]
+        else:
+            ranks = []
+        objs = src[1:] if (len(src) > 1) else []
+        objs = [obj_map[o] for o in objs]
+        src = src[0]
+    env.CxxTest([src] + objs, ranks=ranks, LIBS=libs)

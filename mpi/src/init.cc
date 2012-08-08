@@ -1,0 +1,102 @@
+#include "init.hh"
+#include "data_type.hh"
+#include "comm.hh"
+#include "insist.hh"
+
+namespace hpc {
+   namespace mpi {
+
+      bool initialized = false;
+
+      void
+      initialise()
+      {
+	 int argc = 0;
+	 char** argv = NULL;
+	 initialise( argc, argv );
+      }
+
+      void
+      initialise( int& argc,
+                  char**& argv )
+      {
+         // Add logger.
+         LOG_PUSH( new logger( "mpi_log." ) );
+
+	 int flag;
+	 MPI_Initialized(&flag);
+	 if(!flag)
+	    MPI_INSIST(MPI_Init(&argc, &argv));
+
+	 if( !initialized )
+         {
+	    // Need to initialise data types here because we calculate sizes during construction, which
+	    // needs MPI to be initialized. Note that NULL is already done.
+	    mpi::data_type::byte.mpi_data_type(MPI_BYTE);
+	    mpi::data_type::boolean.mpi_data_type(MPIR_CXX_BOOL);
+	    mpi::data_type::character.mpi_data_type(MPI_CHAR);
+	    mpi::data_type::integer.mpi_data_type(MPI_INT);
+	    mpi::data_type::unsigned_integer.mpi_data_type(MPI_UNSIGNED);
+	    mpi::data_type::long_integer.mpi_data_type(MPI_LONG);
+	    mpi::data_type::unsigned_long.mpi_data_type(MPI_UNSIGNED_LONG);
+	    mpi::data_type::floating.mpi_data_type(MPI_FLOAT);
+	    mpi::data_type::double_floating.mpi_data_type(MPI_DOUBLE);
+
+	    // Advance shared pointer counts.
+	    ++_shared_ptr_cnts.set_default(&mpi::comm::null, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::comm::self, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::comm::world, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::null, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::byte, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::boolean, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::character, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::integer, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_integer, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::long_integer, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_long, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::floating, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::double_floating, 0)->second;
+
+	    initialized = true;
+	 }
+
+#ifndef NLOG
+         // If this is the first time I'm initialising MPI, broadcast a logging
+         // base time to use.
+         log_base_time = MPI_Wtime();
+         mpi::comm::world.bcast( log_base_time, 0 );
+#endif
+      }
+
+      void finalise(bool mpi) {
+	 if(!initialized) {
+
+	    // Eliminate shared pointer counts.
+	    _shared_ptr_cnts.erase(&mpi::comm::null);
+	    _shared_ptr_cnts.erase(&mpi::comm::self);
+	    _shared_ptr_cnts.erase(&mpi::comm::world);
+	    _shared_ptr_cnts.erase(&mpi::data_type::null);
+	    _shared_ptr_cnts.erase(&mpi::data_type::byte);
+	    _shared_ptr_cnts.erase(&mpi::data_type::boolean);
+	    _shared_ptr_cnts.erase(&mpi::data_type::character);
+	    _shared_ptr_cnts.erase(&mpi::data_type::integer);
+	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_integer);
+	    _shared_ptr_cnts.erase(&mpi::data_type::long_integer);
+	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_long);
+	    _shared_ptr_cnts.erase(&mpi::data_type::floating);
+	    _shared_ptr_cnts.erase(&mpi::data_type::double_floating);
+
+	    initialized = false;
+	 }
+
+	 if( mpi ) {
+	    int flag;
+	    MPI_Initialized(&flag);
+	    if(flag)
+	       MPI_INSIST(MPI_Finalize());
+	 }
+
+         LOG_POP();
+      }
+   }
+}
