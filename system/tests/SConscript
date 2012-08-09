@@ -9,11 +9,11 @@ Import('env')
 #
 # The support sources are optional, as is the MPI rank range.
 suites = [
-    # ('', '', '', range(1, 5)),
+    ('stream_indent_suite.t.hh', 'stream_indent.cc')
 ]
 
 # Define libraries to link against.
-libs = [] + env.get('LIBS', [])
+libs = ['debug'] + env.get('LIBS', [])
 
 # Call the helper.
 execfile(helpers.get_build_tests_script(), globals())

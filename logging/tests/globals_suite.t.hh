@@ -49,7 +49,7 @@ public:
       LOG( "This is on" );
       LOG( " one line." );
       LOG( logging::endl );
-      LOG( setindent( 2 ), indent, "Indented.", logging::endl, setindent( -2 ) );
+      LOG( setindent( 2 ), indent, "Indented doubly.", logging::endl, setindent( -2 ) );
       LOG( indent, "Not indented.", logging::endl );
       LOG( "Also not indented...", logging::endl, setindent( 2 ) );
       LOG( "... but this one is.", logging::endl );

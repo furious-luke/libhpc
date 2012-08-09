@@ -48,7 +48,7 @@ namespace hpc {
    std::ostream&
    indent( std::ostream& strm )
    {
-      std::map<std::ostream*,int>::const_iterator it = impl::curindent.find( &strm );
+      auto it = impl::curindent.find( &strm );
       int val = 0;
       if( it != impl::curindent.end() )
          val = it->second;

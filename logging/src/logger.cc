@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
+#include "libhpc/system/stream_indent.hh"
 #include "libhpc/containers/containers.hh"
 #include "logger.hh"
 

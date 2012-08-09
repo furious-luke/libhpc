@@ -18,6 +18,7 @@
 #ifndef libhpc_logging_globals_hh
 #define libhpc_logging_globals_hh
 
+#include "libhpc/system/stream_indent.hh"
 #include "logger.hh"
 #include "stack.hh"
 
@@ -61,11 +62,11 @@
 #define LOG( ... )                              \
    _LOG( PP_NARG( __VA_ARGS__ ), __VA_ARGS__ )
 
-#define LOG_ENTER()                             \
-   LOG( "Entering: ", __PRETTY_FUNCTION__, ::hpc::logging::endl, strm_setindent( 2 ) )
+#define LOG_ENTER()                                                     \
+   LOG( "Entering: ", __PRETTY_FUNCTION__, ::hpc::logging::endl, ::hpc::setindent( 2 ) )
 
-#define LOG_EXIT()                              \
-   LOG( strm_setindent( -2 ), "Exiting: ", __PRETTY_FUNCTION__, ::hpc::logging::endl )
+#define LOG_EXIT()                                                      \
+   LOG( ::hpc::setindent( -2 ), "Exiting: ", __PRETTY_FUNCTION__, ::hpc::logging::endl )
 
 #define LOG_PUSH( logger )                      \
    ::hpc::logging::push( logger )
