@@ -18,9 +18,11 @@
 #ifndef libhpc_containers_options_hh
 #define libhpc_containers_options_hh
 
-#include <string>
-#include <boost/any.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/spirit/home/support/detail/hold_any.hpp>
 #include "libhpc/debug/debug.hh"
+#include "string.hh"
+#include "optional.hh"
 #include "map.hh"
 
 namespace hpc {
@@ -30,31 +32,132 @@ namespace hpc {
       /// TODO: May need to rewrite boost::any, as it uses exceptions.
       ///
       class dictionary
-         : map<std::string,boost::any>
+         : public map<string,boost::spirit::hold_any>
       {
       public:
 
-         typedef map<std::string,boost::any> super_type;
+         typedef map<string,boost::spirit::hold_any> super_type;
 
       public:
 
+         template< class T,
+                   class Source >
+         void
+         option( const string& name,
+                 Source& source,
+                 optional<T> default_value = optional<T>() )
+         {
+            auto it = source.find( name );
+            if( it != source.end() )
+               insert( name, boost::lexical_cast<T>( it->second ) );
+            else if( default_value )
+               insert( name, *default_value );
+         }
+
          // TODO: Fix the long iterator name.
          template< class T >
-         std::pair<typename std::map<std::string,boost::any>::iterator,bool>
-         insert( const std::string& name,
+         std::pair<typename std::map<string,boost::spirit::hold_any>::iterator,bool>
+         insert( const string& name,
                  const T& value )
          {
-            boost::any any_val = value;
+            boost::spirit::hold_any any_val( value );
             return super_type::insert( name, any_val );
          }
 
          template< class T >
          T
-         get( const std::string& name )
+         get( const string& name )
          {
-            return boost::any_cast<T>( super_type::get( name ) );
+            return boost::spirit::any_cast<T>( super_type::get( name ) );
          }
       };
+
+      // template< class T >
+      // class option
+      // {
+      // public:
+
+      //    explicit
+      //    option( const string& name = string() )
+      //       : _name( name )
+      //    {
+      //    }
+
+      //    explicit
+      //    option( const string& name,
+      //            const T& default_value )
+      //       : _name( name ),
+      //         _def( default_value )
+      //    {
+      //    }
+
+      //    ~option()
+      //    {
+      //    }
+
+      //    void
+      //    set_name( const string& name )
+      //    {
+      //       _name = name;
+      //    }
+
+      //    void
+      //    set_default_value( const T& default_value )
+      //    {
+      //       _def = default_value;
+      //    }
+
+      //    const string&
+      //    name() const
+      //    {
+      //       return _name;
+      //    }
+
+      //    const T&
+      //    default_value() const
+      //    {
+      //       return _def;
+      //    }
+
+      //    void
+      //    store( dictionary& dict,
+      //           optional<const string&> value )
+      //    {
+      //       if( value )
+      //          dict.insert( _name, boost::lexical_cast<T>( *value ) );
+      //       else if( _def )
+      //          dict.insert( _name, *_def );
+      //    }
+
+      // protected:
+
+      //    string _name;
+      //    optional<T> _def;
+      // };
+
+      // class group
+      // {
+      // public:
+
+      //    template< class T >
+      //    void
+      //    add_option( const string& name )
+      //    {
+      //       _opts.push_back( option<T>( name ) );
+      //    }
+
+      //    template< class T >
+      //    void
+      //    add_option( const string& name,
+      //                const T& default_value )
+      //    {
+      //       _opts.push_back( option<T>( name, default_value ) );
+      //    }
+
+      // protected:
+
+      //    list<boost::spirit::hold_any> _opts;
+      // };
    }
 }
 
