@@ -62,6 +62,9 @@
 #define LOG( ... )                              \
    _LOG( PP_NARG( __VA_ARGS__ ), __VA_ARGS__ )
 
+#define LOGLN( ... )                            \
+   LOG( __VA_ARGS__, ::hpc::logging::endl )
+
 #define LOG_ENTER()                                                     \
    LOG( "Entering: ", __PRETTY_FUNCTION__, ::hpc::logging::endl, ::hpc::setindent( 2 ) )
 
