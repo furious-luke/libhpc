@@ -24,6 +24,7 @@ suites = [
     ('enumerator_suite.t.hh',),
     ('sort_permute2_iter_suite.t.hh',),
     ('ridders_suite.t.hh',),
+    ('options_suite.t.hh',),
 ]
 
 # Define libraries to link against.

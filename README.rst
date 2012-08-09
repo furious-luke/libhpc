@@ -30,6 +30,12 @@ require a more commercial friendly license, please contact me at
 Dependencies
 ============
 
+  Python
+    An object-oriented interpreted programming language.
+
+  SCons
+    A Python based build system.
+
   scons-config
     Some SCons configuration helper scripts. This is available from my github
     page at <http://github.com/furious-luke/scons-config>.
@@ -39,6 +45,7 @@ Dependencies
     page at <http://github.com/furious-luke/scons-config>.
 
   BOOST
+    A set of efficient C++ extensions.
 
   MPI
     Message Passing Interface implementation. Tested with MPICH2 and OpenMPI.
