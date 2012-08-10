@@ -24,140 +24,259 @@
 #include "string.hh"
 #include "optional.hh"
 #include "map.hh"
+#include "list.hh"
+#include "shared_ptr.hh"
 
 namespace hpc {
    namespace options {
 
       ///
-      /// TODO: May need to rewrite boost::any, as it uses exceptions.
       ///
-      class dictionary
-         : public map<string,boost::spirit::hold_any>
+      ///
+      class option_base
       {
       public:
 
-         typedef map<string,boost::spirit::hold_any> super_type;
+         explicit
+         option_base( const hpc::string& name = hpc::string() );
 
-      public:
+         ~option_base();
 
-         template< class T,
-                   class Source >
+         virtual
          void
-         option( const string& name,
-                 Source& source,
-                 optional<T> default_value = optional<T>() )
-         {
-            auto it = source.find( name );
-            if( it != source.end() )
-               insert( name, boost::lexical_cast<T>( it->second ) );
-            else if( default_value )
-               insert( name, *default_value );
-         }
+         parse( const hpc::string& value ) = 0;
 
-         // TODO: Fix the long iterator name.
-         template< class T >
-         std::pair<typename std::map<string,boost::spirit::hold_any>::iterator,bool>
-         insert( const string& name,
-                 const T& value )
-         {
-            boost::spirit::hold_any any_val( value );
-            return super_type::insert( name, any_val );
-         }
+         virtual
+         hpc::string
+         store() = 0;
 
-         template< class T >
-         T
-         get( const string& name )
-         {
-            return boost::spirit::any_cast<T>( super_type::get( name ) );
-         }
+         void
+         set_name( const hpc::string& name );
+
+         const hpc::string&
+         name() const;
+
+      protected:
+
+         hpc::string _name;
       };
 
-      // template< class T >
-      // class option
+      ///
+      ///
+      ///
+      class dictionary
+      {
+      public:
+
+         void
+         add_option( option_base* opt );
+
+         void
+         add_dictionary( dictionary* dict );
+
+      protected:
+
+         list<shared_ptr<option_base>> _opts;
+         list<shared_ptr<dictionary>> _dicts;
+      };
+
+      ///
+      /// TODO: May need to rewrite boost::any, as it uses exceptions.
+      ///
+      // class dictionary
+      //    : public map<string,boost::spirit::hold_any>
       // {
       // public:
 
-      //    explicit
-      //    option( const string& name = string() )
-      //       : _name( name )
-      //    {
-      //    }
+      //    typedef map<string,boost::spirit::hold_any> super_type;
 
-      //    explicit
+      // public:
+
+      //    template< class T,
+      //              class Source >
+      //    void
       //    option( const string& name,
-      //            const T& default_value )
-      //       : _name( name ),
-      //         _def( default_value )
+      //            Source& source,
+      //            optional<T> default_value = optional<T>() )
       //    {
+      //       auto it = source.find( name );
+      //       if( it != source.end() )
+      //          insert( name, boost::lexical_cast<T>( it->second ) );
+      //       else if( default_value )
+      //          insert( name, *default_value );
       //    }
 
-      //    ~option()
-      //    {
-      //    }
-
-      //    void
-      //    set_name( const string& name )
-      //    {
-      //       _name = name;
-      //    }
-
-      //    void
-      //    set_default_value( const T& default_value )
-      //    {
-      //       _def = default_value;
-      //    }
-
-      //    const string&
-      //    name() const
-      //    {
-      //       return _name;
-      //    }
-
-      //    const T&
-      //    default_value() const
-      //    {
-      //       return _def;
-      //    }
-
-      //    void
-      //    store( dictionary& dict,
-      //           optional<const string&> value )
-      //    {
-      //       if( value )
-      //          dict.insert( _name, boost::lexical_cast<T>( *value ) );
-      //       else if( _def )
-      //          dict.insert( _name, *_def );
-      //    }
-
-      // protected:
-
-      //    string _name;
-      //    optional<T> _def;
-      // };
-
-      // class group
-      // {
-      // public:
-
+      //    // TODO: Fix the long iterator name.
       //    template< class T >
-      //    void
-      //    add_option( const string& name )
+      //    std::pair<typename std::map<string,boost::spirit::hold_any>::iterator,bool>
+      //    insert( const string& name,
+      //            const T& value )
       //    {
-      //       _opts.push_back( option<T>( name ) );
+      //       boost::spirit::hold_any any_val( value );
+      //       return super_type::insert( name, any_val );
       //    }
 
       //    template< class T >
-      //    void
-      //    add_option( const string& name,
-      //                const T& default_value )
+      //    T
+      //    get( const string& name )
       //    {
-      //       _opts.push_back( option<T>( name, default_value ) );
+      //       return boost::spirit::any_cast<T>( super_type::get( name ) );
       //    }
-
-      // protected:
-
-      //    list<boost::spirit::hold_any> _opts;
       // };
+
+      ///
+      ///
+      ///
+      template< class T >
+      class option
+         : public option_base
+      {
+      public:
+
+         option( const hpc::string& name,
+                 optional<T> default_value = optional<T>() )
+            : option_base( name ),
+              _def( default_value )
+         {
+         }
+
+         ~option()
+         {
+         }
+
+         void
+         set_default_value( const T& default_value )
+         {
+            _def = default_value;
+         }
+
+         bool
+         has_default_value() const
+         {
+            return _def;
+         }
+
+         const T&
+         default_value() const
+         {
+            return *_def;
+         }
+
+         bool
+         has_value() const
+         {
+            return _val;
+         }
+
+         const T&
+         value() const
+         {
+            return *_val;
+         }
+
+         optional<const T&>
+         get() const
+         {
+            if( _val )
+               return *_val;
+            else if( _def )
+               return *_def;
+            else
+               return none;
+         }
+
+         friend std::ostream&
+         operator<<( std::ostream& strm,
+                     const option<T>& obj )
+         {
+            return strm;
+         }
+
+      protected:
+
+         optional<T> _val;
+         optional<T> _def;
+      };
+
+      ///
+      ///
+      ///
+      class string
+         : public option<hpc::string>
+      {
+      public:
+
+         string( const hpc::string& name,
+                 optional<hpc::string> default_value = optional<hpc::string>() );
+
+         virtual
+         void
+         parse( const hpc::string& value );
+
+         virtual
+         hpc::string
+         store();
+      };
+
+      ///
+      ///
+      ///
+      class boolean
+         : public option<bool>
+      {
+      public:
+
+         boolean( const hpc::string& name,
+                  optional<bool> default_value = optional<bool>() );
+
+         virtual
+         void
+         parse( const hpc::string& value );
+
+         virtual
+         hpc::string
+         store();
+      };
+
+      ///
+      ///
+      ///
+      class integer
+         : public option<unsigned long>
+      {
+      public:
+
+         integer( const hpc::string& name,
+                  optional<unsigned long> default_value = optional<unsigned long>() );
+
+         virtual
+         void
+         parse( const hpc::string& value );
+
+         virtual
+         hpc::string
+         store();
+      };
+
+      ///
+      ///
+      ///
+      class real
+         : public option<double>
+      {
+      public:
+
+         real( const hpc::string& name,
+               optional<double> default_value = optional<double>() );
+
+         virtual
+         void
+         parse( const hpc::string& value );
+
+         virtual
+         hpc::string
+         store();
+      };
    }
 }
 
