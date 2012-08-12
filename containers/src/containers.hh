@@ -22,6 +22,7 @@
 #include "libhpc/memory/memory.hh"
 #include "libhpc/system/system.hh"
 
+#include "string.hh"
 #include "mymath.hh"
 #include "num.hh"
 #include "ridders.hh"

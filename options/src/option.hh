@@ -15,17 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_options_hh
-#define libhpc_containers_options_hh
+#ifndef libhpc_options_option_hh
+#define libhpc_options_option_hh
 
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/support/detail/hold_any.hpp>
 #include "libhpc/debug/debug.hh"
-#include "string.hh"
-#include "optional.hh"
-#include "map.hh"
-#include "list.hh"
-#include "shared_ptr.hh"
+#include "libhpc/containers/containers.hh"
 
 namespace hpc {
    namespace options {
@@ -48,7 +44,7 @@ namespace hpc {
 
          virtual
          hpc::string
-         store() = 0;
+         store() const = 0;
 
          void
          set_name( const hpc::string& name );
@@ -56,73 +52,17 @@ namespace hpc {
          const hpc::string&
          name() const;
 
+         bool
+         has_value() const;
+
+         option_base&
+         operator=( const hpc::string& value );
+
       protected:
 
          hpc::string _name;
+         bool _has_val;
       };
-
-      ///
-      ///
-      ///
-      class dictionary
-      {
-      public:
-
-         void
-         add_option( option_base* opt );
-
-         void
-         add_dictionary( dictionary* dict );
-
-      protected:
-
-         list<shared_ptr<option_base>> _opts;
-         list<shared_ptr<dictionary>> _dicts;
-      };
-
-      ///
-      /// TODO: May need to rewrite boost::any, as it uses exceptions.
-      ///
-      // class dictionary
-      //    : public map<string,boost::spirit::hold_any>
-      // {
-      // public:
-
-      //    typedef map<string,boost::spirit::hold_any> super_type;
-
-      // public:
-
-      //    template< class T,
-      //              class Source >
-      //    void
-      //    option( const string& name,
-      //            Source& source,
-      //            optional<T> default_value = optional<T>() )
-      //    {
-      //       auto it = source.find( name );
-      //       if( it != source.end() )
-      //          insert( name, boost::lexical_cast<T>( it->second ) );
-      //       else if( default_value )
-      //          insert( name, *default_value );
-      //    }
-
-      //    // TODO: Fix the long iterator name.
-      //    template< class T >
-      //    std::pair<typename std::map<string,boost::spirit::hold_any>::iterator,bool>
-      //    insert( const string& name,
-      //            const T& value )
-      //    {
-      //       boost::spirit::hold_any any_val( value );
-      //       return super_type::insert( name, any_val );
-      //    }
-
-      //    template< class T >
-      //    T
-      //    get( const string& name )
-      //    {
-      //       return boost::spirit::any_cast<T>( super_type::get( name ) );
-      //    }
-      // };
 
       ///
       ///
@@ -160,12 +100,6 @@ namespace hpc {
          default_value() const
          {
             return *_def;
-         }
-
-         bool
-         has_value() const
-         {
-            return _val;
          }
 
          const T&
@@ -215,7 +149,7 @@ namespace hpc {
 
          virtual
          hpc::string
-         store();
+         store() const;
       };
 
       ///
@@ -235,7 +169,7 @@ namespace hpc {
 
          virtual
          hpc::string
-         store();
+         store() const;
       };
 
       ///
@@ -255,7 +189,7 @@ namespace hpc {
 
          virtual
          hpc::string
-         store();
+         store() const;
       };
 
       ///
@@ -275,7 +209,7 @@ namespace hpc {
 
          virtual
          hpc::string
-         store();
+         store() const;
       };
    }
 }

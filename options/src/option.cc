@@ -15,13 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "options.hh"
+#include "option.hh"
 
 namespace hpc {
    namespace options {
 
       option_base::option_base( const hpc::string& name )
-         : _name( name )
+         : _name( name ),
+           _has_val( false )
       {
       }
 
@@ -41,16 +42,17 @@ namespace hpc {
          return _name;
       }
 
-      void
-      dictionary::add_option( option_base* opt )
+      bool
+      option_base::has_value() const
       {
-         _opts.push_back( opt );
+         return _has_val;
       }
 
-      void
-      dictionary::add_dictionary( dictionary* dict )
+      option_base&
+      option_base::operator=( const hpc::string& value )
       {
-         _dicts.push_back( dict );
+         parse( value );
+         return *this;
       }
 
       string::string( const hpc::string& name,
@@ -63,10 +65,11 @@ namespace hpc {
       string::parse( const hpc::string& value )
       {
          _val = value;
+         _has_val = true;
       }
 
       hpc::string
-      string::store()
+      string::store() const
       {
          return *_val;
       }
@@ -80,11 +83,11 @@ namespace hpc {
       void
       boolean::parse( const hpc::string& value )
       {
-         _val = lexical_cast<bool>( value );
+         _val = boost::lexical_cast<bool>( value );
       }
 
       hpc::string
-      boolean::store()
+      boolean::store() const
       {
       }
 
@@ -97,11 +100,11 @@ namespace hpc {
       void
       integer::parse( const hpc::string& value )
       {
-         _val = lexical_cast<unsigned long>( value );
+         _val = boost::lexical_cast<unsigned long>( value );
       }
 
       hpc::string
-      integer::store()
+      integer::store() const
       {
       }
 
@@ -114,11 +117,11 @@ namespace hpc {
       void
       real::parse( const hpc::string& value )
       {
-         _val = lexical_cast<double>( value );
+         _val = boost::lexical_cast<double>( value );
       }
 
       hpc::string
-      real::store()
+      real::store() const
       {
       }
    }
