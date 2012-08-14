@@ -84,6 +84,7 @@ namespace hpc {
       boolean::parse( const hpc::string& value )
       {
          _val = boost::lexical_cast<bool>( value );
+         _has_val = true;
       }
 
       hpc::string
@@ -101,11 +102,13 @@ namespace hpc {
       integer::parse( const hpc::string& value )
       {
          _val = boost::lexical_cast<unsigned long>( value );
+         _has_val = true;
       }
 
       hpc::string
       integer::store() const
       {
+         return to_string( *_val );
       }
 
       real::real( const hpc::string& name,
@@ -118,11 +121,13 @@ namespace hpc {
       real::parse( const hpc::string& value )
       {
          _val = boost::lexical_cast<double>( value );
+         _has_val = true;
       }
 
       hpc::string
       real::store() const
       {
+         return to_string( *_val );
       }
    }
 }

@@ -20,9 +20,18 @@
 namespace hpc {
    namespace options {
 
+      dictionary::dictionary( const hpc::string& prefix )
+         : _pre( prefix )
+      {
+      }
+
       void
       dictionary::add_option( option_base* opt )
       {
+#ifndef NDEBUG
+         for( const auto& exist : _opts )
+            ASSERT( exist->name() != opt->name() );
+#endif
          _opts.push_back( opt );
       }
 
@@ -32,14 +41,61 @@ namespace hpc {
          _dicts.push_back( dict );
       }
 
-      const option_base&
-      dictionary::operator[]( const string& name ) const
+      const hpc::string&
+      dictionary::prefix() const
       {
+         return _pre;
+      }
+
+      const option_base&
+      dictionary::operator[]( const hpc::string& name ) const
+      {
+         for( const auto& opt : _opts )
+         {
+            if( opt->name() == name )
+               return *opt;
+         }
+         for( const auto& dict : _dicts )
+         {
+            // if( dict->find(
+         }
+         ASSERT( 0 );
       }
 
       option_base&
-      dictionary::operator[]( const string& name )
+      dictionary::operator[]( const hpc::string& name )
       {
+         for( auto& opt : _opts )
+         {
+            if( opt->name() == name )
+               return *opt;
+         }
+         ASSERT( 0 );
+      }
+
+      std::ostream&
+      operator<<( std::ostream& strm,
+		  const dictionary& obj )
+      {
+         strm << "{";
+	 if( obj._opts.size() )
+         {
+	    auto it = obj._opts.begin();
+            while( !(*it)->has_value() )
+               ++it;
+	    strm << (*it)->name() << ": " << (*it)->store();
+	    ++it;
+	    for( ; it != obj._opts.end(); ++it )
+            {
+               if( !(*it)->has_value() )
+                  continue;
+	       strm << ", " << (*it)->name() << ": " << (*it)->store();
+            }
+	 }
+         for( const auto dict : obj._dicts )
+            strm << *dict;
+	 strm << "}";
+	 return strm;
       }
    }
 }

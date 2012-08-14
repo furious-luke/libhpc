@@ -18,6 +18,10 @@
 #ifndef libhpc_options_option_hh
 #define libhpc_options_option_hh
 
+#include <boost/mpl/map.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/at.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/support/detail/hold_any.hpp>
 #include "libhpc/debug/debug.hh"
@@ -211,6 +215,15 @@ namespace hpc {
          hpc::string
          store() const;
       };
+
+      typedef boost::mpl::map< boost::mpl::pair<hpc::string, string>,
+                               boost::mpl::pair<bool, boolean>,
+                               boost::mpl::pair<int, integer>,
+                               boost::mpl::pair<unsigned int, integer>,
+                               boost::mpl::pair<long, integer>,
+                               boost::mpl::pair<unsigned long, integer>,
+                               boost::mpl::pair<float, real>,
+                               boost::mpl::pair<double, real> > type_map;
    }
 }
 

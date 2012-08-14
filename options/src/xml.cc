@@ -87,14 +87,19 @@ namespace hpc {
                        dictionary& dict )
       {
          // Process the node.
-         hpc::string sub_name = name + _sep + node->name();
+         hpc::string sub_name;
+         if( !name.empty() )
+            sub_name = name + _sep;
+         sub_name += node->name();
          dict[sub_name] = node->value();
 
          // Iterate over each child.
          xml_node<>* child = node->first_node();
          while( child )
          {
-            _iter_node( child, sub_name, dict );
+            // Don't iterate if the name is empty.
+            if( strcmp( child->name(), "" ) )
+               _iter_node( child, sub_name, dict );
             child = child->next_sibling();
          }
       }

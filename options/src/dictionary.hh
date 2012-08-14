@@ -34,6 +34,15 @@ namespace hpc {
       {
       public:
 
+         dictionary( const hpc::string& prefix = hpc::string() );
+
+         template< class T >
+         T
+         get( const hpc::string& name ) const
+         {
+            return (T)(((const typename boost::mpl::at<type_map,T>::type&)((*this)[name])).value());
+         }
+
          void
          add_option( option_base* opt );
 
@@ -68,13 +77,18 @@ namespace hpc {
          }
 
          const option_base&
-         operator[]( const string& name ) const;
+         operator[]( const hpc::string& name ) const;
 
          option_base&
-         operator[]( const string& name );
+         operator[]( const hpc::string& name );
+
+         friend std::ostream&
+         operator<<( std::ostream& strm,
+                     const dictionary& obj );
 
       protected:
 
+         hpc::string _pre;
          list<shared_ptr<option_base>> _opts;
          list<shared_ptr<dictionary>> _dicts;
       };

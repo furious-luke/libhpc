@@ -26,8 +26,6 @@
 #include "init.hh"
 #include "types.hh"
 
-namespace mpl = boost::mpl;
-
 namespace hpc {
    namespace mpi {
 
@@ -45,15 +43,15 @@ namespace hpc {
 	 static mpi::data_type floating;
 	 static mpi::data_type double_floating;
 
-	 typedef mpl::map< mpl::pair<byte_t, mpl::int_<MPI_BYTE> >,
-			   mpl::pair<bool, mpl::int_<MPIR_CXX_BOOL> >,
-			   mpl::pair<char, mpl::int_<MPI_CHAR> >,
-			   mpl::pair<int, mpl::int_<MPI_INT> >,
-			   mpl::pair<unsigned int, mpl::int_<MPI_UNSIGNED> >,
-			   mpl::pair<long, mpl::int_<MPI_LONG> >,
-			   mpl::pair<unsigned long, mpl::int_<MPI_UNSIGNED_LONG> >,
-			   mpl::pair<float, mpl::int_<MPI_FLOAT> >,
-			   mpl::pair<double, mpl::int_<MPI_DOUBLE> > > type_map;
+	 typedef boost::mpl::map< boost::mpl::pair<byte_t, boost::mpl::int_<MPI_BYTE> >,
+                                  boost::mpl::pair<bool, boost::mpl::int_<MPIR_CXX_BOOL> >,
+                                  boost::mpl::pair<char, boost::mpl::int_<MPI_CHAR> >,
+                                  boost::mpl::pair<int, boost::mpl::int_<MPI_INT> >,
+                                  boost::mpl::pair<unsigned int, boost::mpl::int_<MPI_UNSIGNED> >,
+                                  boost::mpl::pair<long, boost::mpl::int_<MPI_LONG> >,
+                                  boost::mpl::pair<unsigned long, boost::mpl::int_<MPI_UNSIGNED_LONG> >,
+                                  boost::mpl::pair<float, boost::mpl::int_<MPI_FLOAT> >,
+                                  boost::mpl::pair<double, boost::mpl::int_<MPI_DOUBLE> > > type_map;
 
 	 data_type( MPI_Datatype type=MPI_DATATYPE_NULL );
 
