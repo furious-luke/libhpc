@@ -61,6 +61,13 @@ namespace hpc {
       }
 
       void
+      set_finish( const T& finish )
+      {
+         ASSERT( _start <= finish );
+         this->_finish = finish;
+      }
+
+      void
       split( const range& op,
              vector<range>& ranges ) const
       {

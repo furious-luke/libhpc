@@ -15,35 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <numeric>
 #include <cxxtest/TestSuite.h>
-#include "libhpc/containers/range_map.hh"
+#include "libhpc/containers/containers.hh"
+#include "libhpc/regexp/re.hh"
 
 using namespace hpc;
 
-class range_map_suite : public CxxTest::TestSuite {
+class compile_suite : public CxxTest::TestSuite {
 public:
 
-   void test_default_ctor()
+   void test_range_map()
    {
-      range_map<int,int> map;
-      TS_ASSERT_EQUALS( map.size(), 0 );
-      TS_ASSERT_EQUALS( map.empty(), true );
-   }
-
-   void test_insert_one()
-   {
-      range_map<int,int> map;
-      for( auto it = map.insert( range<int>( 0, 10 ), 1 ); !it.done(); ++it )
-      {
-         TS_ASSERT_EQUALS( it->first, range<int>( 0, 10 ) );
-         TS_ASSERT_EQUALS( it->second, 10 );
-      }
-      TS_ASSERT_EQUALS( map.size(), 1 );
-      TS_ASSERT_EQUALS( map.empty(), false );
-   }
-
-   void setUp()
-   {
+      range_map<int,int> rm;
+      rm.insert( range<int>( 0, 10 ), 5 );
+      rm.insert( range<int>( 2, 6 ), 4 );
    }
 };

@@ -18,6 +18,7 @@ suites = [
     ('fibre_suite.t.hh',),
     ('range_set_suite.t.hh',),
     ('range_map_suite.t.hh',),
+    ('range_multimap_suite.t.hh',),
     ('counts_suite.t.hh',),
     ('csr_suite.t.hh',),
     ('algorithms_suite.t.hh',),
