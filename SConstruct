@@ -6,6 +6,7 @@ config.select(
     config.packages.MPI(required=True),
     config.packages.HDF5(required=True),
     config.packages.rapidxml(required=True),
+    config.packages.libusb(required=True),
 )
 
 vars = project.create_variables()

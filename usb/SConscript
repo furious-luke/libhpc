@@ -1,0 +1,10 @@
+from sconsproject import helpers
+
+# Bring in the environment into our locals().
+Import('env')
+
+# Set the project name. This is passed on to sub-scripts.
+env['SUBPROJ'] = 'usb'
+
+# Call the helper script.
+execfile(helpers.get_build_sub_project_script(), globals())
