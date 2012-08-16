@@ -25,14 +25,17 @@
 namespace hpc {
 
    template< class Key,
-	     class Val >
+	     class Value >
    class map
-      : public std::map<Key,Val>
+      : public std::map<Key,Value>
    {
    public:
 
+      typedef typename std::map<Key,Value>::iterator iterator;
+      typedef typename std::map<Key,Value>::const_iterator const_iterator;
+
       map()
-	 : std::map<Key,Val>()
+	 : std::map<Key,Value>()
       {
       }
 
@@ -40,49 +43,56 @@ namespace hpc {
       {
       }
 
-      std::pair<typename std::map<Key,Val>::iterator, bool>
+      std::pair<iterator, bool>
+      insert( const Key& key )
+      {
+         Value val; // TODO: Is this efficient enough?
+	 return insert( key, val );
+      }
+
+      std::pair<iterator, bool>
       insert( const Key& key,
-              const Val& val )
+              const Value& val )
       {
-	 return this->insert(std::pair<Key,Val>(key, val));
+	 return insert( std::pair<Key,Value>( key, val ) );
       }
 
-      std::pair<typename std::map<Key,Val>::iterator, bool>
-      insert( const typename std::map<Key,Val>::value_type& pair )
+      std::pair<iterator, bool>
+      insert( const typename std::map<Key,Value>::value_type& pair )
       {
-	 return std::map<Key,Val>::insert(pair);
+	 return std::map<Key,Value>::insert( pair );
       }
 
-      typename std::map<Key,Val>::iterator
-      insert( typename std::map<Key,Val>::iterator position,
-	      const typename std::map<Key,Val>::value_type& pair )
+      iterator
+      insert( typename std::map<Key,Value>::iterator position,
+	      const typename std::map<Key,Value>::value_type& pair )
       {
-	 return std::map<Key,Val>::insert(position, pair);
+	 return std::map<Key,Value>::insert(position, pair);
       }
 
-      typename std::map<Key,Val>::iterator
+      iterator
       set_default( const Key& key,
-                   const Val& val )
+                   const Value& val )
       {
-	 typename map<Key,Val>::iterator it = this->find( key );
+	 iterator it = find( key );
 	 if( it == this->end() )
-	    it = this->insert( key, val ).first;
+	    it = insert( key, val ).first;
 	 return it;
       }
 
-      Val
+      const Value&
       get( const Key& key ) const
       {
-	 typename map::const_iterator it = this->find(key);
+	 const_iterator it = find( key );
 	 ASSERT( it != this->end(), "Map does not contain requested key." );
 	 return it->second;
       }
 
-      Val
+      const Value&
       get_default( const Key& key,
-                   const Val& def )
+                   const Value& def )
       {
-	 typename map::const_iterator it = this->find( key );
+	 const_iterator it = find( key );
          if( it != this->end() )
             return it->second;
          else
@@ -92,7 +102,7 @@ namespace hpc {
       bool
       has( const Key& key ) const
       {
-	 return this->find( key ) != this->end();
+	 return find( key ) != this->end();
       }
 
       friend std::ostream&
