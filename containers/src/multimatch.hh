@@ -18,7 +18,6 @@
 #ifndef libhpc_containers_multimatch_hh
 #define libhpc_containers_multimatch_hh
 
-#include <re2/re2.h>
 #include "libhpc/system/types.hh"
 #include "string.hh"
 #include "optional.hh"
@@ -61,7 +60,7 @@ namespace hpc {
    protected:
 
       list<string> _matches;
-      RE2 _re;
+      // RE2 _re;
    };
 };
 
