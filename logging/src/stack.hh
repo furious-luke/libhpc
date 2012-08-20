@@ -18,9 +18,9 @@
 #ifndef libhpc_logging_stack_hh
 #define libhpc_logging_stack_hh
 
-#include <libhpc/memory/memory.hh>
-#include <libhpc/containers/list.hh>
-#include <libhpc/containers/shared_ptr.hh>
+#include "libhpc/memory/memory.hh"
+#include "libhpc/containers/list.hh"
+#include "libhpc/containers/scoped_ptr.hh"
 #include "logger.hh"
 
 #ifndef NLOG
@@ -59,7 +59,7 @@ namespace hpc {
 
       protected:
 
-         list<logger*> _logs;
+         list<scoped_ptr<logger>> _logs;
       };
    }
 }

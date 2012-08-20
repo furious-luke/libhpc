@@ -37,6 +37,7 @@ namespace hpc {
 
          logger();
 
+         virtual
          ~logger();
 
          virtual void

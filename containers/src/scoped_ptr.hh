@@ -15,17 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_daemon_hh
-#define libhpc_system_daemon_hh
+#ifndef containers_scoped_ptr_hh
+#define containers_scoped_ptr_hh
 
-#include "libhpc/containers/string.hh"
+#include <boost/scoped_ptr.hpp>
 
 namespace hpc {
-   namespace system {
 
-      bool
-      daemonize( const string& root = "/root/" );
-   }
+   template< class T >
+   class scoped_ptr
+      : public std::unique_ptr<T>
+   {
+   public:
+
+      scoped_ptr( T* ptr=NULL )
+         : std::unique_ptr<T>( ptr )
+      {
+      }
+
+      // scoped_ptr&
+      // operator=( T* ptr )
+      // {
+      //    reset( ptr );
+      // }
+   };
 }
 
 #endif

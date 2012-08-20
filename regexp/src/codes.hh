@@ -15,16 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_daemon_hh
-#define libhpc_system_daemon_hh
-
-#include "libhpc/containers/string.hh"
+#ifndef libhpc_regexp_codes_hh
+#define libhpc_regexp_codes_hh
 
 namespace hpc {
-   namespace system {
+   namespace re {
 
-      bool
-      daemonize( const string& root = "/root/" );
+      enum codes
+      {
+         match = 0,
+         concat = 127,
+         split = 128,
+         many = 129,
+         capture = 130,
+         terminal = 131
+      };
    }
 }
 

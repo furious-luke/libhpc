@@ -23,8 +23,12 @@
 
 namespace hpc {
 
-   template< class T, class Impl=std::set<T> >
-   class set : public Impl {
+   template< class T,
+             class Compare=std::less<T>,
+             class Impl=std::set<T,Compare> >
+   class set
+      : public Impl
+   {
    public:
 
       typedef T mapped_type;
@@ -78,7 +82,6 @@ namespace hpc {
 	 return strm;
       }
    };
-
-};
+}
 
 #endif

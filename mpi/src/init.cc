@@ -19,6 +19,7 @@
 #include "data_type.hh"
 #include "comm.hh"
 #include "insist.hh"
+#include "logger.hh"
 
 namespace hpc {
    namespace mpi {
@@ -37,9 +38,6 @@ namespace hpc {
       initialise( int& argc,
                   char**& argv )
       {
-         // Add logger.
-         LOG_PUSH( new logger( "mpi_log." ) );
-
 	 int flag;
 	 MPI_Initialized(&flag);
 	 if(!flag)
@@ -112,8 +110,6 @@ namespace hpc {
 	    if(flag)
 	       MPI_INSIST(MPI_Finalize());
 	 }
-
-         LOG_POP();
       }
    }
 }

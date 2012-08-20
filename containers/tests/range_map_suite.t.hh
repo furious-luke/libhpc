@@ -37,7 +37,7 @@ public:
       for( auto it = map.insert( range<int>( 0, 10 ), 1 ); !it.done(); ++it )
       {
          TS_ASSERT_EQUALS( it->first, range<int>( 0, 10 ) );
-         TS_ASSERT_EQUALS( it->second, 10 );
+         TS_ASSERT_EQUALS( it->second, 1 );
       }
       TS_ASSERT_EQUALS( map.size(), 1 );
       TS_ASSERT_EQUALS( map.empty(), false );

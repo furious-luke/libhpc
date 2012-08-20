@@ -41,18 +41,14 @@ namespace hpc {
       stack::pop()
       {
          _logs.back()->close();
-         delete _logs.back();
          _logs.pop_back();
       }
 
       void
       stack::clear()
       {
-         for( auto log : _logs )
-         {
+         for( auto& log : _logs )
             log->close();
-            delete log;
-         }
          _logs.clear();
       }
    }

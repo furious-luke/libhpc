@@ -58,6 +58,9 @@ namespace hpc {
       int
       bit( index idx ) const;
 
+      bool
+      operator[]( index idx ) const;
+
    private:
       index _max_size;
       index _size;

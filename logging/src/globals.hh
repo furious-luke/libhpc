@@ -96,6 +96,7 @@ namespace hpc {
 #else
 
 #define LOG( ... )
+#define LOGLN( ... )
 #define LOG_ENTER()
 #define LOG_EXIT()
 #define LOG_PUSH( logger )

@@ -42,6 +42,7 @@ namespace hpc {
 
          logger( const std::string& filename );
 
+         virtual
          ~logger();
 
          virtual void

@@ -9,12 +9,11 @@ Import('env')
 #
 # The support sources are optional, as is the MPI rank range.
 suites = [
-    ('syntax_tree_suite.t.hh', 'syntax_tree.cc', 'dfa.cc'),
-    ('dfa_suite.t.hh', 'syntax_tree.cc', 'dfa.cc'),
+    # ('', '', '', range(1, 5)),
 ]
 
 # Define libraries to link against.
-libs = ['logging', 'containers', 'system', 'debug'] + env.get('LIBS', [])
+libs = [] + env.get('LIBS', [])
 
 # Call the helper.
 execfile(helpers.get_build_tests_script(), globals())

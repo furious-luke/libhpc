@@ -25,21 +25,19 @@
 // #define OMPI_SKIP_MPICXX
 // #endif
 #include <mpi.h>
-#include "logger.hh"
 
 namespace hpc {
    namespace mpi {
 
-#ifndef NLOG
-      extern logger log;
-#endif
+      void
+      initialise();
 
-      void initialise();
+      void
+      initialise( int& argc,
+                  char**& argv );
 
-      void initialise(int& argc,
-         char**& argv);
-
-      void finalise(bool mpi=true);
+      void
+      finalise( bool mpi=true );
    }
 }
 

@@ -96,4 +96,10 @@ namespace hpc {
       ASSERT(idx < this->_max_size);
       return this->_bits[idx >> 3]&this->idx_add[idx&7];
    }
+
+   bool
+   index_set::operator[]( index idx ) const
+   {
+      return has( idx );
+   }
 }

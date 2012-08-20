@@ -1,6 +1,7 @@
 #ifndef libhpc_containers_string_hh
 #define libhpc_containers_string_hh
 
+#include "libhpc/memory/memory.hh"
 #include <string>
 
 namespace hpc {

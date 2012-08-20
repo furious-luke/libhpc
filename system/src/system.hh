@@ -20,5 +20,6 @@
 
 #include "daemon.hh"
 #include "id.hh"
+#include "pipe.hh"
 
 #endif

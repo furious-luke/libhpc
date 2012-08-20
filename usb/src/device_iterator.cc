@@ -54,13 +54,5 @@ namespace hpc {
       {
          ++_idx;
       }
-
-      device
-      device_iterator::operator*() const
-      {
-         ASSERT( _idx < _size && _list, "Invalid device list." );
-         ASSERT( _list[_idx], "Invalid device." );
-         return device( _list[_idx] );
-      }
    }
 }

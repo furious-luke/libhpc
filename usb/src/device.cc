@@ -21,9 +21,26 @@
 namespace hpc {
    namespace usb {
 
-      device::device( libusb_device* device )
-         : _dev( device )
+      device::device( libusb_device* dev )
+         : _dev( NULL )
       {
+         set_device( dev );
+      }
+
+      device::~device()
+      {
+         set_device( NULL );
+      }
+
+      void
+      device::set_device( libusb_device* dev )
+      {
+         if( _dev && _dev != dev )
+         {
+            libusb_release_interface( _dev, 0 );
+            libusb_unref_device( _dev );
+         }
+         _dev = dev;
          if( _dev )
          {
             libusb_ref_device( _dev );
@@ -31,10 +48,19 @@ namespace hpc {
          }
       }
 
-      device::~device()
+      bool
+      device::claim()
       {
-         if( _dev )
-            libusb_unref_device( _dev );
+         ASSERT( _dev );
+         int res = libusb_claim_interface( _dev, 0 );
+         if( res == LIBUSB_ERROR_BUSY )
+         {
+            res = libusb_kernel_driver_active( _dev, 0 );
+            return (res == 1 &&
+                    libusb_detach_kernel_driver( _dev, 0 ) == 0 &&
+                    libusb_claim_interface( _dev, 0 ) == 0);
+         }
+         return false;
       }
 
       uint16

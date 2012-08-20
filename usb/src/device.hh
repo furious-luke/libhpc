@@ -35,6 +35,12 @@ namespace hpc {
 
          ~device();
 
+         void
+         set_device( libusb_device* dev );
+
+         bool
+         claim();
+
          hpc::uint16
          vendor() const;
 

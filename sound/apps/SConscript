@@ -11,12 +11,13 @@ sub_dirs = []
 dst_dir = '#' + env['BUILD'] + '/bin/'
 
 # Define libraries to use.
-libs = ['system', 'memory', 'debug'] + env.get('LIBS', [])
+libs = ['sound', 'system', 'logging', 'containers', 'memory', 'debug'] + env.get('LIBS', [])
 
 # Declare local sources. Format is:
 #
 #   ('<binary name>', '<source 0>', '<source 1>', ...)
 sources = [
+    ('play', 'play.cc',),
 ]
 
 # Call the helper.

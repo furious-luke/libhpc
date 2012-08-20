@@ -31,6 +31,7 @@ namespace hpc {
    {
    public:
 
+      typedef std::map<Key,Value> super_type;
       typedef typename std::map<Key,Value>::iterator iterator;
       typedef typename std::map<Key,Value>::const_iterator const_iterator;
 
@@ -60,7 +61,7 @@ namespace hpc {
       std::pair<iterator, bool>
       insert( const typename std::map<Key,Value>::value_type& pair )
       {
-	 return std::map<Key,Value>::insert( pair );
+         return std::map<Key,Value>::insert( pair );
       }
 
       iterator

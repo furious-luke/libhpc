@@ -50,6 +50,12 @@ namespace hpc {
       }
 
       void
+      clear()
+      {
+         deallocate();
+      }
+
+      void
       deallocate()
       {
 	 this->_displs.deallocate();

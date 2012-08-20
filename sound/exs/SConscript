@@ -8,15 +8,16 @@ sub_dirs = []
 
 # Define destination subdirectory, i.e. where these binaries will
 # be placed.
-dst_dir = '#' + env['BUILD'] + '/bin/'
+dst_dir = '#' + env['BUILD'] + '/exs/'
 
 # Define libraries to use.
-libs = ['system', 'memory', 'debug'] + env.get('LIBS', [])
+libs = [] + env.get('LIBS', [])
 
 # Declare local sources. Format is:
 #
 #   ('<binary name>', '<source 0>', '<source 1>', ...)
 sources = [
+    # ('', '', ''),
 ]
 
 # Call the helper.

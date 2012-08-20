@@ -43,8 +43,14 @@ namespace hpc {
          void
          operator++();
 
-         device
-         operator*() const;
+         template< class Device >
+         void
+         device( Device& dev ) const
+         {
+            ASSERT( _idx < _size && _list, "Invalid device list." );
+            ASSERT( _list[_idx], "Invalid device." );
+            dev.set_device( _list[_idx] );
+         }
 
       protected:
 

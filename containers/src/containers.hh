@@ -46,6 +46,7 @@
 #include "map.hh"
 #include "multimap.hh"
 #include "shared_ptr.hh"
+#include "scoped_ptr.hh"
 #include "shuffle_mapping.hh"
 #include "index_set.hh"
 

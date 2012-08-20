@@ -32,6 +32,7 @@ namespace hpc {
 
          file( const std::string& filename );
 
+         virtual
          ~file();
 
          virtual void

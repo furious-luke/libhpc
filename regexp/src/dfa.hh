@@ -15,23 +15,61 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "libhpc/system/types.hh"
+#include "libhpc/containers/optional.hh"
+#include "libhpc/containers/csr.hh"
+#include "libhpc/containers/vector.hh"
+#include "libhpc/containers/string.hh"
+
+class dfa_suite;
+
 namespace hpc {
    namespace re {
 
       class dfa
       {
+         friend class ::dfa_suite;
+
+         friend std::ostream&
+         operator<<( std::ostream& strm,
+                     const dfa& obj );
+
       public:
 
-         dfa*
-         move( char elem )
-         {
-            return _next[elem];
-         }
+         void
+         clear();
+
+         void
+         set_states( vector<uint16>& moves,
+                     optional<csr<uint16>&> open_captures=optional<csr<uint16>&>(),
+                     optional<csr<uint16>&> close_captures=optional<csr<uint16>&>() );
+
+         uint16
+         move( uint16 state,
+               byte data ) const;
+
+         const vector<uint16>::view
+         open_captures( uint16 state );
+
+         const vector<uint16>::view
+         close_captures( uint16 state );
+
+         bool
+         operator()( const string& str );
 
       protected:
 
-         unsigned _id;
-         range_map<char, dfa*> _next;
+         bool
+         _move( uint16& state,
+                byte data,
+                const char* ptr );
+
+      protected:
+
+         unsigned _num_states;
+         vector<uint16> _moves;
+         csr<uint16> _open, _close;
+         vector<std::pair<const char*,const char*>> _caps;
       };
    }
 }
