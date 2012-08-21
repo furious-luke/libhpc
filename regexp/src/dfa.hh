@@ -69,7 +69,6 @@ namespace hpc {
          unsigned _num_states;
          vector<uint16> _moves;
          csr<uint16> _open, _close;
-         vector<std::pair<const char*,const char*>> _caps;
       };
    }
 }

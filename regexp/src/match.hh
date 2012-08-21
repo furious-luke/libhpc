@@ -15,14 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef libhpc_regexp_match_hh
+#define libhpc_regexp_match_hh
+
+#include "libhpc/containers/vector.hh"
+
 namespace hpc {
    namespace re {
 
-      bool
-      match()
+      class match
       {
-         // Need a start state.
-         dfa* state = ;
-      }
+         friend class dfa;
+
+      public:
+
+         typedef std::pair<const char*,const char*> capture_type;
+
+      public:
+
+         uint16
+         last_capture() const;
+
+         uint16
+         num_captures() const;
+
+         const capture_type&
+         capture( uint16 idx ) const;
+
+      protected:
+
+         uint16 _last;
+         vector<std::pair<const char*,const char*>> _caps;
+      };
    }
 }
+
+#endif

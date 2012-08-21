@@ -15,25 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/debug/debug.hh"
-#include "context.hh"
+#include "match.hh"
 
 namespace hpc {
-   namespace usb {
+   namespace re {
 
-      context::context( bool local )
-         : _ctx( NULL )
+      uint16
+      match::last_capture() const
       {
-         if( local )
-            INSIST( libusb_init( &_ctx ), == 0 );
-         else
-            INSIST( libusb_init( NULL ), == 0 );
+         return _last;
       }
 
-      context::~context()
+      uint16
+      match::num_captures() const
       {
-         if( _ctx )
-            libusb_exit( _ctx );
+         return _caps.size();
+      }
+
+      const match::capture_type&
+      match::capture( uint16 idx ) const
+      {
+         return _caps[idx];
       }
    }
 }

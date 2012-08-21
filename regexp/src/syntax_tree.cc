@@ -471,8 +471,7 @@ namespace hpc {
       }
 
       syntax_tree::node*
-      syntax_tree::_construct_recurse( const char*& ptr,
-                                       uint16 level )
+      syntax_tree::_construct_recurse( const char*& ptr )
       {
          LOG_ENTER();
 
@@ -505,7 +504,7 @@ namespace hpc {
 
                // 'Or'.
                ASSERT( cur_node, "Must be expression to left of |." );
-               cur_node = new node( static_cast<byte>( codes::split ), cur_node, _construct_recurse( ++ptr, level ) );
+               cur_node = new node( static_cast<byte>( codes::split ), cur_node, _construct_recurse( ++ptr ) );
                ch = *ptr;
             }
             else if( ch == '*' )
@@ -521,7 +520,10 @@ namespace hpc {
                LOGLN( "Opening capture." );
 
                // Create new sub-branch.
-               new_node = new node( static_cast<byte>( codes::capture ), _construct_recurse( ++ptr, level + 1 ) );
+               // new_node = new node( static_cast<byte>( codes::capture ), _construct_recurse( ++ptr, level + 1 ) );
+               new_node = new node( static_cast<byte>( codes::concat ),
+                                    new node( static_cast<byte>( codes::open_capture ) ),
+                                    _construct_recurse( ++ptr ) );
 
                // // Mark the capture.
                // LOGLN( "Marking capture at level ", level );
@@ -539,6 +541,11 @@ namespace hpc {
             {
                LOGLN( "Closing capture." );
 
+               // Insert closing capture.
+               new_node = new node( static_cast<byte>( codes::concat ),
+                                    cur_node,
+                                    new node( static_cast<byte>( codes::close_capture ) ) );
+
                // // Mark closing capture.
                // cur_node->close.insert( std::make_pair( level - 1, cap_idx++ ) );
 
@@ -546,7 +553,7 @@ namespace hpc {
                // ++_num_captures;
 
                LOG_EXIT();
-               return cur_node;
+               return new_node;
             }
             else
             {
@@ -709,15 +716,6 @@ namespace hpc {
             if( res.second )
             {
                LOGLN( "Created new state, ", (*res.first)->indices, ", with id ", cur_id );
-
-               // // Add node captures to the state.
-               // for( auto idx : new_state->indices )
-               // {
-               //    node& node = *_idx_to_node[idx];
-               //    // new_state->open.insert( node.open.begin(), node.open.end() );
-               //    // new_state->close.insert( node.close.begin(), node.close.end() );
-               // }
-
                new_state->id = cur_id++;
                _to_proc.push_back( new_state );
             }
@@ -737,8 +735,8 @@ namespace hpc {
             {
                dfa_state& new_state = *state.moves.get( cur_node.data );
                new_state.open.insert( cur_node.open.begin(), cur_node.open.end() );
-               new_state.close.insert( cur_node.close.begin(), cur_node.close.end() );
                LOGLN( "Adding open ", cur_node.open, " to state ", new_state.indices );
+               new_state.close.insert( cur_node.close.begin(), cur_node.close.end() );
                LOGLN( "Adding close ", cur_node.close, " to state ", new_state.indices );
             }
          }

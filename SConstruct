@@ -6,8 +6,6 @@ config.select(
     config.packages.MPI(),
     config.packages.HDF5(),
     config.packages.rapidxml(),
-    config.packages.libusb(required=False),
-    config.packages.alsa(required=False),
 )
 
 vars = project.create_variables()
@@ -28,9 +26,5 @@ if not env['LOG']:
 
 layers = ['debug', 'memory', 'system', 'logging', 'containers', 'regexp',
           'options', 'mpi', 'h5']
-if config.package(config.packages.alsa).found:
-    layers.append('sound')
-if config.package(config.packages.libusb).found:
-    layers.append('usb')
 
 project.build(layers, proj_name='libhpc', env=env, vars=vars)

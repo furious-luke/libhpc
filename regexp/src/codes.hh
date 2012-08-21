@@ -28,7 +28,9 @@ namespace hpc {
          split = 128,
          many = 129,
          capture = 130,
-         terminal = 131
+         open_capture = 131,
+         close_capture = 132,
+         terminal = 133
       };
    }
 }
