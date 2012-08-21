@@ -41,6 +41,7 @@ public:
    void test_match()
    {
       re::syntax_tree st;
+      LOG_PUSH( new logging::file( "test.log" ) );
       st.construct( "(o(n)e)|(two)|(t(h(r)e)e)" );
       re::dfa dfa;
       st.to_dfa( dfa );
@@ -50,6 +51,7 @@ public:
       TS_ASSERT( !dfa( "hello" ) );
       TS_ASSERT( !dfa( "oneo" ) );
       TS_ASSERT( !dfa( "onethree" ) );
+      LOG_POP();
    }
 
    void test_similar_split()
@@ -63,10 +65,8 @@ public:
    void test_converge()
    {
       re::syntax_tree st;
-      LOG_PUSH( new logging::file( "test.log" ) );
       st.construct( "(a|b)c" );
       re::dfa dfa;
       st.to_dfa( dfa );
-      LOG_POP();
    }
 };

@@ -264,37 +264,153 @@ namespace hpc {
          LOG_EXIT();
       }
 
-      // uint16
-      // syntax_tree::node::calc_capture_indices( uint16 idx )
-      // {
-      //    LOG_ENTER();
+      uint16
+      syntax_tree::node::calc_capture_indices( uint16 idx,
+                                               list<node*>& queue )
+      {
+         LOG_ENTER();
 
-      //    if( data == static_cast<byte>( codes::concat ) )
-      //    {
-      //       ASSERT( child[0] && child[1] );
-      //       for( unsigned ii = 0; ii < 2; ++ii )
-      //          idx = child[ii]->calc_capture_indices( idx );
-      //    }
-      //    else if( data == static_cast<byte>( codes::many ) )
-      //    {
-      //       ASSERT( child[0] );
-      //       idx = child[0]->calc_capture_indices( idx );
-      //    }
-      //    else if( data == static_cast<byte>( codes::capture ) )
-      //    {
-      //       ASSERT( child[0] );
-      //       child[0]->calc_capture_indices( idx );
-      //    }
-      //    else if( data == static_cast<byte>( codes::split ) )
-      //    {
-      //       ASSERT( child[0] && child[1] );
-      //       uint16 left = child[0]->calc_capture_indices( idx );
-      //       uint16 right = child[1]->calc_capture_indices( idx );
-      //    }
+         if( data == static_cast<byte>( codes::concat ) ||
+             data == static_cast<byte>( codes::split ) )
+         {
+            ASSERT( child[0] && child[1] );
+            for( unsigned ii = 0; ii < 2; ++ii )
+               idx = child[ii]->calc_capture_indices( idx, queue );
+         }
+         else if( data == static_cast<byte>( codes::many ) )
+         {
+            ASSERT( (bool)child[0] );
+            idx = child[0]->calc_capture_indices( idx, queue );
+         }
+         else if( data == static_cast<byte>( codes::capture ) )
+         {
+            ASSERT( (bool)child[0] );
+            queue.push_back( child[0].get() );
+            capture_index = idx++;
+            LOGLN( "Indexed a capture at ", capture_index );
+         }
 
-      //    LOG_EXIT();
-      //    return idx;
-      // }
+         LOG_EXIT();
+         return idx;
+      }
+
+      void
+      syntax_tree::node::calc_captures()
+      {
+         LOG_ENTER();
+
+         if( data == static_cast<byte>( codes::concat ) ||
+             data == static_cast<byte>( codes::split ) )
+         {
+            ASSERT( child[0] && child[1] );
+            for( unsigned ii = 0; ii < 2; ++ii )
+               child[ii]->calc_captures();
+         }
+         else if( data == static_cast<byte>( codes::many ) )
+         {
+            ASSERT( (bool)child[0] );
+            child[0]->calc_captures();
+         }
+         else if( data == static_cast<byte>( codes::capture ) )
+         {
+            ASSERT( (bool)child[0] );
+            child[0]->calc_capture_open( capture_index );
+            child[0]->calc_capture_close( capture_index );
+            child[0]->calc_captures();
+         }
+
+         LOG_EXIT();
+      }
+
+      void
+      syntax_tree::node::calc_capture_open( uint16 idx )
+      {
+         LOG_ENTER();
+
+         if( (bool)child[0] )
+            child[0]->calc_capture_open( idx );
+         else
+         {
+            LOGLN( "Capture open at '", static_cast<char>( data ), "' with index ", idx );
+            open.insert( idx );
+         }
+
+         LOG_EXIT();
+      }
+
+      void
+      syntax_tree::node::calc_capture_close( uint16 idx )
+      {
+         LOG_ENTER();
+
+         if( data == static_cast<byte>( codes::many ) ||
+             data == static_cast<byte>( codes::capture ) )
+         {
+            ASSERT( (bool)child[0] );
+            child[0]->calc_capture_close( idx );
+         }
+         else if( (bool)child[1] )
+            child[1]->calc_capture_close( idx );
+         else
+         {
+            LOGLN( "Capture close at '", static_cast<char>( data ), "' with index ", idx );
+            close.insert( idx );
+         }
+
+         LOG_EXIT();
+      }
+
+      int16
+      syntax_tree::node::calc_split_indices( int16 idx )
+      {
+         LOG_ENTER();
+
+         if( data == static_cast<byte>( codes::concat ) )
+         {
+            ASSERT( child[0] && child[1] );
+            for( unsigned ii = 0; ii < 2; ++ii )
+               idx = child[ii]->calc_split_indices( idx );
+         }
+         else if( data == static_cast<byte>( codes::many ) ||
+                  data == static_cast<byte>( codes::capture ) )
+         {
+            ASSERT( (bool)child[0] );
+            idx = child[0]->calc_split_indices( idx );
+         }
+         else if( data == static_cast<byte>( codes::split ) )
+         {
+            ASSERT( child[0] && child[1] );
+            child[0]->calc_split_terminal( idx );
+            child[1]->calc_split_terminal( -idx );
+            for( unsigned ii = 0; ii < 2; ++ii )
+               idx = child[ii]->calc_split_indices( idx + 1 );
+         }
+
+         LOG_EXIT();
+         return idx;
+      }
+
+      void
+      syntax_tree::node::calc_split_terminal( int16 idx )
+      {
+         LOG_ENTER();
+
+         if( data == static_cast<byte>( codes::many ) ||
+             data == static_cast<byte>( codes::capture ) )
+         {
+            ASSERT( (bool)child[0] );
+            child[0]->calc_split_terminal( idx );
+         }
+         else if( (bool)child[1] )
+            child[1]->calc_split_terminal( idx );
+         else
+         {
+            LOGLN( "Setting split index at '", static_cast<char>( data ), "' with index ", idx );
+            split_index = idx;
+         }
+
+         LOG_EXIT();
+      }
 
       void
       syntax_tree::clear()
@@ -344,8 +460,12 @@ namespace hpc {
             _conv_moves( cur, moves );
          }
 
+         // Setup the captures.
+         csr<uint16> open, close;
+         _to_dfa_captures( open, close );
+
          // Setup dfa.
-         dfa.set_states( moves );
+         dfa.set_states( moves, open, close );
 
          LOG_EXIT();
       }
@@ -476,6 +596,41 @@ namespace hpc {
       }
 
       void
+      syntax_tree::_calc_capture_indices()
+      {
+         LOG_ENTER();
+
+         list<node*> queue;
+         queue.push_back( _root.get() );
+         uint16 idx = 0;
+         while( !queue.empty() )
+         {
+            node* cur = queue.front();
+            queue.pop_front();
+            idx = cur->calc_capture_indices( idx, queue );
+         }
+
+         // Store total number of captures.
+         _num_captures = idx;
+
+         LOG_EXIT();
+      }
+
+      void
+      syntax_tree::_calc_captures()
+      {
+         ASSERT( (bool)_root );
+         _root->calc_captures();
+      }
+
+      void
+      syntax_tree::_calc_split_indices()
+      {
+         ASSERT( (bool)_root );
+         _root->calc_split_indices( 0 );
+      }
+
+      void
       syntax_tree::_calc_dfa()
       {
          LOG_ENTER();
@@ -484,6 +639,10 @@ namespace hpc {
          _to_proc.clear();
 
          _calc_followpos( _followpos );
+         _calc_capture_indices();
+         _calc_captures();
+         _calc_split_indices();
+
          unsigned cur_id = 0;
          dfa_state* s0 = new dfa_state( _root->firstpos, cur_id++ );
          _states.insert( s0 );
@@ -551,13 +710,13 @@ namespace hpc {
             {
                LOGLN( "Created new state, ", (*res.first)->indices, ", with id ", cur_id );
 
-               // Add node captures to the state.
-               for( auto idx : new_state->indices )
-               {
-                  node& node = *_idx_to_node[idx];
-                  // new_state->open.insert( node.open.begin(), node.open.end() );
-                  // new_state->close.insert( node.close.begin(), node.close.end() );
-               }
+               // // Add node captures to the state.
+               // for( auto idx : new_state->indices )
+               // {
+               //    node& node = *_idx_to_node[idx];
+               //    // new_state->open.insert( node.open.begin(), node.open.end() );
+               //    // new_state->close.insert( node.close.begin(), node.close.end() );
+               // }
 
                new_state->id = cur_id++;
                _to_proc.push_back( new_state );
@@ -569,6 +728,20 @@ namespace hpc {
             LOGLN( move.first, " -> ", move.second->indices );
          LOG( setindent( -2 ) );
 #endif
+
+         // Insert any capture openings on this state.
+         for( auto idx : state.indices )
+         {
+            node& cur_node = *_idx_to_node[idx];
+            if( cur_node.data != static_cast<byte>( codes::match ) )
+            {
+               dfa_state& new_state = *state.moves.get( cur_node.data );
+               new_state.open.insert( cur_node.open.begin(), cur_node.open.end() );
+               new_state.close.insert( cur_node.close.begin(), cur_node.close.end() );
+               LOGLN( "Adding open ", cur_node.open, " to state ", new_state.indices );
+               LOGLN( "Adding close ", cur_node.close, " to state ", new_state.indices );
+            }
+         }
 
          // If this state is accepting (i.e. has a permissible movement
          // from the match code) add a movement to itself.
@@ -586,6 +759,31 @@ namespace hpc {
          std::fill( state_moves.begin(), state_moves.end(), std::numeric_limits<uint16>::max() );
          for( const auto& elem : state->moves )
             state_moves[static_cast<index>( elem.first )] = elem.second->id;
+      }
+
+      void
+      syntax_tree::_to_dfa_captures( csr<uint16>& open,
+                                     csr<uint16>& close )
+      {
+         open.num_rows( _states.size() );
+         close.num_rows( _states.size() );
+         {
+            vector<index>& displs = open.mod_displs();
+            for( const auto& state : _states )
+               displs[state->id] = state->open.size();
+         }
+         {
+            vector<index>& displs = close.mod_displs();
+            for( const auto& state : _states )
+               displs[state->id] = state->close.size();
+         }
+         open.setup_array( true );
+         close.setup_array( true );
+         for( const auto& state : _states )
+         {
+            std::copy( state->open.cbegin(), state->open.cend(), open[state->id].begin() );
+            std::copy( state->close.cbegin(), state->close.cend(), close[state->id].begin() );
+         }
       }
 
       std::ostream&

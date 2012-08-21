@@ -85,6 +85,10 @@ namespace hpc {
       {
          LOG_ENTER();
 
+         // Clear out the capture pairs.
+         for( auto& cap : _caps )
+            cap.first = cap.second = NULL;
+
          const char* ptr = str.c_str();
          uint16 state = 0;
          while( *ptr != 0 )
@@ -100,6 +104,26 @@ namespace hpc {
          // We have only matched if we end up in the match state.
          bool res = (move( state, static_cast<byte>( codes::match ) ) != std::numeric_limits<uint16>::max() );
 
+         // If we matched, check for final closes.
+         if( res )
+         {
+            const vector<uint16>::view caps = _close[state];
+            for( unsigned ii = 0; ii < caps.size(); ++ii )
+            {
+               _caps[caps[ii]].second = ptr;
+               LOGLN( "Close group ", caps[ii], " at ", *ptr );
+#ifndef NLOG
+               if( _caps[caps[ii]].first )
+               {
+                  LOG( "Matched: " );
+                  for( const char* cp = _caps[caps[ii]].first; cp != ptr; ++cp )
+                     LOG( *cp );
+                  LOGLN( "" );
+               }
+#endif
+            }
+         }
+
          LOG_EXIT();
          return res;
       }
@@ -113,11 +137,11 @@ namespace hpc {
          LOGLN( "In state ", state, " with data ", data );
 
          // Find the next move.
-         state = move( state, data );
-         LOGLN( "Next state is ", state );
+         uint16 new_state = move( state, data );
+         LOGLN( "Next state is ", new_state );
 
          // Check if that move is invalid.
-         if( state == std::numeric_limits<uint16>::max() )
+         if( new_state == std::numeric_limits<uint16>::max() )
          {
             LOG_EXIT();
             return false;
@@ -125,16 +149,32 @@ namespace hpc {
 
          // Check for opening and closing captures.
          {
-            const vector<uint16>::view caps = _open[state];
+            const vector<uint16>::view caps = _open[new_state];
             for( unsigned ii = 0; ii < caps.size(); ++ii )
+            {
                _caps[caps[ii]].first = ptr;
+               LOGLN( "Open group ", caps[ii], " at ", *ptr );
+            }
          }
          {
             const vector<uint16>::view caps = _close[state];
             for( unsigned ii = 0; ii < caps.size(); ++ii )
+            {
                _caps[caps[ii]].second = ptr;
+               LOGLN( "Close group ", caps[ii], " at ", *ptr );
+#ifndef NLOG
+               if( _caps[caps[ii]].first )
+               {
+                  LOG( "Matched: " );
+                  for( const char* cp = _caps[caps[ii]].first; cp != ptr; ++cp )
+                     LOG( *cp );
+                  LOGLN( "" );
+               }
+#endif
+            }
          }
 
+         state = new_state;
          LOG_EXIT();
          return true;
       }

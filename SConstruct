@@ -2,12 +2,12 @@ import sconsproject as project
 from sconsproject import config
 
 config.select(
-    config.packages.boost(required=True),
-    config.packages.MPI(required=True),
-    config.packages.HDF5(required=True),
-    config.packages.rapidxml(required=True),
-    config.packages.libusb(required=True),
-    config.packages.alsa(required=True),
+    config.packages.boost(),
+    config.packages.MPI(),
+    config.packages.HDF5(),
+    config.packages.rapidxml(),
+    config.packages.libusb(required=False),
+    config.packages.alsa(required=False),
 )
 
 vars = project.create_variables()
@@ -26,10 +26,11 @@ if not env['MEMSTATS']:
 if not env['LOG']:
     env.MergeFlags('-DNLOG')
 
-project.build(
-    ['debug', 'memory', 'system', 'logging', 'containers', 'regexp',
-     'sound', 'options', 'mpi', 'h5'],
-    proj_name='libhpc',
-    env=env,
-    vars=vars
-)
+layers = ['debug', 'memory', 'system', 'logging', 'containers', 'regexp',
+          'options', 'mpi', 'h5']
+if config.package(config.packages.alsa).found:
+    layers.append('sound')
+if config.package(config.packages.libusb).found:
+    layers.append('usb')
+
+project.build(layers, proj_name='libhpc', env=env, vars=vars)

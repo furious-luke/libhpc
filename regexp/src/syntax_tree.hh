@@ -17,12 +17,7 @@
 
 #include <iostream>
 #include "libhpc/system/types.hh"
-#include "libhpc/containers/scoped_ptr.hh"
-#include "libhpc/containers/string.hh"
-#include "libhpc/containers/multimap.hh"
-#include "libhpc/containers/set.hh"
-#include "libhpc/containers/vector.hh"
-#include "libhpc/containers/map.hh"
+#include "libhpc/containers/containers.hh"
 
 class syntax_tree_suite;
 
@@ -79,12 +74,24 @@ namespace hpc {
             void
             calc_followpos( multimap<unsigned,unsigned>& followpos );
 
-            void
-            calc_captures( multimap<unsigned,unsigned>& open,
-                           multimap<unsigned,unsigned>& close );
+            uint16
+            calc_capture_indices( uint16 idx,
+                                  list<node*>& queue );
 
             void
-            _calc_dfa();
+            calc_captures();
+
+            void
+            calc_capture_open( uint16 idx );
+
+            void
+            calc_capture_close( uint16 idx );
+
+            int16
+            calc_split_indices( int16 idx );
+
+            void
+            calc_split_terminal( int16 idx );
 
             byte data;
             scoped_ptr<node> child[2];
@@ -92,6 +99,7 @@ namespace hpc {
             set<unsigned> firstpos, lastpos;
             uint16 capture_index;
             set<uint16> open, close;
+            int16 split_index;
          };
 
       public:
@@ -119,6 +127,15 @@ namespace hpc {
          _calc_followpos( multimap<unsigned,unsigned>& followpos );
 
          void
+         _calc_capture_indices();
+
+         void
+         _calc_captures();
+
+         void
+         _calc_split_indices();
+
+         void
          _calc_idx_to_node( vector<node*>& data_map ) const;
 
          void
@@ -131,6 +148,10 @@ namespace hpc {
          void
          _conv_moves( const dfa_state* state,
                       vector<uint16>& moves ) const;
+
+         void
+         _to_dfa_captures( csr<uint16>& open,
+                           csr<uint16>& close );
 
       protected:
 

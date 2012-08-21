@@ -28,6 +28,7 @@ namespace hpc {
 
    typedef byte_t byte;
    typedef size_t index;
+   typedef int16_t int16;
    typedef uint16_t uint16;
 
    std::ostream&
