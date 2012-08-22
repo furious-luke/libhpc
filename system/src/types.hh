@@ -30,6 +30,7 @@ namespace hpc {
    typedef size_t index;
    typedef int16_t int16;
    typedef uint16_t uint16;
+   typedef uint32_t uint32;
 
    std::ostream&
    operator<<( std::ostream& strm,

@@ -18,6 +18,7 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <sys/epoll.h>
 #include "libhpc/containers/list.hh"
+#include "types.hh"
 #include "pipe.hh"
 
 namespace hpc {
@@ -31,6 +32,16 @@ namespace hpc {
          typedef struct epoll_event event_type;
          typedef class epoll_event_iterator iterator;
 
+         // enum event_flags
+         // {
+         //    epollin = EPOLLIN,
+         //    epollout = EPOLLOUT,
+         //    epollpri = EPOLLPRI,
+         //    epollerr = EPOLLERR,
+         //    epollhup = EPOLLHUP,
+         //    epollet = EPOLLET
+         // };
+
       public:
 
          epoll();
@@ -41,7 +52,8 @@ namespace hpc {
          open();
 
          void
-         add( const pipe& pipe );
+         add( const pipe& pipe,
+              bool edge = false );
 
          void
          remove( const pipe& pipe );
@@ -78,6 +90,9 @@ namespace hpc {
 
          epoll_event_iterator( vector<epoll::event_type>::const_iterator it );
 
+         int
+         fd() const;
+
          bool
          ready() const;
 
@@ -86,10 +101,6 @@ namespace hpc {
 
          bool
          hangup() const;
-
-      protected:
-
-         
       };
    }
 }

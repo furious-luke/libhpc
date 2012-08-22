@@ -44,12 +44,15 @@ namespace hpc {
       }
 
       void
-      epoll::add( const pipe& pipe )
+      epoll::add( const pipe& pipe,
+                  bool edge )
       {
          ASSERT( pipe.fd() >= 0 );
          event_type event;
          event.data.fd = pipe.fd();
          event.events = EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP;
+         if( edge )
+            event.events |= EPOLLET;
          INSIST( epoll_ctl( _fd, EPOLL_CTL_ADD, pipe.fd(), &event ), >= 0 );
          ++_size;
       }
@@ -65,8 +68,9 @@ namespace hpc {
       void
       epoll::wait( int timeout )
       {
-         int num_ready = epoll_wait( _fd, _events.data(), _events.size(), timeout );
-         ASSERT( num_ready >= 0 );
+         _events.resize( _size );
+         unsigned ready = epoll_wait( _fd, _events.data(), _size, timeout );
+         _events.resize( ready );
       }
 
       epoll::iterator
@@ -84,6 +88,12 @@ namespace hpc {
       epoll_event_iterator::epoll_event_iterator( vector<epoll::event_type>::const_iterator it )
          : epoll_event_iterator::iterator_adaptor_( it )
       {
+      }
+
+      int
+      epoll_event_iterator::fd() const
+      {
+         return (*this)->data.fd;
       }
 
       bool
