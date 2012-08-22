@@ -19,6 +19,7 @@
 #define libhpc_re_re_hh
 
 #include "dfa.hh"
+#include "match.hh"
 
 namespace hpc {
    namespace re {

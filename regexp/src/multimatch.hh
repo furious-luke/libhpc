@@ -15,14 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_multimatch_hh
-#define libhpc_containers_multimatch_hh
+#ifndef libhpc_regexp_multimatch_hh
+#define libhpc_regexp_multimatch_hh
 
 #include "libhpc/system/types.hh"
-#include "string.hh"
-#include "optional.hh"
-#include "list.hh"
-#include "map.hh"
+#include "libhpc/containers/string.hh"
+#include "libhpc/containers/optional.hh"
+#include "libhpc/containers/list.hh"
+#include "libhpc/containers/map.hh"
+#include "re.hh"
 
 namespace hpc {
 
@@ -60,7 +61,7 @@ namespace hpc {
    protected:
 
       list<string> _matches;
-      // RE2 _re;
+      re::re _re;
    };
 };
 

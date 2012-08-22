@@ -29,21 +29,21 @@ namespace hpc {
                                                    const scoped_ptr<dfa_state>& op1 ) const
       {
          return op0->indices < op1->indices;
-                  // if( indices.size() < op->indices.size() )
-                  //    return true;
-                  // else if( indices.size() > op->indices.size() )
-                  //    return false;
-                  // else
-                  // {
-                  //    auto it0 = indices.cbegin(), it1 = op->indices.cbegin();
-                  //    for( ; it0 != indices.cend(); ++it0, ++it1 )
-                  //    {
-                  //       if( *it0 < *it1 )
-                  //          return true;
-                  //       else if( *it0 > *it1 )
-                  //          return false;
-                  //    }
-                  // }
+         // if( indices.size() < op->indices.size() )
+         //    return true;
+         // else if( indices.size() > op->indices.size() )
+         //    return false;
+         // else
+         // {
+         //    auto it0 = indices.cbegin(), it1 = op->indices.cbegin();
+         //    for( ; it0 != indices.cend(); ++it0, ++it1 )
+         //    {
+         //       if( *it0 < *it1 )
+         //          return true;
+         //       else if( *it0 > *it1 )
+         //          return false;
+         //    }
+         // }
       }
 
       syntax_tree::dfa_state::dfa_state( unsigned id )
@@ -454,32 +454,39 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         // First convert to local DFA representation.
-         _calc_dfa();
-
-         // Build the moves. Use '_num_states' to only store moves for
-         // non-meta states.
-         vector<uint16> moves( _num_states*256 );
-         vector<uint16> meta_moves( _num_meta_states );
-         vector<uint16> open( _num_meta_states );
-         vector<uint16> close( _num_meta_states );
-         for( auto it = _states.cbegin(); it != _states.cend(); ++it )
+         // Only process if we have something to process.
+         if( _root )
          {
-            dfa_state* cur = it->get();
-            _conv_moves( cur, moves, meta_moves, open, close );
-         }
-         for( auto it = _meta_states.cbegin(); it != _meta_states.cend(); ++it )
-         {
-            dfa_state* cur = it->get();
-            _conv_moves( cur, moves, meta_moves, open, close );
-         }
 
-         // // Setup the captures.
-         // csr<uint16> open, close;
-         // _to_dfa_captures( open, close );
+            // First convert to local DFA representation.
+            _calc_dfa();
 
-         // Setup dfa.
-         dfa.set_states( moves, meta_moves, open, close );
+            // Build the moves. Use '_num_states' to only store moves for
+            // non-meta states.
+            vector<uint16> moves( _num_states*256 );
+            vector<uint16> meta_moves( _num_meta_states );
+            vector<uint16> open( _num_meta_states );
+            vector<uint16> close( _num_meta_states );
+            for( auto it = _states.cbegin(); it != _states.cend(); ++it )
+            {
+               dfa_state* cur = it->get();
+               _conv_moves( cur, moves, meta_moves, open, close );
+            }
+            for( auto it = _meta_states.cbegin(); it != _meta_states.cend(); ++it )
+            {
+               dfa_state* cur = it->get();
+               _conv_moves( cur, moves, meta_moves, open, close );
+            }
+
+            // // Setup the captures.
+            // csr<uint16> open, close;
+            // _to_dfa_captures( open, close );
+
+            // Setup dfa.
+            dfa.set_states( moves, meta_moves, open, close );
+         }
+         else
+            dfa.clear();
 
          LOG_EXIT();
       }

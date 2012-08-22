@@ -62,27 +62,27 @@ namespace hpc {
 
          bool
          operator()( const string& str,
-                     optional<match&> match = optional<match&>() );
+                     optional<match&> match = optional<match&>() ) const;
 
       protected:
 
          bool
          _match_and_capture( const string& str,
-                             match& match );
+                             match& match ) const;
 
          bool
-         _match( const string& str );
+         _match( const string& str ) const;
 
          bool
          _move_and_capture( uint16& state,
                             byte data,
                             const char* ptr,
-                            match& match );
+                            match& match ) const;
 
          bool
          _move( uint16& state,
                 byte data,
-                const char* ptr );
+                const char* ptr ) const;
 
       protected:
 

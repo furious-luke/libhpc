@@ -98,15 +98,20 @@ namespace hpc {
 
       bool
       dfa::operator()( const string& str,
-                       optional<match&> match )
+                       optional<match&> match ) const
       {
          LOG_ENTER();
 
          bool res;
-         if( match )
-            res = _match_and_capture( str, *match );
+         if( _num_states )
+         {
+            if( match )
+               res = _match_and_capture( str, *match );
+            else
+               res = _match( str );
+         }
          else
-            res = _match( str );
+            res = false;
 
          LOG_EXIT();
          return res;
@@ -114,7 +119,7 @@ namespace hpc {
 
       bool
       dfa::_match_and_capture( const string& str,
-                               match& match )
+                               match& match ) const
       {
          LOG_ENTER();
 
@@ -143,7 +148,7 @@ namespace hpc {
       }
 
       bool
-      dfa::_match( const string& str )
+      dfa::_match( const string& str ) const
       {
          LOG_ENTER();
 
@@ -170,7 +175,7 @@ namespace hpc {
       dfa::_move_and_capture( uint16& state,
                               byte data,
                               const char* ptr,
-                              match& match )
+                              match& match ) const
       {
          LOG_ENTER();
          LOGLN( "In state ", state, " with data ", data );
@@ -214,7 +219,7 @@ namespace hpc {
       bool
       dfa::_move( uint16& state,
                   byte data,
-                  const char* ptr )
+                  const char* ptr ) const
       {
          LOG_ENTER();
          LOGLN( "In state ", state, " with data ", data );

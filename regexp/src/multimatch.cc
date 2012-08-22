@@ -28,7 +28,6 @@ namespace hpc {
    multimatch::clear()
    {
       _matches.clear();
-      // _re = "";
    }
 
    void
@@ -40,23 +39,19 @@ namespace hpc {
    void
    multimatch::compile()
    {
-      // _matches.sort();
       string pattern = boost::algorithm::join( _matches, ")|(" );
       if( !pattern.empty() )
          pattern = "(" + pattern + ")";
-      // _re = pattern;
+      _re.construct( pattern );
    }
 
    optional<index>
    multimatch::operator()( const string& str ) const
    {
-      // boost::smatch res;
-      // if( boost::regex_match( str, res, _re ) )
-      // {
-      //    // std::cout << "\n" << res.get_last_matched_paren() << "\n";
-      //    return optional<index>( 0 );
-      // }
-      // else
-      //    return none;
+      re::match match;
+      if( _re( str, match ) )
+         return (index)match.last_capture();
+      else
+         return none;
    }
 };
