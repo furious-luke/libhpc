@@ -41,25 +41,32 @@ public:
    void test_simple()
    {
       re::syntax_tree st;
-      LOG_PUSH( new logging::file( "test.log" ) );
       st.construct( "(a)|(b)|(c)" );
       re::dfa dfa;
       st.to_dfa( dfa );
-      LOG_POP();
    }
 
    void test_match()
    {
-      re::syntax_tree st;
-      st.construct( "(o(n)e)|(two)|(t(h(r)e)e)" );
-      re::dfa dfa;
-      st.to_dfa( dfa );
+      re::dfa dfa( "(o(n)e)|(two)|(t(h(r)e)e)" );
       TS_ASSERT( dfa( "one" ) );
       TS_ASSERT( dfa( "two" ) );
       TS_ASSERT( dfa( "three" ) );
       TS_ASSERT( !dfa( "hello" ) );
       TS_ASSERT( !dfa( "oneo" ) );
       TS_ASSERT( !dfa( "onethree" ) );
+   }
+
+   void test_match_last_capture()
+   {
+      re::match match;
+      re::dfa dfa( "(o(n)e)|(two)|(t(h(r)e)e)" );
+      dfa( "one", match );
+      TS_ASSERT( match.last_capture() == 0 );
+      dfa( "two", match );
+      TS_ASSERT( match.last_capture() == 1 );
+      dfa( "three", match );
+      TS_ASSERT( match.last_capture() == 2 );
    }
 
    void test_similar_split()

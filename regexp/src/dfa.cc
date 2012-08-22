@@ -18,9 +18,19 @@
 #include "libhpc/logging/logging.hh"
 #include "dfa.hh"
 #include "codes.hh"
+#include "syntax_tree.hh"
 
 namespace hpc {
    namespace re {
+
+      dfa::dfa()
+      {
+      }
+
+      dfa::dfa( const string& expression )
+      {
+         construct( expression );
+      }
 
       void
       dfa::clear()
@@ -29,35 +39,53 @@ namespace hpc {
          _moves.clear();
          _open.clear();
          _close.clear();
-         _caps.clear();
       }
 
       void
-      dfa::set_states( vector<uint16>& states,
-                       optional<csr<uint16>&> open_captures,
-                       optional<csr<uint16>&> close_captures )
+      dfa::construct( const string& expression )
+      {
+         syntax_tree st;
+         st.construct( expression );
+         st.to_dfa( *this );
+      }
+
+      void
+      dfa::set_states( vector<uint16>& moves,
+                       optional<vector<uint16>&> meta_moves,
+                       optional<vector<uint16>&> open_captures,
+                       optional<vector<uint16>&> close_captures )
       {
          clear();
 
-         _moves.take( states );
+         _moves.take( moves );
          _num_states = _moves.size()/256;
          ASSERT( _num_states*256 == _moves.size() );
 
+         if( meta_moves )
+            _meta_moves.take( *meta_moves );
+
          if( open_captures )
             _open.take( *open_captures );
-         else
-            _open.num_rows( _num_states );
-
          if( close_captures )
             _close.take( *close_captures );
-         else
-            _close.num_rows( _num_states );
-         ASSERT( _open.num_rows() == _num_states,
-                 "Invalid number of capture rows." );
-         ASSERT( _open.num_rows() == _close.num_rows() && _open.array().size() == _close.array().size(),
-                 "Number of open and close captures must match." );
 
-         _caps.resize( _open.array().size() );
+         _num_caps = 0;
+         for( auto idx : _open )
+         {
+            if( idx < std::numeric_limits<uint16>::max() )
+               ++_num_caps;
+         }
+#ifndef NDEBUG
+         {
+            uint16 close_caps = 0;
+            for( auto idx : _close )
+            {
+               if( idx < std::numeric_limits<uint16>::max() )
+                  ++close_caps;
+            }
+            ASSERT( _num_caps == close_caps );
+         }
+#endif
       }
 
       uint16
@@ -68,26 +96,56 @@ namespace hpc {
          return _moves[state*256 + data];
       }
 
-      const vector<uint16>::view
-      dfa::open_captures( uint16 state )
-      {
-         return _open[state];
-      }
-
-      const vector<uint16>::view
-      dfa::close_captures( uint16 state )
-      {
-         return _close[state];
-      }
-
       bool
-      dfa::operator()( const string& str )
+      dfa::operator()( const string& str,
+                       optional<match&> match )
       {
          LOG_ENTER();
 
-         // Clear out the capture pairs.
-         for( auto& cap : _caps )
+         bool res;
+         if( match )
+            res = _match_and_capture( str, *match );
+         else
+            res = _match( str );
+
+         LOG_EXIT();
+         return res;
+      }
+
+      bool
+      dfa::_match_and_capture( const string& str,
+                               match& match )
+      {
+         LOG_ENTER();
+
+         // Set appropriate size and clear out captures.
+         match._caps.resize( _num_caps );
+         for( auto& cap : match._caps )
             cap.first = cap.second = NULL;
+
+         const char* ptr = str.c_str();
+         uint16 state = 0;
+         while( *ptr != 0 )
+         {
+            if( !_move_and_capture( state, *ptr, ptr, match ) )
+            {
+               LOG_EXIT();
+               return false;
+            }
+            ++ptr;
+         }
+
+         // We have only matched if we end up in the match state.
+         bool res = (move( state, static_cast<byte>( code_match ) ) != std::numeric_limits<uint16>::max() );
+
+         LOG_EXIT();
+         return res;
+      }
+
+      bool
+      dfa::_match( const string& str )
+      {
+         LOG_ENTER();
 
          const char* ptr = str.c_str();
          uint16 state = 0;
@@ -102,30 +160,55 @@ namespace hpc {
          }
 
          // We have only matched if we end up in the match state.
-         bool res = (move( state, static_cast<byte>( codes::match ) ) != std::numeric_limits<uint16>::max() );
-
-         // If we matched, check for final closes.
-         if( res )
-         {
-            const vector<uint16>::view caps = _close[state];
-            for( unsigned ii = 0; ii < caps.size(); ++ii )
-            {
-               _caps[caps[ii]].second = ptr;
-               LOGLN( "Close group ", caps[ii], " at ", *ptr );
-#ifndef NLOG
-               if( _caps[caps[ii]].first )
-               {
-                  LOG( "Matched: " );
-                  for( const char* cp = _caps[caps[ii]].first; cp != ptr; ++cp )
-                     LOG( *cp );
-                  LOGLN( "" );
-               }
-#endif
-            }
-         }
+         bool res = (move( state, static_cast<byte>( code_match ) ) != std::numeric_limits<uint16>::max() );
 
          LOG_EXIT();
          return res;
+      }
+
+      bool
+      dfa::_move_and_capture( uint16& state,
+                              byte data,
+                              const char* ptr,
+                              match& match )
+      {
+         LOG_ENTER();
+         LOGLN( "In state ", state, " with data ", data );
+
+         // Find the next move.
+         uint16 new_state = move( state, data );
+         LOGLN( "Next state is ", new_state );
+
+         // Check if that move is invalid.
+         if( new_state == std::numeric_limits<uint16>::max() )
+         {
+            LOG_EXIT();
+            return false;
+         }
+
+         // If this is a meta state, process it straight away.
+         while( new_state >= _num_states )
+         {
+            LOGLN( "Processing meta state ", new_state );
+            uint16 meta = new_state - _num_states;
+            if( _open[meta] < std::numeric_limits<uint16>::max() )
+            {
+               match._caps[_open[meta]].first = ptr;
+               LOGLN( "Open group ", _open[meta], " at ", *ptr );
+            }
+            if( _close[meta] < std::numeric_limits<uint16>::max() )
+            {
+               match._caps[_close[meta]].second = ptr + 1;
+               match._last = _close[meta];
+               LOGLN( "Close group ", _close[meta], " at ", *(ptr + 1) );
+            }
+            new_state = _meta_moves[meta];
+            LOGLN( "Next state is ", new_state );
+         }
+
+         state = new_state;
+         LOG_EXIT();
+         return true;
       }
 
       bool
@@ -147,31 +230,13 @@ namespace hpc {
             return false;
          }
 
-         // Check for opening and closing captures.
+         // If this is a meta state, process it straight away.
+         while( new_state >= _num_states )
          {
-            const vector<uint16>::view caps = _open[new_state];
-            for( unsigned ii = 0; ii < caps.size(); ++ii )
-            {
-               _caps[caps[ii]].first = ptr;
-               LOGLN( "Open group ", caps[ii], " at ", *ptr );
-            }
-         }
-         {
-            const vector<uint16>::view caps = _close[state];
-            for( unsigned ii = 0; ii < caps.size(); ++ii )
-            {
-               _caps[caps[ii]].second = ptr;
-               LOGLN( "Close group ", caps[ii], " at ", *ptr );
-#ifndef NLOG
-               if( _caps[caps[ii]].first )
-               {
-                  LOG( "Matched: " );
-                  for( const char* cp = _caps[caps[ii]].first; cp != ptr; ++cp )
-                     LOG( *cp );
-                  LOGLN( "" );
-               }
-#endif
-            }
+            LOGLN( "Processing meta state ", new_state );
+            uint16 meta = new_state - _num_states;
+            new_state = _meta_moves[meta];
+            LOGLN( "Next state is ", new_state );
          }
 
          state = new_state;

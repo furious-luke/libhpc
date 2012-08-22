@@ -15,11 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef libhpc_regexp_dfa_hh
+#define libhpc_regexp_dfa_hh
+
 #include "libhpc/system/types.hh"
 #include "libhpc/containers/optional.hh"
 #include "libhpc/containers/csr.hh"
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/string.hh"
+#include "match.hh"
 
 class dfa_suite;
 
@@ -36,28 +40,44 @@ namespace hpc {
 
       public:
 
+         dfa();
+
+         dfa( const string& expression );
+
+         void
+         construct( const string& expression );
+
          void
          clear();
 
          void
          set_states( vector<uint16>& moves,
-                     optional<csr<uint16>&> open_captures=optional<csr<uint16>&>(),
-                     optional<csr<uint16>&> close_captures=optional<csr<uint16>&>() );
+                     optional<vector<uint16>&> meta_moves = optional<vector<uint16>&>(),
+                     optional<vector<uint16>&> open_captures = optional<vector<uint16>&>(),
+                     optional<vector<uint16>&> close_captures = optional<vector<uint16>&>() );
 
          uint16
          move( uint16 state,
                byte data ) const;
 
-         const vector<uint16>::view
-         open_captures( uint16 state );
-
-         const vector<uint16>::view
-         close_captures( uint16 state );
-
          bool
-         operator()( const string& str );
+         operator()( const string& str,
+                     optional<match&> match = optional<match&>() );
 
       protected:
+
+         bool
+         _match_and_capture( const string& str,
+                             match& match );
+
+         bool
+         _match( const string& str );
+
+         bool
+         _move_and_capture( uint16& state,
+                            byte data,
+                            const char* ptr,
+                            match& match );
 
          bool
          _move( uint16& state,
@@ -66,9 +86,11 @@ namespace hpc {
 
       protected:
 
-         unsigned _num_states;
-         vector<uint16> _moves;
-         csr<uint16> _open, _close;
+         unsigned _num_states, _num_caps;
+         vector<uint16> _moves, _meta_moves;
+         vector<uint16> _open, _close;
       };
    }
 }
+
+#endif

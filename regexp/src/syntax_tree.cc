@@ -46,15 +46,20 @@ namespace hpc {
                   // }
       }
 
-      syntax_tree::dfa_state::dfa_state()
+      syntax_tree::dfa_state::dfa_state( unsigned id )
+         : id( id ),
+           open( std::numeric_limits<uint16>::max() ),
+           close( std::numeric_limits<uint16>::max() )
       {
       }
 
       syntax_tree::dfa_state::dfa_state( const set<unsigned>& idxs,
                                          unsigned id )
+         : id( id ),
+           open( std::numeric_limits<uint16>::max() ),
+           close( std::numeric_limits<uint16>::max() )
       {
          indices.insert( idxs.begin(), idxs.end() );
-         this->id = id;
       }
 
       syntax_tree::node::node( byte data,
@@ -100,22 +105,22 @@ namespace hpc {
       bool
       syntax_tree::node::nullable() const
       {
-         if( data == static_cast<byte>( codes::split ) )
+         if( data == static_cast<byte>( code_split ) )
          {
             ASSERT( child[0] && child[1] );
             return child[0]->nullable() || child[1]->nullable();
          }
-         else if( data == static_cast<byte>( codes::concat ) )
+         else if( data == static_cast<byte>( code_concat ) )
          {
             ASSERT( child[0] && child[1] );
             return child[0]->nullable() && child[1]->nullable();
          }
-         else if( data == static_cast<byte>( codes::many ) )
+         else if( data == static_cast<byte>( code_many ) )
          {
             ASSERT( (bool)child[0] );
             return true;
          }
-         else if( data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             return child[0]->nullable();
@@ -138,7 +143,7 @@ namespace hpc {
                child[ii]->calc_firstpos();
          }
 
-         if( data == static_cast<byte>( codes::split ) )
+         if( data == static_cast<byte>( code_split ) )
          {
             for( unsigned ii = 0; ii < 2; ++ii )
             {
@@ -146,7 +151,7 @@ namespace hpc {
                firstpos.insert( child[ii]->firstpos.begin(), child[ii]->firstpos.end() );
             }
          }
-         else if( data == static_cast<byte>( codes::concat ) )
+         else if( data == static_cast<byte>( code_concat ) )
          {
             ASSERT( (bool)child[0] );
             firstpos.insert( child[0]->firstpos.begin(), child[0]->firstpos.end() );
@@ -156,8 +161,8 @@ namespace hpc {
                firstpos.insert( child[1]->firstpos.begin(), child[1]->firstpos.end() );
             }
          }
-         else if( data == static_cast<byte>( codes::many ) ||
-                  data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             firstpos.insert( child[0]->firstpos.begin(), child[0]->firstpos.end() );
@@ -182,7 +187,7 @@ namespace hpc {
                child[ii]->calc_lastpos();
          }
 
-         if( data == static_cast<byte>( codes::split ) )
+         if( data == static_cast<byte>( code_split ) )
          {
             for( unsigned ii = 0; ii < 2; ++ii )
             {
@@ -190,7 +195,7 @@ namespace hpc {
                lastpos.insert( child[ii]->lastpos.begin(), child[ii]->lastpos.end() );
             }
          }
-         else if( data == static_cast<byte>( codes::concat ) )
+         else if( data == static_cast<byte>( code_concat ) )
          {
             ASSERT( (bool)child[1] );
             lastpos.insert( child[1]->lastpos.begin(), child[1]->lastpos.end() );
@@ -200,8 +205,8 @@ namespace hpc {
                lastpos.insert( child[0]->lastpos.begin(), child[0]->lastpos.end() );
             }
          }
-         else if( data == static_cast<byte>( codes::many ) ||
-                  data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             lastpos.insert( child[0]->lastpos.begin(), child[0]->lastpos.end() );
@@ -218,7 +223,7 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( codes::concat ) )
+         if( data == static_cast<byte>( code_concat ) )
          {
             LOGLN( "Concatenation." );
 
@@ -236,7 +241,7 @@ namespace hpc {
                }
             }
          }
-         else if( data == static_cast<byte>( codes::many ) )
+         else if( data == static_cast<byte>( code_many ) )
          {
             // Depth first.
             child[0]->calc_followpos( followpos );
@@ -247,7 +252,7 @@ namespace hpc {
                   followpos.insert( lp, fp );
             }
          }
-         else if( data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_capture ) )
          {
             // Depth first.
             child[0]->calc_followpos( followpos );
@@ -270,19 +275,19 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( codes::concat ) ||
-             data == static_cast<byte>( codes::split ) )
+         if( data == static_cast<byte>( code_concat ) ||
+             data == static_cast<byte>( code_split ) )
          {
             ASSERT( child[0] && child[1] );
             for( unsigned ii = 0; ii < 2; ++ii )
                idx = child[ii]->calc_capture_indices( idx, queue );
          }
-         else if( data == static_cast<byte>( codes::many ) )
+         else if( data == static_cast<byte>( code_many ) )
          {
             ASSERT( (bool)child[0] );
             idx = child[0]->calc_capture_indices( idx, queue );
          }
-         else if( data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             queue.push_back( child[0].get() );
@@ -299,19 +304,19 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( codes::concat ) ||
-             data == static_cast<byte>( codes::split ) )
+         if( data == static_cast<byte>( code_concat ) ||
+             data == static_cast<byte>( code_split ) )
          {
             ASSERT( child[0] && child[1] );
             for( unsigned ii = 0; ii < 2; ++ii )
                child[ii]->calc_captures();
          }
-         else if( data == static_cast<byte>( codes::many ) )
+         else if( data == static_cast<byte>( code_many ) )
          {
             ASSERT( (bool)child[0] );
             child[0]->calc_captures();
          }
-         else if( data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             child[0]->calc_capture_open( capture_index );
@@ -343,8 +348,8 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( codes::many ) ||
-             data == static_cast<byte>( codes::capture ) )
+         if( data == static_cast<byte>( code_many ) ||
+             data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             child[0]->calc_capture_close( idx );
@@ -365,19 +370,19 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( codes::concat ) )
+         if( data == static_cast<byte>( code_concat ) )
          {
             ASSERT( child[0] && child[1] );
             for( unsigned ii = 0; ii < 2; ++ii )
                idx = child[ii]->calc_split_indices( idx );
          }
-         else if( data == static_cast<byte>( codes::many ) ||
-                  data == static_cast<byte>( codes::capture ) )
+         else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             idx = child[0]->calc_split_indices( idx );
          }
-         else if( data == static_cast<byte>( codes::split ) )
+         else if( data == static_cast<byte>( code_split ) )
          {
             ASSERT( child[0] && child[1] );
             child[0]->calc_split_terminal( idx );
@@ -395,8 +400,8 @@ namespace hpc {
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( codes::many ) ||
-             data == static_cast<byte>( codes::capture ) )
+         if( data == static_cast<byte>( code_many ) ||
+             data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
             child[0]->calc_split_terminal( idx );
@@ -438,7 +443,7 @@ namespace hpc {
             _root = _construct_recurse( ptr );
 
             // Add final terminal state.
-            _root = new node( static_cast<byte>( codes::concat ), _root.release(), new node( static_cast<byte>( codes::match ) ) );
+            _root = new node( static_cast<byte>( code_concat ), _root.release(), new node( static_cast<byte>( code_match ) ) );
          }
 
          LOG_EXIT();
@@ -452,20 +457,29 @@ namespace hpc {
          // First convert to local DFA representation.
          _calc_dfa();
 
-         // Build the moves.
-         vector<uint16> moves( _states.size()*256 );
+         // Build the moves. Use '_num_states' to only store moves for
+         // non-meta states.
+         vector<uint16> moves( _num_states*256 );
+         vector<uint16> meta_moves( _num_meta_states );
+         vector<uint16> open( _num_meta_states );
+         vector<uint16> close( _num_meta_states );
          for( auto it = _states.cbegin(); it != _states.cend(); ++it )
          {
             dfa_state* cur = it->get();
-            _conv_moves( cur, moves );
+            _conv_moves( cur, moves, meta_moves, open, close );
+         }
+         for( auto it = _meta_states.cbegin(); it != _meta_states.cend(); ++it )
+         {
+            dfa_state* cur = it->get();
+            _conv_moves( cur, moves, meta_moves, open, close );
          }
 
-         // Setup the captures.
-         csr<uint16> open, close;
-         _to_dfa_captures( open, close );
+         // // Setup the captures.
+         // csr<uint16> open, close;
+         // _to_dfa_captures( open, close );
 
          // Setup dfa.
-         dfa.set_states( moves, open, close );
+         dfa.set_states( moves, meta_moves, open, close );
 
          LOG_EXIT();
       }
@@ -504,7 +518,7 @@ namespace hpc {
 
                // 'Or'.
                ASSERT( cur_node, "Must be expression to left of |." );
-               cur_node = new node( static_cast<byte>( codes::split ), cur_node, _construct_recurse( ++ptr ) );
+               cur_node = new node( static_cast<byte>( code_split ), cur_node, _construct_recurse( ++ptr ) );
                ch = *ptr;
             }
             else if( ch == '*' )
@@ -513,17 +527,14 @@ namespace hpc {
 
                // Closure?
                ASSERT( cur_node, "Must be existing expression." );
-               cur_node = new node( static_cast<byte>( codes::many ), cur_node );
+               cur_node = new node( static_cast<byte>( code_many ), cur_node );
             }
             else if( ch == '(' )
             {
                LOGLN( "Opening capture." );
 
                // Create new sub-branch.
-               // new_node = new node( static_cast<byte>( codes::capture ), _construct_recurse( ++ptr, level + 1 ) );
-               new_node = new node( static_cast<byte>( codes::concat ),
-                                    new node( static_cast<byte>( codes::open_capture ) ),
-                                    _construct_recurse( ++ptr ) );
+               new_node = new node( static_cast<byte>( code_capture ), _construct_recurse( ++ptr ) );
 
                // // Mark the capture.
                // LOGLN( "Marking capture at level ", level );
@@ -541,19 +552,19 @@ namespace hpc {
             {
                LOGLN( "Closing capture." );
 
-               // Insert closing capture.
-               new_node = new node( static_cast<byte>( codes::concat ),
-                                    cur_node,
-                                    new node( static_cast<byte>( codes::close_capture ) ) );
+               // // Insert closing capture.
+               // new_node = new node( static_cast<byte>( code_concat ),
+               //                      cur_node,
+               //                      new node( static_cast<byte>( code_close_capture ) ) );
 
                // // Mark closing capture.
                // cur_node->close.insert( std::make_pair( level - 1, cap_idx++ ) );
 
-               // // Increment number of global captures.
-               // ++_num_captures;
+               // Increment number of global captures.
+               ++_num_captures;
 
                LOG_EXIT();
-               return new_node;
+               return cur_node;
             }
             else
             {
@@ -567,7 +578,7 @@ namespace hpc {
             if( concat )
             {
                if( cur_node )
-                  cur_node = new node( static_cast<byte>( codes::concat ), cur_node, new_node );
+                  cur_node = new node( static_cast<byte>( code_concat ), cur_node, new_node );
                else
                   cur_node = new_node;
                concat = false;
@@ -588,7 +599,8 @@ namespace hpc {
          followpos.clear();
 
          ASSERT( (bool)_root );
-         _num_indices = _root->calc_indices( 0 );
+         _num_states = _root->calc_indices( 0 );
+         _num_meta_states = 0;
          _calc_idx_to_node( _idx_to_node );
          _root->calc_firstpos();
          _root->calc_lastpos();
@@ -598,7 +610,7 @@ namespace hpc {
       void
       syntax_tree::_calc_idx_to_node( vector<node*>& idx_to_node ) const
       {
-         idx_to_node.reallocate( _num_indices );
+         idx_to_node.reallocate( _num_states );
          _root->calc_idx_to_node( idx_to_node );
       }
 
@@ -671,17 +683,17 @@ namespace hpc {
          LOGLN( "Looking at state: ", state.indices );
 
          map<char,dfa_state*> new_states;
-         bool is_accepting;
+         bool is_accepting = false;
          for( auto idx : state.indices )
          {
             node* node = _idx_to_node[idx];
             char data = node->data;
-            if( data == static_cast<byte>( codes::match ) )
+            if( data == static_cast<byte>( code_match ) )
             {
                is_accepting = true;
                continue;
             }
-            ASSERT( data < static_cast<byte>( codes::terminal ) );
+            ASSERT( data < static_cast<byte>( code_terminal ) );
             LOGLN( "Index: ", idx, ", data: ", data );
 
             auto res = new_states.insert( data, NULL );
@@ -731,58 +743,102 @@ namespace hpc {
          for( auto idx : state.indices )
          {
             node& cur_node = *_idx_to_node[idx];
-            if( cur_node.data != static_cast<byte>( codes::match ) )
+            if( cur_node.data != static_cast<byte>( code_match ) )
             {
-               dfa_state& new_state = *state.moves.get( cur_node.data );
-               new_state.open.insert( cur_node.open.begin(), cur_node.open.end() );
-               LOGLN( "Adding open ", cur_node.open, " to state ", new_state.indices );
-               new_state.close.insert( cur_node.close.begin(), cur_node.close.end() );
-               LOGLN( "Adding close ", cur_node.close, " to state ", new_state.indices );
+               dfa_state* new_state = state.moves.get( cur_node.data );
+
+               dfa_state *cur_meta = NULL;
+               for( auto open : cur_node.open )
+               {
+                  dfa_state* new_meta = new dfa_state( _num_states + _num_meta_states++ );
+                  new_meta->open = open;
+                  if( cur_meta )
+                     cur_meta->moves.insert( 0, new_meta );
+                  else
+                     state.moves[cur_node.data] = new_meta;
+                  cur_meta = new_meta;
+                  _meta_states.push_back( cur_meta );
+                  LOGLN( "Creating new meta state to open capture ", open, " along ", (char)cur_node.data );
+               }
+               for( auto close : cur_node.close )
+               {
+                  dfa_state* new_meta = new dfa_state( _num_states + _num_meta_states++ );
+                  new_meta->close = close;
+                  if( cur_meta )
+                     cur_meta->moves.insert( 0, new_meta );
+                  else
+                     state.moves[cur_node.data] = new_meta;
+                  cur_meta = new_meta;
+                  _meta_states.push_back( cur_meta );
+                  LOGLN( "Creating new meta state to close capture ", close, " along ", (char)cur_node.data );
+               }
+               if( cur_meta )
+                  cur_meta->moves.insert( 0, new_state );
+
+               // new_state.open.insert( cur_node.open.begin(), cur_node.open.end() );
+               // LOGLN( "Adding open ", cur_node.open, " to state ", new_state.indices );
+
+               // new_state.close.insert( cur_node.close.begin(), cur_node.close.end() );
+               // LOGLN( "Adding close ", cur_node.close, " to state ", new_state.indices );
             }
          }
 
          // If this state is accepting (i.e. has a permissible movement
          // from the match code) add a movement to itself.
          if( is_accepting )
-            state.moves.insert( static_cast<byte>( codes::match ), &state );
+            state.moves.insert( static_cast<byte>( code_match ), &state );
 
          LOG_EXIT();
       }
 
       void
       syntax_tree::_conv_moves( const dfa_state* state,
-                                vector<uint16>& moves ) const
+                                vector<uint16>& moves,
+                                vector<uint16>& meta_moves,
+                                vector<uint16>& open,
+                                vector<uint16>& close ) const
       {
-         vector<uint16>::view state_moves( moves, 256, state->id*256 );
-         std::fill( state_moves.begin(), state_moves.end(), std::numeric_limits<uint16>::max() );
-         for( const auto& elem : state->moves )
-            state_moves[static_cast<index>( elem.first )] = elem.second->id;
+         // Separate out meta states.
+         if( state->id < _num_states )
+         {
+            vector<uint16>::view state_moves( moves, 256, state->id*256 );
+            std::fill( state_moves.begin(), state_moves.end(), std::numeric_limits<uint16>::max() );
+            for( const auto& elem : state->moves )
+               state_moves[static_cast<index>( elem.first )] = elem.second->id;
+         }
+         else
+         {
+            unsigned meta_id = state->id - _num_states;
+            meta_moves[meta_id] = state->moves.get( 0 )->id;
+            open[meta_id] = state->open;
+            close[meta_id] = state->close;
+         }
       }
 
-      void
-      syntax_tree::_to_dfa_captures( csr<uint16>& open,
-                                     csr<uint16>& close )
-      {
-         open.num_rows( _states.size() );
-         close.num_rows( _states.size() );
-         {
-            vector<index>& displs = open.mod_displs();
-            for( const auto& state : _states )
-               displs[state->id] = state->open.size();
-         }
-         {
-            vector<index>& displs = close.mod_displs();
-            for( const auto& state : _states )
-               displs[state->id] = state->close.size();
-         }
-         open.setup_array( true );
-         close.setup_array( true );
-         for( const auto& state : _states )
-         {
-            std::copy( state->open.cbegin(), state->open.cend(), open[state->id].begin() );
-            std::copy( state->close.cbegin(), state->close.cend(), close[state->id].begin() );
-         }
-      }
+      // void
+      // syntax_tree::_to_dfa_captures( csr<uint16>& open,
+      //                                csr<uint16>& close )
+      // {
+      //    // open.num_rows( _states.size() );
+      //    // close.num_rows( _states.size() );
+      //    // {
+      //    //    vector<index>& displs = open.mod_displs();
+      //    //    for( const auto& state : _states )
+      //    //       displs[state->id] = state->open.size();
+      //    // }
+      //    // {
+      //    //    vector<index>& displs = close.mod_displs();
+      //    //    for( const auto& state : _states )
+      //    //       displs[state->id] = state->close.size();
+      //    // }
+      //    // open.setup_array( true );
+      //    // close.setup_array( true );
+      //    // for( const auto& state : _states )
+      //    // {
+      //    //    std::copy( state->open.cbegin(), state->open.cend(), open[state->id].begin() );
+      //    //    std::copy( state->close.cbegin(), state->close.cend(), close[state->id].begin() );
+      //    // }
+      // }
 
       std::ostream&
       operator<<( std::ostream& strm,

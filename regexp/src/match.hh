@@ -23,6 +23,8 @@
 namespace hpc {
    namespace re {
 
+      class dfa;
+
       class match
       {
          friend class dfa;

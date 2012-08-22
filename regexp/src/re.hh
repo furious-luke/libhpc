@@ -18,53 +18,5 @@
 namespace hpc {
    namespace re {
 
-      class re
-      {
-      public:
-
-         void
-         compile( const char* prog )
-         {
-            if( !prog )
-               return;
-
-            const char* cur = prog;
-            while( *cur )
-            {
-               // Exact match.
-               if( (*cur >= 65 && *cur <= 90) ||
-                   (*cur >= 97 && *cur <= 122) )
-               {
-               }
-            }
-         }
-
-         bool
-         match( const char* str )
-         {
-            if( !str )
-               return false;
-
-            dfa* state = _start;
-            const char* cur = str;
-            while( *cur && !state->done() )
-               state = state->next( *cur++ );
-
-            return state->matched();
-         }
-
-      protected:
-
-         ///
-         /// Merge two DFA programs as combined
-         ///
-         void
-         _merge()
-
-      protected:
-
-         list<scoped_ptr<dfa>> _states;
-         dfa* _start;
-      };
    }
 }

@@ -39,7 +39,7 @@ namespace hpc {
                            const scoped_ptr<dfa_state>& op1 ) const;
             };
 
-            dfa_state();
+            dfa_state( unsigned id = 0 );
 
             dfa_state( const set<unsigned>& idxs,
                        unsigned id );
@@ -47,7 +47,7 @@ namespace hpc {
             unsigned id;
             set<unsigned> indices;
             map<char,dfa_state*> moves;
-            set<uint16> open, close;
+            uint16 open, close;
          };
 
          struct node
@@ -120,8 +120,7 @@ namespace hpc {
       protected:
 
          node*
-         _construct_recurse( const char*& ptr,
-                             uint16 level=0 );
+         _construct_recurse( const char*& ptr );
 
          void
          _calc_followpos( multimap<unsigned,unsigned>& followpos );
@@ -147,7 +146,10 @@ namespace hpc {
 
          void
          _conv_moves( const dfa_state* state,
-                      vector<uint16>& moves ) const;
+                      vector<uint16>& moves,
+                      vector<uint16>& meta_moves,
+                      vector<uint16>& open,
+                      vector<uint16>& close ) const;
 
          void
          _to_dfa_captures( csr<uint16>& open,
@@ -157,12 +159,13 @@ namespace hpc {
 
          scoped_ptr<node> _root;
          unsigned _num_captures;
-         uint16 _num_levels;
-         unsigned _num_indices;
+         unsigned _num_states;
+         unsigned _num_meta_states;
          vector<node*> _idx_to_node;
          multimap<unsigned,unsigned> _followpos;
 
          set<scoped_ptr<dfa_state>,dfa_state::compare> _states;
+         list<scoped_ptr<dfa_state>> _meta_states;
          list<dfa_state*> _to_proc;
 
          friend class ::syntax_tree_suite;

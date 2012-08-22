@@ -23,14 +23,12 @@ namespace hpc {
 
       enum codes
       {
-         match = 0,
-         concat = 127,
-         split = 128,
-         many = 129,
-         capture = 130,
-         open_capture = 131,
-         close_capture = 132,
-         terminal = 133
+         code_match = 0,
+         code_concat = 127,
+         code_split = 128,
+         code_many = 129,
+         code_capture = 130,
+         code_terminal = 131
       };
    }
 }
