@@ -15,16 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_re_re_hh
-#define libhpc_re_re_hh
+#include <cxxtest/TestSuite.h>
+#include "libhpc/regexp/re.hh"
 
-#include "dfa.hh"
+using namespace hpc;
 
-namespace hpc {
-   namespace re {
+class dfa_suite : public CxxTest::TestSuite {
+public:
 
-      typedef dfa re;
+   void test_simple()
+   {
+      re::re prog( "(a)|(b)|(c)" );
+      TS_ASSERT( prog( "c" ) );
    }
-}
-
-#endif
+};

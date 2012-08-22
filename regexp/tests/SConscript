@@ -11,6 +11,7 @@ Import('env')
 suites = [
     ('syntax_tree_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
     ('dfa_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
+    ('re_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
 ]
 
 # Define libraries to link against.

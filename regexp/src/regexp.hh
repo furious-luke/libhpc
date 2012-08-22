@@ -15,16 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_re_re_hh
-#define libhpc_re_re_hh
+#ifndef libhpc_regexp_regexp_hh
+#define libhpc_regexp_regexp_hh
 
-#include "dfa.hh"
-
-namespace hpc {
-   namespace re {
-
-      typedef dfa re;
-   }
-}
+#include "re.hh"
 
 #endif
