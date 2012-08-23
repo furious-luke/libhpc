@@ -23,5 +23,9 @@
 #include "libhpc/system/system.hh"
 #include "libhpc/logging/logging.hh"
 #include "libhpc/containers/containers.hh"
+#include "libhpc/regexp/regexp.hh"
+#include "libhpc/options/options.hh"
+#include "libhpc/hpcmpi/mpi.hh"
+#include "libhpc/h5/h5.hh"
 
 #endif

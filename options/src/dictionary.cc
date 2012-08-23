@@ -21,7 +21,8 @@ namespace hpc {
    namespace options {
 
       dictionary::dictionary( const hpc::string& prefix )
-         : _pre( prefix )
+         : _pre( prefix ),
+           _sep( "-" )
       {
       }
 
@@ -33,12 +34,20 @@ namespace hpc {
             ASSERT( exist->name() != opt->name() );
 #endif
          _opts.push_back( opt );
+         _opts_mm.add_match( opt->name() );
+         _ready = false;
       }
 
       void
       dictionary::add_dictionary( dictionary* dict )
       {
+#ifndef NDEBUG
+         for( const auto& exist : _dicts )
+            ASSERT( exist->prefix() != dict->prefix() );
+#endif
          _dicts.push_back( dict );
+         _dicts_mm.add_match( dict->prefix() + _sep );
+         _ready = false;
       }
 
       const hpc::string&
@@ -47,36 +56,91 @@ namespace hpc {
          return _pre;
       }
 
+      bool
+      dictionary::has_option( const hpc::string& name ) const
+      {
+         ASSERT( _ready );
+
+         optional<index> idx = _opts_mm.match( name );
+         if( idx )
+            return true;
+
+         re::match match;
+         if( _dicts_mm.match_start( name, match ) )
+            return (*_dicts[match.last_capture()]).has_option( match.capture( match.last_capture() ).second );
+      }
+
+      void
+      dictionary::compile()
+      {
+         if( !_ready )
+         {
+            _opts_mm.compile();
+            _dicts_mm.compile();
+            _ready = true;
+         }
+         for( unsigned ii = 0; ii < _dicts.size(); ++ii )
+            _dicts[ii]->compile();
+      }
+
+      vector<shared_ptr<option_base>>::const_iterator
+      dictionary::options_begin() const
+      {
+         return _opts.cbegin();
+      }
+
+      vector<shared_ptr<option_base>>::const_iterator
+      dictionary::options_end() const
+      {
+         return _opts.cend();
+      }
+
+      vector<shared_ptr<dictionary>>::const_iterator
+      dictionary::dicts_begin() const
+      {
+         return _dicts.cbegin();
+      }
+
+      vector<shared_ptr<dictionary>>::const_iterator
+      dictionary::dicts_end() const
+      {
+         return _dicts.cend();
+      }
+
+      const option_base*
+      dictionary::find( const hpc::string& name ) const
+      {
+         ASSERT( _ready );
+
+         optional<index> idx = _opts_mm.match( name );
+         if( idx )
+            return _opts[*idx];
+
+         re::match match;
+         if( _dicts_mm.match_start( name, match ) )
+            return (*_dicts[match.last_capture()]).find( match.capture( match.last_capture() ).second );
+
+         return NULL;
+      }
+
       const option_base&
       dictionary::operator[]( const hpc::string& name ) const
       {
-         for( const auto& opt : _opts )
-         {
-            if( opt->name() == name )
-               return *opt;
-         }
-         for( const auto& dict : _dicts )
-         {
-            // if( dict->find(
-         }
-         ASSERT( 0 );
+         return *find( name );
       }
 
       option_base&
       dictionary::operator[]( const hpc::string& name )
       {
-         for( auto& opt : _opts )
-         {
-            if( opt->name() == name )
-               return *opt;
-         }
-         ASSERT( 0 );
+         return (option_base&)(*(const dictionary*)this)[name];
       }
 
       std::ostream&
       operator<<( std::ostream& strm,
 		  const dictionary& obj )
       {
+         if( !obj._pre.empty() )
+            strm << "<" << obj._pre << ">";
          strm << "{";
 	 if( obj._opts.size() )
          {
@@ -93,7 +157,9 @@ namespace hpc {
             }
 	 }
          for( const auto dict : obj._dicts )
-            strm << *dict;
+         {
+            strm << ", " << *dict;
+         }
 	 strm << "}";
 	 return strm;
       }

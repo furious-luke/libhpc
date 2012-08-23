@@ -49,23 +49,23 @@ public:
    void test_match()
    {
       re::dfa dfa( "(o(n)e)|(two)|(t(h(r)e)e)" );
-      TS_ASSERT( dfa( "one" ) );
-      TS_ASSERT( dfa( "two" ) );
-      TS_ASSERT( dfa( "three" ) );
-      TS_ASSERT( !dfa( "hello" ) );
-      TS_ASSERT( !dfa( "oneo" ) );
-      TS_ASSERT( !dfa( "onethree" ) );
+      TS_ASSERT( dfa.match( "one" ) );
+      TS_ASSERT( dfa.match( "two" ) );
+      TS_ASSERT( dfa.match( "three" ) );
+      TS_ASSERT( !dfa.match( "hello" ) );
+      TS_ASSERT( !dfa.match( "oneo" ) );
+      TS_ASSERT( !dfa.match( "onethree" ) );
    }
 
    void test_match_last_capture()
    {
       re::match match;
       re::dfa dfa( "(o(n)e)|(two)|(t(h(r)e)e)" );
-      dfa( "one", match );
+      dfa.match( "one", match );
       TS_ASSERT( match.last_capture() == 0 );
-      dfa( "two", match );
+      dfa.match( "two", match );
       TS_ASSERT( match.last_capture() == 1 );
-      dfa( "three", match );
+      dfa.match( "three", match );
       TS_ASSERT( match.last_capture() == 2 );
    }
 
@@ -83,5 +83,23 @@ public:
       st.construct( "(a|b)c" );
       re::dfa dfa;
       st.to_dfa( dfa );
+   }
+
+   void test_match_start()
+   {
+      re::match match;
+      re::dfa dfa( "(one)|(two)|(three)" );
+      TS_ASSERT( dfa.match_start( "one", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 0 );
+      TS_ASSERT( dfa.match_start( "two", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 1 );
+      TS_ASSERT( dfa.match_start( "three", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 2 );
+      TS_ASSERT( !dfa.match_start( "hello", match ) );
+      TS_ASSERT( !dfa.match_start( "0one", match ) );
+      TS_ASSERT( dfa.match_start( "onethree", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 0 );
+      TS_ASSERT( dfa.match_start( "threelade", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 2 );
    }
 };

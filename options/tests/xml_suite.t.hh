@@ -29,6 +29,7 @@ public:
       dict.add_option( new options::string( "word" ) );
       dict.add_option( new options::integer( "integer" ) );
       dict.add_option( new options::real( "real" ) );
+      dict.compile();
 
       options::xml xml;
       string filename = tmpnam( NULL );
@@ -43,6 +44,7 @@ public:
       dict.add_option( new options::string( "yeah" ) );
       dict.add_option( new options::integer( "integer" ) );
       dict.add_option( new options::real( "real" ) );
+      dict.compile();
 
       dict["word"] = "hello";
       dict["yeah"] = "world";
@@ -58,6 +60,7 @@ public:
       new_dict.add_option( new options::string( "yeah" ) );
       new_dict.add_option( new options::integer( "integer" ) );
       new_dict.add_option( new options::real( "real" ) );
+      new_dict.compile();
 
       xml.read( filename, new_dict );
 
@@ -71,46 +74,48 @@ public:
 
    void test_sub_dictionary()
    {
-      // options::dictionary* dict1 = new options::dictionary( "sub" );
-      // dict1->add_option( new options::string( "word" ) );
-      // dict1->add_option( new options::integer( "integer" ) );
-      // dict1->add_option( new options::real( "real" ) );
-      // options::dictionary dict2;
-      // dict2.add_option( new options::string( "word" ) );
-      // dict2.add_option( new options::integer( "integer" ) );
-      // dict2.add_option( new options::real( "real" ) );
-      // dict2.add_dictionary( dict1 );
+      options::dictionary* dict1 = new options::dictionary( "sub" );
+      dict1->add_option( new options::string( "word" ) );
+      dict1->add_option( new options::integer( "integer" ) );
+      dict1->add_option( new options::real( "real" ) );
+      options::dictionary dict2;
+      dict2.add_option( new options::string( "word" ) );
+      dict2.add_option( new options::integer( "integer" ) );
+      dict2.add_option( new options::real( "real" ) );
+      dict2.add_dictionary( dict1 );
+      dict2.compile();
 
-      // dict2["word"] = "hello";
-      // dict2["integer"] = "5";
-      // dict2["real"] = "10.3";
-      // dict2["sub-word"] = "world";
-      // dict2["sub-integer"] = "10";
-      // dict2["sub-real"] = "20.6";
+      dict2["word"] = "hello";
+      dict2["integer"] = "5";
+      dict2["real"] = "10.3";
+      dict2["sub-word"] = "world";
+      dict2["sub-integer"] = "10";
+      dict2["sub-real"] = "20.6";
 
-      // options::xml xml;
-      // string filename = tmpnam( NULL );
-      // xml.write( filename, dict );
+      options::xml xml;
+      string filename = tmpnam( NULL );
+      xml.write( filename, dict2 );
 
-      // options::dictionary* new_dict1 = new options::dictionary( "sub" );
-      // new_dict1->add_option( new options::string( "word" ) );
-      // new_dict1->add_option( new options::integer( "integer" ) );
-      // new_dict1->add_option( new options::real( "real" ) );
-      // options::dictionary new_dict2;
-      // new_dict2.add_option( new options::string( "word" ) );
-      // new_dict2.add_option( new options::integer( "integer" ) );
-      // new_dict2.add_option( new options::real( "real" ) );
-      // new_dict2.add_dictionary( new_dict1 );
+      options::dictionary* new_dict1 = new options::dictionary( "sub" );
+      new_dict1->add_option( new options::string( "word" ) );
+      new_dict1->add_option( new options::integer( "integer" ) );
+      new_dict1->add_option( new options::real( "real" ) );
+      options::dictionary new_dict2;
+      new_dict2.add_option( new options::string( "word" ) );
+      new_dict2.add_option( new options::integer( "integer" ) );
+      new_dict2.add_option( new options::real( "real" ) );
+      new_dict2.add_dictionary( new_dict1 );
+      new_dict2.compile();
 
-      // xml.read( filename, new_dict2 );
+      xml.read( filename, new_dict2 );
 
-      // TS_ASSERT_EQUALS( dict.get<string>( "word" ), new_dict.get<string>( "word" ) );
-      // TS_ASSERT_EQUALS( dict.get<int>( "integer" ), new_dict.get<int>( "integer" ) );
-      // TS_ASSERT_EQUALS( dict.get<float>( "real" ), new_dict.get<float>( "real" ) );
-      // TS_ASSERT_EQUALS( dict.get<string>( "sub-word" ), new_dict.get<string>( "sub-word" ) );
-      // TS_ASSERT_EQUALS( dict.get<int>( "sub-integer" ), new_dict.get<int>( "sub-integer" ) );
-      // TS_ASSERT_EQUALS( dict.get<float>( "sub-real" ), new_dict.get<float>( "sub-real" ) );
+      TS_ASSERT_EQUALS( dict2.get<string>( "word" ), new_dict2.get<string>( "word" ) );
+      TS_ASSERT_EQUALS( dict2.get<int>( "integer" ), new_dict2.get<int>( "integer" ) );
+      TS_ASSERT_EQUALS( dict2.get<float>( "real" ), new_dict2.get<float>( "real" ) );
+      TS_ASSERT_EQUALS( dict2.get<string>( "sub-word" ), new_dict2.get<string>( "sub-word" ) );
+      TS_ASSERT_EQUALS( dict2.get<int>( "sub-integer" ), new_dict2.get<int>( "sub-integer" ) );
+      TS_ASSERT_EQUALS( dict2.get<float>( "sub-real" ), new_dict2.get<float>( "sub-real" ) );
 
-      // remove( filename.c_str() );
+      remove( filename.c_str() );
    }
 };

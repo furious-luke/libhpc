@@ -26,6 +26,6 @@ public:
    void test_simple()
    {
       re::re prog( "(a)|(b)|(c)" );
-      TS_ASSERT( prog( "c" ) );
+      TS_ASSERT( prog.match( "c" ) );
    }
 };

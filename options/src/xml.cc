@@ -91,7 +91,8 @@ namespace hpc {
          if( !name.empty() )
             sub_name = name + _sep;
          sub_name += node->name();
-         dict[sub_name] = node->value();
+         if( dict.has_option( sub_name ) )
+            dict[sub_name] = node->value();
 
          // Iterate over each child.
          xml_node<>* child = node->first_node();

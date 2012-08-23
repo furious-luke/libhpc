@@ -97,8 +97,8 @@ namespace hpc {
       }
 
       bool
-      dfa::operator()( const string& str,
-                       optional<match&> match ) const
+      dfa::match( const string& str,
+                  optional<re::match&> match ) const
       {
          LOG_ENTER();
 
@@ -118,8 +118,29 @@ namespace hpc {
       }
 
       bool
+      dfa::match_start( const string& str,
+                        optional<re::match&> match ) const
+      {
+         LOG_ENTER();
+
+         bool res;
+         if( _num_states )
+         {
+            if( match )
+               res = _match_start_and_capture( str, *match );
+            else
+               ASSERT( 0 );
+         }
+         else
+            res = false;
+
+         LOG_EXIT();
+         return res;
+      }
+
+      bool
       dfa::_match_and_capture( const string& str,
-                               match& match ) const
+                               re::match& match ) const
       {
          LOG_ENTER();
 
@@ -142,6 +163,37 @@ namespace hpc {
 
          // We have only matched if we end up in the match state.
          bool res = (move( state, static_cast<byte>( code_match ) ) != std::numeric_limits<uint16>::max() );
+
+         LOG_EXIT();
+         return res;
+      }
+
+      bool
+      dfa::_match_start_and_capture( const string& str,
+                                     re::match& match ) const
+      {
+         LOG_ENTER();
+
+         // Set appropriate size and clear out captures.
+         match._caps.resize( _num_caps );
+         for( auto& cap : match._caps )
+            cap.first = cap.second = NULL;
+
+         const char* ptr = str.c_str();
+         uint16 state = 0;
+         while( *ptr != 0 && 
+                move( state, static_cast<byte>( code_match ) ) == std::numeric_limits<uint16>::max() )
+         {
+            if( !_move_and_capture( state, *ptr, ptr, match ) )
+            {
+               LOG_EXIT();
+               return false;
+            }
+            ++ptr;
+         }
+
+         // We have only matched if we end up in the match state.
+         bool res = (move( state, static_cast<byte>( code_match ) ) != std::numeric_limits<uint16>::max());
 
          LOG_EXIT();
          return res;
@@ -175,7 +227,7 @@ namespace hpc {
       dfa::_move_and_capture( uint16& state,
                               byte data,
                               const char* ptr,
-                              match& match ) const
+                              re::match& match ) const
       {
          LOG_ENTER();
          LOGLN( "In state ", state, " with data ", data );

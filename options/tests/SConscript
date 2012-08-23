@@ -13,7 +13,7 @@ suites = [
 ]
 
 # Define libraries to link against.
-libs = ['containers', 'memory', 'debug'] + env.get('LIBS', [])
+libs = ['regexp', 'containers', 'logging', 'system', 'memory', 'debug'] + env.get('LIBS', [])
 
 # Call the helper.
 execfile(helpers.get_build_tests_script(), globals())

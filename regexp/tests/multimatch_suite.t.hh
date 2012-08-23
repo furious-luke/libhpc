@@ -28,7 +28,7 @@ public:
    {
       multimatch mm;
       mm.compile();
-      optional<hpc::index> match = mm( "hello world" );
+      optional<hpc::index> match = mm.match( "hello world" );
       TS_ASSERT( !match );
    }
 
@@ -37,7 +37,7 @@ public:
       multimatch mm;
       mm.add_match( "hello" );
       mm.compile();
-      optional<hpc::index> match = mm( "world" );
+      optional<hpc::index> match = mm.match( "world" );
       TS_ASSERT( !match );
    }
 
@@ -46,7 +46,7 @@ public:
       multimatch mm;
       mm.add_match( "hello" );
       mm.compile();
-      optional<hpc::index> match = mm( "hello" );
+      optional<hpc::index> match = mm.match( "hello" );
       TS_ASSERT( match );
    }
 
@@ -55,7 +55,7 @@ public:
       multimatch mm;
       mm.add_match( "hello" );
       mm.compile();
-      optional<hpc::index> match = mm( "hellos" );
+      optional<hpc::index> match = mm.match( "hellos" );
       TS_ASSERT( !match );
    }
 
@@ -66,7 +66,7 @@ public:
       mm.add_match( "world" );
       mm.add_match( "zinga" );
       mm.compile();
-      optional<hpc::index> match = mm( "zinga" );
+      optional<hpc::index> match = mm.match( "zinga" );
       TS_ASSERT( match );
    }
 
@@ -77,9 +77,9 @@ public:
       mm.add_match( "he" );
       mm.add_match( "zinga" );
       mm.compile();
-      optional<hpc::index> match = mm( "he" );
+      optional<hpc::index> match = mm.match( "he" );
       TS_ASSERT( match && *match == 1 );
-      match = mm( "hello" );
+      match = mm.match( "hello" );
       TS_ASSERT( match && *match == 0 );
 
       mm.clear();
@@ -87,9 +87,9 @@ public:
       mm.add_match( "hello" );
       mm.add_match( "zinga" );
       mm.compile();
-      match = mm( "he" );
+      match = mm.match( "he" );
       TS_ASSERT( match && *match == 0 );
-      match = mm( "hello" );
+      match = mm.match( "hello" );
       TS_ASSERT( match && *match == 1 );
    }
 };

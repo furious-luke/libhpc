@@ -61,14 +61,22 @@ namespace hpc {
                byte data ) const;
 
          bool
-         operator()( const string& str,
-                     optional<match&> match = optional<match&>() ) const;
+         match( const string& str,
+                optional<re::match&> match = optional<re::match&>() ) const;
+
+         bool
+         match_start( const string& str,
+                      optional<re::match&> match = optional<re::match&>() ) const;
 
       protected:
 
          bool
          _match_and_capture( const string& str,
-                             match& match ) const;
+                             re::match& match ) const;
+
+         bool
+         _match_start_and_capture( const string& str,
+                                   re::match& match ) const;
 
          bool
          _match( const string& str ) const;
@@ -77,7 +85,7 @@ namespace hpc {
          _move_and_capture( uint16& state,
                             byte data,
                             const char* ptr,
-                            match& match ) const;
+                            re::match& match ) const;
 
          bool
          _move( uint16& state,

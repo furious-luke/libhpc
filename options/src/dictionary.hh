@@ -22,6 +22,7 @@
 #include <boost/spirit/home/support/detail/hold_any.hpp>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/containers.hh"
+#include "libhpc/regexp/multimatch.hh"
 #include "option.hh"
 
 namespace hpc {
@@ -32,6 +33,10 @@ namespace hpc {
       ///
       class dictionary
       {
+         friend std::ostream&
+         operator<<( std::ostream& strm,
+                     const dictionary& obj );
+
       public:
 
          dictionary( const hpc::string& prefix = hpc::string() );
@@ -40,7 +45,20 @@ namespace hpc {
          T
          get( const hpc::string& name ) const
          {
-            return (T)(((const typename boost::mpl::at<type_map,T>::type&)((*this)[name])).value());
+            return (T)*(((const typename boost::mpl::at<type_map,T>::type&)((*this)[name])).get());
+         }
+
+         template< class T >
+         T
+         get( const hpc::string& name,
+              const T& default_value ) const
+         {
+            typedef typename boost::mpl::at<type_map,T>::type option_type;
+            const option_type* opt = dynamic_cast<const option_type*>( find( name ) );
+            if( opt && opt->has_value() )
+               return (T)opt->value();
+            else
+               return default_value;
          }
 
          void
@@ -49,32 +67,29 @@ namespace hpc {
          void
          add_dictionary( dictionary* dict );
 
+         void
+         compile();
+
          const hpc::string&
          prefix() const;
 
-         list<shared_ptr<option_base>>::const_iterator
-         options_begin() const
-         {
-            return _opts.cbegin();
-         }
+         bool
+         has_option( const hpc::string& name ) const;
 
-         list<shared_ptr<option_base>>::const_iterator
-         options_end() const
-         {
-            return _opts.cend();
-         }
+         vector<shared_ptr<option_base>>::const_iterator
+         options_begin() const;
 
-         list<shared_ptr<dictionary>>::const_iterator
-         dicts_begin() const
-         {
-            return _dicts.cbegin();
-         }
+         vector<shared_ptr<option_base>>::const_iterator
+         options_end() const;
 
-         list<shared_ptr<dictionary>>::const_iterator
-         dicts_end() const
-         {
-            return _dicts.cend();
-         }
+         vector<shared_ptr<dictionary>>::const_iterator
+         dicts_begin() const;
+
+         vector<shared_ptr<dictionary>>::const_iterator
+         dicts_end() const;
+
+         const option_base*
+         find( const hpc::string& name ) const;
 
          const option_base&
          operator[]( const hpc::string& name ) const;
@@ -82,15 +97,15 @@ namespace hpc {
          option_base&
          operator[]( const hpc::string& name );
 
-         friend std::ostream&
-         operator<<( std::ostream& strm,
-                     const dictionary& obj );
-
       protected:
 
+         bool _ready;
+         hpc::string _sep;
          hpc::string _pre;
-         list<shared_ptr<option_base>> _opts;
-         list<shared_ptr<dictionary>> _dicts;
+         vector<shared_ptr<option_base>> _opts;
+         vector<shared_ptr<dictionary>> _dicts;
+         multimatch _opts_mm;
+         multimatch _dicts_mm;
       };
    }
 }
