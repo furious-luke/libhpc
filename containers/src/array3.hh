@@ -28,6 +28,12 @@ namespace hpc {
    {
    public:
 
+      typedef typename impl::boost::array<T,3>::size_type size_type;
+      typedef index key_type;
+      typedef T mapped_type;
+
+   public:
+
       array()
       {
       }
@@ -39,6 +45,14 @@ namespace hpc {
          this->elems[0] = x;
          this->elems[1] = y;
          this->elems[2] = z;
+      }
+
+      friend std::ostream&
+      operator<<( std::ostream& strm,
+                  const array& obj )
+      {
+	 strm << "[" << obj.elems[0] << ", " << obj.elems[1] << ", " << obj.elems[2] << "]";
+	 return strm;
       }
    };
 };

@@ -77,6 +77,10 @@ namespace hpc {
       {
       public:
 
+         typedef T value_type;
+
+      public:
+
          option( const hpc::string& name,
                  optional<T> default_value = optional<T>() )
             : option_base( name ),
@@ -109,6 +113,7 @@ namespace hpc {
          const T&
          value() const
          {
+            ASSERT( _val, "Value has not been set." );
             return *_val;
          }
 
@@ -146,6 +151,9 @@ namespace hpc {
 
          string( const hpc::string& name,
                  optional<hpc::string> default_value = optional<hpc::string>() );
+
+         string( const hpc::string& name,
+                 optional<const char*> default_value );
 
          virtual
          void

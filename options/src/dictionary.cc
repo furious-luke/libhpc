@@ -126,6 +126,7 @@ namespace hpc {
       const option_base&
       dictionary::operator[]( const hpc::string& name ) const
       {
+         ASSERT( has_option( name ), "No option by that name." );
          return *find( name );
       }
 

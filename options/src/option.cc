@@ -61,6 +61,14 @@ namespace hpc {
       {
       }
 
+      string::string( const hpc::string& name,
+                      optional<const char*> default_value )
+         : option<hpc::string>( name )
+      {
+         if( default_value )
+            _def = hpc::string( *default_value );
+      }
+
       void
       string::parse( const hpc::string& value )
       {

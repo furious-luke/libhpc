@@ -18,9 +18,10 @@
 #ifndef containers_map_hh
 #define containers_map_hh
 
+#include <ostream>
+#include <map>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/memory/memory.hh"
-#include <map>
 
 namespace hpc {
 

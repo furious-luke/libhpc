@@ -83,8 +83,6 @@ namespace hpc {
          ASSERT( _fd >= 0 );
          ASSERT( !size || buf );
          ssize_t res = ::write( _fd, buf, size );
-         if( res == -1 )
-            std::cout << errno << ": " << strerror( errno ) << "\n";
          ASSERT( res >= 0 );
          ASSERT( res == size );
       }

@@ -38,7 +38,7 @@ namespace hpc {
 
       friend std::ostream&
       operator<<( std::ostream& strm,
-		  const array<T,N>& obj )
+		  const array& obj )
       {
 	 strm << "[";
 	 if( obj.size() )

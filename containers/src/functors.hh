@@ -45,6 +45,17 @@ namespace hpc {
 	 *it = init;
    }
 
+   template< class InputIterator,
+             class OutputIterator >
+   void
+   copy_n( InputIterator first,
+           size_t size,
+           OutputIterator result )
+   {
+      while( size-- > 0 )
+         *result++ = *first++;
+   }
+
    template< class InputIter,
 	     class OutputIter,
 	     class Predicate >
