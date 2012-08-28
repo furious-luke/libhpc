@@ -27,6 +27,15 @@ namespace hpc {
       }
 
       void
+      dictionary::clear()
+      {
+         _opts.deallocate();
+         _dicts.deallocate();
+         _opts_mm.clear();
+         _dicts_mm.clear();
+      }
+
+      void
       dictionary::add_option( option_base* opt )
       {
 #ifndef NDEBUG

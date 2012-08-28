@@ -41,6 +41,9 @@ namespace hpc {
 
          dictionary( const hpc::string& prefix = hpc::string() );
 
+         void
+         clear();
+
          template< class T >
          T
          get( const hpc::string& name ) const
