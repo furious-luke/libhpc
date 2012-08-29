@@ -35,6 +35,14 @@ namespace hpc {
          _dicts_mm.clear();
       }
 
+      const dictionary&
+      dictionary::sub( const hpc::string& prefix ) const
+      {
+         re::match match;
+         if( _dicts_mm.match_start( prefix + _sep, match ) )
+            return *_dicts[match.last_capture()];
+      }
+
       void
       dictionary::add_option( option_base* opt )
       {

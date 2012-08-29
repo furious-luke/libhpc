@@ -69,6 +69,9 @@ namespace hpc {
                return default_value;
          }
 
+         const dictionary&
+         sub( const hpc::string& prefix ) const;
+
          void
          add_option( option_base* opt );
 
