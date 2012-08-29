@@ -61,6 +61,13 @@ namespace hpc {
       }
 
       void
+      set_start( const T& start )
+      {
+         ASSERT( start <= _finish );
+         this->_start = start;
+      }
+
+      void
       set_finish( const T& finish )
       {
          ASSERT( _start <= finish );
