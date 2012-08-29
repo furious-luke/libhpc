@@ -21,8 +21,11 @@
 #include <boost/optional.hpp>
 #include <boost/none.hpp>
 
-using boost::none;
-using boost::optional;
+namespace hpc {
+
+   using boost::none;
+   using boost::optional;
+}
 
 // namespace hpc {
 
