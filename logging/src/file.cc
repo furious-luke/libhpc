@@ -22,8 +22,9 @@ namespace hpc {
 
 #ifndef NLOG
 
-      file::file( const std::string& filename )
-         : logger(),
+      file::file( const std::string& filename,
+                  unsigned min_level )
+         : logger( min_level ),
            _filename( filename )
       {
       }
@@ -55,9 +56,12 @@ namespace hpc {
       void
       file::new_line()
       {
-         _file << _buf.str() << std::endl;
-         _buf.str( std::string() );
-         _new_line = true;
+         if( visible() )
+         {
+            _file << _buf.str() << std::endl;
+            _buf.str( std::string() );
+            _new_line = true;
+         }
       }
 
 #endif

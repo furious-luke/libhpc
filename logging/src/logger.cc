@@ -29,7 +29,8 @@ namespace hpc {
 
       double log_base_time;
 
-      logger::logger()
+      logger::logger( unsigned min_level )
+         : _min_level( min_level )
       {
       }
 
@@ -57,7 +58,26 @@ namespace hpc {
       void
       logger::new_line()
       {
-         _new_line = true;
+         if( visible() )
+            _new_line = true;
+      }
+
+      void
+      logger::push_level( unsigned level )
+      {
+         _levels.push_front( level );
+      }
+
+      void
+      logger::pop_level()
+      {
+         _levels.pop_front();
+      }
+
+      bool
+      logger::visible() const
+      {
+         return (_levels.empty() || _levels.front() >= _min_level);
       }
 
       void
@@ -81,6 +101,39 @@ namespace hpc {
       endl( logger& log )
       {
          log.new_line();
+         return log;
+      }
+
+      ///
+      ///
+      ///
+      level_t
+      pushlevel( unsigned level )
+      {
+         level_t lv;
+         lv.level = level;
+         return lv;
+      }
+
+      ///
+      ///
+      ///
+      logger&
+      operator<<( logger& log,
+                  level_t level )
+      {
+         log.push_level( level.level );
+         return log;
+      }
+
+      ///
+      ///
+      ///
+      logger&
+      poplevel( logger& log )
+      {
+         log.pop_level();
+         return log;
       }
    }
 }

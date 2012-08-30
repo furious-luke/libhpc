@@ -30,7 +30,8 @@ namespace hpc {
       {
       public:
 
-         file( const std::string& filename );
+         file( const std::string& filename,
+               unsigned min_level=0 );
 
          virtual
          ~file();

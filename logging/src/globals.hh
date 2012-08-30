@@ -66,11 +66,19 @@
 #define LOGLN( ... )                            \
    LOG( __VA_ARGS__, ::hpc::logging::endl )
 
-#define LOG_ENTER()                                                     \
-   LOG( "Entering: ", __PRETTY_FUNCTION__, ::hpc::logging::endl, ::hpc::setindent( 2 ) )
+#define LOGLV( level, ... )                                     \
+   LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
+        ::hpc::logging::poplevel, ::hpc::logging::endl )
 
-#define LOG_EXIT()                                                      \
-   LOG( ::hpc::setindent( -2 ), "Exiting: ", __PRETTY_FUNCTION__, ::hpc::logging::endl )
+#define LOG_ENTER()                                             \
+   LOG( ::hpc::logging::pushlevel( 0 ), "Entering: ",           \
+        __PRETTY_FUNCTION__, ::hpc::logging::endl,              \
+        ::hpc::setindent( 2 ), ::hpc::logging::poplevel )
+
+#define LOG_EXIT()                                              \
+   LOG( ::hpc::logging::pushlevel( 0 ), ::hpc::setindent( -2 ), \
+        "Exiting: ", __PRETTY_FUNCTION__, ::hpc::logging::endl, \
+        ::hpc::logging::poplevel )
 
 #define LOG_PUSH( logger )                      \
    ::hpc::logging::push( logger )

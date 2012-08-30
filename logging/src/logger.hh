@@ -15,12 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_logger_hh
-#define debug_logger_hh
+#ifndef libhpc_logging_logger_hh
+#define libhpc_logging_logger_hh
 
 #include <typeinfo>
 #include <sstream>
 #include <iomanip>
+#include <list>
 #include "libhpc/system/stream_indent.hh"
 
 #ifndef NLOG
@@ -31,11 +32,19 @@ namespace hpc {
       ///
       ///
       ///
+      struct level_t
+      {
+         unsigned level;
+      };
+
+      ///
+      ///
+      ///
       class logger
       {
       public:
 
-         logger();
+         logger( unsigned min_level=0 );
 
          virtual
          ~logger();
@@ -52,6 +61,15 @@ namespace hpc {
          virtual void
          prefix();
 
+         void
+         push_level( unsigned level );
+
+         void
+         pop_level();
+
+         bool
+         visible() const;
+
          template< class T >
          logger&
          operator<<( const T& obj )
@@ -64,11 +82,15 @@ namespace hpc {
          template< class T >
          void
          operator()( const T& obj,
-                     bool new_line = true )
+                     bool new_line=true )
          {
-            if( new_line && _new_line )
-               prefix();
-            _buf << obj;
+            // Don't log if currently below minimum level.
+            if( visible() )
+            {
+               if( new_line && _new_line )
+                  prefix();
+               _buf << obj;
+            }
          }
 
       protected:
@@ -92,6 +114,8 @@ namespace hpc {
 
          bool _new_line;
          std::stringstream _buf;
+         std::list<unsigned> _levels;
+         unsigned _min_level;
       };
 
       template<>
@@ -119,6 +143,25 @@ namespace hpc {
       ///
       logger&
       endl( logger& log );
+
+      ///
+      ///
+      ///
+      level_t
+      pushlevel( unsigned level );
+
+      ///
+      ///
+      ///
+      logger&
+      operator<<( logger& log,
+                  level_t level );
+
+      ///
+      ///
+      ///
+      logger&
+      poplevel( logger& log );
    }
 }
 
