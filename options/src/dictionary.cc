@@ -44,15 +44,42 @@ namespace hpc {
       }
 
       void
-      dictionary::add_option( option_base* opt )
+      dictionary::add_option( option_base* opt,
+                              optional<const hpc::string&> prefix )
       {
+         dictionary* sub;
+         if( prefix )
+         {
+            // Unfortunately I need to use a linear search here,
+            // because at this stage the dictionary will not be
+            // compiled.
+            sub = NULL;
+            for( unsigned ii = 0; ii < _dicts.size(); ++ii )
+            {
+               if( _dicts[ii]->_pre == *prefix )
+               {
+                  sub = _dicts[ii];
+                  break;
+               }
+            }
+
+            // Create the dictionary if it does not already exist.
+            if( !sub )
+            {
+               sub = new dictionary( *prefix );
+               add_dictionary( sub );
+            }
+         }
+         else
+            sub = this;
+
 #ifndef NDEBUG
-         for( const auto& exist : _opts )
+         for( const auto& exist : sub->_opts )
             ASSERT( exist->name() != opt->name() );
 #endif
-         _opts.push_back( opt );
-         _opts_mm.add_match( opt->name() );
-         _ready = false;
+         sub->_opts.push_back( opt );
+         sub->_opts_mm.add_match( opt->name() );
+         sub->_ready = false;
       }
 
       void
@@ -138,6 +165,16 @@ namespace hpc {
             return (*_dicts[match.last_capture()]).find( match.capture( match.last_capture() ).second );
 
          return NULL;
+      }
+
+      dictionary*
+      dictionary::find_sub( const hpc::string& prefix )
+      {
+         re::match match;
+         if( _dicts_mm.match_start( prefix + _sep, match ) )
+            return _dicts[match.last_capture()];
+         else
+            return NULL;
       }
 
       const option_base&
