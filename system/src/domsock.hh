@@ -15,13 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_domsock_hh
+#define libhpc_system_domsock_hh
 
-#include "daemon.hh"
-#include "id.hh"
-#include "pipe.hh"
-#include "inetsock.hh"
-#include "domsock.hh"
+#include <sys/un.h>
+#include "socket.hh"
+
+namespace hpc {
+   namespace unix {
+
+      class domsock
+         : public socket
+      {
+      public:
+
+         void
+         open();
+
+         void
+         bind( const string& path );
+
+         void
+         connect( const string& path );
+
+         void
+         accept( domsock& client );
+
+         void
+         send_fd( int fd );
+
+         int
+         recv_fd();
+      };
+   }
+}
 
 #endif

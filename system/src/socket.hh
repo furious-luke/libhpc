@@ -15,13 +15,28 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_socket_hh
+#define libhpc_system_socket_hh
 
-#include "daemon.hh"
-#include "id.hh"
 #include "pipe.hh"
-#include "inetsock.hh"
-#include "domsock.hh"
+
+namespace hpc {
+   namespace unix {
+
+      class socket
+         : public pipe
+      {
+      public:
+
+         void
+         open( int family,
+               int type,
+               int protocol=0 );
+
+         void
+         listen( unsigned backlog=100 );
+      };
+   }
+}
 
 #endif

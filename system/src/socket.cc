@@ -15,13 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#include <sys/socket.h>
+#include "libhpc/logging/logging.hh"
+#include "socket.hh"
 
-#include "daemon.hh"
-#include "id.hh"
-#include "pipe.hh"
-#include "inetsock.hh"
-#include "domsock.hh"
+namespace hpc {
+   namespace unix {
 
-#endif
+      void
+      socket::open( int family,
+                    int type,
+                    int protocol )
+      {
+         LOG_ENTER();
+
+         close();
+         _fd = ::socket( family, type, protocol );
+         ASSERT( _fd >= 0 );
+
+         LOG_EXIT();
+      }
+
+      void
+      socket::listen( unsigned backlog )
+      {
+         INSIST( ::listen( _fd, backlog ), >= 0 );
+      }
+   }
+}

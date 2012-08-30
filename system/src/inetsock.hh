@@ -15,13 +15,36 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_inetsock_hh
+#define libhpc_system_inetsock_hh
 
-#include "daemon.hh"
-#include "id.hh"
-#include "pipe.hh"
-#include "inetsock.hh"
-#include "domsock.hh"
+#include <netinet/in.h>
+#include "socket.hh"
+
+namespace hpc {
+   namespace unix {
+
+      class inetsock
+         : public socket
+      {
+      public:
+
+         inetsock();
+
+         inetsock( const string& ip_addr,
+                   uint16 port=0 );
+
+         void
+         open();
+
+         void
+         bind( const string& ip_addr=string(),
+               uint16 port=0 );
+
+         void
+         accept( inetsock& client );
+      };
+   }
+}
 
 #endif
