@@ -15,18 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_numerics_vector_hh
+#define libhpc_numerics_vector_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/hpcmpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
+#include "eigen_vector.hh"
+
+namespace hpc {
+   namespace numerics {
+
+      template< class T,
+                int Rows=Eigen::Dynamic >  // TODO: fix this to be generic
+      class vector
+         : public impl::eigen::vector< T, Rows >
+      {
+      public:
+
+         typedef impl::eigen::vector<T,Rows> super_type;
+
+      public:
+
+         vector()
+            : super_type()
+         {
+         }
+      };
+   }
+}
 
 #endif

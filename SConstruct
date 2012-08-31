@@ -6,6 +6,7 @@ config.select(
     config.packages.MPI(),
     config.packages.HDF5(),
     config.packages.rapidxml(),
+    config.packages.Eigen(),
 )
 
 vars = project.create_variables()
@@ -25,6 +26,6 @@ if not env['LOG']:
     env.MergeFlags('-DNLOG')
 
 layers = ['debug', 'memory', 'system', 'logging', 'containers', 'regexp',
-          'options', 'mpi', 'h5']
+          'options', 'mpi', 'h5', 'numerics']
 
 project.build(layers, proj_name='libhpc', env=env, vars=vars)

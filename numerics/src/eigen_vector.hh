@@ -15,18 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_numerics_eigen_vector_hh
+#define libhpc_numerics_eigen_vector_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/hpcmpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
+#include <Eigen/Eigen>
+
+namespace hpc {
+   namespace numerics {
+      namespace impl {
+         namespace eigen {
+
+            template< class T,
+                      int Rows >
+            class vector
+               : public Eigen::Matrix< T, Rows, 1 >
+            {
+            public:
+
+               typedef Eigen::Matrix<T,Rows,1> super_type;
+
+            public:
+
+               vector()
+                  : super_type()
+               {
+               }
+            };
+         }
+      }
+   }
+}
 
 #endif
