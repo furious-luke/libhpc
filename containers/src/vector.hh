@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef containers_vector_hh
-#define containers_vector_hh
+#ifndef libhpc_containers_vector_hh
+#define libhpc_containers_vector_hh
 
 #include "std_vector.hh"
 #include "vector_view.hh"
