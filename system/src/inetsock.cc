@@ -17,6 +17,7 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include "libhpc/logging/logging.hh"
 #include "inetsock.hh"
 
@@ -57,13 +58,23 @@ namespace hpc {
          else
             ip = INADDR_ANY;
 
+         // Prepare the address.
          struct sockaddr_in addr;
          bzero( (char*)&addr, sizeof(addr) );
          addr.sin_family = AF_INET;
          addr.sin_addr.s_addr = ip;
          addr.sin_port = htons( port );
-         INSIST( ::bind( _fd, (struct sockaddr*)&addr, sizeof(addr) ), >= 0 );
 
+         // Call and handle the bind function.
+         int ec = ::bind( _fd, (struct sockaddr*)&addr, sizeof(addr) );
+         if( ec < 0 )
+         {
+            HNDERR( errno == EADDRINUSE, error::address_in_use , err0 );
+            SETERR( debug::error::unknown, err0 );
+         }
+         ERROK();
+
+        err0:
          LOG_EXIT();
       }
 

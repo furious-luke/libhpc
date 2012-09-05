@@ -15,32 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "globals.hh"
-#include "tracer.hh"
+#ifndef libhpc_debug_codes_hh
+#define libhpc_debug_codes_hh
 
-#ifndef NSTACKTRACE
+#include "error.hh"
 
 namespace hpc {
    namespace debug {
 
-      tracer stack_trace;
-      bool use_abort = false;
-
-      void _clear_stack_trace() {
-         stack_trace.clear();
-      }
-
-      void _enter_func(const char* func) {
-         stack_trace.push(func);
-      }
-
-      void _exit_func() {
-         stack_trace.pop();
-      }
-
-      void _set_abort(bool flag) {
-         use_abort = flag;
-      }
+      ERRORS( okay, unknown, out_of_memory );
    }
 }
 

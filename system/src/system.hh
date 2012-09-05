@@ -21,6 +21,7 @@
 #include "daemon.hh"
 #include "id.hh"
 #include "pipe.hh"
+#include "epoll.hh"
 #include "inetsock.hh"
 #include "domsock.hh"
 

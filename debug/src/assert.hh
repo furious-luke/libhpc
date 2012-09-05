@@ -20,25 +20,42 @@
 
 #ifndef NDEBUG
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "assertions.hh"
 
-#define ASSERT(expr, ...)					\
-  debug::_assert(expr, __FILE__, __LINE__, #expr, ##__VA_ARGS__)
+#define ASSERT( expr, ... )                                     \
+   ::hpc::debug::_assert( expr, __FILE__,                       \
+                          __LINE__, #expr, ##__VA_ARGS__ )
 
-namespace debug {
+namespace hpc {
+   namespace debug {
 
-  void _assert(bool state, const char* file, int line, const char* expr, const char* msg=NULL);
+      void
+      _assert( bool state,
+               const char* file,
+               int line,
+               const char* expr,
+               const char* msg=NULL );
 
-  void _assert(bool state, const char* file, int line, const char* expr, assertion ass);
+      void
+      _assert( bool state,
+               const char* file,
+               int line,
+               const char* expr,
+               assertion ass );
 
-  void _assert(bool state, const char* file, int line, const char* expr, int code);
-
+      void
+      _assert( bool state,
+               const char* file,
+               int line,
+               const char* expr,
+               int code );
+   }
 }
 
 #else
 
-#define ASSERT(expr, ...)
+#define ASSERT( expr, ... )
 
 #endif
 

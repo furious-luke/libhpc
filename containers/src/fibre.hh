@@ -27,6 +27,9 @@ namespace hpc {
    template< class T >
    class const_fibre_iterator;
 
+   ///
+   ///
+   ///
    template< class T >
    class fibre_iterator
       : public std::iterator< std::random_access_iterator_tag,
@@ -201,6 +204,9 @@ namespace hpc {
       friend class const_fibre_iterator<T>;
    };
 
+   ///
+   ///
+   ///
    template< class T >
    class const_fibre_iterator
       : public std::iterator< std::random_access_iterator_tag,
@@ -338,13 +344,13 @@ namespace hpc {
       }
 
       const typename vector<T>::view
-      operator*()
+      operator*() const
       {
          return typename vector<T>::view( this->_ptr, this->_fibre_size );
       }
 
       typename vector<T>::view
-      operator[]( hpc::index idx )
+      operator[]( hpc::index idx ) const
       {
          return typename vector<T>::view( this->_ptr + idx*this->_fibre_size, this->_fibre_size );
       }
@@ -393,12 +399,17 @@ namespace hpc {
       friend class fibre_iterator<T>;
    };
 
+   ///
+   ///
+   ///
    template< class T >
    class fibre
       : public vector<T>
    {
    public:
 
+      typedef vector<T>                     super_type;
+      typedef T                             value_type;
       typedef typename vector<T>::size_type size_type;
       typedef fibre_iterator<T>             iterator;
       typedef const_fibre_iterator<T>       const_iterator;
@@ -429,6 +440,16 @@ namespace hpc {
 	 this->deallocate();
 	 this->_num_fibres = 0;
 	 this->_fibre_size = size;
+      }
+
+      void
+      take( fibre<value_type>& src )
+      {
+         super_type::take( src );
+         _num_fibres = src._num_fibres;
+         _fibre_size = src._fibre_size;
+         src._num_fibres = 0;
+         src._fibre_size = 0;
       }
 
       size_type
@@ -528,6 +549,18 @@ namespace hpc {
       vend()
       {
          return vector<T>::end();
+      }
+
+      const typename vector<T>::view
+      front() const
+      {
+         return (*this)[0];
+      }
+
+      const typename vector<T>::view
+      back() const
+      {
+         return (*this)[_num_fibres - 1];
       }
 
       const typename vector<T>::view

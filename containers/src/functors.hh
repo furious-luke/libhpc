@@ -23,6 +23,9 @@
 
 namespace hpc {
 
+   ///
+   ///
+   ///
    template< class Iter,
 	     class Value >
    void
@@ -34,6 +37,9 @@ namespace hpc {
 	 *first = init;
    }
 
+   ///
+   ///
+   ///
    template< class Sequence,
 	     class Value >
    void
@@ -45,6 +51,9 @@ namespace hpc {
 	 *it = init;
    }
 
+   ///
+   ///
+   ///
    template< class InputIterator,
              class OutputIterator >
    void
@@ -56,6 +65,9 @@ namespace hpc {
          *result++ = *first++;
    }
 
+   ///
+   ///
+   ///
    template< class InputIter,
 	     class OutputIter,
 	     class Predicate >
@@ -73,6 +85,9 @@ namespace hpc {
       return result;
    }
 
+   ///
+   ///
+   ///
    template< class T >
    struct counted {
       typedef std::pair<int, T> result_type;
@@ -91,6 +106,9 @@ namespace hpc {
       hpc::index _idx;
    };
 
+   ///
+   ///
+   ///
    template< class T >
    struct counted_flipped {
       typedef std::pair<T, int> result_type;
@@ -109,6 +127,9 @@ namespace hpc {
       hpc::index _idx;
    };
 
+   ///
+   ///
+   ///
    template< class Map >
    struct map_getter {
 
@@ -130,12 +151,18 @@ namespace hpc {
       const Map* _map;
    };
 
+   ///
+   ///
+   ///
    template< class Map >
    map_getter<Map> map_get( const Map& map )
    {
       return map_getter<Map>(map);
    }
 
+   ///
+   ///
+   ///
    template< class Map >
    struct map_derefer
       : public std::unary_function< typename Map::key_type,
@@ -159,12 +186,18 @@ namespace hpc {
       const Map* _map;
    };
 
+   ///
+   ///
+   ///
    template< class Map >
    map_derefer<Map> map_deref( const Map& map )
    {
       return map_derefer<Map>(map);
    }
 
+   ///
+   ///
+   ///
    template< class Array >
    struct element
       : public std::unary_function< const Array&,
@@ -175,7 +208,7 @@ namespace hpc {
       typedef typename Array::value_type value_type;
       typedef typename Array::value_type result_type;
 
-      element( index idx )
+      element( index idx=0 )
 	 : _idx( idx )
       {
       }
@@ -189,6 +222,9 @@ namespace hpc {
       index _idx;
    };
 
+   ///
+   ///
+   ///
    template< class Set >
    struct _set_has
    {
@@ -211,12 +247,18 @@ namespace hpc {
       const Set* _set;
    };
 
+   ///
+   ///
+   ///
    template< class Set >
    _set_has<Set> set_has( const Set& set )
    {
       return _set_has<Set>(set);
    }
 
+   ///
+   ///
+   ///
    template< class T >
    class identity
       : public std::unary_function< T, T >
@@ -230,6 +272,9 @@ namespace hpc {
       }
    };
 
+   ///
+   ///
+   ///
    template< class Operation1,
 	     class Operation2,
 	     class Operation3 >

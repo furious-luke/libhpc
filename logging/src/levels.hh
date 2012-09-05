@@ -15,32 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "globals.hh"
-#include "tracer.hh"
-
-#ifndef NSTACKTRACE
+#ifndef libhpc_logging_levels_hh
+#define libhpc_logging_levels_hh
 
 namespace hpc {
-   namespace debug {
+   namespace logging {
 
-      tracer stack_trace;
-      bool use_abort = false;
-
-      void _clear_stack_trace() {
-         stack_trace.clear();
-      }
-
-      void _enter_func(const char* func) {
-         stack_trace.push(func);
-      }
-
-      void _exit_func() {
-         stack_trace.pop();
-      }
-
-      void _set_abort(bool flag) {
-         use_abort = flag;
-      }
+      enum levels {
+         debug = 10,
+         info = 20,
+         error = 30,
+         critical = 40
+      };
    }
 }
 

@@ -15,33 +15,36 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "globals.hh"
-#include "tracer.hh"
+#ifndef libhpc_logging_stdout_hh
+#define libhpc_logging_stdout_hh
 
-#ifndef NSTACKTRACE
+#include "logger.hh"
+#include "levels.hh"
+
+#ifndef NLOG
 
 namespace hpc {
-   namespace debug {
+   namespace logging {
 
-      tracer stack_trace;
-      bool use_abort = false;
+      ///
+      ///
+      ///
+      class stdout
+         : public logger
+      {
+      public:
 
-      void _clear_stack_trace() {
-         stack_trace.clear();
-      }
+         stdout( unsigned min_level=levels::info );
 
-      void _enter_func(const char* func) {
-         stack_trace.push(func);
-      }
+         virtual
+         ~stdout();
 
-      void _exit_func() {
-         stack_trace.pop();
-      }
-
-      void _set_abort(bool flag) {
-         use_abort = flag;
-      }
+         virtual void
+         new_line();
+      };
    }
 }
+
+#endif
 
 #endif

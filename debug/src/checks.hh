@@ -15,22 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_checks_hh
-#define debug_checks_hh
+#ifndef libhpc_debug_checks_hh
+#define libhpc_debug_checks_hh
 
 #ifndef NDEBUG
 
-#define CHECK(expr) expr
+#define CHECK( expr ) expr
 
-namespace debug {
+namespace hpc {
+   namespace debug {
 
-  void check_path(const char* path);
-
+      void
+      check_path( const char* path );
+   }
 }
 
 #else
 
-#define CHECK(expr)
+#define CHECK( expr )
 
 #endif
 

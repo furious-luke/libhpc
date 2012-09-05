@@ -20,54 +20,56 @@
 
 #include "group.hh"
 
-namespace debug {
+namespace hpc {
+   namespace debug {
 
-   template< class T >
-   class group_context
-   {
-   public:
+      template< class T >
+      class group_context
+      {
+      public:
 
-      static const int max_groups = 1024;
+         static const int max_groups = 1024;
 
-      group_context( bool enable_root=true );
+         group_context( bool enable_root=true );
 
-      ~group_context();
+         ~group_context();
 
-      void
-      select( const char* path );
+         void
+         select( const char* path );
 
-      void
-      deselect( const char* path );
+         void
+         deselect( const char* path );
 
-      int
-      num_groups() const;
+         int
+         num_groups() const;
 
-      const debug::group<T>&
-      group( int idx ) const;
+         const debug::group<T>&
+         group( int idx ) const;
 
-      int
-      num_selected() const;
+         int
+         num_selected() const;
 
-      debug::group<T>&
-      selected_group( int idx );
+         debug::group<T>&
+         selected_group( int idx );
 
-   protected:
+      protected:
 
-      void
-      find( const char* path,
+         void
+         find( const char* path,
 	    int& group,
 	    int*& prev );
 
-      int
-      find_create( const char* path );
+         int
+         find_create( const char* path );
 
-   private:
+      private:
 
-      int _num_groups;
-      debug::group<T> _groups[max_groups];
-      int _num_selected;
-      int _selection[max_groups];
-   };
+         int _num_groups;
+         debug::group<T> _groups[max_groups];
+         int _num_selected;
+         int _selection[max_groups];
+      };
+   }
 }
 
 #endif

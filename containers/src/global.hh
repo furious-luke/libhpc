@@ -18,6 +18,7 @@
 #ifndef hpc_containers_global_hh
 #define hpc_containers_global_hh
 
+#include <ostream>
 #include <tuple>
 #include <boost/lexical_cast.hpp>
 
@@ -27,7 +28,7 @@ namespace hpc {
 	     class U >
    std::ostream&
    operator<<( std::ostream& strm,
-	       const std::pair<T, U>& obj )
+	       const std::pair<T,U>& obj )
    {
       strm << "(" << obj.first << ", " << obj.second << ")";
       return strm;
@@ -38,7 +39,7 @@ namespace hpc {
              class V >
    std::ostream&
    operator<<( std::ostream& strm,
-               const std::tuple<T, U, V>& obj )
+               const std::tuple<T,U,V>& obj )
    {
       strm << "(" << std::get<0>( obj ) << ", " << std::get<1>( obj ) << ", " << std::get<2>( obj ) << ")";
       return strm;

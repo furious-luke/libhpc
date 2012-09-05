@@ -20,5 +20,8 @@
 
 #include "vector.hh"
 #include "matrix.hh"
+#include "tridiag.hh"
+#include "spline.hh"
+#include "interp_iterator.hh"
 
 #endif

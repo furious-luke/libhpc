@@ -24,38 +24,68 @@
 #include <string>
 #include <exception>
 
-namespace debug {
+namespace hpc {
+   namespace debug {
 
-   class assertion
-      : public std::exception
-   {
-   public:
+      ///
+      ///
+      ///
+      class assertion
+         : public std::exception
+      {
+      public:
 
-      assertion( const char* msg=NULL ) throw();
+         assertion( const char* msg=NULL ) throw();
 
-      assertion( const assertion& ass );
+         assertion( const assertion& ass );
 
-      virtual ~assertion() throw();
+         virtual
+         ~assertion() throw();
 
-      void
-      details( const char* file,
-	       int line,
-	       const char* expr ) throw();
+         void
+         details( const char* file,
+                  int line,
+                  const char* expr ) throw();
 
-      virtual const char*
-      what() const throw();
+         virtual const char*
+         what() const throw();
 
-   protected:
+      protected:
 
-      void write_buffer() throw();
+         void
+         _write_buffer() throw();
 
-   private:
-      const char* _file;
-      int _line;
-      const char* _expr;
-      char _msg[1024];
-      char _buf[1024];
-   };
+      private:
+
+         const char* _file;
+         int _line;
+         const char* _expr;
+         char _msg[1024];
+         char _buf[1024];
+      };
+
+      ///
+      ///
+      ///
+      class out_of_memory
+         : public assertion
+      {
+      public:
+
+         out_of_memory();
+      };
+
+      ///
+      ///
+      ///
+      class invalid_index
+         : public assertion
+      {
+      public:
+
+         invalid_index();
+      };
+   }
 }
 
 #endif

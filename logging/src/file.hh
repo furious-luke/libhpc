@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef libhpc_logging_file_hh
+#define libhpc_logging_file_hh
+
 #include "logger.hh"
 
 #ifndef NLOG
@@ -52,5 +55,7 @@ namespace hpc {
       };
    }
 }
+
+#endif
 
 #endif

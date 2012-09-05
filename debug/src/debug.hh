@@ -28,5 +28,7 @@
 #include "group_context.tcc"
 #include "globals.hh"
 #include "checks.hh"
+#include "error.hh"
+#include "codes.hh"
 
 #endif

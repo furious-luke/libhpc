@@ -20,6 +20,8 @@
 
 #include "logger.hh"
 #include "file.hh"
+#include "stdout.hh"
 #include "globals.hh"
+#include "levels.hh"
 
 #endif

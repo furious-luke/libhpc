@@ -29,6 +29,10 @@ namespace hpc {
       {
       public:
 
+         ERRORS( address_in_use );
+
+      public:
+
          inetsock();
 
          inetsock( const string& ip_addr,
