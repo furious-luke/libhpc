@@ -173,7 +173,7 @@ namespace hpc {
             firstpos.insert( index );
          }
 
-         LOGLN( "firstpos (", (int)data, "): ", firstpos );
+         LOGLVLN( logging::debug, "firstpos (", (int)data, "): ", firstpos );
          LOG_EXIT();
       }
 
@@ -225,7 +225,7 @@ namespace hpc {
 
          if( data == static_cast<byte>( code_concat ) )
          {
-            LOGLN( "Concatenation." );
+            LOGLVLN( logging::debug, "Concatenation." );
 
             // Depth first.
             ASSERT( child[0] && child[1] );
@@ -236,7 +236,7 @@ namespace hpc {
             {
                for( const auto& fp : child[1]->firstpos )
                {
-                  LOGLN( "Adding ", fp, " to ", lp );
+                  LOGLVLN( logging::debug, "Adding ", fp, " to ", lp );
                   followpos.insert( lp, fp );
                }
             }
@@ -292,7 +292,7 @@ namespace hpc {
             ASSERT( (bool)child[0] );
             queue.push_back( child[0].get() );
             capture_index = idx++;
-            LOGLN( "Indexed a capture at ", capture_index );
+            LOGLVLN( logging::debug, "Indexed a capture at ", capture_index );
          }
 
          LOG_EXIT();
@@ -336,7 +336,7 @@ namespace hpc {
             child[0]->calc_capture_open( idx );
          else
          {
-            LOGLN( "Capture open at '", static_cast<char>( data ), "' with index ", idx );
+            LOGLVLN( logging::debug, "Capture open at '", static_cast<char>( data ), "' with index ", idx );
             open.insert( idx );
          }
 
@@ -358,7 +358,7 @@ namespace hpc {
             child[1]->calc_capture_close( idx );
          else
          {
-            LOGLN( "Capture close at '", static_cast<char>( data ), "' with index ", idx );
+            LOGLVLN( logging::debug, "Capture close at '", static_cast<char>( data ), "' with index ", idx );
             close.insert( idx );
          }
 
@@ -410,7 +410,7 @@ namespace hpc {
             child[1]->calc_split_terminal( idx );
          else
          {
-            LOGLN( "Setting split index at '", static_cast<char>( data ), "' with index ", idx );
+            LOGLVLN( logging::debug, "Setting split index at '", static_cast<char>( data ), "' with index ", idx );
             split_index = idx;
          }
 
@@ -507,7 +507,7 @@ namespace hpc {
          {
             if( force )
             {
-               LOGLN( "Forced: ", ch );
+               LOGLVLN( logging::debug, "Forced: ", ch );
 
                // Concatenate.
                new_node = new node( ch );
@@ -521,7 +521,7 @@ namespace hpc {
             }
             else if( ch == '|' )
             {
-               LOGLN( "Splitting." );
+               LOGLVLN( logging::debug, "Splitting." );
 
                // 'Or'.
                ASSERT( cur_node, "Must be expression to left of |." );
@@ -530,7 +530,7 @@ namespace hpc {
             }
             else if( ch == '*' )
             {
-               LOGLN( "Star." );
+               LOGLVLN( logging::debug, "Star." );
 
                // Closure?
                ASSERT( cur_node, "Must be existing expression." );
@@ -538,7 +538,7 @@ namespace hpc {
             }
             else if( ch == '(' )
             {
-               LOGLN( "Opening capture." );
+               LOGLVLN( logging::debug, "Opening capture." );
 
                // Create new sub-branch.
                new_node = new node( static_cast<byte>( code_capture ), _construct_recurse( ++ptr ) );
@@ -557,7 +557,7 @@ namespace hpc {
             }
             else if( ch == ')' )
             {
-               LOGLN( "Closing capture." );
+               LOGLVLN( logging::debug, "Closing capture." );
 
                // // Insert closing capture.
                // new_node = new node( static_cast<byte>( code_concat ),
@@ -576,7 +576,7 @@ namespace hpc {
             else
             {
                // Concatenate.
-               LOGLN( "Concatenate: ", ch );
+               LOGLVLN( logging::debug, "Concatenate: ", ch );
                new_node = new node( ch );
                concat = true;
             }
@@ -687,7 +687,7 @@ namespace hpc {
                                     unsigned& cur_id )
       {
          LOG_ENTER();
-         LOGLN( "Looking at state: ", state.indices );
+         LOGLVLN( logging::debug, "Looking at state: ", state.indices );
 
          map<char,dfa_state*> new_states;
          bool is_accepting = false;
@@ -701,12 +701,12 @@ namespace hpc {
                continue;
             }
             ASSERT( data < static_cast<byte>( code_terminal ) );
-            LOGLN( "Index: ", idx, ", data: ", data );
+            LOGLVLN( logging::debug, "Index: ", idx, ", data: ", data );
 
             auto res = new_states.insert( data, NULL );
             if( res.second )
             {
-               LOGLN( "Creating new temporary state." );
+               LOGLVLN( logging::debug, "Creating new temporary state." );
                res.first->second = new dfa_state;
             }
             dfa_state& new_state = *res.first->second;
@@ -716,10 +716,10 @@ namespace hpc {
                new_state.indices.insert( rng.first->second );
          }
 #ifndef NLOG
-         LOGLN( "Potential new states:", setindent( 2 ) );
+         LOGLVLN( logging::debug, "Potential new states:", setindent( 2 ) );
          for( const auto& state_pair : new_states )
-            LOGLN( state_pair.second->indices );
-         LOG( setindent( -2 ) );
+            LOGLVLN( logging::debug, state_pair.second->indices );
+         LOGLV( logging::debug, setindent( -2 ) );
 #endif
 
          for( const auto& state_pair : new_states )
@@ -734,16 +734,16 @@ namespace hpc {
 
             if( res.second )
             {
-               LOGLN( "Created new state, ", (*res.first)->indices, ", with id ", cur_id );
+               LOGLVLN( logging::debug, "Created new state, ", (*res.first)->indices, ", with id ", cur_id );
                new_state->id = cur_id++;
                _to_proc.push_back( new_state );
             }
          }
 #ifndef NLOG
-         LOGLN( "State moves:", setindent( 2 ) );
+         LOGLVLN( logging::debug, "State moves:", setindent( 2 ) );
          for( const auto& move : state.moves )
-            LOGLN( move.first, " -> ", move.second->indices );
-         LOG( setindent( -2 ) );
+            LOGLVLN( logging::debug, move.first, " -> ", move.second->indices );
+         LOGLV( logging::debug, setindent( -2 ) );
 #endif
 
          // Insert any capture openings on this state.
@@ -765,7 +765,7 @@ namespace hpc {
                      state.moves[cur_node.data] = new_meta;
                   cur_meta = new_meta;
                   _meta_states.push_back( cur_meta );
-                  LOGLN( "Creating new meta state to open capture ", open, " along ", (char)cur_node.data );
+                  LOGLVLN( logging::debug, "Creating new meta state to open capture ", open, " along ", (char)cur_node.data );
                }
                for( auto close : cur_node.close )
                {
@@ -777,7 +777,7 @@ namespace hpc {
                      state.moves[cur_node.data] = new_meta;
                   cur_meta = new_meta;
                   _meta_states.push_back( cur_meta );
-                  LOGLN( "Creating new meta state to close capture ", close, " along ", (char)cur_node.data );
+                  LOGLVLN( logging::debug, "Creating new meta state to close capture ", close, " along ", (char)cur_node.data );
                }
                if( cur_meta )
                   cur_meta->moves.insert( 0, new_state );

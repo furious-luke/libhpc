@@ -48,7 +48,29 @@
 
 #define LOGLV( level, ... )                                     \
    LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
-        ::hpc::logging::poplevel, ::hpc::logging::endl )
+        ::hpc::logging::poplevel )
+
+#define LOGLVLN( level, ... )                                   \
+   LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
+        ::hpc::logging::endl, ::hpc::logging::poplevel )
+
+#define LOGT( ... )                             \
+   LOGLV( ::hpc::logging::debug, __VA_ARGS__ )
+
+#define LOGD( ... )                             \
+   LOGLV( ::hpc::logging::debug, __VA_ARGS__ )
+
+#define LOGI( ... )                             \
+   LOGLV( ::hpc::logging::debug, __VA_ARGS__ )
+
+#define LOGLNT( ... )                                   \
+   LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
+
+#define LOGLND( ... )                                   \
+   LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
+
+#define LOGLNI( ... )                                   \
+   LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
 
 #define LOG_ENTER()                                             \
    TRACE_ENTER();                                               \

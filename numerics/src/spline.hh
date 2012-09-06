@@ -130,7 +130,10 @@ namespace hpc {
          {
             // Calculate differences first.
             for( unsigned ii = 0; ii < _diff.size(); ++ii )
+            {
                _diff[ii] = _knots(ii + 1,0) - _knots(ii,0);
+               ASSERT( _diff[ii] > 2.0*std::numeric_limits<value_type>::epsilon() );
+            }
 
             value_type prev = 2.0/_diff[0];
             diag[0] = prev;

@@ -230,11 +230,11 @@ namespace hpc {
                               re::match& match ) const
       {
          LOG_ENTER();
-         LOGLN( "In state ", state, " with data ", data );
+         LOGLVLN( logging::debug, "In state ", state, " with data ", data );
 
          // Find the next move.
          uint16 new_state = move( state, data );
-         LOGLN( "Next state is ", new_state );
+         LOGLVLN( logging::debug, "Next state is ", new_state );
 
          // Check if that move is invalid.
          if( new_state == std::numeric_limits<uint16>::max() )
@@ -246,21 +246,21 @@ namespace hpc {
          // If this is a meta state, process it straight away.
          while( new_state >= _num_states )
          {
-            LOGLN( "Processing meta state ", new_state );
+            LOGLVLN( logging::debug, "Processing meta state ", new_state );
             uint16 meta = new_state - _num_states;
             if( _open[meta] < std::numeric_limits<uint16>::max() )
             {
                match._caps[_open[meta]].first = ptr;
-               LOGLN( "Open group ", _open[meta], " at ", *ptr );
+               LOGLVLN( logging::debug, "Open group ", _open[meta], " at ", *ptr );
             }
             if( _close[meta] < std::numeric_limits<uint16>::max() )
             {
                match._caps[_close[meta]].second = ptr + 1;
                match._last = _close[meta];
-               LOGLN( "Close group ", _close[meta], " at ", *(ptr + 1) );
+               LOGLVLN( logging::debug, "Close group ", _close[meta], " at ", *(ptr + 1) );
             }
             new_state = _meta_moves[meta];
-            LOGLN( "Next state is ", new_state );
+            LOGLVLN( logging::debug, "Next state is ", new_state );
          }
 
          state = new_state;
@@ -274,11 +274,11 @@ namespace hpc {
                   const char* ptr ) const
       {
          LOG_ENTER();
-         LOGLN( "In state ", state, " with data ", data );
+         LOGLVLN( logging::debug, "In state ", state, " with data ", data );
 
          // Find the next move.
          uint16 new_state = move( state, data );
-         LOGLN( "Next state is ", new_state );
+         LOGLVLN( logging::debug, "Next state is ", new_state );
 
          // Check if that move is invalid.
          if( new_state == std::numeric_limits<uint16>::max() )
@@ -290,10 +290,10 @@ namespace hpc {
          // If this is a meta state, process it straight away.
          while( new_state >= _num_states )
          {
-            LOGLN( "Processing meta state ", new_state );
+            LOGLVLN( logging::debug, "Processing meta state ", new_state );
             uint16 meta = new_state - _num_states;
             new_state = _meta_moves[meta];
-            LOGLN( "Next state is ", new_state );
+            LOGLVLN( logging::debug, "Next state is ", new_state );
          }
 
          state = new_state;
