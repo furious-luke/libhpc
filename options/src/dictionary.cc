@@ -112,6 +112,8 @@ namespace hpc {
          re::match match;
          if( _dicts_mm.match_start( name, match ) )
             return (*_dicts[match.last_capture()]).has_option( match.capture( match.last_capture() ).second );
+
+         return false;
       }
 
       void
