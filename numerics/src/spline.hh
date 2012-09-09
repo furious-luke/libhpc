@@ -62,6 +62,26 @@ namespace hpc {
             return _knots;
          }
 
+         unsigned
+         num_segments() const
+         {
+            return _diff.size();
+         }
+
+         value_type
+         segment_start( unsigned seg ) const
+         {
+            ASSERT( seg < _diff.size() );
+            return _knots(seg,0);
+         }
+
+         value_type
+         segment_width( unsigned seg ) const
+         {
+            ASSERT( seg < _diff.size() );
+            return _knots(seg + 1,0) - _knots(seg,0);
+         }
+
          value_type
          operator()( const value_type& crd ) const
          {
