@@ -18,10 +18,13 @@
 #ifndef libhpc_numerics_numerics_hh
 #define libhpc_numerics_numerics_hh
 
+#include "constants.hh"
 #include "vector.hh"
 #include "matrix.hh"
 #include "tridiag.hh"
 #include "spline.hh"
 #include "interp_iterator.hh"
+#include "simpson.hh"
+#include "coords.hh"
 
 #endif
