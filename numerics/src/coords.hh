@@ -38,11 +38,31 @@ namespace hpc {
       cartesian_to_spherical( T x, T y, T z,
                               T& r, T& theta, T& phi )
       {
-         ASSERT( !num::approx<T>( x, 0 ) );
          r = sqrt( x*x + y*y + z*z );
-         ASSERT( !num::approx<T>( r, 0 ) );
-         phi = atan( y/x );
-         theta = acos( z/r );
+         phi = atan2( y, x );
+         if( !num::approx( r, 0.0 ) )
+            theta = acos( z/r );
+         else
+            theta = 0.0;
+      }
+
+      ///
+      /// Spherical coordinates in common physics interpretation, theta being
+      /// the angle between the z axis and r. Phi being the angle between the
+      /// x axis and the y axis.
+      ///
+      /// theta = inclination
+      /// phi = azimuth
+      ///
+      template< class T >
+      void
+      spherical_to_cartesian( T r, T theta, T phi,
+                              T& x, T& y, T& z )
+      {
+         T sint = sin( theta );
+         x = r*sint*cos( phi );
+         y = r*sint*sin( phi );
+         z = r*cos( theta );
       }
 
       ///
@@ -63,17 +83,50 @@ namespace hpc {
          dec = 0.5*M_PI - dec;
       }
 
+      ///
+      /// Spherical coordinates in common physics interpretation, theta being
+      /// the angle between the z axis and r. Phi being the angle between the
+      /// x axis and the y axis.
+      ///
+      /// theta = inclination
+      /// phi = azimuth
+      ///
       template< class T >
       void
-      gnomonic_projection( T object_asc, T object_dec,
-                           T origin_asc, T origin_dec,
+      ecs_to_cartesian( T ra, T dec,
+                        T& x, T& y, T& z )
+                        
+      {
+         dec = 0.5*M_PI - dec;
+         spherical_to_cartesian( 1.0, dec, ra, x, y, z );
+      }
+
+      template< class T >
+      void
+      gnomonic_projection( T object_ra, T object_dec,
+                           T origin_ra, T origin_dec,
                            T& x, T& y )
       {
          T sind = sin( object_dec ), cosd = cos( object_dec );
          T sind0 = sin( origin_dec ), cosd0 = cos( origin_dec );
-         T cosa = cos( object_asc - origin_asc );
-         x = -cosd*sin( object_asc - origin_asc )/(cosd0*cosd*cosa + sind*sind0);
-         y = -(sind0*cosd*cosa - cosd0*sind)/(cosd0*cosd*cosa + sind*sind0);
+         T cosa = cos( object_ra - origin_ra );
+         T cosc = sind0*sind + cosd0*cosd*cosa;
+         x = cosd*sin( object_ra - origin_ra )/cosc;
+         y = (cosd0*sind - sind0*cosd*cosa)/cosc;
+      }
+
+      template< class T >
+      void
+      inverse_gnomonic_projection( T x, T y,
+                                   T origin_ra, T origin_dec,
+                                   T& ra, T& dec )
+      {
+         T sind0 = sin( origin_dec ), cosd0 = cos( origin_dec );
+         T rho = sqrt( x*x + y*y ), c = atan( rho );
+         T sinc = sin( c ), cosc = cos( c );
+         ASSERT( rho > 0.0 );
+         ra = origin_ra + atan2( x*sinc, rho*cosd0*cosc - y*sind0*sinc );
+         dec = asin( cosc*sind0 + y*sinc*cosd0/rho );
       }
 
       template< class T >
