@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_datatype_hh
-#define hpc_h5_datatype_hh
+#ifndef libhpc_h5_datatype_hh
+#define libhpc_h5_datatype_hh
 
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
@@ -38,6 +38,7 @@ namespace hpc {
 	 static datatype native_ulong;
 	 static datatype native_float;
 	 static datatype native_double;
+         static datatype ieee_f64be;
 
 	 typedef mpl::map< mpl::pair<int, mpl::int_<-2> >,
 			   mpl::pair<unsigned, mpl::int_<-3> >,
@@ -49,6 +50,17 @@ namespace hpc {
 	 datatype( hid_t id );
 
 	 ~datatype();
+
+         void
+         compound( size_t size );
+
+         void
+         close();
+
+         void
+         insert( const datatype& type,
+                 const string& description,
+                 size_t offset );
 
 	 hid_t
 	 id() const;
