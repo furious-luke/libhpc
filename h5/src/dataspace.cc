@@ -52,6 +52,17 @@ namespace hpc {
       }
 
       void
+      dataspace::create( hsize_t size )
+      {
+         close();
+         if( size )
+            _id = H5Screate_simple( 1, &size, NULL );
+         else
+            _id = H5Screate( H5S_NULL );
+         ASSERT( _id >= 0 );
+      }
+
+      void
       dataspace::create( const vector<hsize_t>::view& dims )
       {
 	 this->close();
@@ -103,6 +114,13 @@ namespace hpc {
       dataspace::select_none()
       {
 	 INSIST(H5Sselect_none(this->_id), >= 0);
+      }
+
+      void
+      dataspace::select_one( hsize_t element,
+                             H5S_seloper_t op )
+      {
+         INSIST( H5Sselect_elements( _id, op, 1, &element ), >= 0 );
       }
 
       void

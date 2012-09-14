@@ -44,6 +44,9 @@ namespace hpc {
 	 hid_t
 	 id() const;
 
+         void
+         create( hsize_t size );
+
 	 void
 	 create( const vector<hsize_t>::view& dims );
 
@@ -61,6 +64,10 @@ namespace hpc {
 
 	 void
 	 select_none();
+
+	 void
+	 select_one( hsize_t element,
+                     H5S_seloper_t op=H5S_SELECT_SET );
 
 	 void
 	 select_hyperslab( H5S_seloper_t op,
