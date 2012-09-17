@@ -327,8 +327,7 @@ namespace hpc {
          void
          read( const string& name,
                const datatype& type,
-               typename vector::view<T> data,
-               optional<const datatype&> file_type=optional<const datatype&>(),
+               typename vector<T>::view data,
                hsize_t offset=0,
                const mpi::comm& comm=mpi::comm::self )
          {
@@ -340,8 +339,7 @@ namespace hpc {
             count[0] = data.size();
             start[0] = offset;
             file_space.select_hyperslab( H5S_SELECT_SET, count, start );
-            const datatype& ftype = (file_type ? *file_type : type);
-            dset.read( data, mem_type, mem_space, file_space, comm );
+            dset.read( data, type, mem_space, file_space, comm );
          }
 
 	 // template< class T >
