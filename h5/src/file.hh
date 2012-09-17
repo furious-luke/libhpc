@@ -323,6 +323,27 @@ namespace hpc {
 	       this->read<T>(name + "_array", data[ii], displs[ii]);
 	 }
 
+         template< class T >
+         void
+         read( const string& name,
+               const datatype& type,
+               typename vector::view<T> data,
+               optional<const datatype&> file_type=optional<const datatype&>(),
+               hsize_t offset=0,
+               const mpi::comm& comm=mpi::comm::self )
+         {
+            h5::dataset dset( *this, name );
+            h5::dataspace mem_space, file_space;
+            mem_space.create( data.size() );
+            dset.space( file_space );
+            vector<hsize_t> count( 1 ), start( 1 );
+            count[0] = data.size();
+            start[0] = offset;
+            file_space.select_hyperslab( H5S_SELECT_SET, count, start );
+            const datatype& ftype = (file_type ? *file_type : type);
+            dset.read( data, mem_type, mem_space, file_space, comm );
+         }
+
 	 // template< class T >
 	 // void
 	 // reada( const std::string& name,

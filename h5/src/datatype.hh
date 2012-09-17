@@ -47,7 +47,7 @@ namespace hpc {
 			   mpl::pair<float, mpl::int_<-6> >,
 			   mpl::pair<double, mpl::int_<-7> > > type_map;
 
-	 datatype( hid_t id );
+	 datatype( hid_t id=-1 );
 
 	 ~datatype();
 

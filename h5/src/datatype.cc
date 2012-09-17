@@ -61,9 +61,17 @@ namespace hpc {
       void
       datatype::close()
       {
-         if( _id > 0 )
+         if( _id > -1 && (_id != H5T_NATIVE_INT &&
+                          _id != H5T_NATIVE_UINT &&
+                          _id != H5T_NATIVE_LONG &&
+                          _id != H5T_NATIVE_ULONG &&
+                          _id != H5T_NATIVE_FLOAT &&
+                          _id != H5T_NATIVE_DOUBLE &&
+                          _id != H5T_IEEE_F64BE) )
+         {
             INSIST( H5Tclose( _id ), >= 0 );
-         _id = 0;
+         }
+         _id = -1;
       }
 
       void
