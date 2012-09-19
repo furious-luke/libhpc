@@ -22,10 +22,11 @@ namespace hpc {
    namespace logging {
 
       enum levels {
-         debug = 10,
-         info = 20,
-         error = 30,
-         critical = 40
+         trivial = 10,
+         debug = 20,
+         info = 30,
+         error = 40,
+         critical = 50
       };
    }
 }
