@@ -46,7 +46,7 @@ namespace hpc {
 
             unsigned id;
             set<unsigned> indices;
-            map<char,dfa_state*> moves;
+            map<byte,dfa_state*> moves;
             uint16 open, close;
          };
 

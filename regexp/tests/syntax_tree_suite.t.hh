@@ -18,6 +18,7 @@
 #include <cxxtest/TestSuite.h>
 #include "libhpc/logging/logging.hh"
 #include "libhpc/regexp/syntax_tree.hh"
+#include "libhpc/regexp/codes.hh"
 
 using namespace hpc;
 
@@ -51,6 +52,33 @@ public:
    {
       re::syntax_tree st;
       st.construct( "b|c" );
+   }
+
+   void test_closure()
+   {
+      re::syntax_tree st;
+      TS_ASSERT_THROWS_ANYTHING( st.construct( "*" ) );
+      st.construct( "ab*" );
+      TS_ASSERT_EQUALS( st._root->data, re::code_concat );
+      TS_ASSERT_EQUALS( st._root->child[1]->data, re::code_match );
+      TS_ASSERT_EQUALS( st._root->child[0]->data, re::code_concat );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[0]->data, 'a' );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[1]->data, re::code_many );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[1]->child[0]->data, 'b' );
+      TS_ASSERT( st._root->child[0]->child[1]->child[1] == NULL );
+   }
+
+   void test_class_all_construct()
+   {
+      re::syntax_tree st;
+      st.construct( "a.b" );
+      TS_ASSERT_EQUALS( st._root->data, re::code_concat );
+      TS_ASSERT_EQUALS( st._root->child[1]->data, re::code_match );
+      TS_ASSERT_EQUALS( st._root->child[0]->data, re::code_concat );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[1]->data, 'b' );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[0]->data, re::code_concat );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[0]->child[0]->data, 'a' );
+      TS_ASSERT_EQUALS( st._root->child[0]->child[0]->child[1]->data, re::code_class_all );
    }
 
    void test_invalid_split()
@@ -91,6 +119,20 @@ public:
    {
       re::syntax_tree st;
       st.construct( "(one)|(two)|(three)" );
+      st._calc_dfa();
+   }
+
+   void test_calc_dfa_class()
+   {
+      re::syntax_tree st;
+      st.construct( "a.b" );
+      st._calc_dfa();
+   }
+
+   void test_calc_dfa_class_repeat()
+   {
+      re::syntax_tree st;
+      st.construct( "a.*b" );
       st._calc_dfa();
    }
 };

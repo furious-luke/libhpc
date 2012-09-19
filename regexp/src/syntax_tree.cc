@@ -501,18 +501,27 @@ namespace hpc {
 
          // Walk over each character.
          char ch = *ptr;
-         bool force = false, concat = false;
+         bool force = false, concat = false, prev_group = false, capt = false;
+         unsigned it = 0;
          node* new_node;
          while( ch != 0 )
          {
             if( force )
             {
-               LOGLVLN( logging::debug, "Forced: ", ch );
+               LOGDLN( "Forced: ", ch );
+
+               // Check for a special character.
+               if( ch == 'd' )
+               {
+                  // Digit character class.
+                  // TODO
+               }
 
                // Concatenate.
                new_node = new node( ch );
                concat = true;
                force = false;
+               prev_group = false;
             }
             else if( ch == '\\' )
             {
@@ -521,36 +530,70 @@ namespace hpc {
             }
             else if( ch == '|' )
             {
-               LOGLVLN( logging::debug, "Splitting." );
+               LOGDLN( "Splitting." );
 
                // 'Or'.
                ASSERT( cur_node, "Must be expression to left of |." );
                cur_node = new node( static_cast<byte>( code_split ), cur_node, _construct_recurse( ++ptr ) );
                ch = *ptr;
+               prev_group = false;
             }
             else if( ch == '*' )
             {
+               // TODO: Clean this up.
                LOGLVLN( logging::debug, "Star." );
-
-               // Closure?
                ASSERT( cur_node, "Must be existing expression." );
-               cur_node = new node( static_cast<byte>( code_many ), cur_node );
+
+               // Closure has highest precedence. If current node is any binary operation
+               // apply closure to right child.
+               if( cur_node && !prev_group &&
+                   (cur_node->data == code_concat || cur_node->data == code_split) )
+               {
+                  LOGDLN( "No previous group, repeating last character." );
+                  cur_node->child[1] = new node( static_cast<byte>( code_many ), cur_node->child[1].release() );
+               }
+               else
+               {
+                  // Can't repeat captured groups at the moment.
+                  ASSERT( !(prev_group && capt), "Can't repeat captures." );
+
+                  if( !(cur_node->data == code_concat || cur_node->data == code_split) ||
+                      (prev_group && it == 1) )
+                  {
+                     cur_node = new node( static_cast<byte>( code_many ), cur_node );
+                  }
+                  else
+                     cur_node->child[1] = new node( static_cast<byte>( code_many ), cur_node->child[1].release() );
+               }
+
+               prev_group = false;
             }
             else if( ch == '(' )
             {
-               LOGLVLN( logging::debug, "Opening capture." );
+               LOGLVLN( logging::debug, "Opening group." );
 
-               // Create new sub-branch.
-               new_node = new node( static_cast<byte>( code_capture ), _construct_recurse( ++ptr ) );
+               // Need to look ahead to see if this is a non-capturing
+               // group or not. (:?)
+               if( *(ptr + 1) == '?' && *(ptr + 2) == ':' )
+               {
+                  LOGDLN( "Non-capturing group." );
+                  ptr += 3;
+                  new_node = _construct_recurse( ptr );
 
-               // // Mark the capture.
-               // LOGLN( "Marking capture at level ", level );
-               // new_node->open.insert( level );
-               // new_node->close.insert( level );
+                  // Mark that the most recent group was non-capturing.
+                  capt = false;
+               }
+               else
+               {
+                  LOGDLN( "Capturing group." );
+                  new_node = new node( static_cast<byte>( code_capture ), _construct_recurse( ++ptr ) );
 
-               // // Keep track of max levels and number of captures.
-               // _num_levels = std::max<uint16>( level + 1, _num_levels );
-               // ++_num_captures;
+                  // Mark that the most recent group was capturing.
+                  capt = true;
+               }
+
+               // Mark that we just matched a group.
+               prev_group = true;
 
                ch = *ptr;
                concat = true;
@@ -559,19 +602,19 @@ namespace hpc {
             {
                LOGLVLN( logging::debug, "Closing capture." );
 
-               // // Insert closing capture.
-               // new_node = new node( static_cast<byte>( code_concat ),
-               //                      cur_node,
-               //                      new node( static_cast<byte>( code_close_capture ) ) );
-
-               // // Mark closing capture.
-               // cur_node->close.insert( std::make_pair( level - 1, cap_idx++ ) );
-
                // Increment number of global captures.
                ++_num_captures;
 
                LOG_EXIT();
                return cur_node;
+            }
+            else if( ch == '.' )
+            {
+               // All character class.
+               LOGLVLN( logging::debug, "Concatenate: ", ch );
+               new_node = new node( code_class_all );
+               concat = true;
+               prev_group = false;
             }
             else
             {
@@ -579,6 +622,7 @@ namespace hpc {
                LOGLVLN( logging::debug, "Concatenate: ", ch );
                new_node = new node( ch );
                concat = true;
+               prev_group = false;
             }
 
             // Handle concatenation.
@@ -594,6 +638,7 @@ namespace hpc {
             // Advance.
             if( ch != 0 )
                ch = *++ptr;
+            ++it;
          }
 
          LOG_EXIT();
@@ -689,16 +734,21 @@ namespace hpc {
          LOG_ENTER();
          LOGLVLN( logging::debug, "Looking at state: ", state.indices );
 
-         map<char,dfa_state*> new_states;
+         map<byte,dfa_state*> new_states;
+         list<unsigned> class_idxs;
          bool is_accepting = false;
          for( auto idx : state.indices )
          {
             node* node = _idx_to_node[idx];
-            char data = node->data;
+            byte data = node->data;
             if( data == static_cast<byte>( code_match ) )
             {
                is_accepting = true;
                continue;
+            }
+            else if( data >= code_class_all && data < code_terminal )
+            {
+               class_idxs.push_back( idx );
             }
             ASSERT( data < static_cast<byte>( code_terminal ) );
             LOGLVLN( logging::debug, "Index: ", idx, ", data: ", data );
@@ -715,6 +765,25 @@ namespace hpc {
             for( ; rng.first != rng.second; ++rng.first )
                new_state.indices.insert( rng.first->second );
          }
+         for( auto idx : class_idxs )
+         {
+            node* node = _idx_to_node[idx];
+            byte data = node->data;
+            auto rng = _followpos.equal_range( idx );
+            if( data == code_class_all )
+            {
+               // Add "idx"'s followpos values to all existing transitions.
+               for( ; rng.first != rng.second; ++rng.first )
+               {
+                  for( auto& state_pair : new_states )
+                     state_pair.second->indices.insert( rng.first->second );
+               }
+            }
+#ifndef NDEBUG
+            else
+               ASSERT( 0 );
+#endif
+         }
 #ifndef NLOG
          LOGLVLN( logging::debug, "Potential new states:", setindent( 2 ) );
          for( const auto& state_pair : new_states )
@@ -724,7 +793,7 @@ namespace hpc {
 
          for( const auto& state_pair : new_states )
          {
-            char data = state_pair.first;
+            byte data = state_pair.first;
 
             auto res = _states.insert( state_pair.second );
             dfa_state* new_state = res.first->get();
@@ -809,9 +878,33 @@ namespace hpc {
          if( state->id < _num_states )
          {
             vector<uint16>::view state_moves( moves, 256, state->id*256 );
+
+            // Clear to match-failure values.
             std::fill( state_moves.begin(), state_moves.end(), std::numeric_limits<uint16>::max() );
+
+            // First insert all class transisions.
             for( const auto& elem : state->moves )
-               state_moves[static_cast<index>( elem.first )] = elem.second->id;
+            {
+               if( elem.first >= code_concat )
+               {
+                  ASSERT( elem.first >= code_class_all && elem.first < code_terminal );
+                  if( elem.first == code_class_all )
+                  {
+                     // Note we don't include 0, as that is reserved for a match.
+                     for( unsigned ii = 1; ii < code_concat; ++ii )
+                        state_moves[ii] = elem.second->id;
+                  }
+               }
+            }
+
+            // Now insert normal transitions, stomping on class transitions. This
+            // is okay because during construction the normal transitions are built
+            // with class transisions included.
+            for( const auto& elem : state->moves )
+            {
+               if( elem.first < code_concat )
+                  state_moves[static_cast<index>( elem.first )] = elem.second->id;
+            }
          }
          else
          {

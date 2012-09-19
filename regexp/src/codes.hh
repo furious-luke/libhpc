@@ -28,7 +28,8 @@ namespace hpc {
          code_split = 128,
          code_many = 129,
          code_capture = 130,
-         code_terminal = 131
+         code_class_all = 131,
+         code_terminal = 132
       };
    }
 }

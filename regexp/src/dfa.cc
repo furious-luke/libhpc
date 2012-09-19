@@ -168,6 +168,9 @@ namespace hpc {
          return res;
       }
 
+      ///
+      /// Match but allow remaining characters.
+      ///
       bool
       dfa::_match_start_and_capture( const string& str,
                                      re::match& match ) const

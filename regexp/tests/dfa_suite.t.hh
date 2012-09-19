@@ -102,4 +102,117 @@ public:
       TS_ASSERT( dfa.match_start( "threelade", match ) );
       TS_ASSERT_EQUALS( match.last_capture(), 2 );
    }
+
+   void test_many()
+   {
+      re::dfa dfa( "ab*" );
+      re::match match;
+      TS_ASSERT( dfa.match( "a", match ) );
+      TS_ASSERT( dfa.match( "ab", match ) );
+      TS_ASSERT( dfa.match( "abb", match ) );
+      TS_ASSERT( dfa.match( "abbb", match ) );
+      TS_ASSERT( !dfa.match( "abbba", match ) );
+   }
+
+   void test_many_grouped()
+   {
+      re::dfa dfa( "a(?:bc)*" );
+      re::match match;
+      TS_ASSERT( dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "ab", match ) );
+      TS_ASSERT( !dfa.match( "ac", match ) );
+      TS_ASSERT( dfa.match( "abc", match ) );
+      TS_ASSERT( !dfa.match( "abca", match ) );
+      TS_ASSERT( !dfa.match( "abcb", match ) );
+      TS_ASSERT( !dfa.match( "abcc", match ) );
+      TS_ASSERT( dfa.match( "abcbc", match ) );
+      TS_ASSERT( !dfa.match( "abcbca", match ) );
+   }
+
+   void test_many_first_group()
+   {
+      re::dfa dfa( "(?:bc)*" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "b", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( dfa.match( "bc", match ) );
+      TS_ASSERT( !dfa.match( "bcb", match ) );
+      TS_ASSERT( !dfa.match( "bcc", match ) );
+      TS_ASSERT( dfa.match( "bcbc", match ) );
+   }
+
+   void test_many_first_group_trailing()
+   {
+      re::dfa dfa( "(?:bc)*de" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "b", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "bc", match ) );
+      TS_ASSERT( !dfa.match( "bcb", match ) );
+      TS_ASSERT( !dfa.match( "bcc", match ) );
+      TS_ASSERT( !dfa.match( "bcbc", match ) );
+      TS_ASSERT( !dfa.match( "bde", match ) );
+      TS_ASSERT( dfa.match( "bcde", match ) );
+      TS_ASSERT( dfa.match( "bcbcde", match ) );
+   }
+
+   void test_many_grouped_trailing()
+   {
+      re::dfa dfa( "a(?:bc)*de" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "b", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "bc", match ) );
+      TS_ASSERT( !dfa.match( "abc", match ) );
+      TS_ASSERT( !dfa.match( "abcb", match ) );
+      TS_ASSERT( !dfa.match( "abcc", match ) );
+      TS_ASSERT( !dfa.match( "abcbc", match ) );
+      TS_ASSERT( !dfa.match( "abde", match ) );
+      TS_ASSERT( dfa.match( "abcde", match ) );
+      TS_ASSERT( dfa.match( "abcbcde", match ) );
+   }
+
+   void test_no_repeat_captures()
+   {
+      re::dfa dfa;
+      TS_ASSERT_THROWS_ANYTHING( dfa.construct( "a(bc)*" ) );
+   }
+
+   void test_class_all()
+   {
+      LOG_FILE( "test.log" );
+      re::dfa dfa( "a.c" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "ac", match ) );
+      TS_ASSERT( dfa.match( "abc", match ) );
+      TS_ASSERT( dfa.match( "azc", match ) );
+      TS_ASSERT( dfa.match( "a c", match ) );
+      TS_ASSERT( dfa.match( "a$c", match ) );
+      TS_ASSERT( !dfa.match( "abcd", match ) );
+      LOG_POP();
+   }
+
+   void test_class_all_repeat()
+   {
+      LOG_FILE( "test.log" );
+      re::dfa dfa( "a.*c" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "ad", match ) );
+      TS_ASSERT( dfa.match( "ac", match ) );
+      TS_ASSERT( dfa.match( "abc", match ) );
+      TS_ASSERT( dfa.match( "azc", match ) );
+      TS_ASSERT( dfa.match( "a c", match ) );
+      TS_ASSERT( dfa.match( "a$c", match ) );
+      TS_ASSERT( !dfa.match( "abcd", match ) );
+      TS_ASSERT( dfa.match( "abcc", match ) );
+      TS_ASSERT( dfa.match( "abc skd77 c", match ) );
+      LOG_POP();
+   }
 };
