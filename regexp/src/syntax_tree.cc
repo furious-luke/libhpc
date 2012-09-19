@@ -508,16 +508,15 @@ namespace hpc {
          {
             if( force )
             {
-               LOGDLN( "Forced: ", ch );
-
                // Check for a special character.
                if( ch == 'd' )
                {
                   // Digit character class.
-                  // TODO
+                  ch = code_class_digit;
                }
 
                // Concatenate.
+               LOGDLN( "Forced: ", ch );
                new_node = new node( ch );
                concat = true;
                force = false;
@@ -748,42 +747,67 @@ namespace hpc {
             }
             else if( data >= code_class_all && data < code_terminal )
             {
-               class_idxs.push_back( idx );
-            }
-            ASSERT( data < static_cast<byte>( code_terminal ) );
-            LOGLVLN( logging::debug, "Index: ", idx, ", data: ", data );
-
-            auto res = new_states.insert( data, NULL );
-            if( res.second )
-            {
-               LOGLVLN( logging::debug, "Creating new temporary state." );
-               res.first->second = new dfa_state;
-            }
-            dfa_state& new_state = *res.first->second;
-
-            auto rng = _followpos.equal_range( idx );
-            for( ; rng.first != rng.second; ++rng.first )
-               new_state.indices.insert( rng.first->second );
-         }
-         for( auto idx : class_idxs )
-         {
-            node* node = _idx_to_node[idx];
-            byte data = node->data;
-            auto rng = _followpos.equal_range( idx );
-            if( data == code_class_all )
-            {
-               // Add "idx"'s followpos values to all existing transitions.
-               for( ; rng.first != rng.second; ++rng.first )
+               byte* range_begin = classes + classes[2*(data - code_class_all)];
+               byte* range_end = classes + classes[2*(data - code_class_all) + 1];
+               while( range_begin < range_end )
                {
-                  for( auto& state_pair : new_states )
-                     state_pair.second->indices.insert( rng.first->second );
+                  for( byte jj = *range_begin++; jj < *range_begin; ++jj )
+                  {
+                     ASSERT( jj < static_cast<byte>( code_terminal ) );
+                     LOGLVLN( logging::debug, "Index: ", idx, ", data: ", jj );
+
+                     auto res = new_states.insert( jj, NULL );
+                     if( res.second )
+                     {
+                        LOGLVLN( logging::debug, "Creating new temporary state." );
+                        res.first->second = new dfa_state;
+                     }
+                     dfa_state& new_state = *res.first->second;
+
+                     auto rng = _followpos.equal_range( idx );
+                     for( ; rng.first != rng.second; ++rng.first )
+                        new_state.indices.insert( rng.first->second );
+                  }
+                  ++range_begin;
                }
             }
-#ifndef NDEBUG
             else
-               ASSERT( 0 );
-#endif
+            {
+               ASSERT( data < static_cast<byte>( code_terminal ) );
+               LOGLVLN( logging::debug, "Index: ", idx, ", data: ", data );
+
+               auto res = new_states.insert( data, NULL );
+               if( res.second )
+               {
+                  LOGLVLN( logging::debug, "Creating new temporary state." );
+                  res.first->second = new dfa_state;
+               }
+               dfa_state& new_state = *res.first->second;
+
+               auto rng = _followpos.equal_range( idx );
+               for( ; rng.first != rng.second; ++rng.first )
+                  new_state.indices.insert( rng.first->second );
+            }
          }
+//          for( auto idx : class_idxs )
+//          {
+//             node* node = _idx_to_node[idx];
+//             byte data = node->data;
+//             auto rng = _followpos.equal_range( idx );
+//             if( data == code_class_all )
+//             {
+//                // Add "idx"'s followpos values to all existing transitions.
+//                for( ; rng.first != rng.second; ++rng.first )
+//                {
+//                   for( auto& state_pair : new_states )
+//                      state_pair.second->indices.insert( rng.first->second );
+//                }
+//             }
+// #ifndef NDEBUG
+//             else
+//                ASSERT( 0 );
+// #endif
+//          }
 #ifndef NLOG
          LOGLVLN( logging::debug, "Potential new states:", setindent( 2 ) );
          for( const auto& state_pair : new_states )
@@ -816,12 +840,34 @@ namespace hpc {
 #endif
 
          // Insert any capture openings on this state.
+         vector<byte> all_data( 256 );
          for( auto idx : state.indices )
          {
             node& cur_node = *_idx_to_node[idx];
             if( cur_node.data != static_cast<byte>( code_match ) )
             {
-               dfa_state* new_state = state.moves.get( cur_node.data );
+               all_data.resize( 0 );
+               if( cur_node.data >= code_class_all && cur_node.data < code_terminal )
+               {
+                  byte* range_begin = classes + classes[2*(cur_node.data - code_class_all)];
+                  byte* range_end = classes + classes[2*(cur_node.data - code_class_all) + 1];
+                  while( range_begin < range_end )
+                  {
+                     for( byte jj = *range_begin++; jj < *range_begin; ++jj )
+                        all_data.push_back( jj );
+                  }
+               }
+               else
+                  all_data.push_back( cur_node.data );
+
+               dfa_state* new_state = state.moves.get( all_data[0] );
+#ifndef NDEBUG
+               if( !cur_node.open.empty() )
+               {
+                  for( auto data : all_data )
+                     ASSERT( state.moves.get( data ) == new_state );
+               }
+#endif
 
                dfa_state *cur_meta = NULL;
                for( auto open : cur_node.open )
@@ -831,7 +877,10 @@ namespace hpc {
                   if( cur_meta )
                      cur_meta->moves.insert( 0, new_meta );
                   else
-                     state.moves[cur_node.data] = new_meta;
+                  {
+                     for( auto data : all_data )
+                        state.moves[data] = new_meta;
+                  }
                   cur_meta = new_meta;
                   _meta_states.push_back( cur_meta );
                   LOGLVLN( logging::debug, "Creating new meta state to open capture ", open, " along ", (char)cur_node.data );
@@ -843,7 +892,10 @@ namespace hpc {
                   if( cur_meta )
                      cur_meta->moves.insert( 0, new_meta );
                   else
-                     state.moves[cur_node.data] = new_meta;
+                  {
+                     for( auto data : all_data )
+                        state.moves[data] = new_meta;
+                  }
                   cur_meta = new_meta;
                   _meta_states.push_back( cur_meta );
                   LOGLVLN( logging::debug, "Creating new meta state to close capture ", close, " along ", (char)cur_node.data );
@@ -882,20 +934,20 @@ namespace hpc {
             // Clear to match-failure values.
             std::fill( state_moves.begin(), state_moves.end(), std::numeric_limits<uint16>::max() );
 
-            // First insert all class transisions.
-            for( const auto& elem : state->moves )
-            {
-               if( elem.first >= code_concat )
-               {
-                  ASSERT( elem.first >= code_class_all && elem.first < code_terminal );
-                  if( elem.first == code_class_all )
-                  {
-                     // Note we don't include 0, as that is reserved for a match.
-                     for( unsigned ii = 1; ii < code_concat; ++ii )
-                        state_moves[ii] = elem.second->id;
-                  }
-               }
-            }
+            // // First insert all class transisions.
+            // for( const auto& elem : state->moves )
+            // {
+            //    if( elem.first >= code_concat )
+            //    {
+            //       ASSERT( elem.first >= code_class_all && elem.first < code_terminal );
+            //       if( elem.first == code_class_all )
+            //       {
+            //          // Note we don't include 0, as that is reserved for a match.
+            //          for( unsigned ii = 1; ii < code_concat; ++ii )
+            //             state_moves[ii] = elem.second->id;
+            //       }
+            //    }
+            // }
 
             // Now insert normal transitions, stomping on class transitions. This
             // is okay because during construction the normal transitions are built

@@ -183,7 +183,6 @@ public:
 
    void test_class_all()
    {
-      LOG_FILE( "test.log" );
       re::dfa dfa( "a.c" );
       re::match match;
       TS_ASSERT( !dfa.match( "a", match ) );
@@ -194,12 +193,10 @@ public:
       TS_ASSERT( dfa.match( "a c", match ) );
       TS_ASSERT( dfa.match( "a$c", match ) );
       TS_ASSERT( !dfa.match( "abcd", match ) );
-      LOG_POP();
    }
 
    void test_class_all_repeat()
    {
-      LOG_FILE( "test.log" );
       re::dfa dfa( "a.*c" );
       re::match match;
       TS_ASSERT( !dfa.match( "a", match ) );
@@ -213,6 +210,49 @@ public:
       TS_ASSERT( !dfa.match( "abcd", match ) );
       TS_ASSERT( dfa.match( "abcc", match ) );
       TS_ASSERT( dfa.match( "abc skd77 c", match ) );
-      LOG_POP();
+   }
+
+   void test_class_digit()
+   {
+      re::dfa dfa( "a\\dc" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "ac", match ) );
+      TS_ASSERT( !dfa.match( "adc", match ) );
+      TS_ASSERT( dfa.match( "a0c", match ) );
+      TS_ASSERT( dfa.match( "a1c", match ) );
+      TS_ASSERT( dfa.match( "a4c", match ) );
+      TS_ASSERT( dfa.match( "a9c", match ) );
+      TS_ASSERT( !dfa.match( "a3cd", match ) );
+      TS_ASSERT( !dfa.match( "a2", match ) );
+   }
+
+   void test_class_digit_alternation()
+   {
+      re::dfa dfa( "a(\\d|bc)d" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "b", match ) );
+      TS_ASSERT( !dfa.match( "d", match ) );
+      TS_ASSERT( dfa.match( "abcd", match ) );
+      TS_ASSERT( dfa.match( "a8d", match ) );
+      TS_ASSERT( !dfa.match( "a0bcd", match ) );
+      TS_ASSERT( !dfa.match( "abc3d", match ) );
+      TS_ASSERT( !dfa.match( "abcde", match ) );
+      TS_ASSERT( !dfa.match( "a7de", match ) );
+   }
+
+   void test_http()
+   {
+      re::dfa dfa( "HTTP(\\d)\\.(\\d)" );
+      re::match match;
+      TS_ASSERT( dfa.match( "HTTP1.2", match ) );
+      TS_ASSERT_EQUALS( *match.capture( 0 ).first, '1' );
+      TS_ASSERT_EQUALS( *match.capture( 1 ).first, '2' );
+      TS_ASSERT( !dfa.match( "HTTP14.2", match ) );
+      TS_ASSERT( !dfa.match( "HTTP1.", match ) );
+      TS_ASSERT( !dfa.match( "HTTP.3", match ) );
    }
 };

@@ -9,10 +9,10 @@ Import('env')
 #
 # The support sources are optional, as is the MPI rank range.
 suites = [
-    ('syntax_tree_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
-    ('dfa_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
-    ('re_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
-    ('multimatch_suite.t.hh', 'multimatch.cc', 'syntax_tree.cc', 'dfa.cc', 'match.cc'),
+    ('syntax_tree_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc', 'codes.cc'),
+    ('dfa_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc', 'codes.cc'),
+    ('re_suite.t.hh', 'syntax_tree.cc', 'dfa.cc', 'match.cc', 'codes.cc'),
+    ('multimatch_suite.t.hh', 'multimatch.cc', 'syntax_tree.cc', 'dfa.cc', 'match.cc', 'codes.cc'),
 ]
 
 # Define libraries to link against.
