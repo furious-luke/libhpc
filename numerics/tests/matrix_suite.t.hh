@@ -19,31 +19,40 @@
 #include "libhpc/numerics/matrix.hh"
 #include "libhpc/numerics/vector.hh"
 
+#ifdef HAVE_EIGEN
 using namespace hpc;
+#endif
 
 class matrix_suite : public CxxTest::TestSuite {
 public:
 
    void test_default_ctor()
    {
+#ifdef HAVE_EIGEN
       numerics::matrix<double> mat;
+#endif
    }
 
    void test_default_ctor_rows_cols()
    {
+#ifdef HAVE_EIGEN
       numerics::matrix<double,3,3> mat;
+#endif
    }
 
    void test_access()
    {
+#ifdef HAVE_EIGEN
       numerics::matrix<double,3,3> mat;
       mat( 0, 0 ) = 1.0;
       mat( 1, 0 ) = 2.0;
       mat( 0, 1 ) = 3.0;
+#endif
    }
 
    void test_solve_identity()
    {
+#ifdef HAVE_EIGEN
       numerics::matrix<double,2,2> mat;
       mat(0,0) = 1.0;
       mat(1,0) = 0.0;
@@ -53,10 +62,12 @@ public:
       rhs(0) = 2.0;
       rhs(1) = 3.0;
       mat.solve( rhs, sol );
+#endif
    }
 
    void test_solve()
    {
+#ifdef HAVE_EIGEN
       numerics::matrix<double,2,2> mat;
       mat(0,0) = 2.0;
       mat(1,0) = 1.0;
@@ -66,5 +77,6 @@ public:
       rhs(0) = 2.0;
       rhs(1) = 3.0;
       mat.solve( rhs, sol );
+#endif
    }
 };

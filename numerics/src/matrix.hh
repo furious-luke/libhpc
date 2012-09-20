@@ -18,6 +18,8 @@
 #ifndef libhpc_numerics_matrix_hh
 #define libhpc_numerics_matrix_hh
 
+#ifdef HAVE_EIGEN
+
 #include "eigen_matrix.hh"
 
 namespace hpc {
@@ -42,5 +44,7 @@ namespace hpc {
       };
    }
 }
+
+#endif
 
 #endif

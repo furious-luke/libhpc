@@ -18,6 +18,8 @@
 #ifndef libhpc_numerics_vector_hh
 #define libhpc_numerics_vector_hh
 
+#ifdef HAVE_EIGEN
+
 #include "eigen_vector.hh"
 
 namespace hpc {
@@ -41,5 +43,7 @@ namespace hpc {
       };
    }
 }
+
+#endif
 
 #endif

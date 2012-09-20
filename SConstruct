@@ -6,7 +6,7 @@ config.select(
     config.packages.MPI(),
     config.packages.HDF5(),
     config.packages.rapidxml(),
-    config.packages.Eigen(),
+    config.packages.Eigen(required=False),
 )
 
 vars = project.create_variables()
