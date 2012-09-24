@@ -26,15 +26,14 @@ namespace hpc {
    ///
    ///
    ///
-   template< class Iter,
-	     class Value >
+   template< class Iterator >
    void
-   iota( Iter first,
-	 Iter last,
-	 Value init )
+   iota( Iterator first,
+	 const Iterator& last,
+         typename Iterator::value_type init )
    {
-      for(; first != last; ++first, ++init)
-	 *first = init;
+      while( first != last )
+	 *first++ = init++;
    }
 
    ///
