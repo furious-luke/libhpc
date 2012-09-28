@@ -104,15 +104,15 @@ namespace hpc {
 	       int to,
 	       int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<mpi::data_type::type_map, T>));
-	    MPI_INSIST(MPI_Send(
-			  out.data(),
-			  out.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
-			  to,
-			  tag,
-			  this->_comm
-			  ));
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    MPI_INSIST( MPI_Send(
+                           out.data(),
+                           out.size(),
+                           MPI_MAP_TYPE(T),
+                           to,
+                           tag,
+                           this->_comm
+                           ) );
 	 }
 
 	 template< class T >
@@ -126,7 +126,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Isend(
 			  out.data(),
 			  out.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm,
@@ -145,7 +145,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Issend(
 			  out.data(),
 			  out.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm,
@@ -163,7 +163,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Send(
 			  (void*)&out,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm
@@ -181,7 +181,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Isend(
 			  (void*)&out,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm,
@@ -200,7 +200,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Issend(
 			  (void*)&out,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm,
@@ -218,7 +218,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Send(
 			  (void*)&out,
 			  2,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm
@@ -236,7 +236,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Isend(
 			  (void*)&out,
                           2,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  to,
 			  tag,
 			  this->_comm,
@@ -255,7 +255,7 @@ namespace hpc {
 	    MPI_INSIST( MPI_Issend(
                            (void*)&out,
                            2,
-                           mpl::at<mpi::data_type::type_map, T>::type::value,
+                           MPI_MAP_TYPE(T),
                            to,
                            tag,
                            this->_comm,
@@ -288,7 +288,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Recv(
 			  inc.data(),
 			  inc.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  from,
 			  tag,
 			  this->_comm,
@@ -307,7 +307,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Irecv(
 			  inc.data(),
 			  inc.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  from,
 			  tag,
 			  this->_comm,
@@ -325,7 +325,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Recv(
 			  (void*)&value,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  from,
 			  tag,
 			  this->_comm,
@@ -344,7 +344,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Irecv(
 			  (void*)&value,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  from,
 			  tag,
 			  this->_comm,
@@ -362,7 +362,7 @@ namespace hpc {
 	    MPI_INSIST( MPI_Recv(
 			  (void*)&value,
 			  2,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  from,
 			  tag,
 			  this->_comm,
@@ -381,7 +381,7 @@ namespace hpc {
 	    MPI_INSIST( MPI_Irecv(
 			  (void*)&value,
                           2,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  from,
 			  tag,
 			  this->_comm,
@@ -404,7 +404,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Bcast(
 			  &value,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  root,
 			  this->_comm
 			  ));
@@ -425,7 +425,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Bcast(
 			  data.data(),
 			  data.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  root,
 			  this->_comm
 			  ));
@@ -443,7 +443,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Bcast(
 			  data.data(),
 			  data.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  root,
 			  this->_comm
 			  ));
@@ -462,7 +462,7 @@ namespace hpc {
 	    MPI_INSIST(MPI_Bcast(
 			  data.data(),
 			  data.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  root,
 			  this->_comm
 			  ));
@@ -485,10 +485,10 @@ namespace hpc {
 	    MPI_INSIST(MPI_Allgather(
 			  (void*)&value,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  inc.data(),
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  this->_comm
 			  ));
 	 }
@@ -504,10 +504,10 @@ namespace hpc {
 	    MPI_INSIST( MPI_Allgather(
                            (void*)out.data(),
                            out.size(),
-                           mpl::at<mpi::data_type::type_map, T>::type::value,
+                           MPI_MAP_TYPE(T),
                            inc.data(),
                            inc.fibre_size(),
-                           mpl::at<mpi::data_type::type_map, T>::type::value,
+                           MPI_MAP_TYPE(T),
                            this->_comm
                            ) );
 	 }
@@ -523,10 +523,10 @@ namespace hpc {
 	    MPI_INSIST( MPI_Alltoall(
                            (void*)out.data(),
                            1,
-                           mpl::at<mpi::data_type::type_map, T>::type::value,
+                           MPI_MAP_TYPE(T),
                            inc.data(),
                            1,
-                           mpl::at<mpi::data_type::type_map, T>::type::value,
+                           MPI_MAP_TYPE(T),
                            this->_comm
                            ) );
 	 }
@@ -550,7 +550,7 @@ namespace hpc {
 			  (void*)&out,
 			  &inc,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  op,
 			  this->_comm
 			  ) );
@@ -570,7 +570,7 @@ namespace hpc {
 			  (void*)out.data(),
 			  (void*)inc.data(),
 			  out.size(),
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  op,
 			  this->_comm
 			  ) );
@@ -597,7 +597,7 @@ namespace hpc {
 			  (void*)&out,
 			  &inc,
 			  1,
-			  mpl::at<mpi::data_type::type_map, T>::type::value,
+                          MPI_MAP_TYPE(T),
 			  op,
 			  this->_comm
 			  ) );

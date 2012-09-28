@@ -22,7 +22,7 @@
 namespace hpc {
    namespace mpi {
 
-      mpi::data_type data_type::null(MPI_DATATYPE_NULL);
+      mpi::data_type data_type::null( MPI_DATATYPE_NULL );
       mpi::data_type data_type::boolean;
       mpi::data_type data_type::byte;
       mpi::data_type data_type::character;
@@ -32,6 +32,10 @@ namespace hpc {
       mpi::data_type data_type::unsigned_long;
       mpi::data_type data_type::floating;
       mpi::data_type data_type::double_floating;
+
+#if !( defined( MPICH ) || defined( MPICH2 ) )
+      MPI_Datatype data_type::_type_map[9];
+#endif
 
       data_type::data_type( MPI_Datatype type )
 	 : _type(type)
@@ -48,7 +52,11 @@ namespace hpc {
       data_type::clear()
       {
 	 if(this->_type != MPI_DATATYPE_NULL &&
+#if defined( MPICH ) || defined( MPICH2 )
 	    this->_type != MPIR_CXX_BOOL &&
+#else
+            this->_type != MPI_C_BOOL &&
+#endif
 	    this->_type != MPI_INT &&
 	    this->_type != MPI_UNSIGNED &&
 	    this->_type != MPI_LONG &&

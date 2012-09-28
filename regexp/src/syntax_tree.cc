@@ -855,6 +855,7 @@ namespace hpc {
                   {
                      for( byte jj = *range_begin++; jj < *range_begin; ++jj )
                         all_data.push_back( jj );
+                     ++range_begin;
                   }
                }
                else
