@@ -17,7 +17,7 @@ vars.AddVariables(
 )
 
 env = project.create_environment(vars)
-env.MergeFlags('-std=c++0x')
+env.AppendUnique(CCFLAGS='-std=c++0x')
 if not env['MEMOPS']:
     env.MergeFlags('-DNMEMOPS')
 if not env['MEMSTATS']:

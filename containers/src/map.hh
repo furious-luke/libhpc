@@ -76,7 +76,7 @@ namespace hpc {
       set_default( const Key& key,
                    const Value& val )
       {
-	 iterator it = find( key );
+	 iterator it = this->find( key );
 	 if( it == this->end() )
 	    it = insert( key, val ).first;
 	 return it;
@@ -85,7 +85,7 @@ namespace hpc {
       const Value&
       get( const Key& key ) const
       {
-	 const_iterator it = find( key );
+	 const_iterator it = this->find( key );
 	 ASSERT( it != this->end(), "Map does not contain requested key." );
 	 return it->second;
       }
@@ -94,7 +94,7 @@ namespace hpc {
       get_default( const Key& key,
                    const Value& def )
       {
-	 const_iterator it = find( key );
+	 const_iterator it = this->find( key );
          if( it != this->end() )
             return it->second;
          else
@@ -104,7 +104,7 @@ namespace hpc {
       bool
       has( const Key& key ) const
       {
-	 return find( key ) != this->end();
+	 return this->find( key ) != this->end();
       }
 
       friend std::ostream&

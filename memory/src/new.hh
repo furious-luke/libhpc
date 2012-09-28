@@ -18,18 +18,21 @@
 #ifndef containers_new_hh
 #define containers_new_hh
 
+#include <new>
 #include <stdlib.h>
 #include <string.h>
-#include <set>
 
-#ifndef WITH_TAU
+void*
+operator new( size_t size ) throw( std::bad_alloc );
 
-void* operator new(size_t size);
-void operator delete(void* ptr);
-void* operator new[](size_t size);
-void operator delete[](void* ptr);
+void
+operator delete(void* ptr) throw();
 
-#endif
+void*
+operator new[]( size_t size ) throw( std::bad_alloc );
+
+void
+operator delete[]( void* ptr ) throw();
 
 namespace hpc {
    namespace memory {
@@ -42,7 +45,8 @@ namespace hpc {
 
 #if !defined NDEBUG && !defined WITH_TAU
 
-      void check_ptr_cookie(void* ptr);
+      void
+      check_ptr_cookie( void* ptr );
 
 #endif
 

@@ -25,33 +25,29 @@
 
 typedef unsigned char byte_t;
 
-#ifndef WITH_TAU
+void*
+operator new( size_t size ) throw( std::bad_alloc )
+{
+   return hpc::memory::new_alloc(size);
+}
 
-      void*
-      operator new( size_t size )
-      {
-	 return hpc::memory::new_alloc(size);
-      }
+void
+operator delete( void* ptr ) throw()
+{
+   hpc::memory::new_free(ptr);
+}
 
-      void
-      operator delete( void* ptr )
-      {
-	 hpc::memory::new_free(ptr);
-      }
+void*
+operator new[]( size_t size ) throw( std::bad_alloc )
+{
+   return hpc::memory::new_alloc(size);
+}
 
-      void*
-      operator new[]( size_t size )
-      {
-	 return hpc::memory::new_alloc(size);
-      }
-
-      void
-      operator delete[]( void* ptr )
-      {
-	 hpc::memory::new_free(ptr);
-      }
-
-#endif
+void
+operator delete[]( void* ptr ) throw()
+{
+   hpc::memory::new_free(ptr);
+}
 
 namespace hpc {
    namespace memory {
