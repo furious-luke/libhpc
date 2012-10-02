@@ -72,7 +72,7 @@ public:
       // Nonzero results.
       double old_x, old_y;
       numerics::gnomonic_projection<double>( 0.0, 0.0, 0.5, 0.0, x, y );
-      TS_ASSERT( x > 0.0 );
+      TS_ASSERT( x < 0.0 );
       TS_ASSERT( num::approx( y, 0.0, 1e-8 ) );
       old_x = x;
       numerics::gnomonic_projection<double>( 0.5, 0.0, 0.0, 0.0, x, y );
@@ -93,11 +93,11 @@ public:
       old_x = x;
       numerics::gnomonic_projection<double>( 0.0, 0.0, 0.2, 0.0, x, y );
       diff[1] = x - old_x;
-      TS_ASSERT( diff[1] > diff[0] );
+      TS_ASSERT( diff[1] < diff[0] );
       old_x = x;
       numerics::gnomonic_projection<double>( 0.0, 0.0, 0.3, 0.0, x, y );
       diff[0] = x - old_x;
-      TS_ASSERT( diff[0] > diff[1] );
+      TS_ASSERT( diff[0] < diff[1] );
       numerics::gnomonic_projection<double>( 0.0, 0.1, 0.0, 0.0, x, y );
       diff[0] = y;
       old_y = y;

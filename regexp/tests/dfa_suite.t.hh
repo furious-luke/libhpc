@@ -230,6 +230,7 @@ public:
 
    void test_class_digit_alternation()
    {
+      SET_ABORT( true );
       re::dfa dfa( "a(\\d|bc)d" );
       re::match match;
       TS_ASSERT( !dfa.match( "a", match ) );
