@@ -52,13 +52,17 @@ namespace hpc {
       bool
       select::can_read( const pipe& pipe )
       {
-         return FD_ISSET( pipe.fd(), &_read );
+         bool res = FD_ISSET( pipe.fd(), &_read );
+         FD_CLR( pipe.fd(), &_read );
+         return res;
       }
 
       bool
       select::can_write( const pipe& pipe )
       {
-         return FD_ISSET( pipe.fd(), &_write );
+         bool res = FD_ISSET( pipe.fd(), &_write );
+         FD_CLR( pipe.fd(), &_write );
+         return res;
       }
    }
 }
