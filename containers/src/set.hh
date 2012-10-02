@@ -18,6 +18,7 @@
 #ifndef containers_set_hh
 #define containers_set_hh
 
+#include <ostream>
 #include "libhpc/memory/memory.hh"
 #include <set>
 
