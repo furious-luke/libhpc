@@ -59,11 +59,11 @@ namespace hpc {
       match( const string& str ) const;
 
       optional<index>
-      match_start( const string& str ) const;
+      search( const string& str ) const;
 
       bool
-      match_start( const string& str,
-                   re::match& match ) const;
+      search( const string& str,
+              re::match& match ) const;
 
    protected:
 

@@ -65,8 +65,17 @@ namespace hpc {
                 optional<re::match&> match = optional<re::match&>() ) const;
 
          bool
-         match_start( const string& str,
-                      optional<re::match&> match = optional<re::match&>() ) const;
+         search( const string& str,
+                 optional<re::match&> match = optional<re::match&>() ) const;
+
+         int
+         match_start( string::const_iterator start,
+                      const string::const_iterator& finish,
+                      re::match& match ) const;
+
+         int
+         match_continue( const string::const_iterator& finish,
+                         re::match& match ) const;
 
       protected:
 
@@ -75,17 +84,28 @@ namespace hpc {
                              re::match& match ) const;
 
          bool
-         _match_start_and_capture( const string& str,
-                                   re::match& match ) const;
+         _search_and_capture( const string& str,
+                              re::match& match ) const;
 
          bool
          _match( const string& str ) const;
 
+         int
+         _match_start( string::const_iterator start,
+                       const string::const_iterator& finish,
+                       re::match& match ) const;
+
+         int
+         _match_continue( const string::const_iterator& finish,
+                          re::match& match ) const;
+
          bool
          _move_and_capture( uint16& state,
                             byte data,
-                            const char* ptr,
-                            re::match& match ) const;
+                            const string::const_iterator& start,
+                            const string::const_iterator& pos,
+                            re::match& match,
+                            unsigned cap_offs=0) const;
 
          bool
          _move( uint16& state,

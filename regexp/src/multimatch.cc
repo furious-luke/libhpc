@@ -56,19 +56,19 @@ namespace hpc {
    }
 
    optional<index>
-   multimatch::match_start( const string& str ) const
+   multimatch::search( const string& str ) const
    {
       re::match match;
-      if( _re.match_start( str, match ) )
+      if( _re.search( str, match ) )
          return (index)match.last_capture();
       else
          return none;
    }
 
    bool
-   multimatch::match_start( const string& str,
+   multimatch::search( const string& str,
                             re::match& match ) const
    {
-      return _re.match_start( str, match );
+      return _re.search( str, match );
    }
 };

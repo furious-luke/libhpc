@@ -71,6 +71,14 @@ namespace hpc {
          child[1] = right;
       }
 
+      syntax_tree::node*
+      syntax_tree::node::duplicate() const
+      {
+         return new node( data,
+                          child[0] ? child[0]->duplicate() : NULL,
+                          child[1] ? child[1]->duplicate() : NULL );
+      }
+
       unsigned
       syntax_tree::node::calc_indices( unsigned idx )
       {
@@ -120,7 +128,8 @@ namespace hpc {
             ASSERT( (bool)child[0] );
             return true;
          }
-         else if( data == static_cast<byte>( code_capture ) )
+         else if( data == static_cast<byte>( code_capture ) ||
+                  data == static_cast<byte>( code_plus ) )
          {
             ASSERT( (bool)child[0] );
             return child[0]->nullable();
@@ -162,6 +171,7 @@ namespace hpc {
             }
          }
          else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_plus ) ||
                   data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
@@ -206,6 +216,7 @@ namespace hpc {
             }
          }
          else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_plus ) ||
                   data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
@@ -241,7 +252,8 @@ namespace hpc {
                }
             }
          }
-         else if( data == static_cast<byte>( code_many ) )
+         else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_plus ) )
          {
             // Depth first.
             child[0]->calc_followpos( followpos );
@@ -319,8 +331,8 @@ namespace hpc {
          else if( data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
-            child[0]->calc_capture_open( capture_index );
-            child[0]->calc_capture_close( capture_index );
+            child[0]->calc_capture_open( capture_index, true );
+            child[0]->calc_capture_close( capture_index, true );
             child[0]->calc_captures();
          }
 
@@ -328,12 +340,22 @@ namespace hpc {
       }
 
       void
-      syntax_tree::node::calc_capture_open( uint16 idx )
+      syntax_tree::node::calc_capture_open( uint16 idx,
+                                            bool init )
       {
          LOG_ENTER();
 
-         if( (bool)child[0] )
-            child[0]->calc_capture_open( idx );
+         // Immediate splits after a capture need to be handled to properly
+         // capture on all possible splits.
+         if( init && data == static_cast<byte>( code_split ) )
+         {
+            child[0]->calc_capture_open( idx, true );
+            child[1]->calc_capture_open( idx, true );
+         }
+         else if( (bool)child[0] )
+         {
+            child[0]->calc_capture_open( idx, false );
+         }
          else
          {
             LOGLVLN( logging::debug, "Capture open at '", static_cast<char>( data ), "' with index ", idx );
@@ -344,18 +366,26 @@ namespace hpc {
       }
 
       void
-      syntax_tree::node::calc_capture_close( uint16 idx )
+      syntax_tree::node::calc_capture_close( uint16 idx,
+                                             bool init )
       {
          LOG_ENTER();
 
-         if( data == static_cast<byte>( code_many ) ||
-             data == static_cast<byte>( code_capture ) )
+         // Immediate splits after a capture need to be handled to properly
+         // capture on all possible splits.
+         if( init && data == static_cast<byte>( code_split ) )
+         {
+            child[0]->calc_capture_close( idx, true );
+            child[1]->calc_capture_close( idx, true );
+         }
+         else if( data == static_cast<byte>( code_many ) ||
+                  data == static_cast<byte>( code_capture ) )
          {
             ASSERT( (bool)child[0] );
-            child[0]->calc_capture_close( idx );
+            child[0]->calc_capture_close( idx, false );
          }
          else if( (bool)child[1] )
-            child[1]->calc_capture_close( idx );
+            child[1]->calc_capture_close( idx, false );
          else
          {
             LOGLVLN( logging::debug, "Capture close at '", static_cast<char>( data ), "' with index ", idx );
@@ -514,6 +544,11 @@ namespace hpc {
                   // Digit character class.
                   ch = code_class_digit;
                }
+               else if( ch == 'W' )
+               {
+                  // Negated whitespace.
+                  ch = code_class_neg_ws;
+               }
 
                // Concatenate.
                LOGDLN( "Forced: ", ch );
@@ -534,14 +569,24 @@ namespace hpc {
                // 'Or'.
                ASSERT( cur_node, "Must be expression to left of |." );
                cur_node = new node( static_cast<byte>( code_split ), cur_node, _construct_recurse( ++ptr ) );
-               ch = *ptr;
-               prev_group = false;
+
+               // The only thing that will cause us to return from a split is
+               // a closing brace, so continue returning until we hit the
+               // opening brace.
+               LOG_EXIT();
+               return cur_node;
+
+               // ch = *ptr;
+               // prev_group = false;
             }
-            else if( ch == '*' )
+            else if( ch == '*' || ch == '+' )
             {
                // TODO: Clean this up.
-               LOGLVLN( logging::debug, "Star." );
+               LOGLVLN( logging::debug, "Star or plus." );
                ASSERT( cur_node, "Must be existing expression." );
+
+               // Select correct code.
+               byte code = (ch == '*') ? code_many : code_plus;
 
                // Closure has highest precedence. If current node is any binary operation
                // apply closure to right child.
@@ -549,7 +594,7 @@ namespace hpc {
                    (cur_node->data == code_concat || cur_node->data == code_split) )
                {
                   LOGDLN( "No previous group, repeating last character." );
-                  cur_node->child[1] = new node( static_cast<byte>( code_many ), cur_node->child[1].release() );
+                  cur_node->child[1] = new node( static_cast<byte>( code ), cur_node->child[1].release() );
                }
                else
                {
@@ -559,10 +604,10 @@ namespace hpc {
                   if( !(cur_node->data == code_concat || cur_node->data == code_split) ||
                       (prev_group && it == 1) )
                   {
-                     cur_node = new node( static_cast<byte>( code_many ), cur_node );
+                     cur_node = new node( static_cast<byte>( code ), cur_node );
                   }
                   else
-                     cur_node->child[1] = new node( static_cast<byte>( code_many ), cur_node->child[1].release() );
+                     cur_node->child[1] = new node( static_cast<byte>( code ), cur_node->child[1].release() );
                }
 
                prev_group = false;
@@ -840,15 +885,18 @@ namespace hpc {
 #endif
 
          // Insert any capture openings on this state.
+         LOGLN( "Inserting state capture openings.", setindent( 2 ) );
          vector<byte> all_data( 256 );
          for( auto idx : state.indices )
          {
             node& cur_node = *_idx_to_node[idx];
+            LOGLN( "Looking at state ", idx, " with data ", cur_node.data, setindent( 2 ) );
             if( cur_node.data != static_cast<byte>( code_match ) )
             {
                all_data.resize( 0 );
                if( cur_node.data >= code_class_all && cur_node.data < code_terminal )
                {
+                  LOGLN( "Found a character class." );
                   byte* range_begin = classes + classes[2*(cur_node.data - code_class_all)];
                   byte* range_end = classes + classes[2*(cur_node.data - code_class_all) + 1];
                   while( range_begin < range_end )
@@ -860,7 +908,11 @@ namespace hpc {
                }
                else
                   all_data.push_back( cur_node.data );
+               LOGLN( "Expanded code into ", all_data.size(), " character(s)." );
 
+               // Get the new state from the first data. If we have expanded a
+               // character class and we are opening states, be sure that all other
+               // transitions move to the same state.
                dfa_state* new_state = state.moves.get( all_data[0] );
 #ifndef NDEBUG
                if( !cur_node.open.empty() )
@@ -910,7 +962,9 @@ namespace hpc {
                // new_state.close.insert( cur_node.close.begin(), cur_node.close.end() );
                // LOGLN( "Adding close ", cur_node.close, " to state ", new_state.indices );
             }
+            LOG( setindent( -2 ) );
          }
+         LOG( setindent( -2 ) );
 
          // If this state is accepting (i.e. has a permissible movement
          // from the match code) add a movement to itself.

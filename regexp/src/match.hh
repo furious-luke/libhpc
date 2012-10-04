@@ -19,19 +19,23 @@
 #define libhpc_regexp_match_hh
 
 #include "libhpc/containers/vector.hh"
+#include "libhpc/containers/string.hh"
 
 namespace hpc {
    namespace re {
 
       class dfa;
 
+      ///
+      ///
+      ///
       class match
       {
          friend class dfa;
 
       public:
 
-         typedef std::pair<const char*,const char*> capture_type;
+         typedef std::pair<unsigned,unsigned> capture_type;
 
       public:
 
@@ -47,7 +51,12 @@ namespace hpc {
       protected:
 
          uint16 _last;
-         vector<std::pair<const char*,const char*>> _caps;
+         vector<capture_type> _caps;
+
+         // For continued matches.
+         uint16 _state;
+         unsigned _cap_offs;
+         string::const_iterator _pos;
       };
    }
 }

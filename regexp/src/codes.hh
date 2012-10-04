@@ -27,10 +27,12 @@ namespace hpc {
          code_concat = 127,
          code_split = 128,
          code_many = 129,
-         code_capture = 130,
-         code_class_all = 131,
-         code_class_digit = 132,
-         code_terminal = 133
+         code_plus = 130,
+         code_capture = 131,
+         code_class_all = 132,
+         code_class_digit = 133,
+         code_class_neg_ws = 134,
+         code_terminal = 135
       };
 
       extern byte classes[];

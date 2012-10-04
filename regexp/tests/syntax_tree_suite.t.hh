@@ -103,7 +103,7 @@ public:
    void test_followpos()
    {
       re::syntax_tree st;
-      st.construct( "(a|b)*a" );
+      st.construct( "(?:a|b)*a" );
       multimap<unsigned,unsigned> followpos;
       st._calc_followpos( followpos );
    }
@@ -111,7 +111,7 @@ public:
    void test_calc_dfa_0()
    {
       re::syntax_tree st;
-      st.construct( "(a|b)*a" );
+      st.construct( "(?:a|b)*a" );
       st._calc_dfa();
    }
 

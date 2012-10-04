@@ -85,23 +85,66 @@ public:
       st.to_dfa( dfa );
    }
 
-   void test_match_start()
+   void test_search()
    {
       re::match match;
       re::dfa dfa( "(one)|(two)|(three)" );
-      TS_ASSERT( dfa.match_start( "one", match ) );
+      TS_ASSERT( dfa.search( "one", match ) );
       TS_ASSERT_EQUALS( match.last_capture(), 0 );
-      TS_ASSERT( dfa.match_start( "two", match ) );
+      TS_ASSERT( dfa.search( "two", match ) );
       TS_ASSERT_EQUALS( match.last_capture(), 1 );
-      TS_ASSERT( dfa.match_start( "three", match ) );
+      TS_ASSERT( dfa.search( "three", match ) );
       TS_ASSERT_EQUALS( match.last_capture(), 2 );
-      TS_ASSERT( !dfa.match_start( "hello", match ) );
-      TS_ASSERT( !dfa.match_start( "0one", match ) );
-      TS_ASSERT( dfa.match_start( "onethree", match ) );
+      TS_ASSERT( !dfa.search( "hello", match ) );
+      TS_ASSERT( !dfa.search( "0one", match ) );
+      TS_ASSERT( dfa.search( "onethree", match ) );
       TS_ASSERT_EQUALS( match.last_capture(), 0 );
-      TS_ASSERT( dfa.match_start( "threelade", match ) );
+      TS_ASSERT( dfa.search( "threelade", match ) );
       TS_ASSERT_EQUALS( match.last_capture(), 2 );
    }
+
+   void test_match_hidden()
+   {
+      re::dfa dfa( ".*(?:deg|ef)" );
+      re::match match;
+      TS_ASSERT( dfa.match( "abcdeg", match ) );
+      TS_ASSERT( dfa.match( "abcef", match ) );
+      TS_ASSERT( dfa.match( "abcdef", match ) );
+   }
+
+   void test_match_hidden_capture()
+   {
+      re::dfa dfa( ".*(?:(deg)|(ef))" );
+      re::match match;
+      TS_ASSERT( dfa.match( "abcdeg", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 0 );
+      TS_ASSERT( dfa.match( "abcef", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 1 );
+      TS_ASSERT( dfa.match( "abcdef", match ) );
+      TS_ASSERT_EQUALS( match.last_capture(), 1 );
+   }
+
+   ///
+   /// As we process the 'ddd' part of the RE, each 'd' could be considered
+   /// either a part of the uncaptured '.*' section, or a part of the 'ddd'
+   /// section. It's possible the system will restart the capture on each 'd',
+   /// which we don't want.
+   ///
+   // void test_match_ambiguous_capture()
+   // {
+   //    LOG_FILE( "test.log" );
+   //    re::dfa dfa( ".*(?:(ddd)|(ef))" );
+   //    re::match match;
+   //    const char* str0 = "abcddd";
+   //    TS_ASSERT( dfa.match( str0, match ) );
+   //    TS_ASSERT_EQUALS( match.last_capture(), 0 );
+   //    TS_ASSERT_EQUALS( match.capture( 0 ).first, str0 + 3 );
+   //    TS_ASSERT_EQUALS( match.capture( 0 ).second, str0 + 6 );
+   //    TS_ASSERT( dfa.match( "abcdddd", match ) );
+   //    TS_ASSERT_EQUALS( match.last_capture(), 0 );
+   //    TS_ASSERT_EQUALS( match.capture( 0 ).first, str0 + 4 );
+   //    TS_ASSERT_EQUALS( match.capture( 0 ).second, str0 + 7 );
+   // }
 
    void test_many()
    {
@@ -175,10 +218,37 @@ public:
       TS_ASSERT( dfa.match( "abcbcde", match ) );
    }
 
+   void test_plus()
+   {
+      re::dfa dfa( "ab+" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( dfa.match( "ab", match ) );
+      TS_ASSERT( dfa.match( "abb", match ) );
+      TS_ASSERT( dfa.match( "abbb", match ) );
+      TS_ASSERT( !dfa.match( "abbba", match ) );
+   }
+
+   void test_plus_grouped()
+   {
+      re::dfa dfa( "a(?:bc)+" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "ab", match ) );
+      TS_ASSERT( !dfa.match( "ac", match ) );
+      TS_ASSERT( dfa.match( "abc", match ) );
+      TS_ASSERT( !dfa.match( "abca", match ) );
+      TS_ASSERT( !dfa.match( "abcb", match ) );
+      TS_ASSERT( !dfa.match( "abcc", match ) );
+      TS_ASSERT( dfa.match( "abcbc", match ) );
+      TS_ASSERT( !dfa.match( "abcbca", match ) );
+   }
+
    void test_no_repeat_captures()
    {
       re::dfa dfa;
       TS_ASSERT_THROWS_ANYTHING( dfa.construct( "a(bc)*" ) );
+      TS_ASSERT_THROWS_ANYTHING( dfa.construct( "a(bc)+" ) );
    }
 
    void test_class_all()
@@ -228,6 +298,22 @@ public:
       TS_ASSERT( !dfa.match( "a2", match ) );
    }
 
+   void test_class_neg_ws()
+   {
+      re::dfa dfa( "a\\Wc" );
+      re::match match;
+      TS_ASSERT( !dfa.match( "a", match ) );
+      TS_ASSERT( !dfa.match( "c", match ) );
+      TS_ASSERT( !dfa.match( "ac", match ) );
+      TS_ASSERT( !dfa.match( "a c", match ) );
+      TS_ASSERT( !dfa.match( "a\nc", match ) );
+      TS_ASSERT( dfa.match( "aac", match ) );
+      TS_ASSERT( dfa.match( "abc", match ) );
+      TS_ASSERT( dfa.match( "a!c", match ) );
+      TS_ASSERT( dfa.match( "a~c", match ) );
+      TS_ASSERT( dfa.match( "a0c", match ) );
+   }
+
    void test_class_digit_alternation()
    {
       SET_ABORT( true );
@@ -245,15 +331,81 @@ public:
       TS_ASSERT( !dfa.match( "a7de", match ) );
    }
 
+   void test_match_continued()
+   {
+      re::dfa dfa( "hello world!" );
+      re::match match;
+      string buf = "hello world!";
+
+      TS_ASSERT_EQUALS( dfa.match_start( buf.begin(), buf.end(), match ), 1 );
+
+      TS_ASSERT_EQUALS( dfa.match_start( buf.begin(), buf.begin() + 4, match ), -1 );
+      TS_ASSERT_EQUALS( dfa.match_continue( buf.end(), match ), 1 );
+
+      TS_ASSERT_EQUALS( dfa.match_start( buf.begin(), buf.begin() + 4, match ), -1 );
+      TS_ASSERT_EQUALS( dfa.match_continue( buf.begin() + 5, match ), -1 );
+      TS_ASSERT_EQUALS( dfa.match_continue( buf.begin() + 6, match ), -1 );
+      TS_ASSERT_EQUALS( dfa.match_continue( buf.end(), match ), 1 );
+
+      buf = "hello worldy!";
+      TS_ASSERT_EQUALS( dfa.match_start( buf.begin(), buf.begin() + 4, match ), -1 );
+      TS_ASSERT_EQUALS( dfa.match_continue( buf.end(), match ), 0 );
+
+      buf = "haello world!";
+      TS_ASSERT_EQUALS( dfa.match_start( buf.begin(), buf.begin() + 4, match ), 0 );
+   }
+
    void test_http()
    {
       re::dfa dfa( "HTTP(\\d)\\.(\\d)" );
       re::match match;
-      TS_ASSERT( dfa.match( "HTTP1.2", match ) );
-      TS_ASSERT_EQUALS( *match.capture( 0 ).first, '1' );
-      TS_ASSERT_EQUALS( *match.capture( 1 ).first, '2' );
+      string buf = "HTTP1.2";
+      TS_ASSERT( dfa.match( buf, match ) );
+      TS_ASSERT_EQUALS( buf[match.capture( 0 ).first], '1' );
+      TS_ASSERT_EQUALS( buf[match.capture( 1 ).first], '2' );
       TS_ASSERT( !dfa.match( "HTTP14.2", match ) );
       TS_ASSERT( !dfa.match( "HTTP1.", match ) );
       TS_ASSERT( !dfa.match( "HTTP.3", match ) );
    }
+
+   void test_http_request()
+   {
+      LOG_FILE( "test.log" );
+      // string path = "";
+      // string uri = "\\*|http://|/";
+      re::dfa dfa( "(GET|POST|PUT) (\\W\\W*) HTTP\\d\\d*\\.\\d\\d*\n" );
+      re::match match;
+      string buf = "GET /index.html HTTP1.1\n";
+      TS_ASSERT( dfa.match( buf, match ) );
+      TS_ASSERT_EQUALS( match.capture( 0 ).first, 0 );
+      TS_ASSERT_EQUALS( match.capture( 0 ).second, 3 );
+      TS_ASSERT_EQUALS( match.capture( 1 ).first, 4 );
+      TS_ASSERT_EQUALS( match.capture( 1 ).second, 15 );
+   }
+
+   // void test_search_basic()
+   // {
+   //    re::dfa dfa( "bc" );
+   //    re::match match;
+   //    TS_ASSERT( !dfa.search( "a", match ) );
+   //    TS_ASSERT( !dfa.search( "b", match ) );
+   //    TS_ASSERT( !dfa.search( "c", match ) );
+   //    TS_ASSERT( dfa.search( "abcd", match ) );
+   //    TS_ASSERT( dfa.search( "bcd", match ) );
+   //    TS_ASSERT( dfa.search( "abc", match ) );
+   // }
+
+   // void test_search_hidden()
+   // {
+   //    re::dfa dfa( "(bcdf)|(cd)" );
+   //    re::match match;
+
+   //    // This should match, but which will it match?
+   //    TS_ASSERT( dfa.search( "bcdf", match ) );
+   //    TS_ASSERT_EQUALS( match.last_capture(), 0 );
+
+   //    // This should match, because "cd" is in the second option.
+   //    TS_ASSERT( dfa.search( "bcde", match ) );
+   //    TS_ASSERT_EQUALS( match.last_capture(), 1 );
+   // }
 };

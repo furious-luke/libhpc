@@ -56,6 +56,9 @@ namespace hpc {
                   node* left=NULL,
                   node* right=NULL );
 
+            node*
+            duplicate() const;
+
             unsigned
             calc_indices( unsigned idx );
 
@@ -82,10 +85,12 @@ namespace hpc {
             calc_captures();
 
             void
-            calc_capture_open( uint16 idx );
+            calc_capture_open( uint16 idx,
+                               bool init );
 
             void
-            calc_capture_close( uint16 idx );
+            calc_capture_close( uint16 idx,
+                                bool init );
 
             int16
             calc_split_indices( int16 idx );

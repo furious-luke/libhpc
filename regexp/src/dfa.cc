@@ -75,18 +75,18 @@ namespace hpc {
             if( idx < std::numeric_limits<uint16>::max() )
                ++_num_caps;
          }
-#ifndef NDEBUG
-         {
-            uint16 close_caps = 0;
-            for( auto idx : _close )
-            {
-               if( idx < std::numeric_limits<uint16>::max() )
-                  ++close_caps;
+// #ifndef NDEBUG
+//          {
+//             uint16 close_caps = 0;
+//             for( auto idx : _close )
+//             {
+//                if( idx < std::numeric_limits<uint16>::max() )
+//                   ++close_caps;
+//             }
+//             ASSERT( _num_caps == close_caps );
+//          }
+// #endif
             }
-            ASSERT( _num_caps == close_caps );
-         }
-#endif
-      }
 
       uint16
       dfa::move( uint16 state,
@@ -118,8 +118,8 @@ namespace hpc {
       }
 
       bool
-      dfa::match_start( const string& str,
-                        optional<re::match&> match ) const
+      dfa::search( const string& str,
+                   optional<re::match&> match ) const
       {
          LOG_ENTER();
 
@@ -127,12 +127,45 @@ namespace hpc {
          if( _num_states )
          {
             if( match )
-               res = _match_start_and_capture( str, *match );
+               res = _search_and_capture( str, *match );
             else
                ASSERT( 0 );
          }
          else
             res = false;
+
+         LOG_EXIT();
+         return res;
+      }
+
+      int
+      dfa::match_start( string::const_iterator start,
+                        const string::const_iterator& finish,
+                        re::match& match ) const
+      {
+         LOG_ENTER();
+
+         int res;
+         if( _num_states )
+            res = _match_start( start, finish, match );
+         else
+            res = 0;
+
+         LOG_EXIT();
+         return res;
+      }
+
+      int
+      dfa::match_continue( const string::const_iterator& finish,
+                           re::match& match ) const
+      {
+         LOG_ENTER();
+
+         int res;
+         if( _num_states )
+            res = _match_continue( finish, match );
+         else
+            res = 0;
 
          LOG_EXIT();
          return res;
@@ -147,18 +180,19 @@ namespace hpc {
          // Set appropriate size and clear out captures.
          match._caps.resize( _num_caps );
          for( auto& cap : match._caps )
-            cap.first = cap.second = NULL;
+            cap.first = cap.second = 0;
 
-         const char* ptr = str.c_str();
+         const string::const_iterator begin = str.begin();
+         string::const_iterator pos = str.begin();
          uint16 state = 0;
-         while( *ptr != 0 )
+         while( pos != str.end() )
          {
-            if( !_move_and_capture( state, *ptr, ptr, match ) )
+            if( !_move_and_capture( state, *pos, begin, pos, match ) )
             {
                LOG_EXIT();
                return false;
             }
-            ++ptr;
+            ++pos;
          }
 
          // We have only matched if we end up in the match state.
@@ -172,27 +206,28 @@ namespace hpc {
       /// Match but allow remaining characters.
       ///
       bool
-      dfa::_match_start_and_capture( const string& str,
-                                     re::match& match ) const
+      dfa::_search_and_capture( const string& str,
+                                re::match& match ) const
       {
          LOG_ENTER();
 
          // Set appropriate size and clear out captures.
          match._caps.resize( _num_caps );
          for( auto& cap : match._caps )
-            cap.first = cap.second = NULL;
+            cap.first = cap.second = 0;
 
-         const char* ptr = str.c_str();
+         const string::const_iterator begin = str.begin();
+         string::const_iterator pos = begin;
          uint16 state = 0;
-         while( *ptr != 0 && 
+         while( pos != str.end() &&
                 move( state, static_cast<byte>( code_match ) ) == std::numeric_limits<uint16>::max() )
          {
-            if( !_move_and_capture( state, *ptr, ptr, match ) )
+            if( !_move_and_capture( state, *pos, begin, pos, match ) )
             {
                LOG_EXIT();
                return false;
             }
-            ++ptr;
+            ++pos;
          }
 
          // We have only matched if we end up in the match state.
@@ -226,11 +261,82 @@ namespace hpc {
          return res;
       }
 
+      int
+      dfa::_match_start( string::const_iterator start,
+                         const string::const_iterator& finish,
+                         re::match& match ) const
+      {
+         LOG_ENTER();
+
+         // Set appropriate size and clear out captures.
+         match._caps.resize( _num_caps );
+         for( auto& cap : match._caps )
+            cap.first = cap.second = 0;
+
+         match._pos = start;
+         match._state = 0;
+         match._cap_offs = 0;
+         string::const_iterator& pos = match._pos;
+         uint16& state = match._state;
+         while( pos != finish )
+         {
+            if( !_move_and_capture( state, *pos, start, pos, match ) )
+            {
+               LOG_EXIT();
+               return 0;
+            }
+            ++pos;
+            ++match._cap_offs;
+         }
+
+         // We have only matched if we end up in the match state. If we ran
+         // out of characters, indicate so.
+         int res = (move( state, static_cast<byte>( code_match ) ) != std::numeric_limits<uint16>::max()) ? 1 : 0;
+         if( !res && pos == finish )
+            res = -1;
+
+         LOG_EXIT();
+         return res;
+      }
+
+      int
+      dfa::_match_continue( const string::const_iterator& finish,
+                            re::match& match ) const
+      {
+         LOG_ENTER();
+
+         unsigned cap_offs = match._cap_offs;
+         const string::const_iterator start = match._pos;
+         string::const_iterator& pos = match._pos;
+         uint16& state = match._state;
+         while( pos != finish )
+         {
+            if( !_move_and_capture( state, *pos, start, pos, match, cap_offs ) )
+            {
+               LOG_EXIT();
+               return 0;
+            }
+            ++pos;
+            ++match._cap_offs;
+         }
+
+         // We have only matched if we end up in the match state. If we ran
+         // out of characters, indicate so.
+         int res = (move( state, static_cast<byte>( code_match ) ) != std::numeric_limits<uint16>::max()) ? 1 : 0;
+         if( !res && pos == finish )
+            res = -1;
+
+         LOG_EXIT();
+         return res;
+      }
+
       bool
       dfa::_move_and_capture( uint16& state,
                               byte data,
-                              const char* ptr,
-                              re::match& match ) const
+                              const string::const_iterator& start,
+                              const string::const_iterator& pos,
+                              re::match& match,
+                              unsigned cap_offs ) const
       {
          LOG_ENTER();
          LOGLVLN( logging::debug, "In state ", state, " with data ", data );
@@ -253,14 +359,14 @@ namespace hpc {
             uint16 meta = new_state - _num_states;
             if( _open[meta] < std::numeric_limits<uint16>::max() )
             {
-               match._caps[_open[meta]].first = ptr;
-               LOGLVLN( logging::debug, "Open group ", _open[meta], " at ", *ptr );
+               match._caps[_open[meta]].first = (pos - start) + cap_offs;
+               LOGLVLN( logging::debug, "Open group ", _open[meta], " at ", *pos );
             }
             if( _close[meta] < std::numeric_limits<uint16>::max() )
             {
-               match._caps[_close[meta]].second = ptr + 1;
+               match._caps[_close[meta]].second = ((pos + 1) - start) + cap_offs;
                match._last = _close[meta];
-               LOGLVLN( logging::debug, "Close group ", _close[meta], " at ", *(ptr + 1) );
+               LOGLVLN( logging::debug, "Close group ", _close[meta], " at ", *(pos + 1) );
             }
             new_state = _meta_moves[meta];
             LOGLVLN( logging::debug, "Next state is ", new_state );

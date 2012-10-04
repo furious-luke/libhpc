@@ -21,9 +21,10 @@ namespace hpc {
    namespace re {
 
       byte classes[] = {
-         4, 6, 6, 8,   // begin, end
+         6, 8, 8, 10, 10, 12,   // begin, end
          1, 126,       // all
-         '0', '9' + 1  // digit
+         '0', '9' + 1, // digit
+         '!', '~' + 1  // non-whitespace
       };
    }
 }

@@ -39,7 +39,7 @@ namespace hpc {
       dictionary::sub( const hpc::string& prefix ) const
       {
          re::match match;
-         if( _dicts_mm.match_start( prefix + _sep, match ) )
+         if( _dicts_mm.search( prefix + _sep, match ) )
             return *_dicts[match.last_capture()];
       }
 
@@ -110,8 +110,8 @@ namespace hpc {
             return true;
 
          re::match match;
-         if( _dicts_mm.match_start( name, match ) )
-            return (*_dicts[match.last_capture()]).has_option( match.capture( match.last_capture() ).second );
+         if( _dicts_mm.search( name, match ) )
+            return (*_dicts[match.last_capture()]).has_option( name.c_str() + match.capture( match.last_capture() ).second );
 
          return false;
       }
@@ -163,8 +163,8 @@ namespace hpc {
             return _opts[*idx];
 
          re::match match;
-         if( _dicts_mm.match_start( name, match ) )
-            return (*_dicts[match.last_capture()]).find( match.capture( match.last_capture() ).second );
+         if( _dicts_mm.search( name, match ) )
+            return (*_dicts[match.last_capture()]).find( name.c_str() + match.capture( match.last_capture() ).second );
 
          return NULL;
       }
@@ -173,7 +173,7 @@ namespace hpc {
       dictionary::find_sub( const hpc::string& prefix )
       {
          re::match match;
-         if( _dicts_mm.match_start( prefix + _sep, match ) )
+         if( _dicts_mm.search( prefix + _sep, match ) )
             return _dicts[match.last_capture()];
          else
             return NULL;
