@@ -53,7 +53,8 @@ namespace hpc {
 
          void
          add( const pipe& pipe,
-              bool edge = false );
+              bool edge = false,
+              void* data = NULL );
 
          void
          remove( const pipe& pipe );
@@ -92,6 +93,9 @@ namespace hpc {
 
          int
          fd() const;
+
+         void*
+         data() const;
 
          bool
          ready() const;

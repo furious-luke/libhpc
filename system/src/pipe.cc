@@ -70,6 +70,15 @@ namespace hpc {
          _fd = -1;
       }
 
+      void
+      pipe::add_flags( pipe::flags flags )
+      {
+         int cur_flags = ::fcntl( _fd, F_GETFL, 0 );
+         ASSERT( cur_flags >= 0 );
+         cur_flags |= static_cast<int>( flags );
+         INSIST( ::fcntl( _fd, F_SETFL, cur_flags ), == 0 );
+      }
+
       int
       pipe::fd() const
       {
@@ -98,6 +107,15 @@ namespace hpc {
          ASSERT( res >= 0 );
          ASSERT( res <= size );
          return res;
+      }
+
+      void
+      pipe::read( string& buf ) const
+      {
+         buf.resize( buf.capacity() );
+         unsigned size = read( (byte*)buf.data(), buf.size()*sizeof(char) );
+         ASSERT( size%sizeof(char) == 0 );
+         buf.resize( size/sizeof(char) );
       }
    }
 }

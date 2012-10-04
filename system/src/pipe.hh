@@ -33,6 +33,7 @@ namespace hpc {
 
          enum flags
          {
+            none = 0,
             rdonly = O_RDONLY,
             wronly = O_WRONLY,
             rdwr = O_RDWR,
@@ -62,6 +63,9 @@ namespace hpc {
          void
          close();
 
+         void
+         add_flags( pipe::flags flags );
+
          int
          fd() const;
 
@@ -72,6 +76,9 @@ namespace hpc {
          ssize_t
          read( byte* buf,
                size_t size ) const;
+
+         void
+         read( string& buf ) const;
 
          template< class T >
          void
@@ -85,7 +92,7 @@ namespace hpc {
          read( vector<T>& buf ) const
          {
             buf.resize( buf.capacity() );
-            unsigned size = read( buf.data(), buf.size()*sizeof(T) );
+            unsigned size = read( (byte*)buf.data(), buf.size()*sizeof(T) );
             ASSERT( size%sizeof(T) == 0 );
             buf.resize( size/sizeof(T) );
          }

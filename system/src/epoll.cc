@@ -45,14 +45,24 @@ namespace hpc {
 
       void
       epoll::add( const pipe& pipe,
-                  bool edge )
+                  bool edge,
+                  void* data )
       {
          ASSERT( pipe.fd() >= 0 );
          event_type event;
-         event.data.fd = pipe.fd();
+
+         // Set the events.
          event.events = EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP;
          if( edge )
             event.events |= EPOLLET;
+
+         // The data is a union, set accordingly.
+         if( data )
+            event.data.ptr = data;
+         else
+            event.data.fd = pipe.fd();
+
+         // Add the event.
          INSIST( epoll_ctl( _fd, EPOLL_CTL_ADD, pipe.fd(), &event ), >= 0 );
          ++_size;
       }
@@ -96,22 +106,28 @@ namespace hpc {
          return (*this)->data.fd;
       }
 
+      void*
+      epoll_event_iterator::data() const
+      {
+         return (*this)->data.ptr;
+      }
+
       bool
       epoll_event_iterator::ready() const
       {
-         return (*this)->events | EPOLLIN;
+         return (*this)->events & EPOLLIN;
       }
 
       bool
       epoll_event_iterator::error() const
       {
-         return (*this)->events | EPOLLERR;
+         return (*this)->events & EPOLLERR;
       }
 
       bool
       epoll_event_iterator::hangup() const
       {
-         return (*this)->events | EPOLLHUP;
+         return (*this)->events & EPOLLHUP;
       }
    }
 }

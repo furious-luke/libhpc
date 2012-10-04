@@ -45,7 +45,7 @@ namespace hpc {
          bind( const string& ip_addr=string(),
                uint16 port=0 );
 
-         void
+         bool
          accept( inetsock& client );
       };
    }

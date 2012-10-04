@@ -78,7 +78,7 @@ namespace hpc {
          LOG_EXIT();
       }
 
-      void
+      bool
       inetsock::accept( inetsock& client )
       {
          LOG_ENTER();
@@ -86,6 +86,12 @@ namespace hpc {
          struct sockaddr_in addr;
          socklen_t addr_len = sizeof(addr);
          int cfd = ::accept( _fd, (struct sockaddr*)&addr, &addr_len );
+         if( cfd < 0 && errno == EAGAIN )
+         {
+            LOGLN( "No pending connections." );
+            LOG_EXIT();
+            return false;
+         }
          ASSERT( cfd >= 0 );
          LOGLN( "Accepted connection." );
 
@@ -93,6 +99,7 @@ namespace hpc {
          client.set_fd( cfd );
 
          LOG_EXIT();
+         return true;
       }
    }
 }
