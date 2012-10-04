@@ -20,10 +20,10 @@
 namespace hpc {
    namespace h5 {
 
-      dataspace dataspace::all(H5S_ALL);
+      dataspace dataspace::all( H5S_ALL );
 
-      dataspace::dataspace(hid_t id)
-	 : _id(id)
+      dataspace::dataspace( hid_t id )
+	 : _id( id )
       {
       }
 

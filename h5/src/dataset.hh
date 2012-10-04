@@ -18,6 +18,10 @@
 #ifndef hpc_h5_dataset_hh
 #define hpc_h5_dataset_hh
 
+#include <boost/mpl/map.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/at.hpp>
 #include "libhpc/hpcmpi/mpi.hh"
 #include "location.hh"
 #include "datatype.hh"
@@ -34,6 +38,13 @@ namespace hpc {
 
 	 dataset( h5::location& loc,
 		  const std::string& name );
+
+	 dataset( h5::location& loc,
+                  const std::string& name,
+                  const h5::datatype& datatype,
+                  const h5::dataspace& dataspace,
+                  boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
+                  bool deflate=false );
 
 	 ~dataset();
 
@@ -80,6 +91,64 @@ namespace hpc {
 
 	 hid_t _id;
       };
+
+      ///
+      ///
+      ///
+      template< class T >
+      void
+      location::write( const std::string& name,
+                       const T& value,
+                       const mpi::comm& comm )
+      {
+         BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map, T>) );
+         h5::datatype datatype( boost::mpl::at<h5::datatype::type_map, T>::type::value );
+
+         vector<hsize_t> dims( 1 );
+         dims[0] = 1;
+
+         h5::dataspace file_space( dims );
+         h5::dataset file_set;
+         file_set.create( *this, name, datatype, file_space );
+         file_space.select_all();
+
+         h5::dataspace mem_space( dims );
+         mem_space.select_all();
+
+         file_set.write( &value, datatype, mem_space, file_space, comm );
+      }
+
+      ///
+      ///
+      ///
+      template< class T >
+      void
+      location::write( const std::string& name,
+                       const typename vector<T>::view& data,
+                       const mpi::comm& comm,
+                       boost::optional<const vector<hsize_t>::view&> chunk_size,
+                       bool deflate )
+      {
+         BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map, T>) );
+         h5::datatype datatype( boost::mpl::at<h5::datatype::type_map, T>::type::value );
+
+         vector<hsize_t> dims(1), count(1), offset(1);
+         dims[0] = comm.all_reduce(data.size(), MPI_SUM);
+         count[0] = data.size();
+         offset[0] = comm.scan(data.size(), MPI_SUM, true);
+
+         h5::dataspace file_space(dims);
+         h5::dataset file_set;
+         file_set.create(*this, name, datatype, file_space, chunk_size, deflate);
+         file_space.select_all();
+         file_space.select_hyperslab(H5S_SELECT_SET, count, offset);
+
+         dims[0] = data.size();
+         h5::dataspace mem_space(dims);
+         mem_space.select_all();
+
+         file_set.write(data, datatype, mem_space, file_space, comm);
+      }
    }
 }
 

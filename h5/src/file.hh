@@ -61,21 +61,21 @@ namespace hpc {
 	 write( const std::string& name,
 		const T& value )
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map, T>) );
+	    h5::datatype datatype( mpl::at<h5::datatype::type_map, T>::type::value );
 
-	    vector<hsize_t> dims(1);
+	    vector<hsize_t> dims( 1 );
 	    dims[0] = 1;
 
-	    h5::dataspace file_space(dims);
+	    h5::dataspace file_space( dims );
 	    h5::dataset file_set;
-	    file_set.create(*this, name, datatype, file_space);
+	    file_set.create( *this, name, datatype, file_space );
 	    file_space.select_all();
 
-	    h5::dataspace mem_space(dims);
+	    h5::dataspace mem_space( dims );
 	    mem_space.select_all();
 
-	    file_set.write(&value, datatype, mem_space, file_space, *this->_comm);
+	    file_set.write( &value, datatype, mem_space, file_space, *_comm );
 	 }
 
 	 template< class T >

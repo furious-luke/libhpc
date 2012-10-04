@@ -47,7 +47,22 @@ namespace hpc {
 	 void
 	 create_group( const std::string& name );
 
+	 template< class T >
+	 void
+	 write( const std::string& name,
+		const T& value,
+                const mpi::comm& comm=mpi::comm::self );
+
+	 template< class T >
+	 void
+	 write( const std::string& name,
+		const typename vector<T>::view& data,
+                const mpi::comm& comm=mpi::comm::self,
+		boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
+		bool deflate=false );
+
       protected:
+
 	 hid_t _id;
       };
    }

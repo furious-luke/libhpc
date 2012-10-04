@@ -34,6 +34,17 @@ namespace hpc {
 	 this->open(loc, name);
       }
 
+      dataset::dataset( h5::location& loc,
+                        const std::string& name,
+                        const h5::datatype& datatype,
+                        const h5::dataspace& dataspace,
+                        boost::optional<const vector<hsize_t>::view&> chunk_size,
+                        bool deflate )
+         : _id( -1 )
+      {
+         create( loc, name, datatype, dataspace, chunk_size, deflate );
+      }
+
       dataset::~dataset() {
 	 if(this->_id != -1)
 	    H5Dclose(this->_id);

@@ -22,8 +22,12 @@ namespace hpc {
 
       datatype datatype::native_int( H5T_NATIVE_INT );
       datatype datatype::native_ulong( H5T_NATIVE_ULONG );
+      datatype datatype::native_llong( H5T_NATIVE_LLONG );
       datatype datatype::native_float( H5T_NATIVE_FLOAT );
       datatype datatype::native_double( H5T_NATIVE_DOUBLE );
+      datatype datatype::std_i32be( H5T_STD_I32BE );
+      datatype datatype::std_i64be( H5T_STD_I64BE );
+      datatype datatype::ieee_f32be( H5T_IEEE_F32BE );
       datatype datatype::ieee_f64be( H5T_IEEE_F64BE );
 
       datatype::datatype( hid_t id )
@@ -34,8 +38,9 @@ namespace hpc {
 	       case -3: _id = H5T_NATIVE_UINT; break;
 	       case -4: _id = H5T_NATIVE_LONG; break;
 	       case -5: _id = H5T_NATIVE_ULONG; break;
-	       case -6: _id = H5T_NATIVE_FLOAT; break;
-	       case -7: _id = H5T_NATIVE_DOUBLE; break;
+	       case -6: _id = H5T_NATIVE_LLONG; break;
+	       case -7: _id = H5T_NATIVE_FLOAT; break;
+	       case -8: _id = H5T_NATIVE_DOUBLE; break;
 #ifndef NDEBUG
 	       default: ASSERT(0);
 #endif
@@ -65,13 +70,25 @@ namespace hpc {
                           _id != H5T_NATIVE_UINT &&
                           _id != H5T_NATIVE_LONG &&
                           _id != H5T_NATIVE_ULONG &&
+                          _id != H5T_NATIVE_LLONG &&
                           _id != H5T_NATIVE_FLOAT &&
                           _id != H5T_NATIVE_DOUBLE &&
+                          _id != H5T_STD_I32BE &&
+                          _id != H5T_STD_I64BE &&
+                          _id != H5T_IEEE_F32BE &&
                           _id != H5T_IEEE_F64BE) )
          {
             INSIST( H5Tclose( _id ), >= 0 );
          }
          _id = -1;
+      }
+
+      size_t
+      datatype::size() const
+      {
+         size_t size = H5Tget_size( _id );
+         ASSERT( size > 0 );
+         return size;
       }
 
       void

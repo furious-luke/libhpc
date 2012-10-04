@@ -36,16 +36,21 @@ namespace hpc {
 
 	 static datatype native_int;
 	 static datatype native_ulong;
+	 static datatype native_llong;
 	 static datatype native_float;
 	 static datatype native_double;
+         static datatype std_i32be;
+         static datatype std_i64be;
+         static datatype ieee_f32be;
          static datatype ieee_f64be;
 
 	 typedef mpl::map< mpl::pair<int, mpl::int_<-2> >,
 			   mpl::pair<unsigned, mpl::int_<-3> >,
 			   mpl::pair<long, mpl::int_<-4> >,
 			   mpl::pair<unsigned long, mpl::int_<-5> >,
-			   mpl::pair<float, mpl::int_<-6> >,
-			   mpl::pair<double, mpl::int_<-7> > > type_map;
+			   mpl::pair<long long, mpl::int_<-6> >,
+			   mpl::pair<float, mpl::int_<-7> >,
+			   mpl::pair<double, mpl::int_<-8> > > type_map;
 
 	 datatype( hid_t id=-1 );
 
@@ -56,6 +61,9 @@ namespace hpc {
 
          void
          close();
+
+         size_t
+         size() const;
 
          void
          insert( const datatype& type,
