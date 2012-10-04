@@ -9,7 +9,8 @@ Import('env')
 #
 # The support sources are optional, as is the MPI rank range.
 suites = [
-    ('stream_indent_suite.t.hh', 'stream_indent.cc')
+    ('stream_indent_suite.t.hh', 'stream_indent.cc'),
+    ('timer_suite.t.hh', 'timer.cc'),
 ]
 
 # Define libraries to link against.

@@ -15,34 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_timer_hh
-#define libhpc_system_timer_hh
+#include <string.h>
+#include <cxxtest/TestSuite.h>
+#include "libhpc/system/timer.hh"
 
-#include <ostream>
-#include <time.h>
+using namespace hpc;
 
-namespace hpc {
-   namespace unix {
+class timer_suite : public CxxTest::TestSuite {
+public:
 
-      typedef struct timespec time_type;
-
-      ///
-      ///
-      ///
-      time_type
-      timer();
-
-      unsigned long
-      usecs( const time_type& time );
+   void test_wait()
+   {
+      unix::time_type start, finish;
+      start = unix::timer();
+      usleep( 1000000 ); // sleep for 1 second
+      finish = unix::timer();
+      TS_ASSERT_EQUALS( (finish - start).tv_sec, 1 );
+      TS_ASSERT( (finish - start).tv_nsec < 1000000 );
    }
-}
-
-::hpc::unix::time_type
-operator-( const ::hpc::unix::time_type& op0,
-           const ::hpc::unix::time_type& op1 );
-
-std::ostream&
-operator<<( std::ostream& strm,
-            const ::hpc::unix::time_type& time );
-
-#endif
+};

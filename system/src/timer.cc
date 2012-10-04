@@ -15,18 +15,49 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <time.h>
 #include "timer.hh"
 
 namespace hpc {
    namespace unix {
 
-      long
+      time_type
       timer()
       {
-         static struct timespec ts;
+         static time_type ts;
          clock_gettime( CLOCK_MONOTONIC, &ts );
-         return ts.tv_nsec;
+         return ts;
+      }
+
+      unsigned long
+      usecs( const time_type& time )
+      {
+         return time.tv_sec*1000000 + time.tv_nsec/1000;
       }
    }
+}
+
+::hpc::unix::time_type
+operator-( const ::hpc::unix::time_type& op0,
+           const ::hpc::unix::time_type& op1 )
+{
+   hpc::unix::time_type tmp;
+   if( op0.tv_nsec < op1.tv_nsec )
+   {
+      tmp.tv_sec = op0.tv_sec - op1.tv_sec - 1;
+      tmp.tv_nsec = 1000000000 + op0.tv_nsec - op1.tv_nsec;
+   }
+   else
+   {
+      tmp.tv_sec = op0.tv_sec - op1.tv_sec;
+      tmp.tv_nsec = op0.tv_nsec - op1.tv_nsec;
+   }
+   return tmp;
+}
+
+std::ostream&
+operator<<( std::ostream& strm,
+            const ::hpc::unix::time_type& obj )
+{
+   strm << obj.tv_sec << "(s) + " << obj.tv_nsec << "(ns)";
+   return strm;
 }
