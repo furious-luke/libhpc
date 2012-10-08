@@ -56,14 +56,18 @@ namespace hpc {
       compile();
 
       optional<index>
+      match( const string& str,
+             re::match& match ) const;
+
+      optional<index>
       match( const string& str ) const;
 
       optional<index>
-      search( const string& str ) const;
-
-      bool
       search( const string& str,
               re::match& match ) const;
+
+      optional<index>
+      search( const string& str ) const;
 
    protected:
 

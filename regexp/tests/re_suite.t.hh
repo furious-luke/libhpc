@@ -28,4 +28,27 @@ public:
       re::re prog( "(a)|(b)|(c)" );
       TS_ASSERT( prog.match( "c" ) );
    }
+
+   void test_match()
+   {
+      re::re re( "(o(n)e)|(two)|(t(h(r)e)e)" );
+      TS_ASSERT( re.match( "one" ) );
+      TS_ASSERT( re.match( "two" ) );
+      TS_ASSERT( re.match( "three" ) );
+      TS_ASSERT( !re.match( "hello" ) );
+      TS_ASSERT( !re.match( "oneo" ) );
+      TS_ASSERT( !re.match( "onethree" ) );
+   }
+
+   void test_match_last_capture()
+   {
+      re::match match;
+      re::re re( "(one)|(two)|(three)" );
+      re.match( "one", match );
+      TS_ASSERT_EQUALS( match.last_capture(), 0 );
+      re.match( "two", match );
+      TS_ASSERT_EQUALS( match.last_capture(), 1 );
+      re.match( "three", match );
+      TS_ASSERT_EQUALS( match.last_capture(), 2 );
+   }
 };

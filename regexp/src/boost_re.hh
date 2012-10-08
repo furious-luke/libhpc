@@ -15,28 +15,40 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_regexp_re_hh
-#define libhpc_regexp_re_hh
+#ifndef libhpc_regexp_boost_re_hh
+#define libhpc_regexp_boost_re_hh
 
-#include "boost_re.hh"
+#include <boost/regex.hpp>
+#include "libhpc/containers/optional.hh"
 #include "match.hh"
 
 namespace hpc {
    namespace re {
+      namespace impl {
+         namespace boost {
 
-      class re
-         : public impl::boost::re
-      {
-      public:
+            class re
+               : ::boost::regex
+            {
+            public:
 
-         typedef impl::boost::re super_type;
+               re();
 
-      public:
+               re( const string& expression );
 
-         re();
+               void
+               construct( const string& expression );
 
-         re( const string& expression );
-      };
+               bool
+               match( const string& str,
+                      optional<hpc::re::match&> match = optional<hpc::re::match&>() ) const;
+
+               bool
+               search( const string& str,
+                       optional<hpc::re::match&> match = optional<hpc::re::match&>() ) const;
+            };
+         }
+      }
    }
 }
 

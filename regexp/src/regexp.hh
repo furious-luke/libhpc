@@ -19,5 +19,7 @@
 #define libhpc_regexp_regexp_hh
 
 #include "re.hh"
+#include "match.hh"
+#include "multimatch.hh"
 
 #endif

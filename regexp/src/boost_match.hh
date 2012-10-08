@@ -15,27 +15,42 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "match.hh"
+#ifndef libhpc_regexp_boost_match_hh
+#define libhpc_regexp_boost_match_hh
+
+#include <boost/regex.hpp>
+#include "libhpc/system/types.hh"
+#include "libhpc/containers/string.hh"
 
 namespace hpc {
    namespace re {
+      namespace impl {
+         namespace boost {
 
-      uint16
-      match::last_capture() const
-      {
-         return _last;
-      }
+            ///
+            ///
+            ///
+            class match
+               : public ::boost::match_results<string::const_iterator>
+            {
+            public:
 
-      uint16
-      match::num_captures() const
-      {
-         return _caps.size();
-      }
+               typedef std::pair<unsigned,unsigned> capture_type;
 
-      const match::capture_type&
-      match::capture( uint16 idx ) const
-      {
-         return _caps[idx];
+            public:
+
+               uint16
+               last_capture() const;
+
+               uint16
+               num_captures() const;
+
+               const capture_type&
+               capture( uint16 idx ) const;
+            };
+         }
       }
    }
 }
+
+#endif

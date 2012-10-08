@@ -46,29 +46,6 @@ public:
       st.to_dfa( dfa );
    }
 
-   void test_match()
-   {
-      re::dfa dfa( "(o(n)e)|(two)|(t(h(r)e)e)" );
-      TS_ASSERT( dfa.match( "one" ) );
-      TS_ASSERT( dfa.match( "two" ) );
-      TS_ASSERT( dfa.match( "three" ) );
-      TS_ASSERT( !dfa.match( "hello" ) );
-      TS_ASSERT( !dfa.match( "oneo" ) );
-      TS_ASSERT( !dfa.match( "onethree" ) );
-   }
-
-   void test_match_last_capture()
-   {
-      re::match match;
-      re::dfa dfa( "(o(n)e)|(two)|(t(h(r)e)e)" );
-      dfa.match( "one", match );
-      TS_ASSERT( match.last_capture() == 0 );
-      dfa.match( "two", match );
-      TS_ASSERT( match.last_capture() == 1 );
-      dfa.match( "three", match );
-      TS_ASSERT( match.last_capture() == 2 );
-   }
-
    void test_similar_split()
    {
       re::syntax_tree st;

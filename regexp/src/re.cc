@@ -15,19 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <cxxtest/TestSuite.h>
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/re.hh"
+#include "re.hh"
 
-using namespace hpc;
+namespace hpc {
+   namespace re {
 
-class compile_suite : public CxxTest::TestSuite {
-public:
+      re::re()
+         : super_type()
+      {
+      }
 
-   void test_range_map()
-   {
-      range_map<int,int> rm;
-      rm.insert( range<int>( 0, 10 ), 5 );
-      rm.insert( range<int>( 2, 6 ), 4 );
+      re::re( const string& expression )
+         : super_type( expression )
+      {
+      }
    }
-};
+}

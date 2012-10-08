@@ -18,45 +18,17 @@
 #ifndef libhpc_regexp_match_hh
 #define libhpc_regexp_match_hh
 
-#include "libhpc/containers/vector.hh"
-#include "libhpc/containers/string.hh"
+#include "boost_match.hh"
 
 namespace hpc {
    namespace re {
-
-      class dfa;
 
       ///
       ///
       ///
       class match
+         : public impl::boost::match
       {
-         friend class dfa;
-
-      public:
-
-         typedef std::pair<unsigned,unsigned> capture_type;
-
-      public:
-
-         uint16
-         last_capture() const;
-
-         uint16
-         num_captures() const;
-
-         const capture_type&
-         capture( uint16 idx ) const;
-
-      protected:
-
-         uint16 _last;
-         vector<capture_type> _caps;
-
-         // For continued matches.
-         uint16 _state;
-         unsigned _cap_offs;
-         string::const_iterator _pos;
       };
    }
 }

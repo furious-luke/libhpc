@@ -46,10 +46,27 @@ namespace hpc {
    }
 
    optional<index>
+   multimatch::match( const string& str,
+                      re::match& match ) const
+   {
+      if( _re.match( str, match ) )
+         return (index)match.last_capture();
+      else
+         return none;
+   }
+
+   optional<index>
    multimatch::match( const string& str ) const
    {
       re::match match;
-      if( _re.match( str, match ) )
+      return this->match( str, match );
+   }
+
+   optional<index>
+   multimatch::search( const string& str,
+                       re::match& match ) const
+   {
+      if( _re.search( str, match ) )
          return (index)match.last_capture();
       else
          return none;
@@ -59,16 +76,6 @@ namespace hpc {
    multimatch::search( const string& str ) const
    {
       re::match match;
-      if( _re.search( str, match ) )
-         return (index)match.last_capture();
-      else
-         return none;
-   }
-
-   bool
-   multimatch::search( const string& str,
-                            re::match& match ) const
-   {
-      return _re.search( str, match );
+      return search( str, match );
    }
 };
