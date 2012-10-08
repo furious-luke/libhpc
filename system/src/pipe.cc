@@ -39,8 +39,16 @@ namespace hpc {
          open( pathname, flags );
       }
 
+      pipe::pipe( pipe&& src )
+         : _fd( src._fd ),
+           _own( src._own )
+      {
+         src._fd = -1;
+      }
+
       pipe::~pipe()
       {
+         close();
       }
 
       void
@@ -116,6 +124,18 @@ namespace hpc {
          unsigned size = read( (byte*)buf.data(), buf.size()*sizeof(char) );
          ASSERT( size%sizeof(char) == 0 );
          buf.resize( size/sizeof(char) );
+      }
+
+      bool
+      pipe::operator==( const pipe& op ) const
+      {
+         return _fd == op._fd;
+      }
+
+      bool
+      pipe::operator<( const pipe& op ) const
+      {
+         return _fd < op._fd;
       }
    }
 }

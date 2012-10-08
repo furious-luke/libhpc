@@ -50,6 +50,8 @@ namespace hpc {
          pipe( const string& pathname,
                pipe::flags flags=pipe::flags::rdonly );
 
+         pipe( pipe&& src );
+
          ~pipe();
 
          void
@@ -96,6 +98,12 @@ namespace hpc {
             ASSERT( size%sizeof(T) == 0 );
             buf.resize( size/sizeof(T) );
          }
+
+         bool
+         operator==( const pipe& op ) const;
+
+         bool
+         operator<( const pipe& op ) const;
 
       protected:
 
