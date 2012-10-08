@@ -64,6 +64,9 @@
 #define LOGI( ... )                             \
    LOGLV( ::hpc::logging::info, __VA_ARGS__ )
 
+#define LOGE( ... )                             \
+   LOGLV( ::hpc::logging::error, __VA_ARGS__ )
+
 #define LOGTLN( ... )                                   \
    LOGLVLN( ::hpc::logging::trivial, __VA_ARGS__ )
 
@@ -71,6 +74,9 @@
    LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
 
 #define LOGILN( ... )                           \
+   LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
+
+#define LOGELN( ... )                           \
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
 
 #define LOG_ENTER()                                             \
@@ -124,9 +130,11 @@ namespace hpc {
 #define LOGT( ... )
 #define LOGD( ... )
 #define LOGI( ... )
+#define LOGE( ... )
 #define LOGTLN( ... )
 #define LOGDLN( ... )
 #define LOGILN( ... )
+#define LOGELN( ... )
 #define LOG_ENTER()
 #define LOG_EXIT()
 #define LOG_PUSH( logger )
