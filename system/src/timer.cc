@@ -33,6 +33,18 @@ namespace hpc {
       {
          return time.tv_sec*1000000 + time.tv_nsec/1000;
       }
+
+      unsigned long
+      nsecs( const time_type& time )
+      {
+         return time.tv_sec*1000000000 + time.tv_nsec;
+      }
+
+      double
+      seconds( const time_type& time )
+      {
+         return (double)time.tv_sec + ((double)time.tv_nsec)*1e-9;
+      }
    }
 }
 
