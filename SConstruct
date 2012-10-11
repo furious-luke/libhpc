@@ -25,7 +25,9 @@ if not env['MEMSTATS']:
 if not env['LOG']:
     env.MergeFlags('-DNLOG')
 
-layers = ['debug', 'memory', 'system', 'logging', 'containers', 'regexp',
-          'options', 'mpi', 'h5', 'numerics']
+layers = [
+    'debug', 'memory', 'system', 'logging', 'profile',
+    'containers', 'regexp', 'options', 'mpi', 'h5', 'numerics'
+]
 
 project.build(layers, proj_name='libhpc', env=env, vars=vars)
