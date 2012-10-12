@@ -34,6 +34,12 @@ namespace hpc {
 
       unsigned long
       usecs( const time_type& time );
+
+      unsigned long
+      nsecs( const time_type& time );
+
+      double
+      seconds( const time_type& time );
    }
 }
 

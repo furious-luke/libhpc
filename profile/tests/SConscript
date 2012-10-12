@@ -1,0 +1,20 @@
+from sconsproject import helpers
+
+# Bring in the SCons environment.
+Import('env')
+
+# Define our test suites. Each tuple defines a test as follows:
+#
+#   (suite_source, support_source0, support_source1, ..., MPI_rank_range)
+#
+# The support sources are optional, as is the MPI rank range.
+suites = [
+    # ('', '', '', range(1, 5)),
+    ('timer_suite.t.hh', 'timer.cc'),
+]
+
+# Define libraries to link against.
+libs = ['debug', 'system'] + env.get('LIBS', [])
+
+# Call the helper.
+execfile(helpers.get_build_tests_script(), globals())
