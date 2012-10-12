@@ -14,6 +14,7 @@ suites = [
     ('tridiag_suite.t.hh',),
     ('spline_suite.t.hh',),
     ('coords_suite.t.hh',),
+    ('dft_suite.t.hh', 'dft.cc'),
 ]
 
 # Define libraries to link against.
