@@ -31,11 +31,16 @@ public:
 #ifdef HAVE_FFTW3
       vector<numerics::dft::complex_type> in( 100 ), out( 100 );
       numerics::dft dft( in, out, numerics::dft::FORWARD );
+      numerics::dft inv( out, in, numerics::dft::BACKWARD );
       for( unsigned ii = 0; ii < in.size(); ++ii )
-         in[ii] = std::complex<double>( sin( ((double)ii)/((double)(in.size() - 1))*4.0*2.0*M_PI ), 0.0 );
-      dft.transform();
+         in[ii] = std::complex<double>( sin( ((double)ii)/((double)(in.size() - 1))*2.0*M_PI ), 0.0 );
       std::cout << "\n" << in << "\n";
+      dft.transform();
       std::cout << "\n" << out << "\n";
+      inv.transform();
+      for( unsigned ii = 0; ii < in.size(); ++ii )
+         in[ii] = std::complex<double>( in[ii].real()/(double)in.size(), in[ii].imag() );
+      std::cout << "\n" << in << "\n";
 #endif
    }
 };
