@@ -7,7 +7,7 @@ config.select(
     config.packages.HDF5(),
     config.packages.rapidxml(),
     config.packages.Eigen(required=False),
-    config.packages.FFTW3(required=False),
+    config.packages.FFTW3(use_float=True, required=False),
 )
 
 vars = project.create_variables()
