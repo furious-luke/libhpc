@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef libhpc_system_epoll_hh
+#define libhpc_system_epoll_hh
+
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <sys/epoll.h>
 #include "libhpc/containers/list.hh"
@@ -108,3 +111,5 @@ namespace hpc {
       };
    }
 }
+
+#endif
