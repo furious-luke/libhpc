@@ -26,5 +26,6 @@
 #include "interp_iterator.hh"
 #include "simpson.hh"
 #include "coords.hh"
+#include "dft.hh"
 
 #endif
