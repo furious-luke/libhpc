@@ -18,6 +18,7 @@
 #ifndef libhpc_system_hh
 #define libhpc_system_hh
 
+#include "types.hh"
 #include "timer.hh"
 #include "daemon.hh"
 #include "id.hh"
