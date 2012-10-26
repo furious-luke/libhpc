@@ -15,24 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef containers_new_hh
-#define containers_new_hh
+#ifndef libhpc_memory_new_hh
+#define libhpc_memory_new_hh
 
-#include <new>
 #include <stdlib.h>
 #include <string.h>
 
 void*
-operator new( size_t size ) throw( std::bad_alloc );
+operator new( size_t size );
 
 void
-operator delete(void* ptr) throw();
+operator delete(void* ptr) noexcept( true );
 
 void*
-operator new[]( size_t size ) throw( std::bad_alloc );
+operator new[]( size_t size );
 
 void
-operator delete[]( void* ptr ) throw();
+operator delete[]( void* ptr ) noexcept( true );
 
 namespace hpc {
    namespace memory {

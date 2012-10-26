@@ -26,25 +26,25 @@
 typedef unsigned char byte_t;
 
 void*
-operator new( size_t size ) throw( std::bad_alloc )
+operator new( size_t size )
 {
    return hpc::memory::new_alloc(size);
 }
 
 void
-operator delete( void* ptr ) throw()
+operator delete( void* ptr ) noexcept( true )
 {
    hpc::memory::new_free(ptr);
 }
 
 void*
-operator new[]( size_t size ) throw( std::bad_alloc )
+operator new[]( size_t size )
 {
    return hpc::memory::new_alloc(size);
 }
 
 void
-operator delete[]( void* ptr ) throw()
+operator delete[]( void* ptr ) noexcept( true )
 {
    hpc::memory::new_free(ptr);
 }
