@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string.h>
+#include <unistd.h>
 #include <cxxtest/TestSuite.h>
 #include "libhpc/containers/num.hh"
 #include "libhpc/profile/timer.hh"
