@@ -10,6 +10,7 @@ Import('env')
 # The support sources are optional, as is the MPI rank range.
 suites = [
     ('file_suite.t.hh', 'file.cc', 'logger.cc'),
+    ('omp_file_suite.t.hh', 'omp_file.cc', 'file.cc', 'logger.cc'),
     ('globals_suite.t.hh', 'file.cc', 'logger.cc', 'globals.cc', 'stack.cc'),
 ]
 

@@ -21,6 +21,7 @@
 #include "logger.hh"
 #include "file.hh"
 #include "stdout.hh"
+#include "omp_file.hh"
 #include "globals.hh"
 #include "levels.hh"
 
