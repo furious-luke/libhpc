@@ -48,22 +48,17 @@ namespace hpc {
       {
          if( _file.is_open() )
          {
-            _file << _buf.str();
+            _file << buffer().str();
             _file.close();
          }
       }
 
       void
-      file::new_line()
+      file::write()
       {
-         if( visible() )
-         {
-            _file << _buf.str() << std::endl;
-            _buf.str( std::string() );
-            _new_line = true;
-         }
+         _file << buffer().str();
       }
+   }
 
 #endif
-   }
 }

@@ -33,14 +33,9 @@ namespace hpc {
       }
 
       void
-      stdout::new_line()
+      stdout::write()
       {
-         if( visible() )
-         {
-            std::cout << _buf.str() << std::endl;
-            _buf.str( std::string() );
-            _new_line = true;
-         }
+         std::cout << buffer().str();
       }
 
 #endif

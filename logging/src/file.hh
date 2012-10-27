@@ -46,7 +46,7 @@ namespace hpc {
          close();
 
          virtual void
-         new_line();
+         write();
 
       protected:
 

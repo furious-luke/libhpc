@@ -14,11 +14,11 @@ vars = project.create_variables()
 vars.AddVariables(
     BoolVariable('MEMOPS', 'Log memory operations.', False),
     BoolVariable('MEMSTATS', 'Enable memory statistics.', False),
-    BoolVariable('LOG', 'Enable logging.', False),
+    BoolVariable('LOG', 'Enable logging.', True),
 )
 
 env = project.create_environment(vars)
-env.AppendUnique(CCFLAGS='-std=c++0x')
+env.AppendUnique(CCFLAGS='-std=c++11')
 if not env['MEMOPS']:
     env.MergeFlags('-DNMEMOPS')
 if not env['MEMSTATS']:

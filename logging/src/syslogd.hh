@@ -35,7 +35,7 @@ namespace hpc {
          ~syslogd();
 
          virtual void
-         new_line();
+         write();
 
       protected:
 

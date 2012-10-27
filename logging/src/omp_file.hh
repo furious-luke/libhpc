@@ -50,10 +50,7 @@ namespace hpc {
 	    open();
 
 	    virtual void
-	    prefix();
-
-	    virtual void
-	    new_line();
+	    write();
 
 	 protected:
 

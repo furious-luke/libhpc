@@ -15,36 +15,32 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_stdout_hh
-#define libhpc_logging_stdout_hh
+#include <cxxtest/TestSuite.h>
+#include "libhpc/logging/stdout.hh"
 
-#include "logger.hh"
-#include "levels.hh"
+using namespace hpc;
 
+class stdout_suite : public CxxTest::TestSuite {
+public:
+
+   void test_ctor()
+   {
 #ifndef NLOG
-
-namespace hpc {
-   namespace logging {
-
-      ///
-      ///
-      ///
-      class stdout
-         : public logger
-      {
-      public:
-
-         stdout( unsigned min_level=levels::info );
-
-         virtual
-         ~stdout();
-
-         virtual void
-         write();
-      };
+      logging::stdout log;
+#endif
    }
-}
 
+   void test_basic()
+   {
+#ifndef NLOG
+      logging::stdout log;
+      // std::cout << "\n\n";
+      // log << "Hello";
+      // log << " world!";
+      // log << logging::endl;
+      // log << setindent( 2 );
+      // log << "Hello indent!\n";
+      // std::cout << "\n";
 #endif
-
-#endif
+   }
+};

@@ -45,39 +45,20 @@ namespace hpc {
 	 }
 
 	 void
-	 file::prefix()
+	 file::write()
 	 {
-	    if( _new_line ) {
-	       int tid = omp_get_thread_num();
-	       _buf << tid << " : " << indent;
-	       _new_line = false;
-	    }
-	 }
+            // Open the file right now.
+            int tid = omp_get_thread_num();
+            std::stringstream ss;
+            ss << _base << std::setfill( '0' ) << std::setw( 5 ) << tid;
+            std::string filename = ss.str();
+#pragma omp critical
+            if( _tids.insert( tid ).second )
+               remove( filename.c_str() );
+            std::ofstream file( filename, std::fstream::out | std::fstream::app );
 
-	 void
-	 file::new_line()
-	 {
-	    if( visible() )
-	    {
-	       // Open the file right now.
-	       int tid = omp_get_thread_num();
-	       std::stringstream ss;
-	       ss << _base << std::setfill( '0' ) << std::setw( 5 ) << tid;
-	       std::string filename = ss.str();
-	       // if( _tids.insert( tid ).second )
-	       // 	  remove( _filename.c_str() );
-	       std::ofstream file( filename, std::fstream::out | std::fstream::app );
-
-	       // Output.
-	       file << _buf.str() << std::endl;
-
-	       // Close the file.
-	       _close_file();
-
-	       // Clear buffer.
-	       _buf.str( std::string() );
-	       _new_line = true;
-	    }
+            // Output.
+            file << buffer().str();
 	 }
 
 	 void

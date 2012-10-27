@@ -34,12 +34,9 @@ namespace hpc {
       }
 
       void
-      syslogd::new_line()
+      syslogd::write()
       {
-         _buf << "\n";
-         syslog( LOG_INFO, "%s", _buf.str().c_str() );
-         _buf.str( std::string() );
-         _new_line = true;
+         syslog( LOG_INFO, "%s", buffer().str().c_str() );
       }
    }
 }

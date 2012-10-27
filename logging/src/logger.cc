@@ -22,6 +22,10 @@
 #include "libhpc/containers/containers.hh"
 #include "logger.hh"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #ifndef NLOG
 
 namespace hpc {
@@ -36,6 +40,11 @@ namespace hpc {
 
       logger::~logger()
       {
+         for( auto buf : _buf )
+         {
+            if( buf.second )
+               delete buf.second;
+         }
       }
 
       void
@@ -49,28 +58,33 @@ namespace hpc {
       }
 
       void
-      logger::prefix()
-      {
-         _buf << indent;
-         _new_line = false;
-      }
-
-      void
       logger::new_line()
       {
          if( visible() )
+         {
+            write_buffer( "\n" );
             _new_line = true;
+         }
+      }
+
+      void
+      logger::prefix()
+      {
+         write_buffer( indent );
+         _new_line = false;
       }
 
       void
       logger::push_level( unsigned level )
       {
+#pragma omp master
          _levels.push_front( level );
       }
 
       void
       logger::pop_level()
       {
+#pragma omp master
          _levels.pop_front();
       }
 
@@ -78,6 +92,20 @@ namespace hpc {
       logger::visible() const
       {
          return (_levels.empty() || _levels.front() >= _min_level);
+      }
+
+      std::stringstream&
+      logger::buffer()
+      {
+#ifdef _OPENMP
+         int tid = omp_get_thread_num();
+#else
+         int tid = 0;
+#endif
+#pragma omp critical
+         if( _buf.find( tid ) == _buf.end() )
+            _buf.insert( std::make_pair( tid, new std::stringstream ) );
+         return *_buf[tid];
       }
 
       void

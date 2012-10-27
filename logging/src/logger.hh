@@ -22,6 +22,7 @@
 #include <sstream>
 #include <iomanip>
 #include <list>
+#include <map>
 #include "libhpc/system/stream_indent.hh"
 
 #ifndef NLOG
@@ -61,6 +62,9 @@ namespace hpc {
          virtual void
          prefix();
 
+         virtual void
+         write() = 0;
+
          void
          push_level( unsigned level );
 
@@ -69,6 +73,9 @@ namespace hpc {
 
          bool
          visible() const;
+
+         std::stringstream&
+         buffer();
 
          template< class T >
          logger&
@@ -81,15 +88,28 @@ namespace hpc {
 
          template< class T >
          void
+         write_buffer( const T& obj )
+         {
+            std::stringstream& buf = buffer();
+            buf << obj;
+            write();
+            buf.str( std::string() );
+         }
+
+         template< class T >
+         void
          operator()( const T& obj,
-                     bool new_line=true )
+                     bool allow_new_line=true )
          {
             // Don't log if currently below minimum level.
             if( visible() )
             {
-               if( new_line && _new_line )
+               // Print new line prefix, if required.
+               if( allow_new_line && _new_line )
                   prefix();
-               _buf << obj;
+
+               // Write the object.
+               write_buffer( obj );
             }
          }
 
@@ -113,13 +133,16 @@ namespace hpc {
          };
 
          bool _new_line;
-         std::stringstream _buf;
+         std::map<int,std::stringstream*> _buf;
          std::list<unsigned> _levels;
          unsigned _min_level;
       };
 
+      ///
+      ///
+      ///
       template<>
-      struct logger::_traits< logger& ( logger& ) >
+      struct logger::_traits<logger& ( logger& )>
       {
          struct impl {
             void
@@ -128,8 +151,11 @@ namespace hpc {
          };
       };
 
+      ///
+      ///
+      ///
       template<>
-      struct logger::_traits< setindent_t >
+      struct logger::_traits<setindent_t>
       {
          struct impl {
             void

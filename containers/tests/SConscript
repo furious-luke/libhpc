@@ -17,6 +17,7 @@ suites = [
     ('multimap_suite.t.hh',),
     ('fibre_suite.t.hh',),
     ('ring_buffer_suite.t.hh',),
+    ('po2_ring_buffer_suite.t.hh',),
     ('range_set_suite.t.hh',),
     ('range_map_suite.t.hh',),
     ('range_multimap_suite.t.hh',),
