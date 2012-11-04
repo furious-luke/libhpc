@@ -47,18 +47,18 @@ namespace hpc {
          _filename = ss.str();
          remove( _filename.c_str() );
          _file.open( _filename, std::fstream::out | std::fstream::app );
-         _new_line = true;
+         _get_new_line() = true;
       }
 
       void
       logger::prefix()
       {
-         if( _new_line ) {
+	 if( _get_new_line() ) {
             double timestamp = MPI_Wtime() - log_base_time;
             std::streamsize old_prec = _file.precision();
             _file << std::setprecision( 9 ) << std::left << std::setw( 14 ) << timestamp << std::setprecision( old_prec );
             _file << " " << _my_rank << " : " << indent;
-            _new_line = false;
+            _get_new_line() = false;
          }
       }
    }
