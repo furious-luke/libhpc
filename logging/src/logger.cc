@@ -63,7 +63,7 @@ namespace hpc {
          if( visible() )
          {
             write_buffer( "\n" );
-            _new_line = true;
+            _get_new_line() = true;
          }
       }
 
@@ -71,27 +71,25 @@ namespace hpc {
       logger::prefix()
       {
          write_buffer( indent );
-         _new_line = false;
+         _get_new_line() = false;
       }
 
       void
       logger::push_level( unsigned level )
       {
-#pragma omp master
-         _levels.push_front( level );
+         levels().push_front( level );
       }
 
       void
       logger::pop_level()
       {
-#pragma omp master
-         _levels.pop_front();
+         levels().pop_front();
       }
 
       bool
-      logger::visible() const
+      logger::visible()
       {
-         return (_levels.empty() || _levels.front() >= _min_level);
+         return (levels().empty() || levels().front() >= _min_level);
       }
 
       std::stringstream&
@@ -106,6 +104,34 @@ namespace hpc {
          if( _buf.find( tid ) == _buf.end() )
             _buf.insert( std::make_pair( tid, new std::stringstream ) );
          return *_buf[tid];
+      }
+
+      std::list<unsigned>&
+      logger::levels()
+      {
+#ifdef _OPENMP
+         int tid = omp_get_thread_num();
+#else
+         int tid = 0;
+#endif
+#pragma omp critical
+         if( _levels.find( tid ) == _levels.end() )
+            _levels.insert( std::make_pair( tid, std::list<unsigned>() ) );
+         return _levels[tid];
+      }
+
+      bool&
+      logger::_get_new_line()
+      {
+#ifdef _OPENMP
+         int tid = omp_get_thread_num();
+#else
+         int tid = 0;
+#endif
+#pragma omp critical
+         if( _new_line.find( tid ) == _new_line.end() )
+            _new_line.insert( std::make_pair( tid, true ) );
+         return _new_line[tid];
       }
 
       void

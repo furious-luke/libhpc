@@ -34,6 +34,7 @@
 #define _LOG7( strm, p0, p1, p2, p3, p4, p5, p6 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6)
 #define _LOG8( strm, p0, p1, p2, p3, p4, p5, p6, p7 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7)
 #define _LOG9( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8)
+#define _LOG10( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9)
 
 #define _LOG_( count, ... )                             \
    _LOG##count( ::hpc::logging::_stack, __VA_ARGS__ )
@@ -55,11 +56,19 @@
    LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
         ::hpc::logging::endl, ::hpc::logging::poplevel )
 
+#ifndef NLOG_TRIVIAL
 #define LOGT( ... )                                     \
    LOGLV( ::hpc::logging::trivial, __VA_ARGS__ )
+#else
+#define LOGT( ... )
+#endif
 
+#ifndef NLOG_DEBUG
 #define LOGD( ... )                             \
    LOGLV( ::hpc::logging::debug, __VA_ARGS__ )
+#else
+#define LOGD( ... )
+#endif
 
 #define LOGI( ... )                             \
    LOGLV( ::hpc::logging::info, __VA_ARGS__ )
@@ -67,11 +76,19 @@
 #define LOGE( ... )                             \
    LOGLV( ::hpc::logging::error, __VA_ARGS__ )
 
+#ifndef NLOG_TRIVIAL
 #define LOGTLN( ... )                                   \
    LOGLVLN( ::hpc::logging::trivial, __VA_ARGS__ )
+#else
+#define LOGTLN( ... )
+#endif
 
+#ifndef NLOG_DEBUG
 #define LOGDLN( ... )                                   \
    LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
+#else
+#define LOGDLN( ... )
+#endif
 
 #define LOGILN( ... )                           \
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
@@ -79,16 +96,12 @@
 #define LOGELN( ... )                           \
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
 
-#define LOG_ENTER()                                             \
-   TRACE_ENTER();                                               \
-   LOG( ::hpc::logging::pushlevel( 0 ), "Entering: ",           \
-        __PRETTY_FUNCTION__, ::hpc::logging::endl,              \
-        ::hpc::setindent( 2 ), ::hpc::logging::poplevel )
+#define LOG_ENTER()							\
+   TRACE_ENTER();							\
+   LOGTLN( "Entering: ", __PRETTY_FUNCTION__, ::hpc::setindent( 2 ) )
 
-#define LOG_EXIT()                                              \
-   LOG( ::hpc::logging::pushlevel( 0 ), ::hpc::setindent( -2 ), \
-        "Exiting: ", __PRETTY_FUNCTION__, ::hpc::logging::endl, \
-        ::hpc::logging::poplevel );                             \
+#define LOG_EXIT()							\
+   LOGTLN( "Exiting: ", __PRETTY_FUNCTION__, ::hpc::setindent( -2 ) );	\
    TRACE_EXIT()
 
 #define LOG_PUSH( logger )                      \

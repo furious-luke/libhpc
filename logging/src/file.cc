@@ -40,7 +40,7 @@ namespace hpc {
          close();
          remove( _filename.c_str() );
          _file.open( _filename, std::fstream::out | std::fstream::app );
-         _new_line = true;
+         _get_new_line() = true;
       }
 
       void
@@ -58,7 +58,6 @@ namespace hpc {
       {
          _file << buffer().str();
       }
-   }
-
 #endif
+   }
 }

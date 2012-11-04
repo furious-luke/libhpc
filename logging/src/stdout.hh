@@ -34,7 +34,7 @@ namespace hpc {
       {
       public:
 
-         stdout( unsigned min_level=levels::info );
+         stdout( unsigned min_level=levels_type::info );
 
          virtual
          ~stdout();

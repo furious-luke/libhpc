@@ -21,7 +21,7 @@
 namespace hpc {
    namespace logging {
 
-      enum levels {
+      enum levels_type {
          trivial = 10,
          debug = 20,
          info = 30,
