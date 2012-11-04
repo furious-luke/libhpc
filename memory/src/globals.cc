@@ -16,7 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
-#include <stdio.h>
+#include <fstream>
 #ifndef MPICH_SKIP_MPICXX
 #define MPICH_SKIP_MPICXX
 #endif
@@ -25,26 +25,29 @@
 #endif
 #include <mpi.h>
 #include "libhpc/debug/debug.hh"
+#include "group_context.hh"
 #include "state.hh"
 
 namespace hpc {
    namespace memory {
 
+      OMP_LOCK( ctx_lock );
+
 #ifndef NMEMSTATS
 
-      debug::group_context<memory::state_t> ctx(true);
+      memory::group_context<memory::state_t> ctx( true );
       std::string log_filename = "memory.stats";
 
       void
       select( const char* path )
       {
-	 ctx.select(path);
+	 ctx.select( path );
       }
 
       void
       deselect( const char* path )
       {
-	 ctx.deselect(path);
+	 ctx.deselect( path );
       }
 
       void
@@ -56,31 +59,34 @@ namespace hpc {
       void
       log( const char* filename )
       {
-
 	 // Don't log anything unless we are rank 0.
 	 // TODO: Fix this.
 	 int flag;
-	 MPI_Initialized(&flag);
-	 if(flag) {
-	    int myRank;
-	    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-	    if(myRank != 0)
+	 MPI_Initialized( &flag );
+	 if( flag )
+	 {
+	    int my_rank;
+	    MPI_Comm_rank( MPI_COMM_WORLD, &my_rank );
+	    if( my_rank != 0 )
 	       return;
 	 }
 
-	 std::string fn;
-	 if(filename)
-	    fn = filename;
-	 else
-	    fn = log_filename;
+	 // Only dump the information if we are the master thread.
+#pragma omp master
+	 {
+	    // Select either a passed in filename or the default.
+	    std::string fn;
+	    if( filename )
+	       fn = filename;
+	    else
+	       fn = log_filename;
 
-	 FILE* fp = fopen(fn.c_str(), "a");
-	 ASSERT(fp, "Error opening memory log file.");
-	 for(size_t ii = 0; ii < memory::ctx.num_groups(); ++ii) {
-	    const debug::group<state_t>& grp = memory::ctx.group(ii);
-	    fprintf(fp, "%s  %ld  %ld\n", grp.path(), grp.data().size, grp.data().peak);
+	    // Open the file and dump each group.
+	    std::ofstream file( fn, std::ios::out | std::ios::app );
+	    ASSERT( file, "Error opening memory log file." );
+	    for( auto& grp : memory::ctx )
+	       file << grp.path() << " " << grp.data().size << " " << grp.data().peak << "\n";
 	 }
-	 fclose(fp);
       }
 
 #endif

@@ -15,18 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef memory_state_hh
-#define memory_state_hh
+#ifndef libhpc_memory_state_hh
+#define libhpc_memory_state_hh
 
 namespace hpc {
-namespace memory {
+   namespace memory {
 
-    typedef struct {
-	size_t size;
-	size_t peak;
-    } state_t;
-
-}
+      struct state_t {
+	 size_t size;
+	 size_t peak;
+      };
+   }
 }
 
 #endif
