@@ -18,14 +18,15 @@
 #ifndef debug_hh
 #define debug_hh
 
+#include "omp_help.hh"
+#include "omp_lock.hh"
+#include "omp_nest_lock.hh"
 #include "assert.hh"
 #include "insist.hh"
 #include "assertions.hh"
 #include "catch.hh"
 #include "group.hh"
-#include "group.tcc"
 #include "group_context.hh"
-#include "group_context.tcc"
 #include "globals.hh"
 #include "checks.hh"
 #include "error.hh"

@@ -18,13 +18,16 @@
 #include "globals.hh"
 #include "tracer.hh"
 
-#ifndef NSTACKTRACE
-
 namespace hpc {
    namespace debug {
 
-      tracer stack_trace;
+#ifndef NDEBUG
       bool use_abort = false;
+#endif
+
+#ifndef NSTACKTRACE
+
+      tracer stack_trace;
 
       void _clear_stack_trace() {
          stack_trace.clear();
@@ -41,7 +44,8 @@ namespace hpc {
       void _set_abort(bool flag) {
          use_abort = flag;
       }
-   }
-}
 
 #endif
+
+   }
+}

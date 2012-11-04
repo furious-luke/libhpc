@@ -25,15 +25,18 @@
 namespace hpc {
    namespace debug {
 
-      void check_path(const char* path) {
+      void
+      check_path( const char* path )
+      {
          ASSERT( path, "Cannot use a null path." );
          ASSERT( strlen( path ) < group<int>::max_path_length, "Path too long." );
          ASSERT( path[0] == '/', "Paths must begin with a forward slash." );
          const char* c = path;
-         while(*c != 0)
+         while( *c != 0 )
          {
             ASSERT(
-               (*c >= 'a' && *c <= 'a') ||
+               (*c >= 'a' && *c <= 'z') ||
+               (*c >= 'A' && *c <= 'Z') ||
                (*c >= '0' && *c <= '9') ||
                *c == '_' ||
                *c == '/',

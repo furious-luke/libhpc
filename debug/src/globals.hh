@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_globals_hh
-#define debug_globals_hh
+#ifndef libhpc_debug_globals_hh
+#define libhpc_debug_globals_hh
 
 #ifndef NSTACKTRACE
 
@@ -37,11 +37,31 @@
 #define TRACE_EXIT()                            \
    ::hpc::debug::_exit_func()
 
+#else
+
+#define CLEAR_STACK_TRACE()
+#define ENTER_FUNC()
+#define EXIT_FUNC()
+#define TRACE_ENTER()
+#define TRACE_EXIT()
+
+#endif
+
+#ifndef NDEBUG
+
 #define SET_ABORT(f)				\
    ::hpc::debug::_set_abort(f)
 
+#else
+
+#define SET_ABORT(f)
+
+#endif
+
 namespace hpc {
    namespace debug {
+
+#ifndef NSTACKTRACE
 
       void _clear_stack_trace();
 
@@ -50,18 +70,10 @@ namespace hpc {
       void _exit_func();
 
       void _set_abort(bool flag);
-   }
-}
-
-#else
-
-#define CLEAR_STACK_TRACE()
-#define ENTER_FUNC()
-#define EXIT_FUNC()
-#define TRACE_ENTER()
-#define TRACE_EXIT()
-#define SET_ABORT(f)
 
 #endif
+
+   }
+}
 
 #endif

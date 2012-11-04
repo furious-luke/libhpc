@@ -21,12 +21,16 @@
 #include "assertions.hh"
 #include "tracer.hh"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #ifndef NDEBUG
 
 namespace hpc {
    namespace debug {
 
-#ifndef NTRACESTACK
+#ifndef NSTACKTRACE
       extern tracer stack_trace;
 #endif
 
@@ -89,8 +93,11 @@ namespace hpc {
       assertion::_write_buffer() throw()
       {
          int offs = sprintf( _buf, "\n\nLocation:\n  %s: %d: %s\n", _file, _line, _expr );
-#ifndef NTRACESTACK
-         offs += sprintf( _buf + offs, "\nStack trace:\n" );
+#ifdef _OPENMP
+	 offs += sprintf( _buf + offs, "Thread ID: %d\n", omp_get_thread_num() );
+#endif
+#ifndef NSTACKTRACE
+         offs += sprintf( _buf + offs, "Stack trace:\n" );
          offs += stack_trace.sprint( _buf + offs, 2 );
 #endif
          if( _msg[0] != 0 )
