@@ -49,6 +49,8 @@
 #include "scoped_ptr.hh"
 #include "shuffle_mapping.hh"
 #include "index_set.hh"
+#include "ring_buffer.hh"
+#include "po2_ring_buffer.hh"
 
 #include "algorithms.hh"
 #include "functors.hh"
