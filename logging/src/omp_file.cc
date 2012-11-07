@@ -41,7 +41,7 @@ namespace hpc {
 	 file::open()
 	 {
 	    _tids.clear();
-	    _new_line = true;
+	    _get_new_line() = true;
 	 }
 
 	 void

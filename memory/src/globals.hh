@@ -15,8 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef memory_globals_hh
-#define memory_globals_hh
+#ifndef libhpc_memory_globals_hh
+#define libhpc_memory_globals_hh
+
+#ifndef NMEMSTATS
+
+#define MEM_SELECT( path )			\
+   ::hpc::memory::select( path )
+
+#define MEM_DESELECT( path )			\
+   ::hpc::memory::deselect( path )
+
+#else
+
+#define MEM_SELECT( path )
+#define MEM_DESELECT( path )
+
+#endif
 
 namespace hpc {
    namespace memory {

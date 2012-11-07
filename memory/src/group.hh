@@ -15,38 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_group_hh
-#define libhpc_debug_group_hh
+#ifndef libhpc_memory_group_hh
+#define libhpc_memory_group_hh
 
-#include <string.h>
+#include <string>
 #include <map>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-#include "omp_lock.hh"
-#include "omp_help.hh"
-#include "checks.hh"
+#include "libhpc/debug/debug.hh"
+#include "stat_alloc.hh"
 
 namespace hpc {
-   namespace debug {
-
-      template< class T >
-      class group_context;
+   namespace memory {
 
       template< class T >
       class group
       {
-         friend class group_context<T>;
+      public:
+
+	 typedef std::basic_string<char, std::char_traits<char>, stat_alloc<char>> string;
 
       public:
 
          static const int max_path_length = 100;
 
-         group()
-	    : _left( -1 ),
-	      _right( -1 ),
-	      _select_idx( -1 )
+	 group( const string& path )
 	 {
+	    set_path( path );
 	 }
 
          ~group()
@@ -54,13 +47,13 @@ namespace hpc {
 	 }
 
          void
-         set_path( const char* path )
+         set_path( const string& path )
 	 {
-	    CHECK( check_path( path ) );
-	    strcpy( _path, path );
+	    CHECK( debug::check_path( path.c_str() ) );
+	    _path = path;
 	 }
 
-         const char*
+         const string&
          path() const
 	 {
 	    return _path;
@@ -78,32 +71,16 @@ namespace hpc {
 	    return _data;
 	 }
 
-      protected:
-
-         int
-	 _cmp( const char* path ) const
+	 bool
+	 operator<( const group& op ) const
 	 {
-	    return strcmp( _path, path );
-	 }
-
-	 int&
-	 _get_select_cnt()
-	 {
-	    OMP_SET_LOCK( _lock );
-	    int& cnt = _select_cnt[OMP_TID];
-	    OMP_UNSET_LOCK( _lock );
-	    return cnt;
+	    return _path < op._path;
 	 }
 
       private:
 
          T _data;
-         char _path[max_path_length + 1];
-         int _left;
-         int _right;
-         int _select_idx;
-	 std::map<int,int> _select_cnt;
-	 OMP_LOCK( _lock );
+	 string _path;
       };
    }
 }

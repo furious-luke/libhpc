@@ -15,36 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_stdout_hh
-#define libhpc_logging_stdout_hh
+#include "omp_lock.hh"
 
-#include "logger.hh"
-#include "levels.hh"
-
-#ifndef NLOG
+#ifdef _OPENMP
 
 namespace hpc {
-   namespace logging {
+   namespace memory {
 
-      ///
-      ///
-      ///
-      class stdout
-         : public logger
+      omp_lock::omp_lock()
       {
-      public:
+	 omp_init_lock( &_lock );
+      }
 
-         stdout( unsigned min_level=levels_type::info );
+      omp_lock::~omp_lock()
+      {
+	 omp_destroy_lock( &_lock );
+      }
 
-         virtual
-         ~stdout();
+      void
+      omp_lock::set()
+      {
+	 omp_set_lock( &_lock );
+      }
 
-         virtual void
-         write();
-      };
+      void
+      omp_lock::unset()
+      {
+	 omp_unset_lock( &_lock );
+      }
    }
 }
-
-#endif
 
 #endif

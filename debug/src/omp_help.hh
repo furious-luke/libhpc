@@ -15,35 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_stdout_hh
-#define libhpc_logging_stdout_hh
+#ifndef libhpc_debug_omp_help_hh
+#define libhpc_debug_omp_help_hh
 
-#include "logger.hh"
-#include "levels.hh"
+#ifdef _OPENMP
 
-#ifndef NLOG
+#define OMP_TID					\
+   omp_get_thread_num()
 
-namespace hpc {
-   namespace logging {
+#else
 
-      ///
-      ///
-      ///
-      class stdout
-         : public logger
-      {
-      public:
-
-         stdout( unsigned min_level=levels_type::info );
-
-         virtual
-         ~stdout();
-
-         virtual void
-         write();
-      };
-   }
-}
+#define OMP_TID 0
 
 #endif
 

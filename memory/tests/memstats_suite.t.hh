@@ -15,36 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_stdout_hh
-#define libhpc_logging_stdout_hh
+#include <numeric>
+#include <cxxtest/TestSuite.h>
+#include "libhpc/memory/new.hh"
+#include "libhpc/memory/group_context.hh"
+#include "libhpc/memory/state.hh"
 
-#include "logger.hh"
-#include "levels.hh"
-
-#ifndef NLOG
+using namespace hpc;
 
 namespace hpc {
-   namespace logging {
-
-      ///
-      ///
-      ///
-      class stdout
-         : public logger
-      {
-      public:
-
-         stdout( unsigned min_level=levels_type::info );
-
-         virtual
-         ~stdout();
-
-         virtual void
-         write();
-      };
+   namespace memory {
+      extern group_context<state_t> ctx;
    }
 }
 
-#endif
+class memstats_suite : public CxxTest::TestSuite {
+public:
 
+   void test_update()
+   {
+#ifndef NMEMSTATS
+      auto cur_size = memory::ctx.find_group( "/" ).data().size;
+      auto cur_peak = memory::ctx.find_group( "/" ).data().peak;
+      int* buf = new int[100];
+      TS_ASSERT_EQUALS( memory::ctx.find_group( "/" ).data().size, cur_size + 100*sizeof(int) );
+      TS_ASSERT_EQUALS( memory::ctx.find_group( "/" ).data().peak, cur_peak + 100*sizeof(int) );
 #endif
+   }
+};

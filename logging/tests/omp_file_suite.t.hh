@@ -52,4 +52,16 @@ public:
       }
 #endif
    }
+
+   void test_levels()
+   {
+#if !defined(NLOG) && defined(_OPENMP)
+      logging::omp::file log( "test_levels.", 8 );
+#pragma omp parallel num_threads(3)
+      {
+	 for( unsigned ii = 0; ii < 20; ++ii )
+	    log << logging::pushlevel( ii ) << ii << "\n" << logging::poplevel;
+      }
+#endif
+   }
 };

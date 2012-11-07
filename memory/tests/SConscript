@@ -1,15 +1,20 @@
-Import('env', 'obj_map')
-Export('env', 'obj_map')
+from sconsproject import helpers
 
-srcs = (
-#     ('source.cc', 'dep1.cc', 'dep2.cc', (range(num_ranks)),),
-)
+# Bring in the SCons environment.
+Import('env')
 
-for src in srcs:
-    if isinstance(src, str):
-        objs = []
-    else:
-        objs = src[1:] if (len(src) > 1) else []
-        objs = [obj_map[o] for o in objs]
-        src = src[0]
-    env.CxxTest([src] + objs)
+# Define our test suites. Each tuple defines a test as follows:
+#
+#   (suite_source, support_source0, support_source1, ..., MPI_rank_range)
+#
+# The support sources are optional, as is the MPI rank range.
+suites = [
+    ('group_context_suite.t.hh',),
+    ('memstats_suite.t.hh', 'new.cc', 'globals.cc'),
+]
+
+# Define libraries to link against.
+libs = ['debug'] + env.get('LIBS', [])
+
+# Call the helper.
+execfile(helpers.get_build_tests_script(), globals())

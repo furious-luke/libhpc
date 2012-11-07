@@ -15,36 +15,51 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_stdout_hh
-#define libhpc_logging_stdout_hh
+#ifndef libhpc_memory_stat_alloc_hh
+#define libhpc_memory_stat_alloc_hh
 
-#include "logger.hh"
-#include "levels.hh"
-
-#ifndef NLOG
+#include <stdlib.h>
+#include <memory>
+#include "libhpc/debug/assert.hh"
 
 namespace hpc {
-   namespace logging {
+   namespace memory {
 
-      ///
-      ///
-      ///
-      class stdout
-         : public logger
+      template< class T >
+      class stat_alloc
+	: public std::allocator<T>
       {
       public:
 
-         stdout( unsigned min_level=levels_type::info );
+	 typedef typename std::allocator<T>::pointer pointer;
+	 typedef typename std::allocator<T>::size_type size_type;
 
-         virtual
-         ~stdout();
+	 template< typename U >
+	 struct rebind
+	 {
+	    typedef stat_alloc<U> other;
+	 };
 
-         virtual void
-         write();
+      public:
+
+	 pointer
+	 allocate( size_type size,
+		   std::allocator<void>::const_pointer hint=0 )
+	 {
+	    pointer ptr = (pointer)malloc( size*sizeof(T) );
+	    ASSERT( ptr );
+	    return ptr;
+	 }
+
+	 void
+	 deallocate( pointer ptr,
+		     size_type size )
+	 {
+	    ASSERT( ptr );
+	    free( (void*)ptr );
+	 }
       };
    }
 }
-
-#endif
 
 #endif

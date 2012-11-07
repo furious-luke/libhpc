@@ -72,10 +72,13 @@ namespace hpc {
          pop_level();
 
          bool
-         visible() const;
+         visible();
 
          std::stringstream&
          buffer();
+
+	 std::list<unsigned>&
+	 levels();
 
          template< class T >
          logger&
@@ -105,7 +108,7 @@ namespace hpc {
             if( visible() )
             {
                // Print new line prefix, if required.
-               if( allow_new_line && _new_line )
+               if( allow_new_line && _get_new_line() )
                   prefix();
 
                // Write the object.
@@ -114,6 +117,9 @@ namespace hpc {
          }
 
       protected:
+
+	 bool&
+	 _get_new_line();
 
          ///
          ///
@@ -132,9 +138,9 @@ namespace hpc {
             };
          };
 
-         bool _new_line;
+	 std::map<int,bool> _new_line;
          std::map<int,std::stringstream*> _buf;
-         std::list<unsigned> _levels;
+	 std::map<int,std::list<unsigned>> _levels;
          unsigned _min_level;
       };
 

@@ -19,7 +19,6 @@
 #define libhpc_memory_new_hh
 
 #include <stdlib.h>
-#include <string.h>
 
 void*
 operator new( size_t size );
