@@ -100,7 +100,7 @@ namespace hpc {
 #else
          int tid = 0;
 #endif
-#pragma omp critical
+#pragma omp critical( logger_buffer )
          if( _buf.find( tid ) == _buf.end() )
             _buf.insert( std::make_pair( tid, new std::stringstream ) );
          return *_buf[tid];
@@ -114,7 +114,7 @@ namespace hpc {
 #else
          int tid = 0;
 #endif
-#pragma omp critical
+#pragma omp critical( logger_levels )
          if( _levels.find( tid ) == _levels.end() )
             _levels.insert( std::make_pair( tid, std::list<unsigned>() ) );
          return _levels[tid];
@@ -128,7 +128,7 @@ namespace hpc {
 #else
          int tid = 0;
 #endif
-#pragma omp critical
+#pragma omp critical( logger_get_new_line )
          if( _new_line.find( tid ) == _new_line.end() )
             _new_line.insert( std::make_pair( tid, true ) );
          return _new_line[tid];

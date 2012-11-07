@@ -12,20 +12,20 @@ config.select(
 
 vars = project.create_variables()
 vars.AddVariables(
+    BoolVariable('MEMDEBUG', 'Enable memory debugging.', True),
     BoolVariable('MEMOPS', 'Log memory operations.', False),
     BoolVariable('MEMSTATS', 'Enable memory statistics.', False),
-    BoolVariable('LOG', 'Enable logging.', True),
     BoolVariable('STACKTRACE', 'Enable stack trace.', False),
 )
 
 env = project.create_environment(vars)
 env.AppendUnique(CCFLAGS='-std=c++11')
+if not env['MEMDEBUG']:
+    env.MergeFlags('-DNMEMDEBUG')
 if not env['MEMOPS']:
     env.MergeFlags('-DNMEMOPS')
 if not env['MEMSTATS']:
     env.MergeFlags('-DNMEMSTATS')
-if not env['LOG']:
-    env.MergeFlags('-DNLOG')
 if not env['STACKTRACE']:
     env.MergeFlags('-DNSTACKTRACE')
 

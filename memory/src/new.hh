@@ -20,6 +20,17 @@
 
 #include <stdlib.h>
 
+#ifndef NMEMSTATS
+#define MEM_ENABLE_STATS()			\
+   ::hpc::memory::enable_stats()
+#else
+#define MEM_ENABLE_STATS()
+#endif
+
+// NMEMDEBUG turns off all memory debugging routines, returning
+// to fundamental "new" and "delete".
+#ifndef NMEMDEBUG
+
 void*
 operator new( size_t size );
 
@@ -48,7 +59,14 @@ namespace hpc {
 
 #endif
 
+#ifndef NMEMSTATS
+      void
+      enable_stats( bool state=true );
+#endif
+
    }
 }
+
+#endif
 
 #endif

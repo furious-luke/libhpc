@@ -250,11 +250,17 @@ namespace hpc {
 	    file_set.read(data, datatype, mem_space, file_space, *this->_comm);
 	 }
 
-	 // template< class T >
-	 // void
-	 // reada( const std::string& name,
-	 // 	vector<T>& data,
-	 // 	const mpi::comm& comm=mpi::comm::self );
+	 template< class T >
+	 void
+	 reada( const std::string& name,
+	 	vector<T>& data,
+	 	const mpi::comm& comm=mpi::comm::self )
+	 {
+	    // TODO: Needs to be parallel.
+	    hsize_t size = read_data_size( name );
+	    data.resize( size );
+	    this->read<T>( name, data );
+	 }
 
 	 // template< class T >
 	 // void
@@ -342,17 +348,35 @@ namespace hpc {
             dset.read( data, type, mem_space, file_space, comm );
          }
 
-	 // template< class T >
-	 // void
-	 // reada( const std::string& name,
-	 // 	csr<T>& data,
-	 // 	const vector<hsize_t>::view& rows,
-	 // 	const mpi::comm& comm=mpi::comm::self );
+	 template< class T >
+	 void
+	 reada( const std::string& name,
+	 	csr<T>& data,
+	 	const mpi::comm& comm=mpi::comm::self )
+	 {
+	    // TODO: Needs to be parallel.
+	    size_t num_rows = read_data_size( name + "_counts" );
+	    data.num_rows( num_rows );
+	    this->read<T>( name, data );
+	 }
 
       protected:
 
 	 shared_ptr<mpi::comm> _comm;
       };
+
+      template<>
+      void
+      file::write<string>( const std::string& name,
+			   const vector<string>::view& data,
+			   boost::optional<const vector<hsize_t>::view&> chunk_size,
+			   bool deflate );
+
+      template<>
+      void
+      file::reada<string>( const std::string& name,
+			   vector<string>& data,
+			   const mpi::comm& comm );
    }
 }
 

@@ -28,6 +28,8 @@
 #include "group_context.hh"
 #include "state.hh"
 
+#ifndef NMEMDEBUG
+
 namespace hpc {
    namespace memory {
 
@@ -93,3 +95,5 @@ namespace hpc {
     
    }
 }
+
+#endif

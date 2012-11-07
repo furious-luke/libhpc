@@ -52,7 +52,7 @@ namespace hpc {
             std::stringstream ss;
             ss << _base << std::setfill( '0' ) << std::setw( 5 ) << tid;
             std::string filename = ss.str();
-#pragma omp critical
+#pragma omp critical( omp_file_write )
             if( _tids.insert( tid ).second )
                remove( filename.c_str() );
             std::ofstream file( filename, std::fstream::out | std::fstream::app );

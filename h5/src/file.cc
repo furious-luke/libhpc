@@ -75,6 +75,76 @@ namespace hpc {
 	 this->_comm = mpi::comm::self;
       }
 
+      template<>
+      void
+      file::write<string>( const std::string& name,
+			   const vector<string>::view& data,
+			   boost::optional<const vector<hsize_t>::view&> chunk_size,
+			   bool deflate )
+      {
+	 BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,char>) );
+	 h5::datatype datatype( mpl::at<h5::datatype::type_map,char>::type::value );
+
+	 // Count total size of strings.
+	 size_t size = 0;
+	 for( const auto& str : data )
+	    size += str.size() + 1;
+	 size_t net_size = this->_comm->all_reduce( size, MPI_SUM );
+
+	 vector<hsize_t> dims(1), count(1), offset(1);
+	 dims[0] = net_size;
+	 offset[0] = this->_comm->scan( size, MPI_SUM, true );
+
+	 h5::dataspace file_space( dims );
+	 h5::dataset file_set;
+	 file_set.create( *this, name, datatype, file_space, chunk_size, deflate );
+
+	 vector<hsize_t> mem_dims( 1 ), mem_offs( 1 ), mem_count( 1 );
+	 mem_dims[0] = net_size;
+	 mem_offs[0] = 0;
+	 h5::dataspace mem_space( mem_dims );
+
+	 for( const auto& str : data )
+	 {
+	    count[0] = str.size() + 1;
+	    file_space.select_hyperslab( H5S_SELECT_SET, count, offset );
+	    offset[0] += str.size() + 1;
+
+	    mem_count[0] = str.size() + 1;
+	    mem_space.select_hyperslab( H5S_SELECT_SET, mem_count, mem_offs );
+	    file_set.write( str.c_str(), datatype, mem_space, file_space, *this->_comm );
+	 }
+      }
+
+      template<>
+      void
+      file::reada<string>( const std::string& name,
+			   vector<string>& data,
+			   const mpi::comm& comm )
+      {
+	 // Read in the full vector of bytes.
+	 vector<char> full_str;
+	 this->reada<char>( name, full_str );
+
+	 // Count how many strings there are and allocate.
+	 unsigned num_strs = std::count( full_str.begin(), full_str.end(), 0 );
+	 data.reallocate( num_strs );
+
+	 // Insert each string.
+	 const char* first = full_str.data(), *last = full_str.data() + full_str.size();
+	 const char* mark = first;
+	 unsigned idx = 0;
+	 while( first != last )
+	 {
+	    if( *first == 0 )
+	    {
+	       data[idx++] = mark;
+	       mark = first + 1;
+	    }
+	    ++first;
+	 }
+      }
+
 // template<>
 // void file::writeItem(const std::string& name, const int& itm, const MPI::Comm& comm) {
 //     this->writeItem(name, &itm, DataType::NATIVE_INT, comm);
@@ -359,25 +429,25 @@ namespace hpc {
 //     fileSet.write(data, dataType, memSpace, fileSpace, comm);
 // }
 
-void
-file::read_data_dims( const std::string& name,
-		      vector<hsize_t>& dims )
-{
-   h5::dataset file_set;
-   file_set.open(*this, name);
-   h5::dataspace file_space;
-   file_set.space(file_space);
-   dims.resize(file_space.simple_extent_num_dims());
-   file_space.simple_extent_dims(dims);
-}
+      void
+      file::read_data_dims( const std::string& name,
+			    vector<hsize_t>& dims )
+      {
+	 h5::dataset file_set;
+	 file_set.open(*this, name);
+	 h5::dataspace file_space;
+	 file_set.space(file_space);
+	 dims.resize(file_space.simple_extent_num_dims());
+	 file_space.simple_extent_dims(dims);
+      }
 
-hsize_t
-file::read_data_size( const std::string& name )
-{
-   vector<hsize_t> dims;
-   this->read_data_dims(name, dims);
-   return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<hsize_t>());
-}
+      hsize_t
+      file::read_data_size( const std::string& name )
+      {
+	 vector<hsize_t> dims;
+	 this->read_data_dims(name, dims);
+	 return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<hsize_t>());
+      }
 
 // template<>
 // void file::read(const std::string& name, VectorView<int> data, const Comm& comm) {

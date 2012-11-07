@@ -15,39 +15,32 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_memory_globals_hh
-#define libhpc_memory_globals_hh
+#include <stdlib.h>
+#include <libhpc/logging/logging.hh>
 
-#if !defined(NMEMSTATS) && !defined(NMEMDEBUG)
+using namespace hpc;
 
-#define MEM_SELECT( path )			\
-   ::hpc::memory::select( path )
-
-#define MEM_DESELECT( path )			\
-   ::hpc::memory::deselect( path )
-
-namespace hpc {
-   namespace memory {
-
-      void
-      select( const char* path );
-
-      void
-      deselect( const char* path );
-
-      void
-      set_log_file( const char* path );
-
-      void
-      log( const char* filename=NULL );
+int
+main( int argc,
+      char* argv[] )
+{
+   LOG_PUSH( new logging::stdout() );
+   LOG_PUSH( new logging::file( "test." ) );
+   unsigned reps = (argc > 1 ) ? atoi( argv[1] ) : 1000;
+   for( unsigned ii = 0; ii < reps; ++ii )
+   {
+      LOGILN( "Test", ii );
    }
+   LOG_POP();
+   LOG_POP();
+
+   LOG_PUSH( new logging::omp::file( "test." ) );
+#pragma omp parallel num_threads(10)
+   for( unsigned ii = 0; ii < reps; ++ii )
+   {
+      LOGILN( "Test", ii );
+   }
+   LOG_POP();
+
+   return EXIT_SUCCESS;
 }
-
-#else
-
-#define MEM_SELECT( path )
-#define MEM_DESELECT( path )
-
-#endif
-
-#endif

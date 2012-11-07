@@ -56,14 +56,14 @@
    LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
         ::hpc::logging::endl, ::hpc::logging::poplevel )
 
-#ifndef NLOG_TRIVIAL
+#ifndef NLOGTRIVIAL
 #define LOGT( ... )                                     \
    LOGLV( ::hpc::logging::trivial, __VA_ARGS__ )
 #else
 #define LOGT( ... )
 #endif
 
-#ifndef NLOG_DEBUG
+#ifndef NLOGDEBUG
 #define LOGD( ... )                             \
    LOGLV( ::hpc::logging::debug, __VA_ARGS__ )
 #else
@@ -76,14 +76,14 @@
 #define LOGE( ... )                             \
    LOGLV( ::hpc::logging::error, __VA_ARGS__ )
 
-#ifndef NLOG_TRIVIAL
+#ifndef NLOGTRIVIAL
 #define LOGTLN( ... )                                   \
    LOGLVLN( ::hpc::logging::trivial, __VA_ARGS__ )
 #else
 #define LOGTLN( ... )
 #endif
 
-#ifndef NLOG_DEBUG
+#ifndef NLOGDEBUG
 #define LOGDLN( ... )                                   \
    LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
 #else

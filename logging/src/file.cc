@@ -57,6 +57,7 @@ namespace hpc {
       file::write()
       {
          _file << buffer().str();
+	 _file.flush();
       }
 #endif
    }

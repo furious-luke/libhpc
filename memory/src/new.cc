@@ -16,8 +16,6 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
-// #include <stdio.h>
-// #include <string.h>
 #include "libhpc/debug/debug.hh"
 #include "new.hh"
 #include "state.hh"
@@ -25,6 +23,8 @@
 #include "group_context.hh"
 
 typedef unsigned char byte_t;
+
+#ifndef NMEMDEBUG
 
 void*
 operator new( size_t size )
@@ -56,31 +56,50 @@ namespace hpc {
       static const int ptr_cookie_size = 4;
       static const int ptr_cookie_byte = 0xef;
 
+      bool stats_enabled = false;
       extern memory::group_context<memory::state_t> ctx;
 
 #ifndef NMEMSTATS
 
       void
+      enable_stats( bool state )
+      {
+	 stats_enabled = state;
+      }
+
+      void
       add_stats( size_t size )
       {
-	 for( auto& grp : memory::ctx )
+	 // Sometimes allocations may occur during C++ initialisation
+	 // phases. This'll cause big problems if the memory group
+	 // context isn't initialised first. So, switch it off until
+	 // I make an explicit call.
+	 if( stats_enabled )
 	 {
-	    memory::state_t& state = grp.data();
-	    state.size += size;
-	    if( state.size > state.peak )
-	       state.peak = state.size;
+#pragma omp critical( new_add_stats )
+	    for( auto& grp : memory::ctx )
+	    {
+	       memory::state_t& state = grp.data();
+	       state.size += size;
+	       if( state.size > state.peak )
+		  state.peak = state.size;
+	    }
 	 }
       }
 
       void
       rem_stats( size_t size )
       {
+	 if( stats_enabled )
+	 {
+#pragma omp critical( new_rem_stats )
 	 for( auto& grp : memory::ctx )
 	 {
 	    memory::state_t& state = grp.data();
 	    ASSERT( size <= state.size,
 		    "Uh-oh, some kind of internal memory book-keeping problem." );
 	    state.size -= size;
+	 }
 	 }
       }
 
@@ -89,16 +108,13 @@ namespace hpc {
       void*
       new_alloc( size_t size )
       {
-#ifndef NMEMSTATS
-	 add_stats( size );
-#endif
-
 #ifdef NDEBUG
 #ifndef NMEMSTATS
 	 if( size )
 	 {
 	    size += sizeof(size_t);
 	    void* p = malloc( size );
+	    add_stats( size );
 #ifndef NMEMOPS
 	    add_op( true, p, (byte_t*)p + size );
 #endif
@@ -125,13 +141,15 @@ namespace hpc {
 	 void* p;
 	 if( size )
 	 {
+	    size += ptr_cookie_size;
 #ifndef NMEMSTATS
 	    size += sizeof(size_t);
+	    add_stats( size );
 #endif
-	    p = malloc( size + ptr_cookie_size );
-	    ASSERT( p );
+	    p = malloc( size );
+	    ASSERT( p, "Failed to allocate memory." );
 #ifndef NMEMOPS
-	    add_op( true, p, (byte_t*)p + size + ptr_cookie_size );
+	    add_op( true, p, (byte_t*)p + size );
 #endif
 	    memset( p, ptr_cookie_byte, ptr_cookie_size );
 	    p = (void*)((byte_t*)p + ptr_cookie_size);
@@ -192,3 +210,5 @@ namespace hpc {
 
    }
 }
+
+#endif

@@ -20,6 +20,7 @@
 namespace hpc {
    namespace h5 {
 
+      datatype datatype::native_char( H5T_NATIVE_CHAR );
       datatype datatype::native_int( H5T_NATIVE_INT );
       datatype datatype::native_ulong( H5T_NATIVE_ULONG );
       datatype datatype::native_llong( H5T_NATIVE_LLONG );
@@ -41,6 +42,7 @@ namespace hpc {
 	       case -6: _id = H5T_NATIVE_LLONG; break;
 	       case -7: _id = H5T_NATIVE_FLOAT; break;
 	       case -8: _id = H5T_NATIVE_DOUBLE; break;
+	       case -9: _id = H5T_NATIVE_CHAR; break;
 #ifndef NDEBUG
 	       default: ASSERT(0);
 #endif
@@ -66,7 +68,8 @@ namespace hpc {
       void
       datatype::close()
       {
-         if( _id > -1 && (_id != H5T_NATIVE_INT &&
+         if( _id > -1 && (_id != H5T_NATIVE_CHAR &&
+			  _id != H5T_NATIVE_INT &&
                           _id != H5T_NATIVE_UINT &&
                           _id != H5T_NATIVE_LONG &&
                           _id != H5T_NATIVE_ULONG &&

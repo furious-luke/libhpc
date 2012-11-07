@@ -34,6 +34,7 @@ namespace hpc {
       {
       public:
 
+	 static datatype native_char;
 	 static datatype native_int;
 	 static datatype native_ulong;
 	 static datatype native_llong;
@@ -50,7 +51,8 @@ namespace hpc {
 			   mpl::pair<unsigned long, mpl::int_<-5> >,
 			   mpl::pair<long long, mpl::int_<-6> >,
 			   mpl::pair<float, mpl::int_<-7> >,
-			   mpl::pair<double, mpl::int_<-8> > > type_map;
+			   mpl::pair<double, mpl::int_<-8> >,
+			   mpl::pair<char, mpl::int_<-9> > > type_map;
 
 	 datatype( hid_t id=-1 );
 

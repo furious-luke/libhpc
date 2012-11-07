@@ -11,13 +11,13 @@ sub_dirs = []
 dst_dir = '#' + env['BUILD'] + '/exs/'
 
 # Define libraries to use.
-libs = [] + env.get('LIBS', [])
+libs = ['logging', 'system', 'debug'] + env.get('LIBS', [])
 
 # Declare local sources. Format is:
 #
 #   ('<binary name>', '<source 0>', '<source 1>', ...)
 sources = [
-    # ('', '', ''),
+    ('logging_leak_check', 'logging_leak_check.cc'),
 ]
 
 # Call the helper.
