@@ -316,6 +316,32 @@ namespace hpc {
       return binary_compose<Operation1, Operation2, Operation3>(op1, op2, op3);
    }
 
+   template< class T >
+   struct less_first
+      : public std::less<T>
+   {
+      bool
+      operator()( const typename T::first_type& op_a,
+		  const T& op_b ) const
+      {
+	 return op_a < op_b.first;
+      }
+
+      bool
+      operator()( const T& op_a,
+		  const typename T::first_type& op_b ) const
+      {
+	 return op_a.first < op_b;
+      }
+
+      bool
+      operator()( const T& op_a,
+		  const T& op_b ) const
+      {
+	 return op_a.first < op_b.first;
+      }
+   };
+
    // template< class Tuple >
    // typename boost::tuples::element<1, Tuple>::type
    // tuple_select1st( Tuple& x )
