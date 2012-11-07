@@ -15,30 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <numeric>
-#include <cxxtest/TestSuite.h>
-#include "libhpc/debug/group_context.hh"
+#include <stdlib.h>
+#include <libhpc/debug/debug.hh>
 
-using namespace hpc;
-
-class group_context_suite : public CxxTest::TestSuite {
-public:
-
-   void test_default_ctor()
-   {
-      debug::group_context<int> gc;
-   }
-
-   // void test_serial()
-   // {
-   //    debug::group_context<int> gc;
-   //    gc.select( "/hello/world" );
-   //    gc.select( "/face/palm" );
-   //    TS_ASSERT_EQUALS( gc.num_selected(), 3 );
-   //    for( unsigned ii = 0; ii < gc.num_selected(); ++ii )
-   // 	 gc.selected_group( ii ).data() = ii;
-   //    gc.select( "/hello/world" );
-   //    gc.select( "/face/palm" );
-   //    TS_ASSERT_EQUALS( gc.num_selected(), 1 );
-   // }
-};
+int
+main( int argc,
+      char* argv[] )
+{
+   unsigned reps = (argc > 1 ) ? atoi( argv[1] ) : 1000;
+   for( unsigned ii = 0; ii < reps; ++ii )
+      ASSERT( 1 );
+   return EXIT_SUCCESS;
+}
