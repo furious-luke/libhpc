@@ -52,6 +52,11 @@ namespace hpc {
       {
       }
 
+      po2_ring_buffer( size_type size )
+      {
+         resize( size );
+      }
+
       ~po2_ring_buffer()
       {
       }
@@ -72,16 +77,16 @@ namespace hpc {
          _size = 0;
       }
 
-      size_type
+      iterator
       begin() const
       {
-         return _start;
+         return iterator( *this, _start );
       }
 
-      size_type
+      iterator
       end() const
       {
-         return _norm( _start + _size );
+         return iterator( *this, norm( _start + _size ) );
       }
 
       template< class Iterator >
@@ -92,7 +97,7 @@ namespace hpc {
          size_type rem = _buf.size() - _size;
          unsigned ii = 0;
          for( ; ii < rem && start != finish; ++ii )
-            _buf[_norm( _size + ii )] = *start++;
+            _buf[norm( _size + ii )] = *start++;
          _size += ii;
 
          return ii;
@@ -102,20 +107,38 @@ namespace hpc {
       consume( size_type size )
       {
          ASSERT( size <= _size );
-         _start = _norm( _start + size );
+         _start = norm( _start + size );
          _size -= size;
+      }
+
+      size_t
+      norm( size_t idx ) const
+      {
+         return idx & _mask;
+      }
+
+      size_t
+      size() const
+      {
+         return _size;
+      }
+
+      size_t
+      max_size() const
+      {
+         return _buf.size();
       }
 
       value_type&
       operator[]( size_type idx )
       {
-         return _buf[_norm( idx )];
+         return _buf[norm( idx )];
       }
 
       const value_type&
       operator[]( size_type idx ) const
       {
-         return _buf[_norm( idx )];
+         return _buf[norm( idx )];
       }
 
       friend std::ostream&
@@ -133,12 +156,6 @@ namespace hpc {
       }
 
    protected:
-
-      size_t
-      _norm( size_t idx ) const
-      {
-         return idx & _mask;
-      }
 
       void
       _setup_mask( size_t size )
@@ -171,12 +188,17 @@ namespace hpc {
 
    public:
 
+      typedef boost::iterator_facade<po2_ring_buffer_iterator<T>,
+                                     T,
+				     std::random_access_iterator_tag,
+                                     const T> super_type;
       typedef T value_type;
       typedef typename po2_ring_buffer<T>::size_type size_type;
+      typedef typename super_type::difference_type difference_type;
 
    public:
 
-      po2_ring_buffer_iterator( po2_ring_buffer<value_type>& buffer,
+      po2_ring_buffer_iterator( const po2_ring_buffer<value_type>& buffer,
                                 size_type idx )
          : _buf( buffer ),
            _idx( idx )
@@ -188,7 +210,13 @@ namespace hpc {
       void
       increment()
       {
-         ++_idx;
+         _idx = _buf.norm( _idx + 1 );
+      }
+
+      void
+      advance( size_t elems )
+      {
+         _idx = _buf.norm( _idx + elems );
       }
 
       bool
@@ -203,9 +231,18 @@ namespace hpc {
          return _buf[_idx];
       }
 
+      difference_type
+      distance_to( const po2_ring_buffer_iterator& op ) const
+      {
+         if( op._idx >= _idx )
+            return op._idx - _idx;
+         else
+            return (_buf.max_size() - _idx) + op._idx;
+      }
+
    protected:
 
-      po2_ring_buffer<value_type>& _buf;
+      const po2_ring_buffer<value_type>& _buf;
       size_type _idx;
    };
 };
