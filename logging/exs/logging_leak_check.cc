@@ -34,6 +34,7 @@ main( int argc,
    LOG_POP();
    LOG_POP();
 
+#ifdef _OPENMP
    LOG_PUSH( new logging::omp::file( "test." ) );
 #pragma omp parallel num_threads(10)
    for( unsigned ii = 0; ii < reps; ++ii )
@@ -41,6 +42,7 @@ main( int argc,
       LOGILN( "Test", ii );
    }
    LOG_POP();
+#endif
 
    return EXIT_SUCCESS;
 }
