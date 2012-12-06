@@ -19,7 +19,7 @@
 #define libhpc_options_xml_hh
 
 #include <iostream>
-#include <rapidxml.hpp>
+#include <pugixml.hpp>
 #include "libhpc/containers/string.hh"
 #include "dictionary.hh"
 
@@ -36,11 +36,13 @@ namespace hpc {
 
          void
          read( const hpc::string& filename,
-               dictionary& dict );
+               dictionary& dict,
+               const hpc::string& path=hpc::string() );
 
          void
          read( std::istream& strm,
-               dictionary& dict );
+               dictionary& dict,
+               const hpc::string& path=hpc::string() );
 
          void
          write( const hpc::string& filename,
@@ -53,14 +55,16 @@ namespace hpc {
       protected:
 
          void
-         _iter_node( rapidxml::xml_node<>* node,
+         _iter_node( pugi::xml_node& node,
                      hpc::string name,
                      dictionary& dict );
 
          void
-         _iter_dict( rapidxml::xml_document<>& doc,
-                     rapidxml::xml_node<>* node,
+         _iter_dict( pugi::xml_node& node,
                      const dictionary& dict );
+
+         hpc::string
+         _node_name( pugi::xml_node& node ) const;
 
       protected:
 

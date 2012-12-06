@@ -15,16 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <rapidxml_print.hpp>
 #include "xml.hh"
 
-using namespace rapidxml;
+using namespace pugi;
 
 namespace hpc {
    namespace options {
 
       xml::xml()
-         : _sep( "-" )
+         : _sep( ":" )
       {
       }
 
@@ -34,30 +33,39 @@ namespace hpc {
 
       void
       xml::read( const hpc::string& filename,
-                 dictionary& dict )
+                 dictionary& dict,
+                 const hpc::string& path )
       {
          std::ifstream file( filename, std::fstream::in );
-         read( file, dict );
+         read( file, dict, path );
       }
 
       void
       xml::read( std::istream& strm,
-                 dictionary& dict )
+                 dictionary& dict,
+                 const hpc::string& path )
       {
-         // Read in the whole stream.
-         std::istreambuf_iterator<char> eos;
-         std::string buf( std::istreambuf_iterator<char>( strm ), eos );
-
          // Parse the document.
-         xml_document<> doc;
-         doc.parse<0>( (char*)buf.c_str() );
+         xml_document doc;
+         xml_parse_result result = doc.load( strm );
+         ASSERT( result );
+
+         // If we were given a path, locate it.
+         if( !path.empty() )
+         {
+            xpath_node_set nodes = doc.select_nodes( path.c_str() );
+            for( const xpath_node* it = nodes.begin(); it != nodes.end(); ++it )
+            {
+               xml_node cur = it->node();
+               _iter_node( cur, "", dict );
+            }
+         }
 
          // Process each root node.
-         xml_node<>* node = doc.first_node();
-         while( node )
+         else
          {
-            _iter_node( node, "", dict );
-            node = node->next_sibling();
+            for( xml_node_iterator it = doc.begin(); it != doc.end(); ++it )
+               _iter_node( *it, "", dict );
          }
       }
 
@@ -74,40 +82,42 @@ namespace hpc {
                   const dictionary& dict )
       {
          // Iterate over dictionary.
-         xml_document<> doc;
-         _iter_dict( doc, &doc, dict );
+         xml_document doc;
+         _iter_dict( doc, dict );
 
          // Dump document to stream.
-         strm << doc;
+         doc.save( strm );
       }
 
       void
-      xml::_iter_node( xml_node<>* node,
+      xml::_iter_node( xml_node& node,
                        hpc::string name,
                        dictionary& dict )
       {
-         // Process the node.
-         hpc::string sub_name;
-         if( !name.empty() )
-            sub_name = name + _sep;
-         sub_name += node->name();
-         if( dict.has_option( sub_name ) )
-            dict[sub_name] = node->value();
-
-         // Iterate over each child.
-         xml_node<>* child = node->first_node();
-         while( child )
+         // If this node is PCDATA node, then try and store the value.
+         if( node.type() == node_pcdata )
          {
-            // Don't iterate if the name is empty.
-            if( strcmp( child->name(), "" ) )
-               _iter_node( child, sub_name, dict );
-            child = child->next_sibling();
+            if( dict.has_option( name ) )
+               dict[name] = node.value();
+         }
+
+         // If not, keep walking.
+         else
+         {
+            // Process the name.
+            hpc::string sub_name;
+            if( !name.empty() )
+               sub_name = name + _sep;
+            sub_name += _node_name( node );
+
+            // Iterate over each child.
+            for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
+               _iter_node( *it, sub_name, dict );
          }
       }
 
       void
-      xml::_iter_dict( xml_document<>& doc,
-                       xml_node<>* node,
+      xml::_iter_dict( xml_node& node,
                        const dictionary& dict )
       {
          for( auto it = dict.options_begin(); it != dict.options_end(); ++it )
@@ -116,18 +126,32 @@ namespace hpc {
             if( !(*it)->has_value() )
                continue;
 
-            xml_node<>* new_node = doc.allocate_node( node_element, doc.allocate_string( (*it)->name().c_str() ) );
+            xml_node new_node = node.append_child( (*it)->name().c_str() );
             hpc::string val_str = (*it)->store();
-            new_node->value( doc.allocate_string( val_str.c_str() ) );
-            node->append_node( new_node );
+            new_node.append_child( node_pcdata ).set_value( val_str.c_str() );
          }
 
          for( auto it = dict.dicts_begin(); it != dict.dicts_end(); ++it )
          {
-            xml_node<>* new_node = doc.allocate_node( node_element, doc.allocate_string( (*it)->prefix().c_str() ) );
-            node->append_node( new_node );
-            _iter_dict( doc, new_node, **it );
+            xml_node new_node = node.append_child( (*it)->prefix().c_str() );
+            _iter_dict( new_node, **it );
          }
+      }
+
+      hpc::string
+      xml::_node_name( xml_node& node ) const
+      {
+         // Check if there is an attribute called "name".
+         for( xml_attribute_iterator it = node.attributes_begin(); it != node.attributes_end(); ++it )
+         {
+            hpc::string name = it->name();
+            std::transform( name.begin(), name.end(), name.begin(), ::tolower );
+            if( name == "name" )
+               return it->value();
+         }
+
+         // If not, use the node name.
+         return node.name();
       }
    }
 }

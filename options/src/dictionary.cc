@@ -22,7 +22,7 @@ namespace hpc {
 
       dictionary::dictionary( const hpc::string& prefix )
          : _pre( prefix ),
-           _sep( "-" )
+           _sep( ":" )
       {
       }
 
@@ -39,8 +39,9 @@ namespace hpc {
       dictionary::sub( const hpc::string& prefix ) const
       {
          optional<index> idx = _dicts_mm.search( prefix + _sep );
-         if( idx )
+         if( idx && *idx != (unsigned short)-1 )
             return *_dicts[*idx];
+         ASSERT( 0 );
       }
 
       void
@@ -111,7 +112,7 @@ namespace hpc {
 
          re::match match;
          idx = _dicts_mm.search( name, match );
-         if( idx )
+         if( idx && *idx != (unsigned short)-1 )
             return (*_dicts[*idx]).has_option( name.c_str() + match.capture( *idx ).second );
 
          return false;
@@ -165,7 +166,7 @@ namespace hpc {
 
          re::match match;
          idx = _dicts_mm.search( name, match );
-         if( idx )
+         if( idx && *idx != (unsigned short)-1 )
             return (*_dicts[*idx]).find( name.c_str() + match.capture( *idx ).second );
 
          return NULL;
@@ -175,7 +176,7 @@ namespace hpc {
       dictionary::find_sub( const hpc::string& prefix )
       {
          optional<index> idx = _dicts_mm.search( prefix + _sep );
-         if( idx )
+         if( idx && *idx != (unsigned short)-1 )
             return _dicts[*idx];
          else
             return NULL;
@@ -204,10 +205,13 @@ namespace hpc {
 	 if( obj._opts.size() )
          {
 	    auto it = obj._opts.begin();
-            while( !(*it)->has_value() )
+            while( it != obj._opts.end() && !(*it)->has_value() )
                ++it;
-	    strm << (*it)->name() << ": " << (*it)->store();
-	    ++it;
+            if( it != obj._opts.end() )
+            {
+               strm << (*it)->name() << ": " << (*it)->store();
+               ++it;
+            }
 	    for( ; it != obj._opts.end(); ++it )
             {
                if( !(*it)->has_value() )

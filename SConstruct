@@ -2,10 +2,11 @@ import sconsproject as project
 from sconsproject import config
 
 config.select(
+    config.packages.clock(),
     config.packages.boost(),
     config.packages.MPI(),
     config.packages.HDF5(),
-    config.packages.rapidxml(),
+    config.packages.pugixml(),
     config.packages.Eigen(required=False),
     config.packages.FFTW3(use_float=True, required=False),
 )
