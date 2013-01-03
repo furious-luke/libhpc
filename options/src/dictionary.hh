@@ -72,6 +72,9 @@ namespace hpc {
          const dictionary&
          sub( const hpc::string& prefix ) const;
 
+         dictionary&
+         sub( const hpc::string& prefix );
+
          void
          add_option( option_base* opt,
                      optional<const hpc::string&> prefix=optional<const hpc::string&>() );

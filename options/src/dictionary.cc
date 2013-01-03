@@ -44,6 +44,15 @@ namespace hpc {
          ASSERT( 0 );
       }
 
+      dictionary&
+      dictionary::sub( const hpc::string& prefix )
+      {
+         optional<index> idx = _dicts_mm.search( prefix + _sep );
+         if( idx && *idx != (unsigned short)-1 )
+            return *_dicts[*idx];
+         ASSERT( 0 );
+      }
+
       void
       dictionary::add_option( option_base* opt,
                               optional<const hpc::string&> prefix )
