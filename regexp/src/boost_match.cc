@@ -45,7 +45,8 @@ namespace hpc {
             const match::capture_type&
             match::capture( uint16 idx ) const
             {
-               return std::make_pair( (unsigned)position( idx ), (unsigned)(position( idx ) + length( idx )) );
+               return std::make_pair( (unsigned)position( idx + 1 ),
+				      (unsigned)(position( idx + 1 ) + length( idx + 1 )) );
             }
          }
       }
