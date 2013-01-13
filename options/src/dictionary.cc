@@ -176,7 +176,10 @@ namespace hpc {
          re::match match;
          idx = _dicts_mm.search( name, match );
          if( idx && *idx != (unsigned short)-1 )
-            return (*_dicts[*idx]).find( name.c_str() + match.capture( *idx ).second );
+	 {
+	    auto cap = match.capture( *idx );
+            return (*_dicts[*idx]).find( name.c_str() + cap.second );
+	 }
 
          return NULL;
       }

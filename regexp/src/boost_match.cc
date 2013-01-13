@@ -42,11 +42,12 @@ namespace hpc {
                return size();
             }
 
-            const match::capture_type&
+            match::capture_type
             match::capture( uint16 idx ) const
             {
-               return std::make_pair( (unsigned)position( idx + 1 ),
-				      (unsigned)(position( idx + 1 ) + length( idx + 1 )) );
+	       unsigned pos = position( idx + 1 );
+	       unsigned len = length( idx + 1 );
+               return std::make_pair( pos, pos + len );
             }
          }
       }
