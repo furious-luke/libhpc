@@ -41,6 +41,10 @@ namespace hpc {
          stack_trace.pop();
       }
 
+#endif
+
+#ifndef NDEBUG
+
       void _set_abort(bool flag) {
          use_abort = flag;
       }

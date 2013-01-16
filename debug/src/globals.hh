@@ -69,6 +69,10 @@ namespace hpc {
 
       void _exit_func();
 
+#endif
+
+#ifndef NDEBUG
+
       void _set_abort(bool flag);
 
 #endif
