@@ -103,12 +103,20 @@ namespace hpc {
          return ii;
       }
 
-      void
+      ///
+      /// Consume some/all of buffer.
+      ///
+      /// Can request consuming of more than is in the buffer. This
+      /// will consume everything in the buffer, returning how much
+      /// was consumed.
+      ///
+      size_t
       consume( size_type size )
       {
-         ASSERT( size <= _size );
+         size = std::min( size, _size );
          _start = norm( _start + size );
          _size -= size;
+         return size;
       }
 
       size_t
@@ -127,6 +135,12 @@ namespace hpc {
       max_size() const
       {
          return _buf.size();
+      }
+
+      size_t
+      vacant() const
+      {
+         return _buf.size() - _size;
       }
 
       value_type&
