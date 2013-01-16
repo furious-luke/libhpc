@@ -54,10 +54,7 @@
 #define CHKERR()                                                \
    if( ::hpc::debug::error_code != ::hpc::debug::error::okay )  \
    {                                                            \
-      LOGLN( ::hpc::logging::pushlevel(                         \
-                ::hpc::logging::levels::error ),                \
-             "Error",                                           \
-             ::hpc::logging::poplevel );                        \
+      LOGELN( "Error" );                                        \
       abort();                                                  \
    }                                                            \
    while( 0 )
