@@ -45,7 +45,7 @@ namespace hpc {
                uint16
                num_captures() const;
 
-               const capture_type&
+	       capture_type
                capture( uint16 idx ) const;
             };
          }
