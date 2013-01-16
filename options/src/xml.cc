@@ -101,6 +101,20 @@ namespace hpc {
                dict[name] = node.value();
          }
 
+         // // Is this a list node?
+         // else if( dict.has_option( name ) )
+         // {
+         //    options::list& opt = dict[name];
+         //    if( opt.is_list() )
+         //    {
+         //       // Process each individual child, but no deeper.
+         //       for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
+         //       {
+         //          opt.sub_option()
+         //       }
+         //    }
+         // }
+
          // If not, keep walking.
          else
          {

@@ -63,6 +63,7 @@ namespace hpc {
             // Unfortunately I need to use a linear search here,
             // because at this stage the dictionary will not be
             // compiled.
+            // TODO: Fix this.
             sub = NULL;
             for( unsigned ii = 0; ii < _dicts.size(); ++ii )
             {
@@ -87,7 +88,7 @@ namespace hpc {
          for( const auto& exist : sub->_opts )
             ASSERT( exist->name() != opt->name() );
 #endif
-         sub->_opts.push_back( opt );
+         sub->_opts.push_back( opt ); // TODO: Fix slowness maybe?
          sub->_opts_mm.add_match( opt->name() );
          sub->_ready = false;
       }

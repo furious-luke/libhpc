@@ -224,6 +224,29 @@ namespace hpc {
          store() const;
       };
 
+      // ///
+      // ///
+      // ///
+      // template< class T >
+      // class list
+      //    : public option_base
+      // {
+      // public:
+
+      //    typedef typename Option::value_type sub_value_type;
+      //    typedef list<sub_value_type> value_type;
+
+      // public:
+
+      //    virtual
+      //    void
+      //    parse( const hpc::string& value );
+
+      // protected:
+
+      //    value_type _val;
+      // };
+
       typedef boost::mpl::map< boost::mpl::pair<hpc::string, string>,
                                boost::mpl::pair<bool, boolean>,
                                boost::mpl::pair<int, integer>,

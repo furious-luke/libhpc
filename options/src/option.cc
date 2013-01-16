@@ -137,5 +137,14 @@ namespace hpc {
       {
          return to_string( *_val );
       }
+
+      // void
+      // list::parse( const hpc::string& value )
+      // {
+      //    _sub_opt->parse( value );
+      //    if( !_val )
+      //       _val = value_type();
+      //    _val->append( _sub_opt.value() );
+      // }
    }
 }

@@ -45,26 +45,24 @@ namespace hpc {
          clear();
 
          template< class T >
-         T
+         const T&
          get( const hpc::string& name ) const
          {
             typedef typename boost::mpl::at<type_map,T>::type option_type;
-            optional<typename option_type::value_type> val;
-            val = ((const typename boost::mpl::at<type_map,T>::type&)((*this)[name])).get();
-            ASSERT( val, "Value has not been set and no default." );
-            return (T)*val;
+            const option_type& opt = (const option_type&)((*this)[name]);
+            ASSERT( opt.get(), "Value has not been set and no default." );
+            return (const T&)*opt.get();
          }
 
          template< class T >
-         T
+         const T&
          get( const hpc::string& name,
               const T& default_value ) const
          {
             typedef typename boost::mpl::at<type_map,T>::type option_type;
-            optional<typename option_type::value_type> val;
-            val = ((const typename boost::mpl::at<type_map,T>::type&)((*this)[name])).get();
-            if( val )
-               return (T)*val;
+            const option_type& opt = (const option_type&)((*this)[name]);
+            if( opt.get() )
+               return (const T&)*opt.get();
             else
                return default_value;
          }
