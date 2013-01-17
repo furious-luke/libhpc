@@ -23,7 +23,8 @@ namespace hpc {
    namespace options {
 
       xml::xml()
-         : _sep( ":" )
+         : format(),
+           _sep( ":" )
       {
       }
 
@@ -101,20 +102,6 @@ namespace hpc {
                dict[name] = node.value();
          }
 
-         // // Is this a list node?
-         // else if( dict.has_option( name ) )
-         // {
-         //    options::list& opt = dict[name];
-         //    if( opt.is_list() )
-         //    {
-         //       // Process each individual child, but no deeper.
-         //       for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
-         //       {
-         //          opt.sub_option()
-         //       }
-         //    }
-         // }
-
          // If not, keep walking.
          else
          {
@@ -124,9 +111,22 @@ namespace hpc {
                sub_name = name + _sep;
             sub_name += _node_name( node );
 
-            // Iterate over each child.
-            for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
-               _iter_node( *it, sub_name, dict );
+            // Is the name we're looking at a list option?
+            if( dict.has_option( sub_name ) && dict[sub_name].is_list() )
+            {
+               // Process each individual child, but no deeper.
+               for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
+               {
+                  if( it->first_child() && it->first_child().type() == node_pcdata )
+                     dict[sub_name].parse( it->first_child().value() );
+               }
+            }
+            else
+            {
+               // Iterate over each child.
+               for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
+                  _iter_node( *it, sub_name, dict );
+            }
          }
       }
 
@@ -134,15 +134,28 @@ namespace hpc {
       xml::_iter_dict( xml_node& node,
                        const dictionary& dict )
       {
-         for( auto it = dict.options_begin(); it != dict.options_end(); ++it )
+         for( auto it = dict.options_cbegin(); it != dict.options_cend(); ++it )
          {
             // Don't store if it's using the default value.
             if( !(*it)->has_value() )
                continue;
 
+            // Create the new node.
             xml_node new_node = node.append_child( (*it)->name().c_str() );
-            hpc::string val_str = (*it)->store();
-            new_node.append_child( node_pcdata ).set_value( val_str.c_str() );
+
+            // Is this a list we're looking at?
+            if( (*it)->is_list() )
+            {
+               _cur_node = &new_node;
+               ((shared_ptr<option_base>&)(*it))->store_visit( *this );
+            }
+
+            // If not just store as usual.
+            else
+            {
+               hpc::string val_str = (*it)->store();
+               new_node.append_child( node_pcdata ).set_value( val_str.c_str() );
+            }
          }
 
          for( auto it = dict.dicts_begin(); it != dict.dicts_end(); ++it )
@@ -166,6 +179,22 @@ namespace hpc {
 
          // If not, use the node name.
          return node.name();
+      }
+
+      void
+      xml::start_list( const hpc::string& name )
+      {
+      }
+
+      void
+      xml::add_list_item( const hpc::string& value )
+      {
+         _cur_node->append_child( "item" ).append_child( node_pcdata ).set_value( value.c_str() );
+      }
+
+      void
+      xml::end_list()
+      {
       }
    }
 }

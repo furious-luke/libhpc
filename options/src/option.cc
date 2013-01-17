@@ -22,12 +22,19 @@ namespace hpc {
 
       option_base::option_base( const hpc::string& name )
          : _name( name ),
-           _has_val( false )
+           _has_val( false ),
+           _is_list( false )
       {
       }
 
       option_base::~option_base()
       {
+      }
+
+      void
+      option_base::store_visit( format& fmt )
+      {
+         ASSERT( 0, "Not implemented." );
       }
 
       void
@@ -46,6 +53,12 @@ namespace hpc {
       option_base::has_value() const
       {
          return _has_val;
+      }
+
+      bool
+      option_base::is_list() const
+      {
+         return _is_list;
       }
 
       option_base&
@@ -137,14 +150,5 @@ namespace hpc {
       {
          return to_string( *_val );
       }
-
-      // void
-      // list::parse( const hpc::string& value )
-      // {
-      //    _sub_opt->parse( value );
-      //    if( !_val )
-      //       _val = value_type();
-      //    _val->append( _sub_opt.value() );
-      // }
    }
 }

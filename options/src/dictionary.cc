@@ -114,7 +114,7 @@ namespace hpc {
       bool
       dictionary::has_option( const hpc::string& name ) const
       {
-         ASSERT( _ready );
+         ASSERT( _ready, "Dictionary has not been compiled." );
 
          optional<index> idx = _opts_mm.match( name );
          if( idx )
@@ -142,15 +142,27 @@ namespace hpc {
       }
 
       vector<shared_ptr<option_base>>::const_iterator
-      dictionary::options_begin() const
+      dictionary::options_cbegin() const
       {
          return _opts.cbegin();
       }
 
+      vector<shared_ptr<option_base>>::iterator
+      dictionary::options_begin()
+      {
+         return _opts.begin();
+      }
+
       vector<shared_ptr<option_base>>::const_iterator
-      dictionary::options_end() const
+      dictionary::options_cend() const
       {
          return _opts.cend();
+      }
+
+      vector<shared_ptr<option_base>>::iterator
+      dictionary::options_end()
+      {
+         return _opts.end();
       }
 
       vector<shared_ptr<dictionary>>::const_iterator
@@ -168,7 +180,7 @@ namespace hpc {
       const option_base*
       dictionary::find( const hpc::string& name ) const
       {
-         ASSERT( _ready );
+         ASSERT( _ready, "Dictionary has not been compiled." );
 
          optional<index> idx = _opts_mm.match( name );
          if( idx )

@@ -51,7 +51,8 @@ namespace hpc {
             typedef typename boost::mpl::at<type_map,T>::type option_type;
             const option_type& opt = (const option_type&)((*this)[name]);
             ASSERT( opt.get(), "Value has not been set and no default." );
-            return (const T&)*opt.get();
+            const T& ref = *opt.get();
+            return ref;
          }
 
          template< class T >
@@ -65,6 +66,19 @@ namespace hpc {
                return (const T&)*opt.get();
             else
                return default_value;
+         }
+
+         template< class T >
+         const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>&
+         get_list( const hpc::string& name ) const
+         {
+            typedef typename boost::mpl::at<type_map,T>::type sub_option_type;
+            typedef typename sub_option_type::value_type value_type;
+            typedef options::list<sub_option_type> option_type;
+            const option_type& opt = (const option_type&)((*this)[name]);
+            ASSERT( opt.get(), "Value has not been set and no default." );
+            const hpc::list<value_type>& ref = *opt.get();
+            return ref;
          }
 
          const dictionary&
@@ -90,10 +104,16 @@ namespace hpc {
          has_option( const hpc::string& name ) const;
 
          vector<shared_ptr<option_base>>::const_iterator
-         options_begin() const;
+         options_cbegin() const;
+
+         vector<shared_ptr<option_base>>::iterator
+         options_begin();
 
          vector<shared_ptr<option_base>>::const_iterator
-         options_end() const;
+         options_cend() const;
+
+         vector<shared_ptr<option_base>>::iterator
+         options_end();
 
          vector<shared_ptr<dictionary>>::const_iterator
          dicts_begin() const;

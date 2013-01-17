@@ -157,4 +157,34 @@ public:
 
       remove( filename.c_str() );
    }
+
+   void test_list()
+   {
+      options::dictionary dict;
+      dict.add_option( new options::string( "first" ) );
+      dict.add_option( new options::list<options::integer>( "list_of_ints" ) );
+
+      dict.compile();
+
+      dict["first"] = "hello";
+      dict["list_of_ints"] = "5";
+      dict["list_of_ints"] = "8";
+      dict["list_of_ints"] = "9";
+
+      options::xml xml;
+      string filename = tmpnam( NULL );
+      xml.write( filename, dict );
+
+      options::dictionary new_dict;
+      new_dict.add_option( new options::string( "first" ) );
+      new_dict.add_option( new options::list<options::integer>( "list_of_ints" ) );
+      new_dict.compile();
+
+      xml.read( filename, new_dict );
+
+      TS_ASSERT_EQUALS( dict.get<string>( "first" ), new_dict.get<string>( "first" ) );
+      TS_ASSERT_EQUALS( dict.get_list<int>( "list_of_ints" ), new_dict.get_list<int>( "list_of_ints" ) );
+
+      remove( filename.c_str() );
+   }
 };

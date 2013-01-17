@@ -26,6 +26,7 @@
 #include <boost/spirit/home/support/detail/hold_any.hpp>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/containers.hh"
+#include "format.hh"
 
 namespace hpc {
    namespace options {
@@ -50,6 +51,10 @@ namespace hpc {
          hpc::string
          store() const = 0;
 
+         virtual
+         void
+         store_visit( format& fmt );
+
          void
          set_name( const hpc::string& name );
 
@@ -59,6 +64,9 @@ namespace hpc {
          bool
          has_value() const;
 
+         bool
+         is_list() const;
+
          option_base&
          operator=( const hpc::string& value );
 
@@ -66,6 +74,7 @@ namespace hpc {
 
          hpc::string _name;
          bool _has_val;
+         bool _is_list;
       };
 
       ///
@@ -90,6 +99,12 @@ namespace hpc {
 
          ~option()
          {
+         }
+
+         void
+         set_value( const T& value )
+         {
+            _val = value;
          }
 
          void
@@ -224,28 +239,91 @@ namespace hpc {
          store() const;
       };
 
-      // ///
-      // ///
-      // ///
-      // template< class T >
-      // class list
-      //    : public option_base
-      // {
-      // public:
+      ///
+      ///
+      ///
+      template< class Option >
+      class list
+         : public option_base
+      {
+      public:
 
-      //    typedef typename Option::value_type sub_value_type;
-      //    typedef list<sub_value_type> value_type;
+         typedef typename Option::value_type sub_value_type;
+         typedef hpc::list<sub_value_type> value_type;
 
-      // public:
+      public:
 
-      //    virtual
-      //    void
-      //    parse( const hpc::string& value );
+         list( const hpc::string& name )
+            : option_base( name ),
+              _sub_opt( "" )
+         {
+            _is_list = true;
+         }
 
-      // protected:
+         virtual
+         void
+         parse( const hpc::string& value )
+         {
+            _sub_opt.parse( value );
+            if( !_val )
+               _val = value_type();
+            _val->push_back( _sub_opt.value() );
+            _has_val = true;
+         }
 
-      //    value_type _val;
-      // };
+         virtual
+         hpc::string
+         store() const
+         {
+            hpc::string txt;
+            if( _val )
+            {
+               decltype(_sub_opt) opt( "" );
+               txt = "[";
+               auto it = _val->cbegin();
+               opt.set_value( *it++ );
+               txt += opt.store();
+               while( it != _val->cend() )
+               {
+                  opt.set_value( *it++ );
+                  txt += ", ";
+                  txt += opt.store();
+               }
+               txt += "]";
+            }
+            return txt;
+         }
+
+         virtual
+         void
+         store_visit( format& fmt )
+         {
+            if( _val )
+            {
+               fmt.start_list( _name );
+               for( const auto& val : *_val )
+               {
+                  _sub_opt.set_value( val );
+                  fmt.add_list_item( _sub_opt.store() );
+               }
+               fmt.end_list();
+            }
+         }
+
+         optional<const value_type&>
+         get() const
+         {
+            if( _val )
+               return *_val;
+            else
+               return none;
+         }
+
+      protected:
+
+         optional<value_type> _val;
+         Option _sub_opt;
+      };
 
       typedef boost::mpl::map< boost::mpl::pair<hpc::string, string>,
                                boost::mpl::pair<bool, boolean>,

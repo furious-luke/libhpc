@@ -21,12 +21,14 @@
 #include <iostream>
 #include <pugixml.hpp>
 #include "libhpc/containers/string.hh"
+#include "format.hh"
 #include "dictionary.hh"
 
 namespace hpc {
    namespace options {
 
       class xml
+         : public format
       {
       public:
 
@@ -52,6 +54,18 @@ namespace hpc {
          write( std::ostream& filename,
                 const dictionary& dict );
 
+         virtual
+         void
+         start_list( const hpc::string& name );
+
+         virtual
+         void
+         add_list_item( const hpc::string& value );
+
+         virtual
+         void
+         end_list();
+
       protected:
 
          void
@@ -69,6 +83,7 @@ namespace hpc {
       protected:
 
          hpc::string _sep;
+         pugi::xml_node* _cur_node;
       };
    }
 }

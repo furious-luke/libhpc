@@ -66,6 +66,11 @@ namespace hpc {
 	 return this->_ptr == NULL;
       }
 
+      T* get()
+      {
+         return _ptr;
+      }
+
       shared_ptr&
       operator=( const T& op )
       {
