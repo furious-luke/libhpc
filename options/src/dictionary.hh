@@ -92,6 +92,10 @@ namespace hpc {
                      optional<const hpc::string&> prefix=optional<const hpc::string&>() );
 
          void
+         add_option( option_base* opt,
+                     const char* prefix );
+
+         void
          add_dictionary( dictionary* dict );
 
          void

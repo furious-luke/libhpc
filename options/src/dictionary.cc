@@ -94,6 +94,13 @@ namespace hpc {
       }
 
       void
+      dictionary::add_option( option_base* opt,
+                              const char* prefix )
+      {
+         add_option( opt, hpc::string( prefix ) );
+      }
+
+      void
       dictionary::add_dictionary( dictionary* dict )
       {
 #ifndef NDEBUG

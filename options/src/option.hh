@@ -316,7 +316,10 @@ namespace hpc {
             if( _val )
                return *_val;
             else
-               return none;
+            {
+               // TODO: Prepare defaults.
+               return value_type();
+            }
          }
 
       protected:
