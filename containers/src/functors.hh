@@ -224,6 +224,27 @@ namespace hpc {
    ///
    ///
    ///
+   template< class Tuple,
+	     size_t Index >
+   struct element_tuple
+      : public std::unary_function< const Tuple&,
+				    typename boost::tuples::element<Index,Tuple> >
+   {
+      typedef Tuple argument_type;
+      typedef typename boost::tuples::element<Index,Tuple>::type mapped_type;
+      typedef typename boost::tuples::element<Index,Tuple>::type value_type;
+      typedef typename boost::tuples::element<Index,Tuple>::type result_type;
+
+      value_type
+      operator()( const argument_type& tuple ) const
+      {
+         return boost::get<Index>( tuple );
+      }
+   };
+
+   ///
+   ///
+   ///
    template< class Set >
    struct _set_has
    {
@@ -283,6 +304,14 @@ namespace hpc {
 				     typename Operation1::result_type >
    {
    public:
+
+      typedef typename Operation2::argument_type first_argument_type;
+      typedef typename Operation3::argument_type second_argument_type;
+      typedef typename Operation1::result_type result_type;
+      typedef typename Operation1::result_type value_type;
+
+   public:
+
       binary_compose( const Operation1& op1,
 		      const Operation2& op2,
 		      const Operation3& op3 )
@@ -292,18 +321,19 @@ namespace hpc {
       {
       }
 
-      typename Operation1::result_type
+      result_type
       operator()( const typename Operation2::argument_type& x,
 		  const typename Operation3::argument_type& y ) const
       {
-	 return this->_op1(this->_op2(x), this->_op3(y));
+	 return this->_op1( this->_op2( x ), this->_op3( y ) );
       }
 
    protected:
+
       Operation1 _op1;
       Operation2 _op2;
       Operation3 _op3;
-    };
+   };
 
    template< class Operation1,
 	     class Operation2,
@@ -314,6 +344,45 @@ namespace hpc {
 	     const Operation3& op3 )
    {
       return binary_compose<Operation1, Operation2, Operation3>(op1, op2, op3);
+   }
+
+   ///
+   ///
+   ///
+   template< class Operation >
+   class binary_expand
+      : public std::unary_function< typename Operation::first_argument_type,
+				    typename Operation::result_type >
+   {
+   public:
+
+      typedef typename Operation::first_argument_type argument_type;
+      typedef typename Operation::result_type result_type;
+      typedef typename Operation::result_type value_type;
+
+   public:
+
+      binary_expand( const Operation& op )
+	 : _op( op )
+      {
+      }
+
+      result_type
+      operator()( const argument_type& x ) const
+      {
+	 return _op( x, x );
+      }
+
+   protected:
+
+      Operation _op;
+   };
+
+   template< class Operation >
+   inline binary_expand<Operation>
+   expand2( const Operation& op )
+   {
+      return binary_expand<Operation>( op );
    }
 
    template< class T >
