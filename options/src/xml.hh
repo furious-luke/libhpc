@@ -32,7 +32,7 @@ namespace hpc {
       {
       public:
 
-         xml();
+         xml( bool use_name_attr = false );
 
          ~xml();
 
@@ -84,6 +84,7 @@ namespace hpc {
 
          hpc::string _sep;
          pugi::xml_node* _cur_node;
+	 bool _use_name_attr;
       };
    }
 }

@@ -25,6 +25,7 @@ namespace hpc {
            _has_val( false ),
            _is_list( false )
       {
+	 std::transform( _name.begin(), _name.end(), _name.begin(), ::tolower );
       }
 
       option_base::~option_base()
@@ -41,6 +42,7 @@ namespace hpc {
       option_base::set_name( const hpc::string& name )
       {
          _name = name;
+	 std::transform( _name.begin(), _name.end(), _name.begin(), ::tolower );
       }
 
       const hpc::string&

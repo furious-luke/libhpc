@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/algorithm/string.hpp>
 #include "dictionary.hh"
 
 namespace hpc {
@@ -24,6 +25,7 @@ namespace hpc {
          : _pre( prefix ),
            _sep( ":" )
       {
+	 std::transform( _pre.begin(), _pre.end(), _pre.begin(), ::tolower );
       }
 
       void
@@ -38,19 +40,15 @@ namespace hpc {
       const dictionary&
       dictionary::sub( const hpc::string& prefix ) const
       {
-         optional<index> idx = _dicts_mm.search( prefix + _sep );
-         if( idx && *idx != (unsigned short)-1 )
-            return *_dicts[*idx];
-         ASSERT( 0 );
+	 ASSERT( find_sub( prefix ) );
+	 return *find_sub( prefix );
       }
 
       dictionary&
       dictionary::sub( const hpc::string& prefix )
       {
-         optional<index> idx = _dicts_mm.search( prefix + _sep );
-         if( idx && *idx != (unsigned short)-1 )
-            return *_dicts[*idx];
-         ASSERT( 0 );
+	 ASSERT( find_sub( prefix ) );
+	 return *find_sub( prefix );
       }
 
       void
@@ -60,26 +58,43 @@ namespace hpc {
          dictionary* sub;
          if( prefix )
          {
-            // Unfortunately I need to use a linear search here,
-            // because at this stage the dictionary will not be
-            // compiled.
-            // TODO: Fix this.
-            sub = NULL;
-            for( unsigned ii = 0; ii < _dicts.size(); ++ii )
-            {
-               if( _dicts[ii]->_pre == *prefix )
-               {
-                  sub = _dicts[ii];
-                  break;
-               }
-            }
+	    // Lower case the prefix.
+	    hpc::string pre( *prefix );
+	    std::transform( pre.begin(), pre.end(), pre.begin(), ::tolower );
 
-            // Create the dictionary if it does not already exist.
-            if( !sub )
-            {
-               sub = new dictionary( *prefix );
-               add_dictionary( sub );
-            }
+	    // Split the prefix on our separator.
+	    vector<hpc::string> levels;
+	    boost::split( levels, pre, boost::is_any_of( _sep ) );
+
+	    // Traverse the levels, trying to either locate or
+	    // create a dictionary, starting with this dictionary.
+	    dictionary* cur_dict = this;
+	    for( const auto& level_name : levels )
+	    {
+	       // Unfortunately I need to use a linear search here,
+	       // because at this stage the dictionary will not be
+	       // compiled.
+	       // TODO: Fix this.
+	       sub = NULL;
+	       for( unsigned ii = 0; ii < cur_dict->_dicts.size(); ++ii )
+	       {
+		  if( cur_dict->_dicts[ii]->_pre == level_name )
+		  {
+		     sub = cur_dict->_dicts[ii];
+		     break;
+		  }
+	       }
+
+	       // Create the dictionary if it does not already exist.
+	       if( !sub )
+	       {
+		  sub = new dictionary( level_name );
+		  cur_dict->add_dictionary( sub );
+	       }
+
+	       // Swap to the latest dictinoary.
+	       cur_dict = sub;
+	    }
          }
          else
             sub = this;
@@ -123,14 +138,17 @@ namespace hpc {
       {
          ASSERT( _ready, "Dictionary has not been compiled." );
 
-         optional<index> idx = _opts_mm.match( name );
+	 hpc::string nm( name );
+	 std::transform( nm.begin(), nm.end(), nm.begin(), ::tolower );
+
+         optional<index> idx = _opts_mm.match( nm );
          if( idx )
             return true;
 
          re::match match;
-         idx = _dicts_mm.search( name, match );
+         idx = _dicts_mm.search( nm, match );
          if( idx && *idx != (unsigned short)-1 )
-            return (*_dicts[*idx]).has_option( name.c_str() + match.capture( *idx ).second );
+            return (*_dicts[*idx]).has_option( nm.c_str() + match.capture( *idx ).second );
 
          return false;
       }
@@ -189,29 +207,47 @@ namespace hpc {
       {
          ASSERT( _ready, "Dictionary has not been compiled." );
 
-         optional<index> idx = _opts_mm.match( name );
+	 hpc::string nm( name );
+	 std::transform( nm.begin(), nm.end(), nm.begin(), ::tolower );
+
+         optional<index> idx = _opts_mm.match( nm );
          if( idx )
             return _opts[*idx];
 
          re::match match;
-         idx = _dicts_mm.search( name, match );
+         idx = _dicts_mm.search( nm, match );
          if( idx && *idx != (unsigned short)-1 )
 	 {
 	    auto cap = match.capture( *idx );
-            return (*_dicts[*idx]).find( name.c_str() + cap.second );
+            return (*_dicts[*idx]).find( nm.c_str() + cap.second );
 	 }
 
          return NULL;
       }
 
+      const dictionary*
+      dictionary::find_sub( const hpc::string& prefix ) const
+      {
+	 // Lower-case the prefix.
+	 hpc::string pre( prefix );
+	 std::transform( pre.begin(), pre.end(), pre.begin(), ::tolower );
+
+         re::match match;
+         optional<index> idx = _dicts_mm.search( pre + _sep, match );
+         if( idx && *idx != (unsigned short)-1 )
+	 {
+	    const dictionary* sub = _dicts[*idx];
+	    const dictionary* next = sub->find_sub( pre.c_str() + match.capture( *idx ).second );
+            return next ? next : sub;
+	 }
+         else
+            return NULL;
+      }
+
       dictionary*
       dictionary::find_sub( const hpc::string& prefix )
       {
-         optional<index> idx = _dicts_mm.search( prefix + _sep );
-         if( idx && *idx != (unsigned short)-1 )
-            return _dicts[*idx];
-         else
-            return NULL;
+	 return (dictionary*)find_sub( prefix );
       }
 
       const option_base&
@@ -234,6 +270,7 @@ namespace hpc {
          if( !obj._pre.empty() )
             strm << "<" << obj._pre << ">";
          strm << "{";
+	 bool any_opts = false;
 	 if( obj._opts.size() )
          {
 	    auto it = obj._opts.begin();
@@ -243,17 +280,24 @@ namespace hpc {
             {
                strm << (*it)->name() << ": " << (*it)->store();
                ++it;
+	       any_opts = true;
             }
 	    for( ; it != obj._opts.end(); ++it )
             {
                if( !(*it)->has_value() )
                   continue;
 	       strm << ", " << (*it)->name() << ": " << (*it)->store();
+	       any_opts = true;
             }
 	 }
-         for( const auto dict : obj._dicts )
-         {
-            strm << ", " << *dict;
+	 if( obj._dicts.size() )
+	 {
+	    if( any_opts )
+	       strm << ", ";
+	    auto it = obj._dicts.begin();
+	    strm << **it++;
+	    while( it != obj._dicts.end() )
+	       strm << ", " << **it++;
          }
 	 strm << "}";
 	 return strm;

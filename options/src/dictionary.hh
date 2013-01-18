@@ -128,6 +128,9 @@ namespace hpc {
          const option_base*
          find( const hpc::string& name ) const;
 
+	 const dictionary*
+         find_sub( const hpc::string& prefix ) const;
+
          dictionary*
          find_sub( const hpc::string& prefix );
 

@@ -22,9 +22,10 @@ using namespace pugi;
 namespace hpc {
    namespace options {
 
-      xml::xml()
+      xml::xml( bool use_name_attr )
          : format(),
-           _sep( ":" )
+           _sep( ":" ),
+	   _use_name_attr( use_name_attr )
       {
       }
 
@@ -168,14 +169,18 @@ namespace hpc {
       hpc::string
       xml::_node_name( xml_node& node ) const
       {
-         // Check if there is an attribute called "name".
-         for( xml_attribute_iterator it = node.attributes_begin(); it != node.attributes_end(); ++it )
-         {
-            hpc::string name = it->name();
-            std::transform( name.begin(), name.end(), name.begin(), ::tolower );
-            if( name == "name" )
-               return it->value();
-         }
+	 // Have we enabled using attribute "name"?
+	 if( _use_name_attr )
+	 {
+	    // Check if there is an attribute called "name".
+	    for( xml_attribute_iterator it = node.attributes_begin(); it != node.attributes_end(); ++it )
+	    {
+	       hpc::string name = it->name();
+	       std::transform( name.begin(), name.end(), name.begin(), ::tolower );
+	       if( name == "name" )
+		  return it->value();
+	    }
+	 }
 
          // If not, use the node name.
          return node.name();
