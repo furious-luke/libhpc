@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "libhpc/debug/debug.hh"
 #include "file.hh"
 
 namespace hpc {
@@ -40,6 +41,7 @@ namespace hpc {
          close();
          remove( _filename.c_str() );
          _file.open( _filename, std::fstream::out | std::fstream::app );
+	 ASSERT( _file );
          _get_new_line() = true;
       }
 
