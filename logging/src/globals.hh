@@ -35,6 +35,7 @@
 #define _LOG8( strm, p0, p1, p2, p3, p4, p5, p6, p7 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7)
 #define _LOG9( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8)
 #define _LOG10( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9)
+#define _LOG11( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10)
 
 #define _LOG_( count, ... )                             \
    _LOG##count( ::hpc::logging::_stack, __VA_ARGS__ )
