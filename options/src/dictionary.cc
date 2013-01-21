@@ -247,7 +247,20 @@ namespace hpc {
       dictionary*
       dictionary::find_sub( const hpc::string& prefix )
       {
-	 return (dictionary*)find_sub( prefix );
+	 // Lower-case the prefix.
+	 hpc::string pre( prefix );
+	 std::transform( pre.begin(), pre.end(), pre.begin(), ::tolower );
+
+         re::match match;
+         optional<index> idx = _dicts_mm.search( pre + _sep, match );
+         if( idx && *idx != (unsigned short)-1 )
+	 {
+	    dictionary* sub = _dicts[*idx];
+	    dictionary* next = sub->find_sub( pre.c_str() + match.capture( *idx ).second );
+            return next ? next : sub;
+	 }
+         else
+            return NULL;
       }
 
       const option_base&
