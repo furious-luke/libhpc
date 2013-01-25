@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/algorithm/string/trim.hpp>
 #include "option.hh"
 
 namespace hpc {
@@ -71,14 +72,18 @@ namespace hpc {
       }
 
       string::string( const hpc::string& name,
-                      optional<hpc::string> default_value )
-         : option<hpc::string>( name, default_value )
+                      optional<hpc::string> default_value,
+		      bool strip )
+         : option<hpc::string>( name, default_value ),
+	   _strip( strip )
       {
       }
 
       string::string( const hpc::string& name,
-                      optional<const char*> default_value )
-         : option<hpc::string>( name )
+                      optional<const char*> default_value,
+		      bool strip )
+         : option<hpc::string>( name ),
+	   _strip( strip )
       {
          if( default_value )
             _def = hpc::string( *default_value );
@@ -87,7 +92,7 @@ namespace hpc {
       void
       string::parse( const hpc::string& value )
       {
-         _val = value;
+         _val = boost::algorithm::trim_copy( value );
          _has_val = true;
       }
 

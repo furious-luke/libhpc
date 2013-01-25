@@ -69,6 +69,22 @@ namespace hpc {
          }
 
          template< class T >
+         optional<const T>
+         opt( const hpc::string& name ) const
+         {
+            typedef typename boost::mpl::at<type_map,T>::type option_type;
+            const option_type& opt = (const option_type&)((*this)[name]);
+	    optional<const typename option_type::value_type&> val = opt.get();
+	    if( !val )
+	       return none;
+	    else
+	    {
+	       T cast_val = *val;
+	       return optional<const T>( cast_val );
+	    }
+         }
+
+         template< class T >
          const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>&
          get_list( const hpc::string& name ) const
          {

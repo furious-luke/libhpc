@@ -165,10 +165,12 @@ namespace hpc {
       public:
 
          string( const hpc::string& name,
-                 optional<hpc::string> default_value = optional<hpc::string>() );
+                 optional<hpc::string> default_value = optional<hpc::string>(),
+		 bool strip = true );
 
          string( const hpc::string& name,
-                 optional<const char*> default_value );
+                 optional<const char*> default_value,
+		 bool strip = true );
 
          virtual
          void
@@ -177,6 +179,10 @@ namespace hpc {
          virtual
          hpc::string
          store() const;
+
+      protected:
+
+	 bool _strip;
       };
 
       ///
