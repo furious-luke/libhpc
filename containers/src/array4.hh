@@ -53,7 +53,7 @@ namespace hpc {
       operator<<( std::ostream& strm,
                   const array& obj )
       {
-	 strm << "[" << obj.elems[0] << ", " << obj.elems[1] << ", " << obj.elems[2], ", " << obj.elems[4] << "]";
+	 strm << "[" << obj.elems[0] << ", " << obj.elems[1] << ", " << obj.elems[2] << ", " << obj.elems[3] << "]";
 	 return strm;
       }
    };
