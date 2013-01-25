@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_containers_random_hh
-#define hpc_containers_random_hh
+#ifndef libhpc_containers_random_hh
+#define libhpc_containers_random_hh
 
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
@@ -37,9 +37,9 @@ namespace hpc {
                      mpl::pair<int,      boost::random::uniform_int_distribution<int> >,
                      mpl::pair<unsigned, boost::random::uniform_int_distribution<unsigned> > > uniform_distribution_types;
 
-   typedef mpl::map< mpl::pair<double, boost::variate_generator<engine_type&, boost::random::uniform_real_distribution<double> > >,
-                     mpl::pair<float,  boost::variate_generator<engine_type&, boost::random::uniform_real_distribution<float> > >,
-                     mpl::pair<int,    boost::variate_generator<engine_type&, boost::random::uniform_int_distribution<int> > > > uniform_generator_types;
+typedef mpl::map< mpl::pair<double, boost::variate_generator<engine_type&, boost::random::uniform_real_distribution<double> > >,
+		  mpl::pair<float,  boost::variate_generator<engine_type&, boost::random::uniform_real_distribution<float> > >,
+		  mpl::pair<int,    boost::variate_generator<engine_type&, boost::random::uniform_int_distribution<int> > > > uniform_generator_types;
 
    template< class T >
    struct generator_types {
@@ -63,7 +63,7 @@ namespace hpc {
    generate_uniform( const T& low = 0,
                      const T& high = 1 )
    {
-      return typename mpl::at<uniform_distribution_types, T>::type( low, high )( engine );
+      return typename mpl::at<uniform_distribution_types,T>::type( low, high )( engine );
    }
 
    template< class T >
@@ -85,8 +85,22 @@ namespace hpc {
       set_range( const T& low,
                  const T& high )
       {
-         typename mpl::at<uniform_distribution_types, T>::type::param_type params( low, high );
+         typename mpl::at<uniform_distribution_types,T>::type::param_type params( low, high );
          this->_dist.param( params );
+      }
+
+      template< class SeedType >
+      void
+      set_seed( SeedType seed )
+      {
+	 engine.seed( seed );
+	 _dist.reset();
+      }
+
+      void
+      reset()
+      {
+	 _dist.reset();
       }
 
       T
