@@ -11,10 +11,11 @@ Import('env')
 suites = [
     # ('', '', '', range(1, 5)),
     ('timer_suite.t.hh', 'timer.cc'),
+    ('progress_suite.t.hh', 'progress.cc'),
 ]
 
 # Define libraries to link against.
-libs = ['debug', 'system'] + env.get('LIBS', [])
+libs = ['debug', 'system', 'hpcmpi'] + env.get('LIBS', [])
 
 # Call the helper.
 execfile(helpers.get_build_tests_script(), globals())

@@ -23,19 +23,35 @@ namespace hpc {
 
       timer::timer()
 	 : _total( 0.0 ),
-	   _cnt( 0 )
+	   _cnt( 0 ),
+	   _run( false )
       {
+      }
+
+      void
+      timer::reset()
+      {
+	 _total = 0;
+	 _cnt = 0;
+      }
+
+      bool
+      timer::running() const
+      {
+	 return _run;
       }
 
       void
       timer::start()
       {
+	 _run = true;
 	 _start = unix::timer();
       }
 
       void
       timer::stop()
       {
+	 _run = false;
 	 _total += unix::seconds( unix::timer() - _start );
       }
 

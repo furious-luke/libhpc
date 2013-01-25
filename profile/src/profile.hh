@@ -19,5 +19,6 @@
 #define libhpc_profile_profile_hh
 
 #include "timer.hh"
+#include "progress.hh"
 
 #endif

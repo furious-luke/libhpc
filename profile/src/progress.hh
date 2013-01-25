@@ -15,52 +15,59 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_profile_timer_hh
-#define libhpc_profile_timer_hh
+#ifndef libhpc_profile_progress_hh
+#define libhpc_profile_progress_hh
 
-#include "libhpc/system/timer.hh"
+#include "libhpc/hpcmpi/mpi.hh"
+
+class progress_suite;
 
 namespace hpc {
-   namespace profile {
+  namespace profile {
 
-      ///
-      ///
-      ///
-      class timer
-      {
-      public:
+     class progress
+     {
+	friend class ::progress_suite;
 
-	 timer();
+     public:
 
-	 void
-	 reset();
+	progress();
 
-	 bool
-	 running() const;
+	void
+	set_local_size( double size );
 
-	 void
-	 start();
+	void
+	set_local_complete( double size );
 
-	 void
-	 stop();
+	void
+	set_local_complete_delta( double delta );
 
-	 void
-	 stop_tally();
+	void
+	update();
 
-	 double
-	 total() const;
+	double
+	complete() const;
 
-	 double
-	 mean() const;
+	bool
+	test();
 
-      protected:
+     protected:
 
-	 unix::time_type _start;
-	 double _total;
-	 unsigned long _cnt;
-	 bool _run;
-      };
-   }
+	void
+	_update_total( double delta );
+
+     protected:
+
+	int _root;
+	double _lsize, _gsize;
+	double _comp, _old_comp;
+	double _gcomp, _gsize_inv;
+	int _tag;
+	unsigned _max_probes;
+	mpi::request _req;
+	unsigned _rem;
+     };
+  }
 }
 
 #endif
