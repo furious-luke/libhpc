@@ -15,20 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_insist_hh
-#define libhpc_debug_insist_hh
+#ifndef libhpc_debug_except_hh
+#define libhpc_debug_except_hh
 
-#include "assert.hh"
+#ifndef NEXCEPT
 
-#ifndef NDEBUG
-
-#define INSIST( stmnt, cond, ... )              \
-   ASSERT( stmnt cond, ##__VA_ARGS__ )
+#define EXCEPT( expr, ... )                     \
+   ASSERT( expr, ##__VA_ARGS )
 
 #else
 
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
+#define EXCEPT( expr, ... )
 
 #endif
 

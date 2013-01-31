@@ -15,14 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "assert.hh"
-
 #ifndef NDEBUG
+
+#include "assert.hh"
 
 namespace hpc {
    namespace mpi {
-
-      extern bool use_abort;
 
       void
       _assert( bool state,
@@ -30,9 +28,18 @@ namespace hpc {
 	       const char* file,
 	       int line,
 	       const char* expr,
+#ifndef NSTACKTRACE
+               const debug::stacktrace& st,
+#endif
 	       const char* msg )
       {
-	 _assert(state, comm, file, line, expr, debug::assertion(msg));
+	 _assert(
+            state, comm, file, line, expr,
+#ifndef NSTACKTRACE
+            st,
+#endif
+            debug::assertion( msg )
+            );
       }
 
       void
@@ -41,10 +48,19 @@ namespace hpc {
 	       const char* file,
 	       int line,
 	       const char* expr,
-	       debug::assertion ass )
+#ifndef NSTACKTRACE
+               const debug::stacktrace& st,
+#endif
+	       debug::assertion asrt )
       {
-	 state = comm.all_reduce(state, MPI_LAND);
-	 debug::_assert(state, file, line, expr, ass);
+	 state = comm.all_reduce( state, MPI_LAND );
+	 debug::_assert(
+            state, file, line, expr,
+#ifndef NSTACKTRACE
+            st,
+#endif
+            asrt
+            );
       }
    }
 }

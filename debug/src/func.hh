@@ -15,20 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_insist_hh
-#define libhpc_debug_insist_hh
+#ifndef libhpc_debug_func_hh
+#define libhpc_debug_func_hh
 
-#include "assert.hh"
+#if !defined( NINSTRUMENT ) || !defined( NSTACKTRACE )
 
-#ifndef NDEBUG
+namespace hpc {
+   namespace debug {
 
-#define INSIST( stmnt, cond, ... )              \
-   ASSERT( stmnt cond, ##__VA_ARGS__ )
+      void
+      func_details( void* func_addr,
+                    const char** file_name,
+                    char** func_name );
 
-#else
-
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
+   }
+}
 
 #endif
 

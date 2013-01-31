@@ -15,14 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_assertions_hh
-#define debug_assertions_hh
+#ifndef libhpc_debug_assertions_hh
+#define libhpc_debug_assertions_hh
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) && !defined( NEXCEPT )
 
 #include <iostream>
 #include <string>
 #include <exception>
+#include "stacktrace.hh"
 
 namespace hpc {
    namespace debug {
@@ -35,9 +36,9 @@ namespace hpc {
       {
       public:
 
-         assertion( const char* msg=NULL ) throw();
+         assertion( const char* msg = NULL ) throw();
 
-         assertion( const assertion& ass );
+         assertion( const assertion& asrt );
 
          virtual
          ~assertion() throw();
@@ -45,7 +46,11 @@ namespace hpc {
          void
          details( const char* file,
                   int line,
-                  const char* expr ) throw();
+                  const char* expr
+#ifndef NSTACKTRACE
+                  , const stacktrace& st
+#endif
+            ) throw();
 
          virtual const char*
          what() const throw();
@@ -53,15 +58,17 @@ namespace hpc {
       protected:
 
          void
-         _write_buffer() throw();
+         _write_buffer( std::string& buf ) throw();
 
       private:
 
          const char* _file;
          int _line;
          const char* _expr;
-         char _msg[1024];
-         char _buf[1024];
+         std::string _msg, _buf;
+#ifndef NSTACKTRACE
+         stacktrace _st;
+#endif
       };
 
       ///

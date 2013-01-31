@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
+#include <memory>
 #include "libhpc/debug/debug.hh"
 #include "new.hh"
 #include "state.hh"
@@ -147,7 +148,8 @@ namespace hpc {
 	    add_stats( size );
 #endif
 	    p = malloc( size );
-	    ASSERT( p, "Failed to allocate memory." );
+            if( !p )
+               throw std::bad_alloc();
 #ifndef NMEMOPS
 	    add_op( true, p, (byte_t*)p + size );
 #endif

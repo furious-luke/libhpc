@@ -15,39 +15,50 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <string.h>
-#include <unistd.h>
+#include <numeric>
 #include <cxxtest/TestSuite.h>
-#include "libhpc/containers/num.hh"
-#include "libhpc/profile/timer.hh"
+#include "libhpc/debug/assert.hh"
 
 using namespace hpc;
 
-class timer_suite : public CxxTest::TestSuite {
+class assert_suite : public CxxTest::TestSuite {
 public:
 
-   void test_stop()
+   void test_basic()
    {
-      profile::timer timer;
-      for( unsigned ii = 0; ii < 10; ++ii )
+      bool inside = false;
+      try
       {
-	 timer.start();
-	 usleep( 100000 ); // sleep for 1/10 second
-	 timer.stop();
+         ASSERT( 0 );
       }
-      TS_ASSERT_DELTA( timer.total(), 1.0, 1e-2 );
+      catch( debug::assertion& asrt )
+      {
+         inside = true;
+         TS_ASSERT( asrt.what() != NULL );
+      }
+#ifndef NDEBUG
+      TS_ASSERT( inside );
+#else
+      TS_ASSERT( !inside );
+#endif
    }
 
-   void test_stop_tally()
+   void test_with_message()
    {
-      profile::timer timer;
-      for( unsigned ii = 0; ii < 10; ++ii )
+      bool inside = false;
+      try
       {
-	 timer.start();
-	 usleep( 100000 ); // sleep for 1/10 second
-	 timer.stop_tally();
+         ASSERT( 0, "Something!" );
       }
-      TS_ASSERT_DELTA( timer.total(), 1.0, 1e-2 );
-      TS_ASSERT_DELTA( timer.mean(), 0.1, 1e-2 );
+      catch( debug::assertion& asrt )
+      {
+         inside = true;
+         TS_ASSERT( asrt.what() != NULL );
+      }
+#ifndef NDEBUG
+      TS_ASSERT( inside );
+#else
+      TS_ASSERT( !inside );
+#endif
    }
 };

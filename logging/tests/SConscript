@@ -12,7 +12,8 @@ suites = [
     ('stdout_suite.t.hh', 'stdout.cc', 'logger.cc'),
     ('file_suite.t.hh', 'file.cc', 'logger.cc'),
     ('omp_file_suite.t.hh', 'omp_file.cc', 'file.cc', 'logger.cc', 'globals.cc', 'stack.cc'),
-    ('globals_suite.t.hh', 'file.cc', 'logger.cc', 'globals.cc', 'stack.cc'),
+    ('globals_suite.t.hh', 'file.cc', 'logger.cc', 'globals.cc', 'stack.cc', 'instrument.cc'),
+    ('instrument_suite.t.hh', 'stdout.cc', 'logger.cc', 'globals.cc', 'stack.cc', 'instrument.cc'),
 ]
 
 # Define libraries to link against.

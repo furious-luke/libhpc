@@ -22,6 +22,7 @@
 #include "libhpc/system/narg.hh"
 #include "logger.hh"
 #include "stack.hh"
+#include "stdout.hh"
 
 #ifndef NLOG
 
@@ -98,12 +99,10 @@
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
 
 #define LOG_ENTER()							\
-   TRACE_ENTER();							\
    LOGTLN( "Entering: ", __PRETTY_FUNCTION__, ::hpc::setindent( 2 ) )
 
 #define LOG_EXIT()							\
-   LOGTLN( "Exiting: ", __PRETTY_FUNCTION__, ::hpc::setindent( -2 ) );	\
-   TRACE_EXIT()
+   LOGTLN( "Exiting: ", __PRETTY_FUNCTION__, ::hpc::setindent( -2 ) );
 
 #define LOG_PUSH( logger )                      \
    ::hpc::logging::push( logger )

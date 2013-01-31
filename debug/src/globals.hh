@@ -18,39 +18,10 @@
 #ifndef libhpc_debug_globals_hh
 #define libhpc_debug_globals_hh
 
-#ifndef NSTACKTRACE
-
-#define CLEAR_STACK_TRACE()			\
-   ::hpc::debug::_clear_stack_trace()
-
-// TODO: Remove.
-#define ENTER_FUNC()                                    \
-   ::hpc::debug::_enter_func(__PRETTY_FUNCTION__)
-
-// TODO Remove
-#define EXIT_FUNC()				\
-   ::hpc::debug::_exit_func()
-
-#define TRACE_ENTER()                                   \
-   ::hpc::debug::_enter_func(__PRETTY_FUNCTION__)
-
-#define TRACE_EXIT()                            \
-   ::hpc::debug::_exit_func()
-
-#else
-
-#define CLEAR_STACK_TRACE()
-#define ENTER_FUNC()
-#define EXIT_FUNC()
-#define TRACE_ENTER()
-#define TRACE_EXIT()
-
-#endif
-
 #ifndef NDEBUG
 
-#define SET_ABORT(f)				\
-   ::hpc::debug::_set_abort(f)
+#define SET_ABORT( state )                      \
+   ::hpc::debug::_set_abort( state )
 
 #else
 
@@ -61,19 +32,10 @@
 namespace hpc {
    namespace debug {
 
-#ifndef NSTACKTRACE
-
-      void _clear_stack_trace();
-
-      void _enter_func(const char* func);
-
-      void _exit_func();
-
-#endif
-
 #ifndef NDEBUG
 
-      void _set_abort(bool flag);
+      void
+      _set_abort( bool flag );
 
 #endif
 

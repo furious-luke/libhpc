@@ -45,16 +45,16 @@ public:
       {
 	 prog.set_local_complete( ii + 1 );
 	 prog.update();
-	 if( mpi::comm::world.rank() == 0 )
-	    std::cout << "\n" << prog.complete();
+	 // if( mpi::comm::world.rank() == 0 )
+	 //    std::cout << "\n" << prog.complete();
       }
       while( prog.test() )
       {
 	 prog.update();
-	 if( mpi::comm::world.rank() == 0 )
-	    std::cout << "\n" << prog.complete();
+	 // if( mpi::comm::world.rank() == 0 )
+	 //    std::cout << "\n" << prog.complete();
       }
-      if( mpi::comm::world.rank() == 0 )
-	 std::cout << "\n" << prog._gcomp << "\n";
+      // if( mpi::comm::world.rank() == 0 )
+      //    std::cout << "\n" << prog._gcomp << "\n";
    }
 };

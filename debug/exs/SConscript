@@ -17,6 +17,7 @@ libs = ['debug'] + env.get('LIBS', [])
 #
 #   ('<binary name>', '<source 0>', '<source 1>', ...)
 sources = [
+    ('show_assert', 'show_assert.cc'),
     ('assert_leak_check', 'assert_leak_check.cc'),
 ]
 

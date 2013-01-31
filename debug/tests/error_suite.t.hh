@@ -15,21 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_insist_hh
-#define libhpc_debug_insist_hh
+#include <numeric>
+#include <cxxtest/TestSuite.h>
+#include "libhpc/debug/error.hh"
 
-#include "assert.hh"
+using namespace hpc;
 
-#ifndef NDEBUG
+class error_suite : public CxxTest::TestSuite {
+public:
 
-#define INSIST( stmnt, cond, ... )              \
-   ASSERT( stmnt cond, ##__VA_ARGS__ )
-
-#else
-
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
-
-#endif
-
-#endif
+   void test_all()
+   {
+   }
+};
