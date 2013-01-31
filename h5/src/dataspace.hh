@@ -77,6 +77,10 @@ namespace hpc {
 			   boost::optional<const vector<hsize_t>::view&> block=boost::optional<const vector<hsize_t>::view&>() );
 
 	 void
+	 select_range( hsize_t start,
+		       hsize_t finish );
+
+	 void
 	 select_elements( const vector<hsize_t>::view& elements,
 			  H5S_seloper_t op=H5S_SELECT_SET );
 

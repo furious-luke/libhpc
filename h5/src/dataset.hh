@@ -26,6 +26,7 @@
 #include "location.hh"
 #include "datatype.hh"
 #include "dataspace.hh"
+#include "property_list.hh"
 
 namespace hpc {
    namespace h5 {
@@ -44,7 +45,8 @@ namespace hpc {
                   const h5::datatype& datatype,
                   const h5::dataspace& dataspace,
                   boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-                  bool deflate=false );
+                  bool deflate=false,
+		  optional<const property_list&> props = optional<const property_list&>() );
 
 	 ~dataset();
 
@@ -58,7 +60,8 @@ namespace hpc {
 		 const h5::datatype& datatype,
 		 const h5::dataspace& dataspace,
 		 boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-		 bool deflate=false );
+		 bool deflate=false,
+		 optional<const property_list&> props = optional<const property_list&>() );
 
 	 void
 	 close();

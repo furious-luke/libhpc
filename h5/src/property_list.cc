@@ -15,10 +15,50 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_hh
-#define hpc_h5_hh
-
-#include "file.hh"
 #include "property_list.hh"
 
-#endif
+namespace hpc {
+   namespace h5 {
+
+      property_list::property_list( hid_t id )
+	 : _id( -1 )
+      {
+	 create( id );
+      }
+
+      property_list::~property_list()
+      {
+	 close();
+      }
+
+      hid_t
+      property_list::id() const
+      {
+	 return _id;
+      }
+
+      void
+      property_list::create( hid_t id )
+      {
+	 close();
+	 _id = H5Pcreate( id );
+	 INSIST( _id, >= 0 );
+      }
+
+      void
+      property_list::close()
+      {
+	 if( _id >= 0 )
+	    INSIST( H5Pclose( _id ), >= 0 );
+      }
+
+      void
+      property_list::set_external( const string& name,
+				   hsize_t size,
+				   hsize_t offset )
+      {
+	 INSIST( H5Pset_external( _id, name.c_str(), offset, size ), >= 0 );
+      }
+
+   }
+}

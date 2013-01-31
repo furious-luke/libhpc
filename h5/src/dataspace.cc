@@ -150,6 +150,14 @@ namespace hpc {
       }
 
       void
+      dataspace::select_range( hsize_t start,
+			       hsize_t finish )
+      {
+	 hsize_t cnt = finish - start;
+	 INSIST( H5Sselect_hyperslab( _id, H5S_SELECT_SET, &start, NULL, &cnt, NULL ), >= 0 );
+      }
+
+      void
       dataspace::select_elements( const vector<hsize_t>::view& elements,
 				  H5S_seloper_t op )
       {

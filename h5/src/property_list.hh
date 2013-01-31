@@ -15,10 +15,43 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_hh
-#define hpc_h5_hh
+#ifndef hpc_h5_property_list_hh
+#define hpc_h5_property_list_hh
 
-#include "file.hh"
-#include "property_list.hh"
+#include "libhpc/hpcmpi/mpi.hh"
+#include "dataspace.hh"
+
+namespace hpc {
+   namespace h5 {
+
+      class property_list
+      {
+      public:
+
+	 property_list( hid_t id );
+
+	 ~property_list();
+
+	 hid_t
+	 id() const;
+
+	 void
+	 create( hid_t id );
+
+	 void
+	 close();
+
+	 void
+	 set_external( const string& name,
+		       hsize_t size,
+		       hsize_t offset = 0 );
+
+      protected:
+
+	 hid_t _id;
+      };
+
+   }
+}
 
 #endif

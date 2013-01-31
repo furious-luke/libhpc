@@ -39,10 +39,11 @@ namespace hpc {
                         const h5::datatype& datatype,
                         const h5::dataspace& dataspace,
                         boost::optional<const vector<hsize_t>::view&> chunk_size,
-                        bool deflate )
+                        bool deflate,
+			optional<const property_list&> props )
          : _id( -1 )
       {
-         create( loc, name, datatype, dataspace, chunk_size, deflate );
+         create( loc, name, datatype, dataspace, chunk_size, deflate, props );
       }
 
       dataset::~dataset() {
@@ -65,30 +66,33 @@ namespace hpc {
 		       const h5::datatype& datatype,
 		       const h5::dataspace& dataspace,
 		       boost::optional<const vector<hsize_t>::view&> chunk_size,
-		       bool deflate )
+		       bool deflate,
+		       optional<const property_list&> props )
       {
 	 this->close();
 
 	 // Need to create any groups specified in name if they do not exist.
 	 this->create_groups(loc, name);
 
-	 hid_t dcpl;
-	 if(chunk_size) {
-	    dcpl = H5Pcreate(H5P_DATASET_CREATE);
-	    ASSERT(dcpl >= 0);
-	    H5Pset_chunk(dcpl, dataspace.simple_extent_num_dims(), *chunk_size);
-	 }
-	 else
-	    dcpl = H5P_DEFAULT;
+	 // hid_t dcpl;
+	 // if(chunk_size) {
+	 //    dcpl = H5Pcreate(H5P_DATASET_CREATE);
+	 //    ASSERT(dcpl >= 0);
+	 //    H5Pset_chunk(dcpl, dataspace.simple_extent_num_dims(), *chunk_size);
+	 // }
+	 // else
+	 //    dcpl = H5P_DEFAULT;
 
-	 if(deflate)
-	    H5Pset_deflate(dcpl, 9);
+	 // if(deflate)
+	 //    H5Pset_deflate(dcpl, 9);
 
-	 this->_id = H5Dcreate1(loc.id(), name.c_str(), datatype.id(), dataspace.id(), dcpl);
-	 ASSERT(this->_id >= 0);
+	 // this->_id = H5Dcreate1(loc.id(), name.c_str(), datatype.id(), dataspace.id(), dcpl);
+	 hid_t dcpl = props ? props->id() : H5P_DEFAULT;
+	 _id = H5Dcreate1( loc.id(), name.c_str(), datatype.id(), dataspace.id(), dcpl );
+	 ASSERT( _id >= 0 );
 
-	 if(chunk_size)
-	    H5Pclose(dcpl);
+	 // if(chunk_size)
+	 //    H5Pclose(dcpl);
       }
 
       void
