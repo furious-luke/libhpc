@@ -16,7 +16,6 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
-#include <stdio.h>
 #include "assert.hh"
 
 #ifndef NDEBUG
@@ -31,9 +30,18 @@ namespace hpc {
                const char* file,
                int line,
                const char* expr,
+#ifndef NSTACKTRACE
+               const stacktrace& st,
+#endif
                const char* msg )
       {
-         _assert( state, file, line, expr, assertion( msg ) );
+         _assert(
+            state, file, line, expr,
+#ifndef NSTACKTRACE
+            st,
+#endif
+            assertion( msg )
+            );
       }
 
       void
@@ -41,26 +49,24 @@ namespace hpc {
                const char* file,
                int line,
                const char* expr,
-               assertion ass )
+#ifndef NSTACKTRACE
+               const stacktrace& st,
+#endif
+               assertion asrt )
       {
          if( !state )
          {
-            ass.details( file, line, expr );
+            asrt.details(
+               file, line, expr
+#ifndef NSTACKTRACE
+               , st
+#endif
+               );
             if( use_abort )
                abort();
             else
-               throw ass;
+               throw asrt;
          }
-      }
-
-      void
-      _assert( bool state,
-               const char* file,
-               int line,
-               const char* expr,
-               int code )
-      {
-         _assert( state, file, line, expr, assertion() );
       }
    }
 }

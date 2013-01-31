@@ -15,21 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_insist_hh
-#define libhpc_debug_insist_hh
+#ifndef NINSTRUMENTATION
 
-#include "assert.hh"
+#include "instrument.hh"
+#include "globals.hh"
 
-#ifndef NDEBUG
+namespace hpc {
+   namespace logging {
 
-#define INSIST( stmnt, cond, ... )              \
-   ASSERT( stmnt cond, ##__VA_ARGS__ )
+      instrument::instrument()
+         : debug::instrument()
+      {
+      }
 
-#else
+      void
+      instrument::enter( const char* file_name,
+                         const char* func_name )
+      {
+         if( func_name )
+            LOGTLN( "ENTER: ", func_name );
+      }
 
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
-
-#endif
+      void
+      instrument::exit( const char* file_name,
+                        const char* func_name )
+      {
+         if( func_name )
+            LOGTLN( "EXIT: ", func_name );
+      }
+   }
+}
 
 #endif

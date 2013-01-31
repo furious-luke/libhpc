@@ -15,21 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_insist_hh
-#define libhpc_debug_insist_hh
+#include <stdlib.h>
+#include <libhpc/debug/debug.hh>
 
-#include "assert.hh"
+void
+func_b()
+{
+   ASSERT( 0, "Here's the message." );
+}
 
-#ifndef NDEBUG
+void
+func_a()
+{
+   func_b();
+}
 
-#define INSIST( stmnt, cond, ... )              \
-   ASSERT( stmnt cond, ##__VA_ARGS__ )
-
-#else
-
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
-
-#endif
-
-#endif
+int
+main( int argc,
+      char* argv[] )
+{
+   func_a();
+   return EXIT_SUCCESS;
+}

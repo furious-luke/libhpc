@@ -15,35 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include "assertions.hh"
-#include "tracer.hh"
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #ifndef NDEBUG
+
+#include <sstream>
+#include "assertions.hh"
+#include "omp_help.hh"
 
 namespace hpc {
    namespace debug {
-
-#ifndef NSTACKTRACE
-      extern tracer stack_trace;
-#endif
-
-      int
-      log2i( int x )
-      {
-         int ii = 0;
-         while(x) {
-            x >>= 1;
-            ++ii;
-         }
-         return ii;
-      }
 
       assertion::assertion( const char* msg ) throw()
          : exception(),
@@ -52,20 +31,17 @@ namespace hpc {
            _expr( NULL )
       {
          if( msg )
-            strcpy( _msg, msg );
-         else
-            _msg[0] = 0;
-         _buf[0] = 0;
+            _msg = msg;
       }
 
-      assertion::assertion( const assertion& ass )
-         : exception( ass ),
-           _file( ass._file ),
-           _line( ass._line ),
-           _expr( ass._expr )
+      assertion::assertion( const assertion& asrt )
+         : exception( asrt ),
+           _file( asrt._file ),
+           _line( asrt._line ),
+           _expr( asrt._expr ),
+           _msg( asrt._msg ),
+           _buf( asrt._buf )
       {
-         strcpy( _msg, ass._msg );
-         strcpy( _buf, ass._buf );
       }
 
       assertion::~assertion() throw()
@@ -75,33 +51,45 @@ namespace hpc {
       void
       assertion::details( const char* file,
                           int line,
-                          const char* expr ) throw()
+                          const char* expr
+#ifndef NSTACKTRACE
+                          , const stacktrace& st
+#endif
+         ) throw()
       {
          _file = file;
          _line = line;
          _expr = expr;
-         _write_buffer();
+         _st = st;
+
+         // Need to do this here because the "what" method
+         // is const.
+         _write_buffer( _buf );
       }
 
       const char*
       assertion::what() const throw()
       {
-         return _buf;
+         return _buf.c_str();
       }
 
       void
-      assertion::_write_buffer() throw()
+      assertion::_write_buffer( std::string& buf ) throw()
       {
-         int offs = sprintf( _buf, "\n\nLocation:\n  %s: %d: %s\n", _file, _line, _expr );
+         std::stringstream ss;
+         ss << "\n\nFile:  " << _file << "\n";
+         ss << "Line:  " << _line << "\n";
+         ss << "Expr:  " << _expr << "\n";
 #ifdef _OPENMP
-	 offs += sprintf( _buf + offs, "Thread ID: %d\n", omp_get_thread_num() );
+         ss << "Thread ID: " << OMP_TID << "\n";
 #endif
 #ifndef NSTACKTRACE
-         offs += sprintf( _buf + offs, "Stack trace:\n" );
-         offs += stack_trace.sprint( _buf + offs, 2 );
+         ss << "Stack trace:\n";
+         for( const auto& level : _st )
+            ss << "  " << level.func_name << "\n";
 #endif
-         if( _msg[0] != 0 )
-            sprintf( _buf + offs, "\n%s\n", _msg );
+         ss << "\n" << _msg << "\n";
+         buf = ss.str();
       }
 
       out_of_memory::out_of_memory()

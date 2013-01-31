@@ -58,15 +58,11 @@ public:
 
    void test_medium()
    {
-      range_multimap<int, int> mapping;
-      for( unsigned ii = 0; ii < 200; ++ii )
-         mapping.insert( range<int>( 0, 10*(ii + 1) ), ii );
+      // range_multimap<int, int> mapping;
+      // for( unsigned ii = 0; ii < 200; ++ii )
+      //    mapping.insert( range<int>( 0, 10*(ii + 1) ), ii );
 
-      map<int, set<range<int>>> inv;
-      invert_mapping( mapping, inv );
-   }
-
-   void setUp()
-   {
+      // map<int, set<range<int>>> inv;
+      // invert_mapping( mapping, inv );
    }
 };

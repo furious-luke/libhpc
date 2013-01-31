@@ -57,7 +57,7 @@ namespace hpc {
       {
 	 this->close();
 	 this->_id = H5Dopen1(loc.id(), name.c_str());
-	 ASSERT(this->_id >= 0, 10);
+	 ASSERT( this->_id >= 0, "Failed to open HDF5 dataset." );
       }
 
       void
@@ -117,7 +117,7 @@ namespace hpc {
       {
 #ifndef NDEBUG
 	 hid_t id = H5Dget_space(this->_id);
-	 ASSERT(id >= 0, 10);
+	 ASSERT( id >= 0, "Failed to retrieve HDF5 dataspace." );
 	 space.set_id(id);
 #else
 	 space.set_id(H5Dget_space(this->_id));

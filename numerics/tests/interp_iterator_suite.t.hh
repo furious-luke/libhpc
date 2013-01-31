@@ -106,7 +106,6 @@ public:
 
    void setUp()
    {
-      CLEAR_STACK_TRACE();
    }
 
    void setup_0( vector<float>& grid )

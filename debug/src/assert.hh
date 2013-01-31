@@ -15,17 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_assert_hh
-#define debug_assert_hh
+#ifndef libhpc_debug_assert_hh
+#define libhpc_debug_assert_hh
 
 #ifndef NDEBUG
 
-#include <cstdlib>
 #include "assertions.hh"
 
-#define ASSERT( expr, ... )                                     \
-   ::hpc::debug::_assert( expr, __FILE__,                       \
-                          __LINE__, #expr, ##__VA_ARGS__ )
+#ifndef NSTACKTRACE
+
+#include "stacktrace.hh"
+
+#define ASSERT( expr, ... )                     \
+   ::hpc::debug::_assert(                       \
+      expr, __FILE__, __LINE__, #expr,          \
+      ::hpc::debug::stacktrace(), ##__VA_ARGS__ \
+      )
+
+#else
+
+#define ASSERT( expr, ... )                             \
+   ::hpc::debug::_assert(                               \
+      expr, __FILE__, __LINE__, #expr, ##__VA_ARGS__    \
+      )
+
+#endif
+
+#else
+
+#define ASSERT( expr, ... )
+
+#endif
+
+#if !defined( NDEBUG ) && !defined( NEXCEPT )
 
 namespace hpc {
    namespace debug {
@@ -35,27 +57,22 @@ namespace hpc {
                const char* file,
                int line,
                const char* expr,
-               const char* msg=NULL );
+#ifndef NSTACKTRACE
+               const stacktrace& st,
+#endif
+               const char* msg = NULL );
 
       void
       _assert( bool state,
                const char* file,
                int line,
                const char* expr,
-               assertion ass );
-
-      void
-      _assert( bool state,
-               const char* file,
-               int line,
-               const char* expr,
-               int code );
+#ifndef NSTACKTRACE
+               const stacktrace& st,
+#endif
+               assertion asrt );
    }
 }
-
-#else
-
-#define ASSERT( expr, ... )
 
 #endif
 

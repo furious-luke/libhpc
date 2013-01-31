@@ -15,20 +15,54 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_insist_hh
-#define libhpc_debug_insist_hh
+#ifndef libhpc_debug_stacktrace_hh
+#define libhpc_debug_stacktrace_hh
 
-#include "assert.hh"
+#ifndef NSTACKTRACE
 
-#ifndef NDEBUG
+#include <vector>
+#include <string>
 
-#define INSIST( stmnt, cond, ... )              \
-   ASSERT( stmnt cond, ##__VA_ARGS__ )
+namespace hpc {
+   namespace debug {
 
-#else
+      class stacktrace
+      {
+      public:
 
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
+         struct value_type
+         {
+            const char* file_name;
+            char* func_name;
+         };
+
+         typedef const value_type* const_iterator;
+
+         static const unsigned MAX_DEPTH;
+
+      public:
+
+         stacktrace();
+
+         const_iterator
+         begin() const;
+
+         const_iterator
+         end() const;
+
+      protected:
+
+         void
+         _get_stack();
+
+      protected:
+
+         int _depth;
+         value_type _st[32];
+      };
+
+   }
+}
 
 #endif
 

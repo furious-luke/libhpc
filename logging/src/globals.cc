@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.hh"
+#include "instrument.hh"
 
 #ifndef NLOG
 
@@ -41,6 +42,17 @@ namespace hpc {
       {
          _stack.clear();
       }
+   }
+}
+
+#endif
+
+#ifndef NINSTRUMENTATION
+
+namespace hpc {
+   namespace logging {
+
+      // instrument instr;
    }
 }
 
