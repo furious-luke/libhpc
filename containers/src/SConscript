@@ -10,7 +10,7 @@ if 'cur_sub_dir' not in locals():
 sub_dirs = []
 
 # Pick out the files we will be building.
-hdrs = env.Glob('*.hh') + env.Glob('*.tcc') + env.Glob('*.thh')
+hdrs = env.Glob('*.hh') + env.Glob('*.hpp') + env.Glob('*.tcc') + env.Glob('*.thh')
 srcs = env.Glob('*.cc')
 
 # Try and use latest collections module, or use the OrderedDict in
