@@ -60,7 +60,9 @@ namespace hpc {
          _file = file;
          _line = line;
          _expr = expr;
+#ifndef NSTACKTRACE
          _st = st;
+#endif
 
          // Need to do this here because the "what" method
          // is const.

@@ -18,7 +18,7 @@
 #ifndef libhpc_debug_instrumentation_hh
 #define libhpc_debug_instrumentation_hh
 
-#ifndef NINSTRUMENTATION
+#ifndef NINSTRUMENT
 
 namespace hpc {
    namespace debug {

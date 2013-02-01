@@ -18,6 +18,8 @@
 #ifndef libhpc_debug_omp_help_hh
 #define libhpc_debug_omp_help_hh
 
+#include <omp.h>
+
 #ifdef _OPENMP
 
 #define OMP_TID					\
