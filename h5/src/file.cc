@@ -449,6 +449,13 @@ namespace hpc {
 	 return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<hsize_t>());
       }
 
+      hsize_t
+      file::read_local_data_size( const std::string& name )
+      {
+	 hsize_t global_size = read_data_size( name );
+	 return ((_comm->rank() + 1)*global_size)/_comm->size() - (_comm->rank()*global_size)/_comm->size();
+      }
+
 // template<>
 // void file::read(const std::string& name, VectorView<int> data, const Comm& comm) {
 // #ifndef NDEBUG

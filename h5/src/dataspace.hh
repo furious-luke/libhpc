@@ -26,6 +26,8 @@
 namespace hpc {
    namespace h5 {
 
+      class dataset;
+
       class dataspace
       {
       public:
@@ -33,6 +35,8 @@ namespace hpc {
 	 static dataspace all;
 
 	 dataspace( hid_t id=-1 );
+
+	 dataspace( const dataset& dset );
 
 	 dataspace( const vector<hsize_t>::view& dims );
 

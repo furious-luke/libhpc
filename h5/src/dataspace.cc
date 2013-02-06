@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataspace.hh"
+#include "dataset.hh"
 
 namespace hpc {
    namespace h5 {
@@ -25,6 +26,12 @@ namespace hpc {
       dataspace::dataspace( hid_t id )
 	 : _id( id )
       {
+      }
+
+      dataspace::dataspace( const dataset& dset )
+	 : _id( -1 )
+      {
+	 dset.space( *this );
       }
 
       dataspace::dataspace( const vector<hsize_t>::view& dims )

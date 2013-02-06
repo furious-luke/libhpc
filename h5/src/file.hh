@@ -141,6 +141,9 @@ namespace hpc {
 	 hsize_t
 	 read_data_size( const std::string& name );
 
+	 hsize_t
+	 read_local_data_size( const std::string& name );
+
 	 template< class T >
 	 T
 	 read( const std::string& name )
@@ -257,7 +260,7 @@ namespace hpc {
 	 	const mpi::comm& comm=mpi::comm::self )
 	 {
 	    // TODO: Needs to be parallel.
-	    hsize_t size = read_data_size( name );
+	    hsize_t size = read_local_data_size( name );
 	    data.resize( size );
 	    this->read<T>( name, data );
 	 }
