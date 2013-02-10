@@ -59,6 +59,20 @@ namespace hpc {
          std::multimap<Key,Val>::insert( first, last );
       }
 
+      const Val&
+      get( const Key& key ) const
+      {
+	 const_iterator it = this->find( key );
+	 ASSERT( it != this->end(), "Map does not contain requested key." );
+	 return it->second;
+      }
+
+      bool
+      has( const Key& key ) const
+      {
+	 return this->find( key ) != this->end();
+      }
+
       friend std::ostream&
       operator<<( std::ostream& strm,
 		  const multimap& obj )
