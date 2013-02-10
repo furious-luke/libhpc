@@ -109,4 +109,11 @@ public:
       diff[0] = y - old_y;
       TS_ASSERT( diff[0] > diff[1] );
    }
+
+   void test_redshift_to_light_travel_distance()
+   {
+      double dist = numerics::redshift_to_light_travel_distance( 0.02, 1000 );
+      double age = dist/constant::c_mpc_gyr;
+      TS_ASSERT_DELTA( age, 0.272, 1e-2 );
+   }
 };

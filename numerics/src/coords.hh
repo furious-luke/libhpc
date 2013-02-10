@@ -21,6 +21,7 @@
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/num.hh"
 #include "constants.hh"
+#include "simpson.hh"
 
 namespace hpc {
    namespace numerics {
@@ -156,12 +157,52 @@ namespace hpc {
       T
       redshift_to_distance( T z,
                             unsigned points,
-                            T hubble=70.0,   // km/s/Mpc
-                            T omega_l=0.73 ) // km/s/Mpc
+                            T hubble = 70.0,   // km/s/Mpc
+                            T omega_l = 0.73 ) // km/s/Mpc
       {
          ASSERT( z > 0.0 );
          T sum = simpson( redshift_to_distance_func<T>( omega_l ), 0.0, z, points );
          return sum*(1.0 + z)*constant::c/hubble;
+      }
+
+      template< class T >
+      struct redshift_to_light_travel_distance_func
+      {
+         typedef T value_type;
+
+         redshift_to_light_travel_distance_func( T omega_v = 0.73,
+						 T omega_m = 0.27 )
+            : omega_v( omega_v ),
+	      omega_m( omega_m ),
+              omega_k( 1.0 - omega_m - omega_v )
+         {
+         }
+
+         T
+         operator()( T z ) const
+         {
+	    double z_sq = (1.0 + z)*(1.0 + z);
+	    double e_z = sqrt( z_sq*(1.0 + z)*omega_m + z_sq*omega_k + omega_v );
+            return 1.0/((1.0 + z)*e_z);
+         }
+
+	 T omega_v, omega_m, omega_k;
+      };
+
+      ///
+      /// Result is in Mpc.
+      ///
+      template< class T >
+      T
+      redshift_to_light_travel_distance( T z,
+					 unsigned points = 1000,
+					 T hubble = 71.0,
+					 T omega_v = 0.73,
+					 T omega_m = 0.27 )
+      {
+         ASSERT( z >= 0.0 );
+         T sum = simpson( redshift_to_light_travel_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
+         return sum*300000.0/hubble;
       }
    }
 }
