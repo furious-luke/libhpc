@@ -160,7 +160,7 @@ namespace hpc {
                             T hubble = 70.0,   // km/s/Mpc
                             T omega_l = 0.73 ) // km/s/Mpc
       {
-         ASSERT( z > 0.0 );
+         ASSERT( z >= 0.0 );
          T sum = simpson( redshift_to_distance_func<T>( omega_l ), 0.0, z, points );
          return sum*(1.0 + z)*constant::c/hubble;
       }

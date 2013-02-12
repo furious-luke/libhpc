@@ -30,7 +30,7 @@ namespace hpc {
       {
          typedef typename Function::value_type value_type;
 
-         ASSERT( upper > lower );
+         ASSERT( upper >= lower );
          ASSERT( points > 1 );
 
          value_type width = upper - lower;
