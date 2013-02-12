@@ -226,6 +226,30 @@ namespace hpc {
 	 }
 
 	 template< class T >
+	 T
+	 read( const std::string& name,
+	       hsize_t element )
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype datatype( mpl::at<h5::datatype::type_map,T>::type::value );
+
+	    h5::dataset file_set;
+	    file_set.open( *this, name );
+	    h5::dataspace file_space;
+	    file_set.space( file_space );
+	    file_space.select_one( element );
+
+	    vector<hsize_t> dims( 1 );
+	    dims[0] = 1;
+	    h5::dataspace mem_space( dims );
+	    mem_space.select_all();
+
+	    T data;
+	    file_set.read( &data, datatype, mem_space, file_space, mpi::comm::self );
+	    return data;
+	 }
+
+	 template< class T >
 	 void
 	 read( const std::string& name,
 	       typename vector<T>::view data,
