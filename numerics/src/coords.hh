@@ -131,38 +131,43 @@ namespace hpc {
       }
 
       template< class T >
-      struct redshift_to_distance_func
+      struct redshift_to_comoving_distance_func
       {
          typedef T value_type;
 
-         redshift_to_distance_func( T omega_l=0.73 )
-            : omega_l( omega_l ),
-              omega_m( 1.0 - omega_l )
+         redshift_to_comoving_distance_func( T omega_v = 0.73,
+					     T omega_m = 0.27 )
+            : omega_v( omega_v ),
+	      omega_m( omega_m ),
+              omega_k( 1.0 - omega_m - omega_v )
          {
          }
 
          T
          operator()( T z ) const
          {
-            return 1.0/sqrt( (1.0 + z)*(1.0 + z)*(1.0 + omega_m*z) - z*omega_l*(2.0 + z) );
+	    double z_sq = (1.0 + z)*(1.0 + z);
+	    double e_z = sqrt( z_sq*(1.0 + z)*omega_m + z_sq*omega_k + omega_v );
+            return 1.0/e_z;
          }
 
-         T omega_l, omega_m;
+	 T omega_v, omega_m, omega_k;
       };
 
       ///
-      ///
+      /// Result is in Mpc.
       ///
       template< class T >
       T
-      redshift_to_distance( T z,
-                            unsigned points,
-                            T hubble = 70.0,   // km/s/Mpc
-                            T omega_l = 0.73 ) // km/s/Mpc
+      redshift_to_comoving_distance( T z,
+				     unsigned points = 1000,
+				     T hubble = 71.0,
+				     T omega_v = 0.73,
+				     T omega_m = 0.27 )
       {
          ASSERT( z >= 0.0 );
-         T sum = simpson( redshift_to_distance_func<T>( omega_l ), 0.0, z, points );
-         return sum*(1.0 + z)*constant::c/hubble;
+         T sum = simpson( redshift_to_comoving_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
+         return sum*300000.0/hubble;
       }
 
       template< class T >
@@ -203,6 +208,47 @@ namespace hpc {
          ASSERT( z >= 0.0 );
          T sum = simpson( redshift_to_light_travel_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
          return sum*300000.0/hubble;
+      }
+
+      ///
+      /// Result is in Mpc.
+      ///
+      template< class T >
+      T
+      redshift_to_transverse_distance( T z,
+				       unsigned points = 1000,
+				       T hubble = 71.0,
+				       T omega_v = 0.73,
+				       T omega_m = 0.27 )
+      {
+         ASSERT( z >= 0.0 );
+         T sum = simpson( redshift_to_comoving_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
+	 T dh = 300000.0/hubble;
+	 sum *= dh;
+	 T omega_k = 1.0 - omega_m - omega_v;
+	 if( omega_k > 1e-8 )
+	 {
+	    sum = sinh( sqrt( omega_k )*sum/dh )*dh/sqrt( omega_k );
+	 }
+	 else if( omega_k < -1e-8 )
+	 {
+	    sum = sinh( sqrt( -omega_k )*sum/dh )*dh/sqrt( -omega_k );
+	 }
+         return sum;
+      }
+
+      ///
+      /// Result is in Mpc.
+      ///
+      template< class T >
+      T
+      redshift_to_luminosity_distance( T z,
+				       unsigned points = 1000,
+				       T hubble = 71.0,
+				       T omega_v = 0.73,
+				       T omega_m = 0.27 )
+      {
+	 return (1.0 + z)*redshift_to_transverse_distance( z, points, hubble, omega_v, omega_m );
       }
    }
 }

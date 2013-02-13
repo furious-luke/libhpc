@@ -116,4 +116,10 @@ public:
       double age = dist/constant::c_mpc_gyr;
       TS_ASSERT_DELTA( age, 0.272, 1e-2 );
    }
+
+   void test_redshift_to_luminosity_distance()
+   {
+      double dist = numerics::redshift_to_luminosity_distance( 0.02, 1000 );
+      TS_ASSERT_DELTA( dist, 85.84, 1e-1 );
+   }
 };
