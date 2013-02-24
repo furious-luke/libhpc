@@ -47,10 +47,10 @@
 
 #endif
 
-#if !defined( NDEBUG ) && !defined( NEXCEPT )
-
 namespace hpc {
    namespace debug {
+
+#if !defined( NDEBUG ) && !defined( NEXCEPT )
 
       void
       _assert( bool state,
@@ -71,9 +71,10 @@ namespace hpc {
                const stacktrace& st,
 #endif
                assertion asrt );
-   }
-}
 
 #endif
+
+   }
+}
 
 #endif

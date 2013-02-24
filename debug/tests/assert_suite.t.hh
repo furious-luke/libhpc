@@ -31,7 +31,11 @@ public:
       {
          ASSERT( 0 );
       }
+#ifndef NDEBUG
       catch( debug::assertion& asrt )
+#else
+      catch( std::exception& asrt )
+#endif
       {
          inside = true;
          TS_ASSERT( asrt.what() != NULL );
@@ -50,7 +54,11 @@ public:
       {
          ASSERT( 0, "Something!" );
       }
+#ifndef NDEBUG
       catch( debug::assertion& asrt )
+#else
+      catch( std::exception& asrt )
+#endif
       {
          inside = true;
          TS_ASSERT( asrt.what() != NULL );
