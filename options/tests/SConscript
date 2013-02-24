@@ -10,6 +10,7 @@ Import('env')
 # The support sources are optional, as is the MPI rank range.
 suites = [
     ('xml_suite.t.hh', 'option.cc', 'dictionary.cc', 'xml.cc'),
+    ('dictionary_suite.t.hh', 'option.cc', 'dictionary.cc', 'xml.cc'),
 ]
 
 # Define libraries to link against.
