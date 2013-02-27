@@ -76,6 +76,13 @@ namespace hpc {
          }
 
          value_type
+         segment_finish( unsigned seg ) const
+         {
+            ASSERT( seg < _diff.size() );
+            return _knots(seg + 1,0);
+         }
+
+         value_type
          segment_width( unsigned seg ) const
          {
             ASSERT( seg < _diff.size() );
