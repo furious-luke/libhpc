@@ -24,7 +24,8 @@ namespace hpc {
       timer::timer()
 	 : _total( 0.0 ),
 	   _cnt( 0 ),
-	   _run( false )
+	   _run( false ),
+	   _stack( 0 )
       {
       }
 
@@ -44,22 +45,31 @@ namespace hpc {
       void
       timer::start()
       {
-	 _run = true;
-	 _start = unix::timer();
+	 ++_stack;
+	 if( !_run )
+	 {
+	    _run = true;
+	    _start = unix::timer();
+	 }
       }
 
       void
       timer::stop()
       {
-	 _run = false;
-	 _total += unix::seconds( unix::timer() - _start );
+	 --_stack;
+	 if( !_stack )
+	 {
+	    _run = false;
+	    _total += unix::seconds( unix::timer() - _start );
+	 }
       }
 
       void
       timer::stop_tally()
       {
 	 stop();
-	 ++_cnt;
+	 if( !_stack )
+	    ++_cnt;
       }
 
       double

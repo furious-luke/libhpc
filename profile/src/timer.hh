@@ -59,6 +59,7 @@ namespace hpc {
 	 double _total;
 	 unsigned long _cnt;
 	 bool _run;
+	 unsigned _stack;
       };
    }
 }
