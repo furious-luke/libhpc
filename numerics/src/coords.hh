@@ -250,6 +250,20 @@ namespace hpc {
       {
 	 return (1.0 + z)*redshift_to_transverse_distance( z, points, hubble, omega_v, omega_m );
       }
+
+      ///
+      /// Result is in Mpc.
+      ///
+      template< class T >
+      T
+      redshift_to_angular_diameter_distance( T z,
+                                             unsigned points = 1000,
+                                             T hubble = 71.0,
+                                             T omega_v = 0.73,
+                                             T omega_m = 0.27 )
+      {
+	 return redshift_to_transverse_distance( z, points, hubble, omega_v, omega_m )/(1.0 + z);
+      }
    }
 }
 
