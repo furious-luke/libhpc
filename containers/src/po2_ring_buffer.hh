@@ -80,13 +80,13 @@ namespace hpc {
       iterator
       begin() const
       {
-         return iterator( *this, _start );
+         return iterator( *this, 0 );
       }
 
       iterator
       end() const
       {
-         return iterator( *this, norm( _start + _size ) );
+         return iterator( *this, norm( _size ) );
       }
 
       template< class Iterator >
@@ -146,13 +146,13 @@ namespace hpc {
       value_type&
       operator[]( size_type idx )
       {
-         return _buf[norm( idx )];
+         return _buf[norm( _start + idx )];
       }
 
       const value_type&
       operator[]( size_type idx ) const
       {
-         return _buf[norm( idx )];
+         return _buf[norm( _start + idx )];
       }
 
       friend std::ostream&
@@ -224,19 +224,19 @@ namespace hpc {
       void
       increment()
       {
-         _idx = _buf.norm( _idx + 1 );
+         ++_idx;
       }
 
       void
       advance( size_t elems )
       {
-         _idx = _buf.norm( _idx + elems );
+         _idx += elems;
       }
 
       bool
       equal( const po2_ring_buffer_iterator& op ) const
       {
-         return _idx == op._idx;
+         return _buf.norm( _idx ) == _buf.norm( op._idx );
       }
 
       const value_type&
@@ -248,10 +248,7 @@ namespace hpc {
       difference_type
       distance_to( const po2_ring_buffer_iterator& op ) const
       {
-         if( op._idx >= _idx )
-            return op._idx - _idx;
-         else
-            return (_buf.max_size() - _idx) + op._idx;
+         return op._idx - _idx;
       }
 
    protected:

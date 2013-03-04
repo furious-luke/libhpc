@@ -39,6 +39,12 @@ namespace hpc {
       {
       }
 
+      bool
+      has( const T& elem )
+      {
+         return std::find( this->begin(), this->end(), elem ) != this->end();
+      }
+
       friend std::ostream&
       operator<<( std::ostream& strm,
 		  const list& obj )
