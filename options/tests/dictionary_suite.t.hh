@@ -31,4 +31,19 @@ public:
       TS_ASSERT_EQUALS( dict.get<int>( "integer" ), 10 );
    }
 
+   void test_bad_option()
+   {
+      options::dictionary dict;
+      dict.compile();
+      TS_ASSERT_THROWS( dict.get<int>( "integer" ), options::bad_option );
+   }
+
+   void test_no_value()
+   {
+      options::dictionary dict;
+      dict.add_option( new options::integer( "integer" ) );
+      dict.compile();
+      TS_ASSERT_THROWS( dict.get<int>( "integer" ), options::no_value );
+   }
+
 };

@@ -15,11 +15,45 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #include <boost/algorithm/string.hpp>
 #include "dictionary.hh"
 
 namespace hpc {
    namespace options {
+
+      bad_option::bad_option( const hpc::string& option_name )
+         : std::exception(),
+           _name( option_name )
+      {
+         std::stringstream ss;
+         ss << "Invalid option requested from dictionary.\n";
+         ss << "  Option name: " << option_name << "\n";
+         _msg = ss.str();
+      }
+
+      bad_option::~bad_option() throw()
+      {
+      }
+
+      const char*
+      bad_option::what() const throw()
+      {
+         return _msg.c_str();
+      }
+
+      no_value::no_value( const hpc::string& option_name )
+         : bad_option( option_name )
+      {
+         std::stringstream ss;
+         ss << "No value found in dictionary and no default set.\n";
+         ss << "  Option name: " << _name << "\n";
+         _msg = ss.str();
+      }
+
+      no_value::~no_value() throw()
+      {
+      }
 
       dictionary::dictionary( const hpc::string& prefix )
          : _pre( prefix ),
@@ -266,8 +300,10 @@ namespace hpc {
       const option_base&
       dictionary::operator[]( const hpc::string& name ) const
       {
-         ASSERT( has_option( name ), "No option by that name." );
-         return *find( name );
+         auto opt = find( name );
+         if( !opt )
+            throw bad_option( name );
+         return *opt;
       }
 
       option_base&

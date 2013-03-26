@@ -28,6 +28,36 @@
 namespace hpc {
    namespace options {
 
+      class bad_option
+         : public std::exception
+      {
+      public:
+
+         bad_option( const hpc::string& option_name );
+
+         virtual
+         ~bad_option() throw();
+
+         virtual const char*
+         what() const throw();
+
+      public:
+
+         hpc::string _name;
+         hpc::string _msg;
+      };
+
+      class no_value
+         : public bad_option
+      {
+      public:
+
+         no_value( const hpc::string& option_name );
+
+         virtual
+         ~no_value() throw();
+      };
+
       ///
       ///
       ///
@@ -50,7 +80,8 @@ namespace hpc {
          {
             typedef typename boost::mpl::at<type_map,T>::type option_type;
             const option_type& opt = (const option_type&)((*this)[name]);
-            ASSERT( opt.get(), "Value has not been set and no default." );
+            if( !opt.get() )
+               throw no_value( name );
             return *opt.get();
          }
 
@@ -91,7 +122,8 @@ namespace hpc {
             typedef typename sub_option_type::value_type value_type;
             typedef options::list<sub_option_type> option_type;
             const option_type& opt = (const option_type&)((*this)[name]);
-            ASSERT( opt.get(), "Value has not been set and no default." );
+            if( !opt.get() )
+               throw no_value( name );
             const hpc::list<value_type>& ref = *opt.get();
             return ref;
          }
