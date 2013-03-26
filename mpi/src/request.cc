@@ -60,11 +60,13 @@ namespace hpc {
       }
 
       bool
-      request::test() const
+      request::test()
       {
-	 if(this->_req != MPI_REQUEST_NULL) {
+	 if( this->_req != MPI_REQUEST_NULL )
+         {
 	    int flag;
 	    MPI_INSIST(MPI_Test((MPI_Request*)&this->_req, &flag, MPI_STATUS_IGNORE));
+            this->_req = MPI_REQUEST_NULL;
 	    return flag;
 	 }
 	 return true;

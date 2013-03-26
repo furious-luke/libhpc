@@ -45,7 +45,7 @@ namespace hpc {
 	 mod_mpi_request();
 
 	 bool
-	 test() const;
+	 test();
 
 	 void
 	 wait();
