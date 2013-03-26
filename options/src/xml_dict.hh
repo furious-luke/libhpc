@@ -38,7 +38,7 @@ namespace hpc {
       {
       public:
 
-         bad_xml( const string& filename = string() );
+         bad_xml( const hpc::string& filename = hpc::string() );
 
          virtual
          ~bad_xml() throw();
@@ -73,8 +73,8 @@ namespace hpc {
          /// @throws bad_xml If any error occurs during XML parsing.
          ///
          void
-         read( const string& filename,
-               const string& xpath_root = string() );
+         read( const hpc::string& filename,
+               const hpc::string& xpath_root = hpc::string() );
 
          ///
          /// Read an XML from a C++ stream. If called multiple times, each
@@ -87,8 +87,8 @@ namespace hpc {
          ///
          void
          read( std::istream& stream,
-               const string& xpath_root = string(),
-               const string& filename = string() );
+               const hpc::string& xpath_root = hpc::string(),
+               const hpc::string& filename = hpc::string() );
 
          ///
          /// Test for existence of an option.
@@ -97,7 +97,7 @@ namespace hpc {
          /// @returns Boolean describing the existence of the option.
          ///
          bool
-         has( const string& path ) const;
+         has( const hpc::string& path ) const;
 
          ///
          /// Extract and return an option value.
@@ -109,7 +109,7 @@ namespace hpc {
          ///
          template< class T >
          T
-         get( const string& path )
+         get( const hpc::string& path )
          {
             return _coerce<T>( _get_node( path ).first_child().value() );
          }
@@ -126,7 +126,7 @@ namespace hpc {
          ///
          template< class T >
          T
-         get( const string& path,
+         get( const hpc::string& path,
               const T& default_value ) const
          {
             auto node = _get_node( path, false );
@@ -148,7 +148,7 @@ namespace hpc {
          ///
          template< class T >
          list<T>
-         get_list( const string& path ) const
+         get_list( const hpc::string& path ) const
          {
             xml_node node = _get_node( path );
             list<T> val;
@@ -164,27 +164,27 @@ namespace hpc {
 
          xml_node
          _find_root( xml_node& node,
-                     const string& xpath_root ) const;
+                     const hpc::string& xpath_root ) const;
 
          void
          _merge( std::istream& stream,
-                 const string& path,
-                 const string& filename = string() );
+                 const hpc::string& path,
+                 const hpc::string& filename = hpc::string() );
 
          void
          _merge_node( xml_node merge_into,
                       xml_node merge_from );
 
          xml_node
-         _get_node( const string& path,
+         _get_node( const hpc::string& path,
                     bool except = true ) const;
 
-         string
-         _xform_path( const string& path ) const;
+         hpc::string
+         _xform_path( const hpc::string& path ) const;
 
          template< class T >
          T
-         _coerce( const string& value ) const
+         _coerce( const hpc::string& value ) const
          {
             std::stringstream ss( value );
             T val;
@@ -196,7 +196,7 @@ namespace hpc {
 
       protected:
 
-         string _sep;
+         hpc::string _sep;
          xml_document _doc;
          xml_node _root;
       };
