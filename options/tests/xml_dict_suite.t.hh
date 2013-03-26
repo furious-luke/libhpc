@@ -23,6 +23,18 @@ using namespace hpc;
 class xml_dict_suite : public CxxTest::TestSuite {
 public:
 
+   void test_xpath_root()
+   {
+      string xml_str = "<parent1><parent2><hello>hello</hello><integer>10</integer></parent2></parent1>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss, "/parent1/parent2" );
+      }
+      TS_ASSERT_EQUALS( dict.get<string>( "hello" ), "hello" );
+      TS_ASSERT_EQUALS( dict.get<int>( "integer" ), 10 );
+   }
+
    void test_merge()
    {
       string xml_str_1 = "<hello>hello</hello><integer>10</integer>";
@@ -35,6 +47,24 @@ public:
       {
          std::stringstream ss( xml_str_2 );
          dict.read( ss );
+      }
+      TS_ASSERT_EQUALS( dict.get<string>( "hello" ), "hello" );
+      TS_ASSERT_EQUALS( dict.get<string>( "world" ), "world" );
+      TS_ASSERT_EQUALS( dict.get<int>( "integer" ), 20 );
+   }
+
+   void test_xpath_root_merge()
+   {
+      string xml_str_1 = "<hello>hello</hello><integer>10</integer>";
+      string xml_str_2 = "<parent1><parent2><world>world</world><integer>20</integer></parent2></parent1>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str_1 );
+         dict.read( ss );
+      }
+      {
+         std::stringstream ss( xml_str_2 );
+         dict.read( ss, "/parent1/parent2" );
       }
       TS_ASSERT_EQUALS( dict.get<string>( "hello" ), "hello" );
       TS_ASSERT_EQUALS( dict.get<string>( "world" ), "world" );
@@ -67,6 +97,33 @@ public:
       }
       TS_ASSERT_EQUALS( dict.get<string>( "parent:child1" ), "hello" );
       TS_ASSERT_EQUALS( dict.get<int>( "parent:child2" ), 10 );
+   }
+
+   void test_defaults()
+   {
+      string xml_str = "<parent><child1>hello</child1><child2>10</child2></parent>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss );
+      }
+      TS_ASSERT_EQUALS( dict.get<string>( "parent:child1", "world" ), "hello" );
+      TS_ASSERT_EQUALS( dict.get<int>( "parent:child2", 100 ), 10 );
+      TS_ASSERT_EQUALS( dict.get<int>( "parent:child3", 100 ), 100 );
+   }
+
+   void test_has()
+   {
+      string xml_str = "<parent><child1>hello</child1><child2>10</child2></parent>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss );
+      }
+      TS_ASSERT( dict.has( "parent" ) );
+      TS_ASSERT( dict.has( "parent:child1" ) );
+      TS_ASSERT( dict.has( "parent:child2" ) );
+      TS_ASSERT( !dict.has( "parent:child3" ) );
    }
 
 };

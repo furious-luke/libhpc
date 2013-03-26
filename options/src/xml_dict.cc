@@ -25,6 +25,20 @@ using namespace pugi;
 namespace hpc {
    namespace options {
 
+      bad_xml::bad_xml( const string& filename )
+         : bad_option( filename )
+      {
+         std::stringstream ss;
+         ss << "\n\nThere was an error parsing XML.";
+         if( !filename.empty() )
+            ss << "  Filename: " << filename << "\n";
+         _msg = ss.str();
+      }
+
+      bad_xml::~bad_xml() throw()
+      {
+      }
+
       xml_dict::xml_dict()
          : _sep( ":" ),
            _root( NULL )
@@ -40,31 +54,39 @@ namespace hpc {
                       const hpc::string& path )
       {
          std::ifstream file( filename, std::fstream::in );
-         read( file, path );
+         read( file, path, filename );
       }
 
       void
       xml_dict::read( std::istream& stream,
-                      const hpc::string& path )
+                      const hpc::string& xpath_root,
+                      const string& filename )
       {
          if( !_root )
          {
             xml_parse_result result = _doc.load( stream );
-            ASSERT( result, "Error reading XML." );
-            _root = _find_root( _doc, path );
+            if( !result )
+               throw bad_xml( filename );
+            _root = _find_root( _doc, xpath_root );
          }
          else
-            _merge( stream, path );
+            _merge( stream, xpath_root, filename );
+      }
+
+      bool
+      xml_dict::has( const string& path ) const
+      {
+         return _get_node( path, false );
       }
 
       xml_node
       xml_dict::_find_root( xml_node& node,
-                            const string& path ) const
+                            const string& xpath_root ) const
       {
-         if( !path.empty() )
+         if( !xpath_root.empty() )
          {
-            xpath_node root = node.select_single_node( path.c_str() );
-            ASSERT( root );
+            xpath_node root = node.select_single_node( xpath_root.c_str() );
+            ASSERT( root, "XPath root does not exist." );
             return root.node();
          }
          else
@@ -73,11 +95,13 @@ namespace hpc {
 
       void
       xml_dict::_merge( std::istream& stream,
-                        const string& path )
+                        const string& path,
+                        const string& filename )
       {
          xml_document doc;
          xml_parse_result result = doc.load( stream );
-         ASSERT( result, "Error reading XML." );
+         if( !result )
+            throw bad_xml( filename );
          xml_node root = _find_root( doc, path );
          for( xml_node_iterator it = root.begin(); it != root.end(); ++it )
             _merge_node( _root, *it );
@@ -113,19 +137,25 @@ namespace hpc {
       }
 
       xml_node
-      xml_dict::_get_node( const string& path ) const
+      xml_dict::_get_node( const string& path,
+                           bool except ) const
       {
          string xpath = _xform_path( path );
          xpath_node node = _root.select_single_node( xpath.c_str() );
          if( !node )
-            throw bad_option( path );
+         {
+            if( except )
+               throw bad_option( path );
+            else
+               return (xml_node)NULL;
+         }
          return node.node();
       }
 
       string
       xml_dict::_xform_path( const string& path ) const
       {
-         string new_path = string( "/" ) + path;
+         string new_path = string( "./" ) + path;
          for( unsigned ii = 0; ii < new_path.size(); ++ii )
          {
             if( new_path[ii] == ':' )

@@ -24,36 +24,128 @@
 #include <pugixml.hpp>
 #include "libhpc/containers/list.hh"
 #include "libhpc/containers/string.hh"
+#include "bad_option.hh"
 
 namespace hpc {
    namespace options {
       using namespace pugi;
 
+      ///
+      /// Exception thrown when there is any trouble parsing XML.
+      ///
+      class bad_xml
+         : public bad_option
+      {
+      public:
+
+         bad_xml( const string& filename = string() );
+
+         virtual
+         ~bad_xml() throw();
+      };
+
+      ///
+      /// A direct XML based options dictionary. The standard dictionary
+      /// uses option predeclaration to allow program help and unified
+      /// defaults. However, sometimes it is more convenient to not have
+      /// to require that predeclaration. xml_dict provides this.
+      ///
       class xml_dict
       {
       public:
 
-      public:
-
+         ///
+         /// Default constructor.
+         ///
          xml_dict();
 
+         ///
+         /// Destructor.
+         ///
          ~xml_dict();
 
+         ///
+         /// Read an XML from file. If called multiple times, each subsequent
+         /// XML will be merged with the existing dictionary.
+         ///
+         /// @param[in] filename The filename of the XML file to load.
+         /// @param[in] xpath_root Optional XPath root to use.
+         /// @throws bad_xml If any error occurs during XML parsing.
+         ///
          void
          read( const string& filename,
-               const string& path=string() );
+               const string& xpath_root = string() );
 
+         ///
+         /// Read an XML from a C++ stream. If called multiple times, each
+         /// subsequent XML will be merged with the existing dictionary.
+         ///
+         /// @param[in] stream The C++ stream to read from.
+         /// @param[in] xpath_root Optional XPath root to use.
+         /// @param[in] filename Optional filename, used for error reporting.
+         /// @throws bad_xml If any error occurs during XML parsing.
+         ///
          void
          read( std::istream& stream,
-               const string& path=string() );
+               const string& xpath_root = string(),
+               const string& filename = string() );
 
+         ///
+         /// Test for existence of an option.
+         ///
+         /// @param[in] path The option path to test for.
+         /// @returns Boolean describing the existence of the option.
+         ///
+         bool
+         has( const string& path ) const;
+
+         ///
+         /// Extract and return an option value.
+         ///
+         /// @tparam T The type of the option.
+         /// @param[in] path The option path to get the value of.
+         /// @returns The value of the option.
+         /// @throws bad_option Thrown when the option path does not exist.
+         ///
          template< class T >
          T
-         get( const string& path ) const
+         get( const string& path )
          {
             return _coerce<T>( _get_node( path ).first_child().value() );
          }
 
+         ///
+         /// Extract and return an option value. If the option does not
+         /// exist default_value is returned.
+         ///
+         /// @tparam T The type of the option.
+         /// @param[in] path The option path to get the value of.
+         /// @param[in] default_value The value to return if the option path
+         ///                          cannot be found.
+         /// @returns The value of the option.
+         ///
+         template< class T >
+         T
+         get( const string& path,
+              const T& default_value ) const
+         {
+            auto node = _get_node( path, false );
+            if( node )
+               return _coerce<T>( node.first_child().value() );
+            else
+               return default_value;
+         }
+
+         ///
+         /// Extract and return an option value as a list. An option list
+         /// in XML is interpreted as being a set of subelements. Each sub-
+         /// element with a pcdata child has that pcdata value appended to
+         /// the list.
+         ///
+         /// @tparam T The type of the elements of the list.
+         /// @param[in] path The option path to get the value of.
+         /// @returns The list of values.
+         ///
          template< class T >
          list<T>
          get_list( const string& path ) const
@@ -72,18 +164,20 @@ namespace hpc {
 
          xml_node
          _find_root( xml_node& node,
-                     const string& path ) const;
+                     const string& xpath_root ) const;
 
          void
          _merge( std::istream& stream,
-                 const string& path );
+                 const string& path,
+                 const string& filename = string() );
 
          void
          _merge_node( xml_node merge_into,
                       xml_node merge_from );
 
          xml_node
-         _get_node( const string& path ) const;
+         _get_node( const string& path,
+                    bool except = true ) const;
 
          string
          _xform_path( const string& path ) const;
