@@ -24,28 +24,10 @@
 #include "libhpc/containers/containers.hh"
 #include "libhpc/regexp/multimatch.hh"
 #include "option.hh"
+#include "bad_option.hh"
 
 namespace hpc {
    namespace options {
-
-      class bad_option
-         : public std::exception
-      {
-      public:
-
-         bad_option( const hpc::string& option_name );
-
-         virtual
-         ~bad_option() throw();
-
-         virtual const char*
-         what() const throw();
-
-      public:
-
-         hpc::string _name;
-         hpc::string _msg;
-      };
 
       class no_value
          : public bad_option

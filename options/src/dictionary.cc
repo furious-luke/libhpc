@@ -22,26 +22,6 @@
 namespace hpc {
    namespace options {
 
-      bad_option::bad_option( const hpc::string& option_name )
-         : std::exception(),
-           _name( option_name )
-      {
-         std::stringstream ss;
-         ss << "Invalid option requested from dictionary.\n";
-         ss << "  Option name: " << option_name << "\n";
-         _msg = ss.str();
-      }
-
-      bad_option::~bad_option() throw()
-      {
-      }
-
-      const char*
-      bad_option::what() const throw()
-      {
-         return _msg.c_str();
-      }
-
       no_value::no_value( const hpc::string& option_name )
          : bad_option( option_name )
       {
