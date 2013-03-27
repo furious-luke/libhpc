@@ -109,7 +109,7 @@ namespace hpc {
          ///
          template< class T >
          T
-         get( const string& path )
+         get( const string& path ) const
          {
             return _coerce<T>( _get_node( path ).first_child().value() );
          }
