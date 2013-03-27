@@ -25,7 +25,7 @@ using namespace pugi;
 namespace hpc {
    namespace options {
 
-      bad_xml::bad_xml( const string& filename )
+      bad_xml::bad_xml( const hpc::string& filename )
          : bad_option( filename )
       {
          std::stringstream ss;
@@ -60,7 +60,7 @@ namespace hpc {
       void
       xml_dict::read( std::istream& stream,
                       const hpc::string& xpath_root,
-                      const string& filename )
+                      const hpc::string& filename )
       {
          if( !_root )
          {
@@ -74,14 +74,14 @@ namespace hpc {
       }
 
       bool
-      xml_dict::has( const string& path ) const
+      xml_dict::has( const hpc::string& path ) const
       {
          return _get_node( path, false );
       }
 
       xml_node
       xml_dict::_find_root( xml_node& node,
-                            const string& xpath_root ) const
+                            const hpc::string& xpath_root ) const
       {
          if( !xpath_root.empty() )
          {
@@ -95,8 +95,8 @@ namespace hpc {
 
       void
       xml_dict::_merge( std::istream& stream,
-                        const string& path,
-                        const string& filename )
+                        const hpc::string& path,
+                        const hpc::string& filename )
       {
          xml_document doc;
          xml_parse_result result = doc.load( stream );
@@ -137,10 +137,10 @@ namespace hpc {
       }
 
       xml_node
-      xml_dict::_get_node( const string& path,
+      xml_dict::_get_node( const hpc::string& path,
                            bool except ) const
       {
-         string xpath = _xform_path( path );
+         hpc::string xpath = _xform_path( path );
          xpath_node node = _root.select_single_node( xpath.c_str() );
          if( !node )
          {
@@ -152,10 +152,10 @@ namespace hpc {
          return node.node();
       }
 
-      string
-      xml_dict::_xform_path( const string& path ) const
+      hpc::string
+      xml_dict::_xform_path( const hpc::string& path ) const
       {
-         string new_path = string( "./" ) + path;
+         hpc::string new_path = hpc::string( "./" ) + path;
          for( unsigned ii = 0; ii < new_path.size(); ++ii )
          {
             if( new_path[ii] == ':' )
