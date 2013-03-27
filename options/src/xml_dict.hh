@@ -24,6 +24,7 @@
 #include <pugixml.hpp>
 #include "libhpc/containers/list.hh"
 #include "libhpc/containers/string.hh"
+#include "libhpc/containers/optional.hh"
 #include "bad_option.hh"
 
 namespace hpc {
@@ -112,6 +113,26 @@ namespace hpc {
          get( const hpc::string& path ) const
          {
             return _coerce<T>( _get_node( path ).first_child().value() );
+         }
+
+         ///
+         /// Extract and return an option value in an optional
+         /// structure.
+         ///
+         /// @tparam T The type of the option.
+         /// @param[in] path The option path to get the value of.
+         /// @returns The optional value of the option, depending on whether
+         ///          the option name exists.
+         ///
+         template< class T >
+         optional<T>
+         opt( const hpc::string& path ) const
+         {
+            auto node = _get_node( path, false );
+            if( node )
+               return _coerce<T>( node.first_child().value() );
+            else
+               return none;
          }
 
          ///
