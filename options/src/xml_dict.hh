@@ -147,11 +147,11 @@ namespace hpc {
          /// @returns The list of values.
          ///
          template< class T >
-         list<T>
+         hpc::list<T>
          get_list( const hpc::string& path ) const
          {
             xml_node node = _get_node( path );
-            list<T> val;
+            hpc::list<T> val;
             for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
             {
                if( it->first_child() && it->first_child().type() == node_pcdata )
