@@ -110,6 +110,21 @@ namespace hpc {
             return ref;
          }
 
+         template< class T >
+         const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>&
+         get_list( const hpc::string& name,
+                   const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>& default_value ) const
+         {
+            typedef typename boost::mpl::at<type_map,T>::type sub_option_type;
+            typedef typename sub_option_type::value_type value_type;
+            typedef options::list<sub_option_type> option_type;
+            const option_type& opt = (const option_type&)((*this)[name]);
+            if( opt.get() )
+               return *opt.get();
+            else
+               return default_value;
+         }
+
          const dictionary&
          sub( const hpc::string& prefix ) const;
 

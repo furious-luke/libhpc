@@ -324,7 +324,7 @@ namespace hpc {
             else
             {
                // TODO: Prepare defaults.
-               return value_type();
+               return none;
             }
          }
 
