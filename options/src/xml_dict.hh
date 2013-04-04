@@ -181,6 +181,36 @@ namespace hpc {
             return val;
          }
 
+         ///
+         /// Extract and return an option value as a list. Same as
+         /// the former get_list but allows for a default value if
+         /// the list option name cannot be found.
+         ///
+         /// @tparam T The type of the elements of the list.
+         /// @param[in] path The option path to get the value of.
+         /// @param[in] default_value The default value.
+         /// @returns The list of values.
+         ///
+         template< class T >
+         hpc::list<T>
+         get_list( const hpc::string& path,
+                   const hpc::list<T>& default_value )
+         {
+            xml_node node = _get_node( path, false );
+            if( node )
+            {
+               hpc::list<T> val;
+               for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
+               {
+                  if( it->first_child() && it->first_child().type() == node_pcdata )
+                     val.push_back( _coerce<T>( it->first_child().value() ) );
+               }
+               return val;
+            }
+            else
+               return default_value;
+         }
+
       protected:
 
          xml_node

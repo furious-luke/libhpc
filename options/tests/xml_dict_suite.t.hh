@@ -87,6 +87,28 @@ public:
       TS_ASSERT_EQUALS( *it, 2 );
    }
 
+   void test_get_list_bad_option()
+   {
+      string xml_str = "<list><item>1</item><item>2</item></list>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss );
+      }
+      TS_ASSERT_THROWS( dict.get_list<int>( "list_blah" ), options::bad_option );
+   }
+
+   void test_get_list_default()
+   {
+      string xml_str = "<list><item>1</item><item>2</item></list>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss );
+      }
+      TS_ASSERT_THROWS_NOTHING( dict.get_list<int>( "list_blah", hpc::list<int>() ) );
+   }
+
    void test_sub_options()
    {
       string xml_str = "<parent><child1>hello</child1><child2>10</child2></parent>";
