@@ -31,25 +31,22 @@ namespace hpc {
 
      public:
 
-	progress();
+	progress( const mpi::comm& comm = mpi::comm::world );
 
 	void
 	set_local_size( double size );
 
 	void
-	set_local_complete( double size );
+	set_complete( double size );
 
 	void
-	set_local_complete_delta( double delta );
+	set_delta( double delta );
 
 	void
 	update();
 
 	double
 	complete() const;
-
-	bool
-	test();
 
      protected:
 
@@ -58,14 +55,12 @@ namespace hpc {
 
      protected:
 
+        shared_ptr<mpi::comm> _comm;
 	int _root;
+        double _update_fac;
 	double _lsize, _gsize;
 	double _comp, _old_comp;
 	double _gcomp, _gsize_inv;
-	int _tag;
-	unsigned _max_probes;
-	mpi::request _req;
-	unsigned _rem;
      };
   }
 }

@@ -22,6 +22,8 @@
 
 using namespace hpc;
 
+#include "mpi_fixture.hh"
+
 class progress_suite : public CxxTest::TestSuite {
 public:
 
@@ -43,18 +45,29 @@ public:
       prog.set_local_size( 100 );
       for( unsigned ii = 0; ii < 100; ++ii )
       {
-	 prog.set_local_complete( ii + 1 );
+	 prog.set_delta( 1 );
 	 prog.update();
-	 // if( mpi::comm::world.rank() == 0 )
-	 //    std::cout << "\n" << prog.complete();
       }
-      while( prog.test() )
-      {
-	 prog.update();
-	 // if( mpi::comm::world.rank() == 0 )
-	 //    std::cout << "\n" << prog.complete();
-      }
-      // if( mpi::comm::world.rank() == 0 )
-      //    std::cout << "\n" << prog._gcomp << "\n";
    }
+
+   void test_unblanced_update()
+   {
+      profile::progress prog;
+      prog.set_local_size( 100 );
+      if( mpi::comm::world.rank() == 0 )
+      {
+         for( unsigned ii = 0; ii < 100; ++ii )
+            prog.set_delta( 1 );
+      }
+      else if( mpi::comm::world.rank() == 1 )
+      {
+         for( unsigned ii = 0; ii < 5; ++ii )
+            prog.set_delta( 20 );
+      }
+      else
+      {
+         prog.set_delta( 100 );
+      }
+   }
+
 };
