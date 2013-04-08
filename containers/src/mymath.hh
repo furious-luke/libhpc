@@ -51,6 +51,18 @@ nearest_po2( T x )
 }
 
 template< class T >
+T
+make_po2( T x )
+{
+   T l = log2i( x );
+   T p = pow2i( l );
+   if( p == x )
+      return x;
+   else
+      return pow2i( l + 1 );
+}
+
+template< class T >
 int
 sgn( T x )
 {
