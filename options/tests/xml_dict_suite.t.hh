@@ -148,4 +148,16 @@ public:
       TS_ASSERT( !dict.has( "parent:child3" ) );
    }
 
+   void test_get_nodes()
+   {
+      string xml_str = "<node>hello</node><node>world</node>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss );
+      }
+      auto nodes = dict.get_nodes( "/node" );
+      TS_ASSERT_EQUALS( nodes.size(), 2 );
+   }
+
 };

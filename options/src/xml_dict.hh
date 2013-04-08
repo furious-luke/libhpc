@@ -211,6 +211,9 @@ namespace hpc {
                return default_value;
          }
 
+         xpath_node_set
+         get_nodes( const hpc::string& xpath );
+
       protected:
 
          xml_node

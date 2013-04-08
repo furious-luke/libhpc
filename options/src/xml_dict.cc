@@ -79,6 +79,12 @@ namespace hpc {
          return _get_node( path, false );
       }
 
+      xpath_node_set
+      xml_dict::get_nodes( const hpc::string& xpath )
+      {
+         return _root.select_nodes( xpath.c_str() );
+      }
+
       xml_node
       xml_dict::_find_root( xml_node& node,
                             const hpc::string& xpath_root ) const
