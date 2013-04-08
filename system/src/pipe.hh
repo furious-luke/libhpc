@@ -22,6 +22,7 @@
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/string.hh"
 #include "libhpc/containers/vector.hh"
+#include "libhpc/containers/po2_ring_buffer.hh"
 #include "types.hh"
 
 namespace hpc {
@@ -90,13 +91,37 @@ namespace hpc {
          }
 
          template< class T >
-         void
+         size_t
          read( vector<T>& buf ) const
          {
             buf.resize( buf.capacity() );
-            unsigned size = read( (byte*)buf.data(), buf.size()*sizeof(T) );
+            size_t size = read( (byte*)buf.data(), buf.size()*sizeof(T) );
             ASSERT( size%sizeof(T) == 0 );
             buf.resize( size/sizeof(T) );
+            return buf.size();
+         }
+
+         template< class T >
+         size_t
+         read( po2_ring_buffer<T>& buf ) const
+         {
+            typename vector<T>::view chunk = buf.first_vacant_chunk();
+            size_t size = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+            ASSERT( size%sizeof(T) == 0 );
+            size /= sizeof(T);
+            if( size == chunk.size() )
+            {
+               chunk = buf.second_vacant_chunk();
+               if( chunk.size() )
+               {
+                  size_t size2 = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+                  ASSERT( size2%sizeof(T) == 0 );
+                  size2 /= sizeof(T);
+                  size += size2;
+               }
+            }
+            buf.extend( size );
+            return size;
          }
 
          bool
