@@ -80,7 +80,7 @@ namespace hpc {
       }
 
       xpath_node_set
-      xml_dict::get_nodes( const hpc::string& xpath )
+      xml_dict::get_nodes( const hpc::string& xpath ) const
       {
          return _root.select_nodes( xpath.c_str() );
       }

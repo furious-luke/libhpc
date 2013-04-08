@@ -212,7 +212,7 @@ namespace hpc {
          }
 
          xpath_node_set
-         get_nodes( const hpc::string& xpath );
+         get_nodes( const hpc::string& xpath ) const;
 
       protected:
 
