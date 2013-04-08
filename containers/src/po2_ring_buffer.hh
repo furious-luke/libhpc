@@ -86,7 +86,7 @@ namespace hpc {
       iterator
       end() const
       {
-         return iterator( *this, norm( _size ) );
+         return iterator( *this, _size );
       }
 
       template< class Iterator >
@@ -97,10 +97,24 @@ namespace hpc {
          size_type rem = _buf.size() - _size;
          unsigned ii = 0;
          for( ; ii < rem && start != finish; ++ii )
-            _buf[norm( _size + ii )] = *start++;
+            _buf[norm( _start + _size + ii )] = *start++;
          _size += ii;
 
          return ii;
+      }
+
+      void
+      insert( value_type value )
+      {
+         ASSERT( _buf.size() - _size );
+         _buf[norm( _start + _size++ )] = value;
+      }
+
+      void
+      extend( size_type size = 1 )
+      {
+         ASSERT( _size + size < _buf.size() );
+         _size += size;
       }
 
       ///
@@ -111,12 +125,45 @@ namespace hpc {
       /// was consumed.
       ///
       size_t
-      consume( size_type size )
+      consume( size_type size = 1 )
       {
          size = std::min( size, _size );
          _start = norm( _start + size );
          _size -= size;
          return size;
+      }
+
+      value_type
+      pop()
+      {
+         ASSERT( _size );
+         size_type pos = norm( _start );
+         consume();
+         return _buf[pos];
+      }
+
+      typename vector<value_type>::view
+      first_vacant_chunk() const
+      {
+         size_t start = norm( _start + _size );
+         size_t size;
+         if( start <= _start )
+            size = _start - start;
+         else
+            size = _buf.size() - start;
+         return typename vector<value_type>::view( _buf, size, start );
+      }
+
+      typename vector<value_type>::view
+      second_vacant_chunk() const
+      {
+         size_t start = norm( _start + _size );
+         size_t size;
+         if( start <= _start )
+            size = 0;
+         else
+            size = _start;
+         return typename vector<value_type>::view( _buf, size );
       }
 
       size_t
@@ -216,6 +263,12 @@ namespace hpc {
                                 size_type idx )
          : _buf( buffer ),
            _idx( idx )
+      {
+      }
+
+      po2_ring_buffer_iterator( const po2_ring_buffer_iterator& src )
+         : _buf( src._buf ),
+           _idx( src._idx )
       {
       }
 

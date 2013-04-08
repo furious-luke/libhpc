@@ -104,4 +104,128 @@ public:
       TS_ASSERT_EQUALS( rb._start, 0 );
       TS_ASSERT_EQUALS( rb._size, 8 );
    }
+
+   void test_iterator()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 8; ++ii )
+         rb.insert( ii );
+      unsigned ii = 0;
+      for( auto it = rb.begin(); it != rb.end(); ++it, ++ii )
+         TS_ASSERT_EQUALS( *it, ii );
+   }
+
+   void test_first_vacant_chunk_full()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 8; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.first_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 0 );
+   }
+
+   void test_first_vacant_chunk_end()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.first_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 4 );
+      TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() + 4 );
+   }
+
+   void test_first_vacant_chunk_span()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      rb.consume( 4 );
+      for( unsigned ii = 0; ii < 6; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.first_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 2 );
+      TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() + 2 );
+   }
+
+   void test_first_vacant_chunk_center()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      rb.consume( 4 );
+      for( unsigned ii = 0; ii < 2; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.first_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 2 );
+      TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() + 6 );
+   }
+
+   void test_second_vacant_chunk_full()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 8; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.second_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 0 );
+   }
+
+   void test_second_vacant_chunk_end()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.second_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 0 );
+   }
+
+   void test_second_vacant_chunk_span()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      rb.consume( 4 );
+      for( unsigned ii = 0; ii < 6; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.second_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 0 );
+   }
+
+   void test_second_vacant_chunk_center()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      rb.consume( 4 );
+      for( unsigned ii = 0; ii < 2; ++ii )
+         rb.insert( ii );
+      auto chunk = rb.second_vacant_chunk();
+      TS_ASSERT_EQUALS( chunk.size(), 4 );
+      TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() );
+   }
+
+   void test_extend()
+   {
+      po2_ring_buffer<int> rb;
+      rb.resize( 8 );
+      for( unsigned ii = 0; ii < 4; ++ii )
+         rb.insert( ii );
+      rb.consume( 2 );
+      auto chunk = rb.first_vacant_chunk();
+      chunk[0] = 10;
+      chunk[1] = 20;
+      rb.extend( 2 );
+      TS_ASSERT_EQUALS( rb[0], 2 );
+      TS_ASSERT_EQUALS( rb[1], 3 );
+      TS_ASSERT_EQUALS( rb[2], 10 );
+      TS_ASSERT_EQUALS( rb[3], 20 );
+   }
 };
