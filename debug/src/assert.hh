@@ -18,15 +18,14 @@
 #ifndef libhpc_debug_assert_hh
 #define libhpc_debug_assert_hh
 
-#ifndef NDEBUG
-
 #include "assertions.hh"
+#include "stacktrace.hh"
+
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
 #ifndef NSTACKTRACE
 
-#include "stacktrace.hh"
-
-#define ASSERT( expr, ... )                     \
+#define _ASSERT( expr, ... )                    \
    ::hpc::debug::_assert(                       \
       expr, __FILE__, __LINE__, #expr,          \
       ::hpc::debug::stacktrace(), ##__VA_ARGS__ \
@@ -34,7 +33,7 @@
 
 #else
 
-#define ASSERT( expr, ... )                             \
+#define _ASSERT( expr, ... )                            \
    ::hpc::debug::_assert(                               \
       expr, __FILE__, __LINE__, #expr, ##__VA_ARGS__    \
       )
@@ -43,14 +42,14 @@
 
 #else
 
-#define ASSERT( expr, ... )
+#define _ASSERT( expr, ... )
 
 #endif
 
 namespace hpc {
    namespace debug {
 
-#if !defined( NDEBUG ) && !defined( NEXCEPT )
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
       void
       _assert( bool state,
@@ -76,5 +75,15 @@ namespace hpc {
 
    }
 }
+
+#ifndef NDEBUG
+
+#define ASSERT _ASSERT
+
+#else
+
+#define ASSERT( expr, ... )
+
+#endif
 
 #endif

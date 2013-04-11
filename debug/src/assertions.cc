@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
 #include <sstream>
 #include "assertions.hh"
@@ -94,15 +94,6 @@ namespace hpc {
          buf = ss.str();
       }
 
-      out_of_memory::out_of_memory()
-         : assertion( "Out of memory." )
-      {
-      }
-
-      invalid_index::invalid_index()
-         : assertion( "Index out of bounds" )
-      {
-      }
    }
 }
 

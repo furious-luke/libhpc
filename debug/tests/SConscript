@@ -11,6 +11,7 @@ Import('env')
 common = ('assert.cc', 'assertions.cc', 'globals.cc', 'checks.cc', 'stacktrace.cc', 'func.cc')
 suites = [
     ('assert_suite.t.hh',) + common,
+    ('except_suite.t.hh',) + common,
     ('group_context_suite.t.hh', 'omp_lock.cc',) + common,
     ('error_suite.t.hh',),
 ]

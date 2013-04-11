@@ -69,4 +69,5 @@ public:
       TS_ASSERT( !inside );
 #endif
    }
+
 };

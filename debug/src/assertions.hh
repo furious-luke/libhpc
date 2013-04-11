@@ -18,7 +18,7 @@
 #ifndef libhpc_debug_assertions_hh
 #define libhpc_debug_assertions_hh
 
-#if !defined( NDEBUG ) && !defined( NEXCEPT )
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
 #include <iostream>
 #include <string>
@@ -71,27 +71,6 @@ namespace hpc {
 #endif
       };
 
-      ///
-      ///
-      ///
-      class out_of_memory
-         : public assertion
-      {
-      public:
-
-         out_of_memory();
-      };
-
-      ///
-      ///
-      ///
-      class invalid_index
-         : public assertion
-      {
-      public:
-
-         invalid_index();
-      };
    }
 }
 
