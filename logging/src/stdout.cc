@@ -36,6 +36,7 @@ namespace hpc {
       stdout::write()
       {
          std::cout << buffer().str();
+	 std::cout.flush();
       }
 
 #endif
