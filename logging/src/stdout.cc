@@ -23,8 +23,9 @@ namespace hpc {
 
 #ifndef NLOG
 
-      stdout::stdout( unsigned min_level )
-         : logger( min_level )
+      stdout::stdout( unsigned min_level,
+		      const std::string& tag )
+         : logger( min_level, tag )
       {
       }
 
