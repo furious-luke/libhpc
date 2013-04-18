@@ -104,16 +104,28 @@ namespace hpc {
          ASSERT( res == size );
       }
 
-      ssize_t
+      void
+      pipe::write( const string& buf )
+      {
+         write( (byte*)buf.data(), buf.size() );
+      }
+
+      size_t
       pipe::read( byte* buf,
                   size_t size ) const
       {
          ASSERT( _fd >= 0 );
          ssize_t res = ::read( _fd, buf, size );
-         if( res == -1 && errno == EAGAIN )
+         if( res < 0 )
+         {
             res = 0;
+            SETERR( EAGAIN, err0 );
+         }
+         else
+            ERROK();
          ASSERT( res >= 0 );
          ASSERT( res <= size );
+        err0:
          return res;
       }
 
@@ -121,9 +133,9 @@ namespace hpc {
       pipe::read( string& buf ) const
       {
          buf.resize( buf.capacity() );
-         unsigned size = read( (byte*)buf.data(), buf.size()*sizeof(char) );
+         ssize_t size = read( (byte*)buf.data(), buf.size()*sizeof(char) );
          ASSERT( size%sizeof(char) == 0 );
-         buf.resize( size/sizeof(char) );
+         buf.resize( size );
       }
 
       bool

@@ -76,7 +76,10 @@ namespace hpc {
          write( const byte* buf,
                 size_t size ) const;
 
-         ssize_t
+         void
+         write( const string& buf );
+
+         size_t
          read( byte* buf,
                size_t size ) const;
 
@@ -91,14 +94,12 @@ namespace hpc {
          }
 
          template< class T >
-         size_t
+         void
          read( vector<T>& buf ) const
          {
-            buf.resize( buf.capacity() );
-            size_t size = read( (byte*)buf.data(), buf.size()*sizeof(T) );
+            size_t size = read( (byte*)buf.data(), buf.capacity()*sizeof(T) );
             ASSERT( size%sizeof(T) == 0 );
             buf.resize( size/sizeof(T) );
-            return buf.size();
          }
 
          template< class T >
@@ -106,7 +107,9 @@ namespace hpc {
          read( po2_ring_buffer<T>& buf ) const
          {
             typename vector<T>::view chunk = buf.first_vacant_chunk();
-            size_t size = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+            ssize_t size = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+            if( ISERR( EAGAIN ) )
+               return 0;
             ASSERT( size%sizeof(T) == 0 );
             size /= sizeof(T);
             if( size == chunk.size() )
@@ -114,7 +117,7 @@ namespace hpc {
                chunk = buf.second_vacant_chunk();
                if( chunk.size() )
                {
-                  size_t size2 = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+                  ssize_t size2 = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
                   ASSERT( size2%sizeof(T) == 0 );
                   size2 /= sizeof(T);
                   size += size2;
