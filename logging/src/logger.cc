@@ -33,9 +33,12 @@ namespace hpc {
 
       double log_base_time;
 
-      logger::logger( unsigned min_level )
+      logger::logger( unsigned min_level,
+		      const std::string& tag )
          : _min_level( min_level )
       {
+	 if( !tag.empty() )
+	    _tags.insert( tag );
       }
 
       logger::~logger()
@@ -75,6 +78,12 @@ namespace hpc {
       }
 
       void
+      logger::add_tag( const std::string& tag )
+      {
+	 _tags.insert( tag );
+      }
+
+      void
       logger::push_level( unsigned level )
       {
          levels().push_front( level );
@@ -86,10 +95,41 @@ namespace hpc {
          levels().pop_front();
       }
 
+      void
+      logger::push_tag( const std::string& tag )
+      {
+	 if( current_tags().find( tag ) == current_tags().end() )
+	    current_tags().insert( std::make_pair( tag, 0 ) );
+	 ++current_tags()[tag];
+      }
+
+      void
+      logger::pop_tag( const string& tag )
+      {
+	 ASSERT( current_tags().find( tag ) != current_tags().end() );
+	 int& val = current_tags()[tag];
+	 ASSERT( val > 0 );
+	 if( --val == 0 )
+	    current_tags().erase( tag );
+      }
+
       bool
       logger::visible()
       {
-         return (levels().empty() || levels().front() >= _min_level);
+	 bool level_vis = levels().empty() || levels().front() >= _min_level;
+	 bool tag_vis = _tags.empty();
+	 if( !tag_vis )
+	 {
+	    for( const auto tag : _tags )
+	    {
+	       if( current_tags().find( tag ) != current_tags().end() )
+	       {
+		  tag_vis = true;
+		  break;
+	       }
+	    }
+	 }
+         return level_vis && tag_vis;
       }
 
       std::stringstream&
@@ -118,6 +158,16 @@ namespace hpc {
          if( _levels.find( tid ) == _levels.end() )
             _levels.insert( std::make_pair( tid, std::list<unsigned>() ) );
          return _levels[tid];
+      }
+
+      std::map<std::string,int>&
+      logger::current_tags()
+      {
+	 int tid = OMP_TID;
+#pragma omp critical( logger_tags )
+         if( _cur_tags.find( tid ) == _cur_tags.end() )
+            _cur_tags.insert( std::make_pair( tid, std::map<std::string,int>() ) );
+         return _cur_tags[tid];
       }
 
       bool&

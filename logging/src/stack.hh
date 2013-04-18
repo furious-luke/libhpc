@@ -48,6 +48,12 @@ namespace hpc {
          void
          clear();
 
+	 list<scoped_ptr<logger>>::iterator
+	 begin();
+
+	 list<scoped_ptr<logger>>::iterator
+	 end();
+
          template< class T >
          stack&
          operator<<( const T& obj )

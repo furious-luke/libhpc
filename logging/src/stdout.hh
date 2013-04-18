@@ -34,7 +34,8 @@ namespace hpc {
       {
       public:
 
-         stdout( unsigned min_level = 0 );
+	 stdout( unsigned min_level = 0,
+		 const std::string& tag = std::string() );
 
          virtual
          ~stdout();
