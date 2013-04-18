@@ -21,6 +21,7 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <sys/epoll.h>
 #include "libhpc/containers/list.hh"
+#include "libhpc/containers/optional.hh"
 #include "types.hh"
 #include "pipe.hh"
 
@@ -56,8 +57,22 @@ namespace hpc {
 
          void
          add( const pipe& pipe,
-              bool edge = false,
-              void* data = NULL );
+              epoll_data_t data, 
+              bool edge = false );
+
+         void
+         add( const pipe& pipe,
+              bool edge = false );
+
+         void
+         add( const pipe& pipe,
+              void* data,
+              bool edge = false );
+
+         void
+         add( const pipe& pipe,
+              uint32 data,
+              bool edge = false );
 
          void
          remove( const pipe& pipe );
