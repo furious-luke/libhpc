@@ -284,6 +284,12 @@ namespace hpc {
       }
 
       void
+      decrement()
+      {
+         --_idx;
+      }
+
+      void
       advance( size_t elems )
       {
          _idx += elems;
