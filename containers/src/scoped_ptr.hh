@@ -38,6 +38,12 @@ namespace hpc {
       // {
       //    reset( ptr );
       // }
+
+      bool
+      empty() const
+      {
+         return this->get() == NULL;
+      }
    };
 }
 
