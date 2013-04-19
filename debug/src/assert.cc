@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include "assert.hh"
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
 namespace hpc {
    namespace debug {

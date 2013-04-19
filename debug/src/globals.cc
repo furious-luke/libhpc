@@ -20,7 +20,7 @@
 namespace hpc {
    namespace debug {
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
       bool use_abort = false;
 

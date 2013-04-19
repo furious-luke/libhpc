@@ -18,7 +18,7 @@
 #ifndef libhpc_debug_globals_hh
 #define libhpc_debug_globals_hh
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
 #define SET_ABORT( state )                      \
    ::hpc::debug::_set_abort( state )
@@ -32,7 +32,7 @@
 namespace hpc {
    namespace debug {
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
       void
       _set_abort( bool flag );
