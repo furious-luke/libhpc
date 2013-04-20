@@ -36,49 +36,43 @@ namespace hpc {
          typedef struct epoll_event event_type;
          typedef class epoll_event_iterator iterator;
 
-         // enum event_flags
-         // {
-         //    epollin = EPOLLIN,
-         //    epollout = EPOLLOUT,
-         //    epollpri = EPOLLPRI,
-         //    epollerr = EPOLLERR,
-         //    epollhup = EPOLLHUP,
-         //    epollet = EPOLLET
-         // };
+         static const size_t default_max_events;
 
       public:
 
          epoll();
 
-         epoll( const pipe& pipe );
+         epoll( const pipe& pipe,
+                uint32_t events,
+                size_t max_events = default_max_events );
 
          void
-         open();
-
-         void
-         add( const pipe& pipe,
-              epoll_data_t data, 
-              bool edge = false );
+         open( size_t max_events = default_max_events );
 
          void
          add( const pipe& pipe,
-              bool edge = false );
+              uint32_t events,
+              epoll_data_t data );
 
          void
          add( const pipe& pipe,
-              void* data,
-              bool edge = false );
+              uint32_t events );
 
          void
          add( const pipe& pipe,
-              uint32 data,
-              bool edge = false );
+              uint32_t events,
+              void* data );
+
+         void
+         add( const pipe& pipe,
+              uint32_t events,
+              uint32 data );
 
          void
          remove( const pipe& pipe );
 
          void
-         wait( int timeout=-1 );
+         wait( int timeout = -1 );
 
          iterator
          begin() const;
@@ -89,7 +83,6 @@ namespace hpc {
       protected:
 
          unsigned _size;
-         unsigned _max_events;
          vector<event_type> _events;
       };
 
@@ -116,7 +109,10 @@ namespace hpc {
          data() const;
 
          bool
-         ready() const;
+         ready_in() const;
+
+         bool
+         ready_out() const;
 
          bool
          error() const;
