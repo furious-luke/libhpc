@@ -29,6 +29,12 @@ namespace hpc {
       {
       }
 
+      timer::~timer()
+      {
+	 ASSERT( !_stack );
+	 ASSERT( !_run );
+      }
+
       void
       timer::reset()
       {
@@ -76,6 +82,12 @@ namespace hpc {
       timer::total() const
       {
 	 return _total;
+      }
+
+      double
+      timer::total( const mpi::comm& comm ) const
+      {
+	 return comm.all_reduce( _total, MPI_MAX );
       }
 
       double

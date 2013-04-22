@@ -19,6 +19,7 @@
 #define libhpc_profile_timer_hh
 
 #include "libhpc/system/timer.hh"
+#include "libhpc/hpcmpi/comm.hh"
 
 namespace hpc {
    namespace profile {
@@ -31,6 +32,8 @@ namespace hpc {
       public:
 
 	 timer();
+
+	 ~timer();
 
 	 void
 	 reset();
@@ -49,6 +52,9 @@ namespace hpc {
 
 	 double
 	 total() const;
+
+	 double
+	 total( const mpi::comm& comm ) const;
 
 	 double
 	 mean() const;
