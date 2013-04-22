@@ -30,6 +30,7 @@ namespace hpc {
       mpi::data_type data_type::unsigned_integer;
       mpi::data_type data_type::long_integer;
       mpi::data_type data_type::unsigned_long;
+      mpi::data_type data_type::long_long;
       mpi::data_type data_type::floating;
       mpi::data_type data_type::double_floating;
 
@@ -61,6 +62,7 @@ namespace hpc {
 	    this->_type != MPI_UNSIGNED &&
 	    this->_type != MPI_LONG &&
 	    this->_type != MPI_UNSIGNED_LONG &&
+	    this->_type != MPI_LONG_LONG &&
 	    this->_type != MPI_BYTE &&
 	    this->_type != MPI_CHAR &&
 	    this->_type != MPI_FLOAT &&
@@ -191,6 +193,8 @@ namespace hpc {
 	    strm << "LONG";
 	 else if(obj._type == MPI_UNSIGNED_LONG)
 	    strm << "UNSIGNED LONG";
+	 else if(obj._type == MPI_LONG_LONG)
+	    strm << "LONG LONG";
 	 else if(obj._type == MPI_FLOAT)
 	    strm << "FLOAT";
 	 else if(obj._type == MPI_DOUBLE)
