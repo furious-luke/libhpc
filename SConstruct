@@ -8,7 +8,7 @@ config.select(
     config.packages.HDF5(),
     config.packages.pugixml(),
 #    config.packages.Eigen(required=False),
-    config.packages.FFTW3(use_float=True, required=False),
+#    config.packages.FFTW3(use_float=True, required=False),
 )
 
 vars = project.create_variables()
