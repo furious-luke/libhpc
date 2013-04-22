@@ -58,6 +58,7 @@ namespace hpc {
 	    mpi::data_type::unsigned_integer.mpi_data_type(MPI_UNSIGNED);
 	    mpi::data_type::long_integer.mpi_data_type(MPI_LONG);
 	    mpi::data_type::unsigned_long.mpi_data_type(MPI_UNSIGNED_LONG);
+	    mpi::data_type::long_long.mpi_data_type(MPI_LONG_LONG);
 	    mpi::data_type::floating.mpi_data_type(MPI_FLOAT);
 	    mpi::data_type::double_floating.mpi_data_type(MPI_DOUBLE);
 
@@ -73,6 +74,7 @@ namespace hpc {
 	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_integer, 0)->second;
 	    ++_shared_ptr_cnts.set_default(&mpi::data_type::long_integer, 0)->second;
 	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_long, 0)->second;
+	    ++_shared_ptr_cnts.set_default(&mpi::data_type::long_long, 0)->second;
 	    ++_shared_ptr_cnts.set_default(&mpi::data_type::floating, 0)->second;
 	    ++_shared_ptr_cnts.set_default(&mpi::data_type::double_floating, 0)->second;
 
@@ -86,8 +88,9 @@ namespace hpc {
             mpi::data_type::_type_map[4] = MPI_UNSIGNED;
             mpi::data_type::_type_map[5] = MPI_LONG;
             mpi::data_type::_type_map[6] = MPI_UNSIGNED_LONG;
-            mpi::data_type::_type_map[7] = MPI_FLOAT;
-            mpi::data_type::_type_map[8] = MPI_DOUBLE;
+            mpi::data_type::_type_map[7] = MPI_LONG_LONG;
+            mpi::data_type::_type_map[8] = MPI_FLOAT;
+            mpi::data_type::_type_map[9] = MPI_DOUBLE;
 #endif
 
 	    initialized = true;
@@ -116,6 +119,7 @@ namespace hpc {
 	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_integer);
 	    _shared_ptr_cnts.erase(&mpi::data_type::long_integer);
 	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_long);
+	    _shared_ptr_cnts.erase(&mpi::data_type::long_long);
 	    _shared_ptr_cnts.erase(&mpi::data_type::floating);
 	    _shared_ptr_cnts.erase(&mpi::data_type::double_floating);
 
