@@ -29,24 +29,41 @@ namespace hpc {
       {
       public:
 
+         enum kind_type
+         {
+            SERVER,
+            CLIENT
+         };
+
          ERRORS( address_in_use );
 
       public:
 
-         inetsock();
+         inetsock( kind_type kind = CLIENT );
 
          inetsock( const string& ip_addr,
-                   uint16 port=0 );
+                   uint16 port = 0  );
 
          void
          open();
 
          void
-         bind( const string& ip_addr=string(),
-               uint16 port=0 );
+         bind( uint16 port,
+               const string& ip_addr = string() );
+
+         void
+         connect( const string& ip_addr,
+                  uint16 port );
 
          bool
          accept( inetsock& client );
+
+         kind_type
+         kind() const;
+
+      protected:
+
+         kind_type _kind;
       };
    }
 }

@@ -20,51 +20,76 @@
 namespace hpc {
    namespace unix {
 
+      const size_t epoll::default_max_events = 1024;
+
       epoll::epoll()
-         : _size( 0 ),
-           _max_events( 64 )
+         : _size( 0 )
       {
       }
 
-      epoll::epoll( const pipe& pipe )
-         : _size( 0 ),
-           _max_events( 64 )
+      epoll::epoll( const pipe& pipe,
+                    uint32_t events,
+                    size_t max_events )
+         : _size( 0 )
       {
-         open();
-         add( pipe );
+         open( max_events );
+         add( pipe, events );
       }
 
       void
-      epoll::open()
+      epoll::open( size_t max_events )
       {
          close();
          _fd = epoll_create1( 0 );
          ASSERT( _fd >= 0 );
-         _events.reallocate( _max_events );
+         _events.reallocate( max_events );
       }
 
       void
       epoll::add( const pipe& pipe,
-                  bool edge,
-                  void* data )
+                  uint32_t events,
+                  epoll_data_t data )
       {
          ASSERT( pipe.fd() >= 0 );
          event_type event;
 
          // Set the events.
-         event.events = EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP;
-         if( edge )
-            event.events |= EPOLLET;
+         event.events = events;
 
-         // The data is a union, set accordingly.
-         if( data )
-            event.data.ptr = data;
-         else
-            event.data.fd = pipe.fd();
+         // Set the data.
+         event.data = data;
 
          // Add the event.
          INSIST( epoll_ctl( _fd, EPOLL_CTL_ADD, pipe.fd(), &event ), >= 0 );
          ++_size;
+      }
+
+      void
+      epoll::add( const pipe& pipe,
+                  uint32_t events )
+      {
+         epoll_data_t data;
+         add( pipe, events, data );
+      }
+
+      void
+      epoll::add( const pipe& pipe,
+                  uint32_t events,
+                  void* data )
+      {
+         epoll_data_t ed;
+         ed.ptr = data;
+         add( pipe, events, ed );
+      }
+
+      void
+      epoll::add( const pipe& pipe,
+                  uint32_t events,
+                  uint32 data )
+      {
+         epoll_data_t ed;
+         ed.u32 = data;
+         add( pipe, events, ed );
       }
 
       void
@@ -78,6 +103,7 @@ namespace hpc {
       void
       epoll::wait( int timeout )
       {
+         ASSERT( _size < _events.capacity() );
          _events.resize( _size );
          unsigned ready = epoll_wait( _fd, _events.data(), _size, timeout );
          _events.resize( ready );
@@ -113,9 +139,15 @@ namespace hpc {
       }
 
       bool
-      epoll_event_iterator::ready() const
+      epoll_event_iterator::ready_in() const
       {
          return (*this)->events & EPOLLIN;
+      }
+
+      bool
+      epoll_event_iterator::ready_out() const
+      {
+         return (*this)->events & EPOLLOUT;
       }
 
       bool

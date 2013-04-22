@@ -23,7 +23,10 @@
 #include <iomanip>
 #include <list>
 #include <map>
+#include <set>
 #include "libhpc/system/stream_indent.hh"
+
+class tags_suite;
 
 #ifndef NLOG
 
@@ -43,9 +46,12 @@ namespace hpc {
       ///
       class logger
       {
+	 friend class ::tags_suite;
+
       public:
 
-         logger( unsigned min_level=0 );
+         logger( unsigned min_level = 0,
+		 const std::string& tag = std::string() );
 
          virtual
          ~logger();
@@ -65,11 +71,20 @@ namespace hpc {
          virtual void
          write() = 0;
 
+	 void
+	 add_tag( const std::string& tag );
+
          void
          push_level( unsigned level );
 
          void
          pop_level();
+
+	 void
+	 push_tag( const std::string& tag );
+
+	 void
+	 pop_tag( const std::string& tag );
 
          bool
          visible();
@@ -79,6 +94,9 @@ namespace hpc {
 
 	 std::list<unsigned>&
 	 levels();
+
+	 std::map<std::string,int>&
+	 current_tags();
 
          template< class T >
          logger&
@@ -138,10 +156,18 @@ namespace hpc {
             };
          };
 
+	 // Using mappings from thread ID to the object in question.
+	 // Need this for threaded loggers.
 	 std::map<int,bool> _new_line;
          std::map<int,std::stringstream*> _buf;
 	 std::map<int,std::list<unsigned>> _levels;
+
+	 // Tags need a mapping from the tag to a count so we can
+	 // push and pop them properly.
+	 std::map<int,std::map<std::string,int>> _cur_tags;
+
          unsigned _min_level;
+	 std::set<std::string> _tags;
       };
 
       ///
@@ -194,6 +220,7 @@ namespace hpc {
       ///
       logger&
       poplevel( logger& log );
+
    }
 }
 

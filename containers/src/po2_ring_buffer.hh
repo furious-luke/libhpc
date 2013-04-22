@@ -64,7 +64,7 @@ namespace hpc {
       void
       resize( size_type size  )
       {
-         ASSERT( pow2i( log2i( size ) ) == size, "Must be power of 2 size." );
+         ASSERT( size == 0 || pow2i( log2i( size ) ) == size, "Must be power of 2 size." );
          _buf.reallocate( size );
          _setup_mask( size );
          reset();
@@ -147,7 +147,7 @@ namespace hpc {
       {
          size_t start = norm( _start + _size );
          size_t size;
-         if( start <= _start )
+         if( start < _start )
             size = _start - start;
          else
             size = _buf.size() - start;
@@ -159,7 +159,7 @@ namespace hpc {
       {
          size_t start = norm( _start + _size );
          size_t size;
-         if( start <= _start )
+         if( start < _start )
             size = 0;
          else
             size = _start;
@@ -221,10 +221,13 @@ namespace hpc {
       void
       _setup_mask( size_t size )
       {
-         unsigned num_bits = log2i( size );
          _mask = 0;
-         for( unsigned ii = 0; ii < num_bits; ++ii )
-            _mask |= (1 << ii);
+         if( size > 0 )
+         {
+            unsigned num_bits = log2i( size );
+            for( unsigned ii = 0; ii < num_bits; ++ii )
+               _mask |= (1 << ii);
+         }
       }
 
    protected:
@@ -278,6 +281,12 @@ namespace hpc {
       increment()
       {
          ++_idx;
+      }
+
+      void
+      decrement()
+      {
+         --_idx;
       }
 
       void

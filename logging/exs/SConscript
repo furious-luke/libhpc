@@ -18,6 +18,7 @@ libs = ['logging', 'system', 'debug'] + env.get('LIBS', [])
 #   ('<binary name>', '<source 0>', '<source 1>', ...)
 sources = [
     ('logging_leak_check', 'logging_leak_check.cc'),
+    ('tags', 'tags.cc'),
 ]
 
 # Call the helper.

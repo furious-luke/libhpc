@@ -51,6 +51,19 @@ namespace hpc {
             log->close();
          _logs.clear();
       }
+
+      list<scoped_ptr<logger>>::iterator
+      stack::begin()
+      {
+	 return _logs.begin();
+      }
+
+      list<scoped_ptr<logger>>::iterator
+      stack::end()
+      {
+	 return _logs.end();
+      }
+
    }
 }
 

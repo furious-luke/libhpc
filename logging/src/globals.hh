@@ -118,6 +118,12 @@
 #define LOG_POP()                               \
    ::hpc::logging::pop()
 
+#define LOG_PUSH_TAG( tag ) \
+   ::hpc::logging::push_tag( tag )
+
+#define LOG_POP_TAG( tag ) \
+    ::hpc::logging::pop_tag( tag )
+
 namespace hpc {
    namespace logging {
 
@@ -131,6 +137,13 @@ namespace hpc {
 
       void
       clear();
+
+      void
+      push_tag( const std::string& tag );
+
+      void
+      pop_tag( const std::string& tag );
+
    }
 }
 
@@ -154,6 +167,8 @@ namespace hpc {
 #define LOG_FILE( filename )
 #define LOG_CONSOLE()
 #define LOG_POP()
+#define LOG_PUSH_TAG( tag )
+#define LOG_POP_TAG( tag )
 
 #endif
 

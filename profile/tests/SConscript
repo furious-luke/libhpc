@@ -15,7 +15,7 @@ suites = [
 ]
 
 # Define libraries to link against.
-libs = ['debug', 'containers', 'hpcmpi', 'logging', 'system'] + env.get('LIBS', [])
+libs = ['debug', 'containers', 'hpcmpi', 'system', 'logging'] + env.get('LIBS', [])
 
 # Call the helper.
 execfile(helpers.get_build_tests_script(), globals())

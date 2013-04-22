@@ -42,6 +42,21 @@ namespace hpc {
       {
          _stack.clear();
       }
+
+      void
+      push_tag( const std::string& tag )
+      {
+	 for( auto& log : _stack )
+	    log->push_tag( tag );
+      }
+
+      void
+      pop_tag( const std::string& tag )
+      {
+	 for( auto& log : _stack )
+	    log->pop_tag( tag );
+      }
+
    }
 }
 

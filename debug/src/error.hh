@@ -59,6 +59,9 @@
    }                                                            \
    while( 0 )
 
+#define ISERR( code )                                \
+   (::hpc::debug::error_code == code)
+
 namespace hpc {
    namespace debug {
 

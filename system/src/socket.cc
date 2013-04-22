@@ -33,6 +33,10 @@ namespace hpc {
          _fd = ::socket( family, type, protocol );
          ASSERT( _fd >= 0 );
 
+         // Set an option to allow for rapid reuse of the port.
+         int optval = 1;
+         INSIST( ::setsockopt( _fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval) ), == 0 );
+
          LOG_EXIT();
       }
 

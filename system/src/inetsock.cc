@@ -17,6 +17,7 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <errno.h>
 #include "libhpc/logging/logging.hh"
 #include "inetsock.hh"
@@ -24,8 +25,9 @@
 namespace hpc {
    namespace unix {
 
-      inetsock::inetsock()
-         : socket()
+      inetsock::inetsock( kind_type kind )
+         : socket(),
+           _kind( kind )
       {
       }
 
@@ -34,7 +36,7 @@ namespace hpc {
          : socket()
       {
          open();
-         bind( ip_addr, port );
+         bind( port, ip_addr );
       }
 
       void
@@ -44,8 +46,8 @@ namespace hpc {
       }
 
       void
-      inetsock::bind( const string& ip_addr,
-                      uint16 port )
+      inetsock::bind( uint16 port,
+                      const string& ip_addr )
       {
          LOG_ENTER();
 
@@ -70,6 +72,41 @@ namespace hpc {
          if( ec < 0 )
          {
             HNDERR( errno == EADDRINUSE, error::address_in_use , err0 );
+            SETERR( debug::error::unknown, err0 );
+         }
+         ERROK();
+
+         // Mark this socket as a server.
+         _kind = SERVER;
+
+        err0:
+         LOG_EXIT();
+      }
+
+      void
+      inetsock::connect( const string& ip_addr,
+                         uint16 port )
+      {
+         LOG_ENTER();
+
+         // Must have an IP address to connect to.
+         ASSERT( !ip_addr.empty() );
+
+         // Convert the IP address (if needed).
+         struct hostent* serv = gethostbyname( ip_addr.c_str() );
+         ASSERT( serv );
+
+         // Prepare the address.
+         struct sockaddr_in addr;
+         bzero( (char*)&addr, sizeof(addr) );
+         addr.sin_family = AF_INET;
+         bcopy( (char*)serv->h_addr, (char*)&addr.sin_addr.s_addr, serv->h_length );
+         addr.sin_port = htons( port );
+
+         // Call and handle the connect function.
+         int ec = ::connect( _fd, (struct sockaddr*)&addr, sizeof(addr) );
+         if( ec < 0 )
+         {
             SETERR( debug::error::unknown, err0 );
          }
          ERROK();
@@ -101,5 +138,12 @@ namespace hpc {
          LOG_EXIT();
          return true;
       }
+
+      inetsock::kind_type
+      inetsock::kind() const
+      {
+         return _kind;
+      }
+
    }
 }
