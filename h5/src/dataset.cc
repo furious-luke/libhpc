@@ -170,6 +170,22 @@ namespace hpc {
       }
 
       void
+      dataset::extend( hsize_t size )
+      {
+#ifndef NDEBUG
+	 {
+	    h5::dataspace dspace( *this );
+	    ASSERT( dspace.simple_extent_num_dims() == 1 );
+	    ASSERT( dspace.size() <= size );
+	 }
+#endif
+
+	 hsize_t size_vec[1];
+	 size_vec[0] = size;
+	 INSIST( H5Dextend( _id, size_vec ), >= 0 );
+      }
+
+      void
       dataset::create_groups( h5::location& loc,
 			      const std::string& name ) const
       {

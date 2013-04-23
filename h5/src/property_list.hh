@@ -36,7 +36,7 @@ namespace hpc {
 	 id() const;
 
 	 void
-	 create( hid_t id );
+	 create( hid_t class_id );
 
 	 void
 	 close();
@@ -45,6 +45,12 @@ namespace hpc {
 	 set_external( const string& name,
 		       hsize_t size,
 		       hsize_t offset = 0 );
+
+	 void
+	 set_chunk_size( hsize_t size );
+
+	 void
+	 set_deflate( bool state = true );
 
       protected:
 

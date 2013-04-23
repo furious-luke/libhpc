@@ -38,10 +38,10 @@ namespace hpc {
       }
 
       void
-      property_list::create( hid_t id )
+      property_list::create( hid_t class_id )
       {
 	 close();
-	 _id = H5Pcreate( id );
+	 _id = H5Pcreate( class_id );
 	 INSIST( _id, >= 0 );
       }
 
@@ -58,6 +58,18 @@ namespace hpc {
 				   hsize_t offset )
       {
 	 INSIST( H5Pset_external( _id, name.c_str(), offset, size ), >= 0 );
+      }
+
+      void
+      property_list::set_chunk_size( hsize_t size )
+      {
+	 INSIST( H5Pset_chunk( _id, 1, &size ), >= 0 );
+      }
+
+      void
+      property_list::set_deflate( bool state )
+      {
+	 INSIST( H5Pset_deflate( _id, 9 ), >= 0 );
       }
 
    }

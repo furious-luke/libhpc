@@ -26,6 +26,7 @@ namespace hpc {
       datatype datatype::native_llong( H5T_NATIVE_LLONG );
       datatype datatype::native_float( H5T_NATIVE_FLOAT );
       datatype datatype::native_double( H5T_NATIVE_DOUBLE );
+      datatype datatype::string( H5T_STRING );
       datatype datatype::std_i32be( H5T_STD_I32BE );
       datatype datatype::std_i64be( H5T_STD_I64BE );
       datatype datatype::ieee_f32be( H5T_IEEE_F32BE );
@@ -43,6 +44,7 @@ namespace hpc {
 	       case -7: _id = H5T_NATIVE_FLOAT; break;
 	       case -8: _id = H5T_NATIVE_DOUBLE; break;
 	       case -9: _id = H5T_NATIVE_CHAR; break;
+	       case -10: _id = H5T_STRING; break;
 #ifndef NDEBUG
 	       default: ASSERT(0);
 #endif
@@ -76,6 +78,7 @@ namespace hpc {
                           _id != H5T_NATIVE_LLONG &&
                           _id != H5T_NATIVE_FLOAT &&
                           _id != H5T_NATIVE_DOUBLE &&
+                          _id != H5T_STRING &&
                           _id != H5T_STD_I32BE &&
                           _id != H5T_STD_I64BE &&
                           _id != H5T_IEEE_F32BE &&
@@ -96,7 +99,7 @@ namespace hpc {
 
       void
       datatype::insert( const datatype& type,
-                        const string& description,
+                        const hpc::string& description,
                         size_t offset )
       {
          INSIST( H5Tinsert( _id, description.c_str(), offset, type.id() ), >= 0 );

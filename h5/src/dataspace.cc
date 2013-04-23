@@ -59,11 +59,16 @@ namespace hpc {
       }
 
       void
-      dataspace::create( hsize_t size )
+      dataspace::create( hsize_t size,
+			 bool unlimited )
       {
          close();
+
+	 // Prepare the maximum dimensions.
+	 hsize_t max_dims = unlimited ? H5S_UNLIMITED : size;
+
          if( size )
-            _id = H5Screate_simple( 1, &size, NULL );
+            _id = H5Screate_simple( 1, &size, &max_dims );
          else
             _id = H5Screate( H5S_NULL );
          ASSERT( _id >= 0 );
@@ -88,6 +93,14 @@ namespace hpc {
       }
 
       hsize_t
+      dataspace::size() const
+      {
+	 vector<hsize_t> dims( simple_extent_num_dims() );
+	 simple_extent_dims( dims );
+	 return std::accumulate( dims.begin(), dims.end(), 1, std::multiplies<hsize_t>() );
+      }
+
+      hsize_t
       dataspace::simple_extent_num_dims() const
       {
 #ifndef NDEBUG
@@ -100,7 +113,7 @@ namespace hpc {
       }
 
       hsize_t
-      dataspace::simple_extent_dims( vector<hsize_t>::view dims )
+      dataspace::simple_extent_dims( vector<hsize_t>::view dims ) const
       {
 #ifndef NDEBUG
 	 hsize_t num_dims = H5Sget_simple_extent_dims(this->_id, dims, NULL);

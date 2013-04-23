@@ -49,7 +49,8 @@ namespace hpc {
 	 id() const;
 
          void
-         create( hsize_t size );
+         create( hsize_t size,
+		 bool unlimited = false );
 
 	 void
 	 create( const vector<hsize_t>::view& dims );
@@ -58,10 +59,13 @@ namespace hpc {
 	 close();
 
 	 hsize_t
+	 size() const;
+
+	 hsize_t
 	 simple_extent_num_dims() const;
 
 	 hsize_t
-	 simple_extent_dims( vector<hsize_t>::view dims );
+	 simple_extent_dims( vector<hsize_t>::view dims ) const;
 
 	 void
 	 select_all();

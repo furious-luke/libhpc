@@ -35,7 +35,7 @@ namespace hpc {
       {
       public:
 
-	 dataset( hid_t id=-1 );
+	 dataset( hid_t id = -1 );
 
 	 dataset( h5::location& loc,
 		  const std::string& name );
@@ -44,7 +44,7 @@ namespace hpc {
                   const std::string& name,
                   const h5::datatype& datatype,
                   const h5::dataspace& dataspace,
-                  boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
+                  optional<const vector<hsize_t>::view&> chunk_size = optional<const vector<hsize_t>::view&>(),
                   bool deflate=false,
 		  optional<const property_list&> props = optional<const property_list&>() );
 
@@ -59,7 +59,7 @@ namespace hpc {
 		 const std::string& name,
 		 const h5::datatype& datatype,
 		 const h5::dataspace& dataspace,
-		 boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
+		 optional<const vector<hsize_t>::view&> chunk_size = optional<const vector<hsize_t>::view&>(),
 		 bool deflate=false,
 		 optional<const property_list&> props = optional<const property_list&>() );
 
@@ -85,6 +85,9 @@ namespace hpc {
 		const h5::dataspace& mem_space=h5::dataspace::all,
 		const h5::dataspace& file_space=h5::dataspace::all,
 		const mpi::comm& comm=mpi::comm::self );
+
+	 void
+	 extend( hsize_t size );
 
       protected:
 
