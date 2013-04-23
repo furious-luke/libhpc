@@ -211,6 +211,37 @@ namespace hpc {
                return default_value;
          }
 
+         ///
+         /// Extract and return an option value as a list of attributes.
+         ///
+         /// @tparam T The type of the elements of the list attribute.
+         /// @param[in] path The option path to get the value of.
+         /// @param[in] attribute The name of the attribute to return.
+         /// @returns A list of optional values. For each entry of the list
+         ///          that contains an attribute accordingly named a non
+         ///          'none' entry in the list will be given.
+         ///
+         template< class T >
+         hpc::list<optional<T>>
+         get_list_attributes( const hpc::string& path,
+                              const hpc::string& attribute )
+         {
+            xml_node node = _get_node( path );
+            hpc::list<optional<T>> val;
+            for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
+            {
+               if( it->first_child() && it->first_child().type() == node_pcdata )
+               {
+                  xml_attribute attr = it->attribute( attribute.c_str() );
+                  if( !attr.empty() )
+                     val.push_back( _coerce<T>( attr.value() ) );
+                  else
+                     val.push_back( none );
+               }
+            }
+            return val;
+         }
+
          xpath_node_set
          get_nodes( const hpc::string& xpath ) const;
 

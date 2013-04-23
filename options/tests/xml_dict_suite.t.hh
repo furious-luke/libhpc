@@ -109,6 +109,25 @@ public:
       TS_ASSERT_THROWS_NOTHING( dict.get_list<int>( "list_blah", hpc::list<int>() ) );
    }
 
+   void test_get_list_attributes()
+   {
+      string xml_str = "<list><item label=\"one\">1</item><item>2</item><item label=\"three\">3</item></list>";
+      options::xml_dict dict;
+      {
+         std::stringstream ss( xml_str );
+         dict.read( ss );
+      }
+      list<int> val = dict.get_list<int>( "list" );
+      list<optional<hpc::string>> attrs = dict.get_list_attributes<hpc::string>( "list", "label" );
+      TS_ASSERT_EQUALS( attrs.size(), 3 );
+      auto it = attrs.begin();
+      TS_ASSERT( **it == "one" );
+      ++it;
+      TS_ASSERT( *it == none );
+      ++it;
+      TS_ASSERT( **it == "three" );
+   }
+
    void test_sub_options()
    {
       string xml_str = "<parent><child1>hello</child1><child2>10</child2></parent>";
