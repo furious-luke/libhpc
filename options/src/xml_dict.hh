@@ -224,7 +224,7 @@ namespace hpc {
          template< class T >
          hpc::list<optional<T>>
          get_list_attributes( const hpc::string& path,
-                              const hpc::string& attribute )
+                              const hpc::string& attribute ) const
          {
             xml_node node = _get_node( path );
             hpc::list<optional<T>> val;
