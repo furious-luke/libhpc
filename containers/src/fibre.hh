@@ -502,6 +502,14 @@ namespace hpc {
       }
 
       void
+      reallocate( size_type fibre_size,
+                  size_type size )
+      {
+         set_fibre_size( fibre_size );
+         reallocate( size );
+      }
+
+      void
       clear()
       {
 	 vector<T>::clear();
