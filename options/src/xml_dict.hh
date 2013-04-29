@@ -285,6 +285,11 @@ namespace hpc {
          xml_document _doc;
          xml_node _root;
       };
+
+      template<>
+      hpc::string
+      xml_dict::_coerce( const hpc::string& value ) const;
+
    }
 }
 

@@ -170,5 +170,12 @@ namespace hpc {
          return new_path;
       }
 
+      template<>
+      hpc::string
+      xml_dict::_coerce( const hpc::string& value ) const
+      {
+         return value;
+      }
+
    }
 }
