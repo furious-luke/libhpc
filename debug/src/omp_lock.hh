@@ -23,7 +23,7 @@
 #include <omp.h>
 
 #define OMP_LOCK( name )			\
-   ::hpc::memory::omp_lock name;
+   ::hpc::memory::omp_lock name
 
 #define OMP_SET_LOCK( name )			\
    name.set()
