@@ -25,7 +25,6 @@
 #include "string.hh"
 #include "mymath.hh"
 #include "num.hh"
-#include "ridders.hh"
 #include "newton.hh"
 #include "random.hh"
 

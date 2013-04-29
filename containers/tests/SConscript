@@ -26,7 +26,6 @@ suites = [
     ('algorithms_suite.t.hh',),
     ('enumerator_suite.t.hh',),
     ('sort_permute2_iter_suite.t.hh',),
-    ('ridders_suite.t.hh',),
     ('random_suite.t.hh', 'random.cc'),
 ]
 

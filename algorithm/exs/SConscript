@@ -1,0 +1,24 @@
+from sconsproject import helpers
+
+# Bring in the SCons environment.
+Import('env')
+
+# Declare subdirectories.
+sub_dirs = []
+
+# Define destination subdirectory, i.e. where these binaries will
+# be placed.
+dst_dir = '#' + env['BUILD'] + '/exs/'
+
+# Define libraries to use.
+libs = ['hpcmpi', 'containers', 'debug', 'system'] + env.get('LIBS', [])
+
+# Declare local sources. Format is:
+#
+#   ('<binary name>', '<source 0>', '<source 1>', ...)
+sources = [
+    # ('', '', ''),
+]
+
+# Call the helper.
+execfile(helpers.get_build_apps_script(), globals())
