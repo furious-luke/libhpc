@@ -29,15 +29,21 @@ namespace hpc {
       }
 
       unsigned long
+      nsecs( const time_type& time )
+      {
+         return time.tv_sec*1000000000 + time.tv_nsec;
+      }
+
+      unsigned long
       usecs( const time_type& time )
       {
          return time.tv_sec*1000000 + time.tv_nsec/1000;
       }
 
       unsigned long
-      nsecs( const time_type& time )
+      msecs( const time_type& time )
       {
-         return time.tv_sec*1000000000 + time.tv_nsec;
+         return time.tv_sec*1000 + time.tv_nsec/1000000;
       }
 
       double

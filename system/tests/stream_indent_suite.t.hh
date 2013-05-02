@@ -36,7 +36,7 @@ public:
    void test_set_indent()
    {
       std::string filename = tmpnam( NULL );
-      std::ofstream file( filename, std::fstream::out | std::fstream::app );
+      std::ofstream file( filename.c_str(), std::fstream::out | std::fstream::app );
 
       TS_ASSERT( impl::curindent.find( (std::ostream*)&file ) == impl::curindent.end() );
       file << setindent( 2 );
@@ -55,14 +55,14 @@ public:
    void test_indent()
    {
       std::string filename = tmpnam( NULL );
-      std::fstream file( filename, std::fstream::out | std::fstream::app );
+      std::fstream file( filename.c_str(), std::fstream::out | std::fstream::app );
 
       file << indent << "0" << std::endl;
       file << setindent( 2 ) << indent << "2" << std::endl;
       file << setindent( -2 ) << indent << "0" << std::endl;
 
       file.close();
-      file.open( filename, std::fstream::in );
+      file.open( filename.c_str(), std::fstream::in );
       char buf[100];
       file.getline( buf, 100 );
       TS_ASSERT( !strcmp( buf, "0" ) );

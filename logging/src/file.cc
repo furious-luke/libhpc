@@ -40,7 +40,7 @@ namespace hpc {
       {
          close();
          remove( _filename.c_str() );
-         _file.open( _filename, std::fstream::out | std::fstream::app );
+         _file.open( _filename.c_str(), std::fstream::out | std::fstream::app );
 	 ASSERT( _file );
          _get_new_line() = true;
       }

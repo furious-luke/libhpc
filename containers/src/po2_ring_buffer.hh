@@ -19,7 +19,7 @@
 #define libhpc_containers_po2_ring_buffer_hh
 
 #include <boost/iterator/iterator_facade.hpp>
-#include "libhpc/debug/debug.hh"
+#include "libhpc/debug/assert.hh"
 #include "libhpc/memory/memory.hh"
 #include "vector.hh"
 #include "functors.hh"
@@ -150,7 +150,7 @@ namespace hpc {
          if( start < _start )
             size = _start - start;
          else
-            size = _buf.size() - start;
+            size = _buf.size() - (_start + _size);
          return typename vector<value_type>::view( _buf, size, start );
       }
 

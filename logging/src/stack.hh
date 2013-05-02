@@ -35,6 +35,10 @@ namespace hpc {
       {
       public:
 
+	 typedef list<scoped_ptr<logger> >::iterator iterator;
+
+      public:
+
          stack();
 
          ~stack();
@@ -48,24 +52,29 @@ namespace hpc {
          void
          clear();
 
-	 list<scoped_ptr<logger>>::iterator
+         iterator
 	 begin();
 
-	 list<scoped_ptr<logger>>::iterator
+         iterator
 	 end();
 
          template< class T >
          stack&
          operator<<( const T& obj )
          {
-            for( auto& log : _logs )
-               (*log) << obj;
+            for( list<scoped_ptr<logger> >::iterator it = _logs.begin();
+                 it != _logs.end();
+                 ++it )
+            {
+               scoped_ptr<logger>& log = *it;
+               *log << obj;
+            }
             return *this;
          }
 
       protected:
 
-         list<scoped_ptr<logger>> _logs;
+         list<scoped_ptr<logger> > _logs;
       };
    }
 }

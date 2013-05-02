@@ -151,22 +151,22 @@ namespace hpc {
          bool
          has_option( const hpc::string& name ) const;
 
-         vector<shared_ptr<option_base>>::const_iterator
+         vector<shared_ptr<option_base> >::const_iterator
          options_cbegin() const;
 
-         vector<shared_ptr<option_base>>::iterator
+         vector<shared_ptr<option_base> >::iterator
          options_begin();
 
-         vector<shared_ptr<option_base>>::const_iterator
+         vector<shared_ptr<option_base> >::const_iterator
          options_cend() const;
 
-         vector<shared_ptr<option_base>>::iterator
+         vector<shared_ptr<option_base> >::iterator
          options_end();
 
-         vector<shared_ptr<dictionary>>::const_iterator
+         vector<shared_ptr<dictionary> >::const_iterator
          dicts_begin() const;
 
-         vector<shared_ptr<dictionary>>::const_iterator
+         vector<shared_ptr<dictionary> >::const_iterator
          dicts_end() const;
 
          const option_base*
@@ -189,8 +189,8 @@ namespace hpc {
          bool _ready;
          hpc::string _sep;
          hpc::string _pre;
-         vector<shared_ptr<option_base>> _opts;
-         vector<shared_ptr<dictionary>> _dicts;
+         vector<shared_ptr<option_base> > _opts;
+         vector<shared_ptr<dictionary> > _dicts;
          multimatch _opts_mm;
          multimatch _dicts_mm;
       };

@@ -30,14 +30,15 @@ namespace hpc {
    {
    public:
 
-      typedef set<range<T>> super_type;
+      typedef set<range<T> > super_type;
       typedef range<T> range_type;
-      typedef typename set<std::pair<T, T>>::iterator iterator;
+      typedef typename set<std::pair<T,T> >::iterator iterator;
 
       void
       insert( const range_type& range )
       {
-         auto low = this->lower_bound( range );
+         typedef typename super_type::iterator super_iterator;
+         super_iterator low = this->lower_bound( range );
 
          // If the range is missing, add it in.
          if( low == this->end() )
@@ -48,8 +49,8 @@ namespace hpc {
          // If there was some overlap we will need to split it.
          else if( *low != range )
          {
-            auto cur = low;
-            auto upp = this->upper_bound( range );
+            super_iterator cur = low;
+            super_iterator upp = this->upper_bound( range );
             list<range_type> new_ranges;
             vector<range_type> split_ranges;
             while( cur != upp )

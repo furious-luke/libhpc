@@ -34,7 +34,8 @@ namespace hpc {
       stack::push( logger* log )
       {
          log->open();
-         _logs.push_back( log );
+         _logs.push_back( scoped_ptr<logger>() );
+         _logs.back() = log;
       }
 
       void
@@ -47,18 +48,18 @@ namespace hpc {
       void
       stack::clear()
       {
-         for( auto& log : _logs )
-            log->close();
+         for( stack::iterator it = _logs.begin(); it != _logs.end(); ++it )
+            (*it)->close();
          _logs.clear();
       }
 
-      list<scoped_ptr<logger>>::iterator
+      stack::iterator
       stack::begin()
       {
 	 return _logs.begin();
       }
 
-      list<scoped_ptr<logger>>::iterator
+      stack::iterator
       stack::end()
       {
 	 return _logs.end();

@@ -22,7 +22,9 @@
 
 namespace hpc {
    namespace impl {
+
       std::map<std::ostream*,int> curindent;
+
    }
 
    setindent_t
@@ -48,7 +50,7 @@ namespace hpc {
    std::ostream&
    indent( std::ostream& strm )
    {
-      auto it = impl::curindent.find( &strm );
+      std::map<std::ostream*,int>::const_iterator it = impl::curindent.find( &strm );
       int val = 0;
       if( it != impl::curindent.end() )
          val = it->second;
@@ -56,4 +58,5 @@ namespace hpc {
          strm << " ";
       return strm;
    }
+
 }

@@ -42,6 +42,24 @@ namespace hpc {
 
       public:
 
+         stat_alloc()
+         {
+         }
+
+         stat_alloc( const stat_alloc& )
+         {
+         }
+
+         template< typename U >
+         stat_alloc( const stat_alloc<U>& )
+         {
+         }
+
+         inline
+         ~stat_alloc()
+         {
+         }
+
 	 pointer
 	 allocate( size_type size,
 		   std::allocator<void>::const_pointer hint=0 )

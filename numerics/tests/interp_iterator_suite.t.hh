@@ -27,6 +27,7 @@ public:
 
    void test_both_empty()
    {
+#if CXX_0X
       vector<float> grid0, grid1;
       interp_iterator<vector<float>::const_iterator> it = make_interp_iterator(
          grid0.cbegin(), grid0.cend(),
@@ -36,10 +37,12 @@ public:
       for( ; !it.done(); ++it )
          inside = true;
       TS_ASSERT( !inside );
+#endif
    }
 
    void test_0_empty()
    {
+#if CXX_0X
       vector<float> grid0, grid1;
       setup_0( grid0 );
       interp_iterator<vector<float>::const_iterator> it = make_interp_iterator(
@@ -51,10 +54,12 @@ public:
       {
          TS_ASSERT_EQUALS( *it, (float)ii );
       }
+#endif
    }
 
    void test_1_empty()
    {
+#if CXX_0X
       vector<float> grid0, grid1;
       setup_1( grid1 );
       interp_iterator<vector<float>::const_iterator> it = make_interp_iterator(
@@ -66,10 +71,12 @@ public:
       {
          TS_ASSERT_EQUALS( *it, -2.5 + (float)ii );
       }
+#endif
    }
 
    void test_both()
    {
+#if CXX_0X
       vector<float> grid0, grid1;
       setup_0( grid0 );
       setup_1( grid1 );
@@ -83,10 +90,12 @@ public:
       {
          TS_ASSERT_EQUALS( *it, results[ii] );
       }
+#endif
    }
 
    void test_overlapping()
    {
+#if CXX_0X
       vector<float> grid0, grid1;
       setup_0( grid0 );
       setup_1( grid1 );
@@ -102,12 +111,14 @@ public:
       {
          TS_ASSERT_EQUALS( *it, -2.0 + (float)ii );
       }
+#endif
    }
 
    void setUp()
    {
    }
 
+#if CXX_0X
    void setup_0( vector<float>& grid )
    {
       grid.resize( 10 );
@@ -121,8 +132,5 @@ public:
       for( unsigned ii = 0; ii < 5; ++ii )
          grid[ii] = -2.5 + (float)ii;
    }
-
-private:
-
-   int num_ranks, my_rank;
+#endif
 };

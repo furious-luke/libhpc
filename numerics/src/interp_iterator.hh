@@ -23,7 +23,11 @@
 #include "libhpc/containers/num.hh"
 #include "libhpc/containers/vector.hh"
 
+#include <boost/preprocessor/stringize.hpp>
+
 namespace hpc {
+
+#if CXX_0X
 
    template< class Grid0Iterator,
              class Grid1Iterator = Grid0Iterator,
@@ -161,6 +165,9 @@ namespace hpc {
          epsilon
          );
    }
+
+#endif
+
 }
 
 #endif

@@ -37,7 +37,8 @@ namespace hpc {
 
       dictionary::dictionary( const hpc::string& prefix )
          : _pre( prefix ),
-           _sep( ":" )
+           _sep( ":" ),
+           _ready( false )
       {
 	 std::transform( _pre.begin(), _pre.end(), _pre.begin(), ::tolower );
       }
@@ -83,8 +84,10 @@ namespace hpc {
 	    // Traverse the levels, trying to either locate or
 	    // create a dictionary, starting with this dictionary.
 	    dictionary* cur_dict = this;
-	    for( const auto& level_name : levels )
+            for( unsigned ii = 0; ii < levels.size(); ++ii )
 	    {
+               const hpc::string& level_name = levels[ii];
+
 	       // Unfortunately I need to use a linear search here,
 	       // because at this stage the dictionary will not be
 	       // compiled.
@@ -114,8 +117,8 @@ namespace hpc {
             sub = this;
 
 #ifndef NDEBUG
-         for( const auto& exist : sub->_opts )
-            ASSERT( exist->name() != opt->name() );
+         for( unsigned ii = 0; ii < sub->_opts.size(); ++ii )
+            ASSERT( sub->_opts[ii]->name() != opt->name() );
 #endif
          sub->_opts.push_back( opt ); // TODO: Fix slowness maybe?
          sub->_opts_mm.add_match( opt->name() );
@@ -133,8 +136,8 @@ namespace hpc {
       dictionary::add_dictionary( dictionary* dict )
       {
 #ifndef NDEBUG
-         for( const auto& exist : _dicts )
-            ASSERT( exist->prefix() != dict->prefix() );
+         for( unsigned ii = 0; ii < _dicts.size(); ++ii )
+            ASSERT( _dicts[ii]->prefix() != dict->prefix() );
 #endif
          _dicts.push_back( dict );
          _dicts_mm.add_match( dict->prefix() + _sep );
@@ -180,37 +183,37 @@ namespace hpc {
             _dicts[ii]->compile();
       }
 
-      vector<shared_ptr<option_base>>::const_iterator
+      vector<shared_ptr<option_base> >::const_iterator
       dictionary::options_cbegin() const
       {
          return _opts.cbegin();
       }
 
-      vector<shared_ptr<option_base>>::iterator
+      vector<shared_ptr<option_base> >::iterator
       dictionary::options_begin()
       {
          return _opts.begin();
       }
 
-      vector<shared_ptr<option_base>>::const_iterator
+      vector<shared_ptr<option_base> >::const_iterator
       dictionary::options_cend() const
       {
          return _opts.cend();
       }
 
-      vector<shared_ptr<option_base>>::iterator
+      vector<shared_ptr<option_base> >::iterator
       dictionary::options_end()
       {
          return _opts.end();
       }
 
-      vector<shared_ptr<dictionary>>::const_iterator
+      vector<shared_ptr<dictionary> >::const_iterator
       dictionary::dicts_begin() const
       {
          return _dicts.cbegin();
       }
 
-      vector<shared_ptr<dictionary>>::const_iterator
+      vector<shared_ptr<dictionary> >::const_iterator
       dictionary::dicts_end() const
       {
          return _dicts.cend();
@@ -232,7 +235,7 @@ namespace hpc {
          idx = _dicts_mm.search( nm, match );
          if( idx && *idx != (unsigned short)-1 )
 	 {
-	    auto cap = match.capture( *idx );
+            re::match::capture_type cap = match.capture( *idx );
             return (*_dicts[*idx]).find( nm.c_str() + cap.second );
 	 }
 
@@ -280,7 +283,7 @@ namespace hpc {
       const option_base&
       dictionary::operator[]( const hpc::string& name ) const
       {
-         auto opt = find( name );
+         const option_base* opt = find( name );
          if( !opt )
             throw bad_option( name );
          return *opt;
@@ -302,7 +305,7 @@ namespace hpc {
 	 bool any_opts = false;
 	 if( obj._opts.size() )
          {
-	    auto it = obj._opts.begin();
+	    vector<shared_ptr<option_base> >::const_iterator it = obj._opts.begin();
             while( it != obj._opts.end() && !(*it)->has_value() )
                ++it;
             if( it != obj._opts.end() )
@@ -323,7 +326,7 @@ namespace hpc {
 	 {
 	    if( any_opts )
 	       strm << ", ";
-	    auto it = obj._dicts.begin();
+	    vector<shared_ptr<dictionary> >::const_iterator it = obj._dicts.begin();
 	    strm << **it++;
 	    while( it != obj._dicts.end() )
 	       strm << ", " << **it++;

@@ -26,6 +26,7 @@
 #include "vector.hh"
 #include "counts.hh"
 #include "predicates.hh"
+#include "functors.hh"
 
 namespace hpc {
 
@@ -163,7 +164,7 @@ namespace hpc {
 	 if(size)
 	    ++size;
 
-	 std::copy_n(cnts, size - 1, this->_displs.begin());
+	 copy_n( cnts, size - 1, _displs.begin() );
       }
 
       template<class Iter>
@@ -173,7 +174,7 @@ namespace hpc {
       {
 	 if(size > 1) {
 	    this->num_rows(size - 1);
-	    std::copy_n(displs, size, this->_displs.begin());
+	    copy_n( displs, size, _displs.begin() );
 	 }
 	 else
 	    this->deallocate();

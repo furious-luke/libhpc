@@ -53,6 +53,29 @@ namespace hpc {
    ///
    ///
    ///
+   template< class Iterator >
+   std::pair<Iterator,Iterator>
+   minmax_element( Iterator start,
+                   const Iterator& finish )
+   {
+      std::pair<Iterator,Iterator> res( start, start );
+      if( start == finish )
+         return res;
+      ++start;
+      while( start != finish )
+      {
+         if( *start < *res.first )
+            res.first = start;
+         if( *start > *res.second )
+            res.second = start;
+         ++start;
+      }
+      return res;
+   }
+
+   ///
+   ///
+   ///
    template< class InputIterator,
              class OutputIterator >
    void

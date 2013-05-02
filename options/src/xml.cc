@@ -38,7 +38,7 @@ namespace hpc {
                  dictionary& dict,
                  const hpc::string& path )
       {
-         std::ifstream file( filename, std::fstream::in );
+         std::ifstream file( filename.c_str(), std::fstream::in );
          read( file, dict, path );
       }
 
@@ -75,7 +75,7 @@ namespace hpc {
       xml::write( const hpc::string& filename,
                   const dictionary& dict )
       {
-         std::ofstream file( filename, std::fstream::out );
+         std::ofstream file( filename.c_str(), std::fstream::out );
          write( file, dict );
       }
 
@@ -135,7 +135,9 @@ namespace hpc {
       xml::_iter_dict( xml_node& node,
                        const dictionary& dict )
       {
-         for( auto it = dict.options_cbegin(); it != dict.options_cend(); ++it )
+         for( vector<shared_ptr<option_base> >::const_iterator it = dict.options_cbegin();
+              it != dict.options_cend();
+              ++it )
          {
             // Don't store if it's using the default value.
             if( !(*it)->has_value() )
@@ -159,7 +161,9 @@ namespace hpc {
             }
          }
 
-         for( auto it = dict.dicts_begin(); it != dict.dicts_end(); ++it )
+         for( vector<shared_ptr<dictionary> >::const_iterator it = dict.dicts_begin();
+              it != dict.dicts_end();
+              ++it )
          {
             xml_node new_node = node.append_child( (*it)->prefix().c_str() );
             _iter_dict( new_node, **it );

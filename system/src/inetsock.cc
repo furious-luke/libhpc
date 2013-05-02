@@ -19,6 +19,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#include "libhpc/debug/error.hh"
 #include "libhpc/logging/logging.hh"
 #include "inetsock.hh"
 
@@ -71,8 +72,8 @@ namespace hpc {
          int ec = ::bind( _fd, (struct sockaddr*)&addr, sizeof(addr) );
          if( ec < 0 )
          {
-            HNDERR( errno == EADDRINUSE, error::address_in_use , err0 );
-            SETERR( debug::error::unknown, err0 );
+            HNDERR( errno == EADDRINUSE, ADDRESS_IN_USE, err0 );
+            SETERR( error::UNKNOWN, err0 );
          }
          ERROK();
 
@@ -107,7 +108,7 @@ namespace hpc {
          int ec = ::connect( _fd, (struct sockaddr*)&addr, sizeof(addr) );
          if( ec < 0 )
          {
-            SETERR( debug::error::unknown, err0 );
+            SETERR( error::UNKNOWN, err0 );
          }
          ERROK();
 

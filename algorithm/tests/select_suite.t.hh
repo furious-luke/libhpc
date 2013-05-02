@@ -26,7 +26,7 @@ public:
    void test_minimum()
    {
       vector<double> values( 10 );
-      std::iota( values.begin(), values.end(), 10*mpi::comm::world.rank() );
+      hpc::iota( values.begin(), values.end(), 10*mpi::comm::world.rank() );
       double x = algorithm::select( values.begin(), values.end(), 0 );
       TS_ASSERT_DELTA( x, 0.0, 1e-4 );
    }
@@ -34,7 +34,7 @@ public:
    void test_maximum()
    {
       vector<double> values( 10 );
-      std::iota( values.begin(), values.end(), 10*mpi::comm::world.rank() );
+      hpc::iota( values.begin(), values.end(), 10*mpi::comm::world.rank() );
       double x = algorithm::select( values.begin(), values.end(), 10*mpi::comm::world.size() - 1 );
       TS_ASSERT_DELTA( x, (double)(10*mpi::comm::world.size() - 1), 1e-4 );
    }
@@ -42,7 +42,7 @@ public:
    void test_7th()
    {
       vector<double> values( 10 );
-      std::iota( values.begin(), values.end(), 10*mpi::comm::world.rank() );
+      hpc::iota( values.begin(), values.end(), 10*mpi::comm::world.rank() );
       double x = algorithm::select( values.begin(), values.end(), 7 );
       TS_ASSERT( x >= 6.0 && x <= 7.0 );
    }

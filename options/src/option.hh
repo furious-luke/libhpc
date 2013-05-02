@@ -254,7 +254,8 @@ namespace hpc {
       {
       public:
 
-         typedef typename Option::value_type sub_value_type;
+         typedef Option sub_option_type;
+         typedef typename sub_option_type::value_type sub_value_type;
          typedef hpc::list<sub_value_type> value_type;
 
       public:
@@ -284,9 +285,9 @@ namespace hpc {
             hpc::string txt;
             if( _val )
             {
-               decltype(_sub_opt) opt( "" );
+               sub_option_type opt( "" );
                txt = "[";
-               auto it = _val->cbegin();
+               typename value_type::const_iterator it = _val->cbegin();
                opt.set_value( *it++ );
                txt += opt.store();
                while( it != _val->cend() )
@@ -307,9 +308,11 @@ namespace hpc {
             if( _val )
             {
                fmt.start_list( _name );
-               for( const auto& val : *_val )
+               for( typename value_type::iterator it = _val->begin();
+                    it != _val->end();
+                    ++it )
                {
-                  _sub_opt.set_value( val );
+                  _sub_opt.set_value( *it );
                   fmt.add_list_item( _sub_opt.store() );
                }
                fmt.end_list();
@@ -331,7 +334,7 @@ namespace hpc {
       protected:
 
          optional<value_type> _val;
-         Option _sub_opt;
+         sub_option_type _sub_opt;
       };
 
       typedef boost::mpl::map< boost::mpl::pair<hpc::string, string>,

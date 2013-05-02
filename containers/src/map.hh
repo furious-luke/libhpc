@@ -28,7 +28,8 @@ namespace hpc {
    template< class Key,
 	     class Value >
    class map
-      : public std::map<Key,Value>
+      : public std::map< Key,
+                         Value >
    {
    public:
 
@@ -45,7 +46,7 @@ namespace hpc {
       {
       }
 
-      std::pair<iterator, bool>
+      std::pair<iterator,bool>
       insert( const Key& key )
       {
          Value val; // TODO: Is this efficient enough?
@@ -114,7 +115,7 @@ namespace hpc {
 	 strm << "{";
 	 if( obj.size() )
          {
-	    auto it = obj.begin();
+	    const_iterator it = obj.begin();
 	    strm << it->first << ": " << it->second;
 	    ++it;
 	    for( ; it != obj.end(); ++it )
@@ -124,6 +125,7 @@ namespace hpc {
 	 return strm;
       }
    };
-};
+
+}
 
 #endif

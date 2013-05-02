@@ -35,8 +35,12 @@ public:
       gc.select( "/hello/world" );
       gc.select( "/face/palm" );
       unsigned ii = 0;
-      for( auto sel : gc )
+      for( memory::group_context<int>::iterator it = gc.begin();
+           it != gc.end();
+           ++it )
+      {
 	 ++ii;
+      }
       TS_ASSERT_EQUALS( ii, 3 );
    }
 
@@ -48,8 +52,12 @@ public:
       gc.select( "/hello/world" );
       gc.select( "/face/palm" );
       unsigned ii = 0;
-      for( auto sel : gc )
+      for( memory::group_context<int>::iterator it = gc.begin();
+           it != gc.end();
+           ++it )
+      {
 	 ++ii;
+      }
       TS_ASSERT_EQUALS( ii, 3 );
    }
 
@@ -61,8 +69,12 @@ public:
       gc.deselect( "/hello/world" );
       gc.deselect( "/face/palm" );
       unsigned ii = 0;
-      for( auto sel : gc )
+      for( memory::group_context<int>::iterator it = gc.begin();
+           it != gc.end();
+           ++it )
+      {
 	 ++ii;
+      }
       TS_ASSERT_EQUALS( ii, 1 );
    }
 
@@ -76,14 +88,22 @@ public:
       gc.deselect( "/hello/world" );
       gc.deselect( "/face/palm" );
       unsigned ii = 0;
-      for( auto sel : gc )
+      for( memory::group_context<int>::iterator it = gc.begin();
+           it != gc.end();
+           ++it )
+      {
 	 ++ii;
+      }
       TS_ASSERT_EQUALS( ii, 3 );
       gc.deselect( "/hello/world" );
       gc.deselect( "/face/palm" );
       ii = 0;
-      for( auto sel : gc )
+      for( memory::group_context<int>::iterator it = gc.begin();
+           it != gc.end();
+           ++it )
+      {
 	 ++ii;
+      }
       TS_ASSERT_EQUALS( ii, 1 );
    }
 
@@ -96,9 +116,11 @@ public:
 	 {
 	    gc.select( "/hello/world" );
 	    unsigned ii = 0;
-	    for( auto sel : gc )
-	    {
-	       TS_ASSERT( sel.path() == "/" || sel.path() == "/hello/world" );
+            for( memory::group_context<int>::iterator it = gc.begin();
+                 it != gc.end();
+                 ++it )
+            {
+	       TS_ASSERT( it->path() == "/" || it->path() == "/hello/world" );
 	       ++ii;
 	    }
 	    TS_ASSERT_EQUALS( ii, 2 );
@@ -108,9 +130,11 @@ public:
 	    gc.select( "/hello/world1" );
 	    gc.select( "/face/palm1" );
 	    unsigned ii = 0;
-	    for( auto sel : gc )
-	    {
-	       TS_ASSERT( sel.path() == "/" || sel.path() == "/hello/world1" || sel.path() == "/face/palm1" );
+            for( memory::group_context<int>::iterator it = gc.begin();
+                 it != gc.end();
+                 ++it )
+            {
+	       TS_ASSERT( it->path() == "/" || it->path() == "/hello/world1" || it->path() == "/face/palm1" );
 	       ++ii;
 	    }
 	    TS_ASSERT_EQUALS( ii, 3 );
@@ -118,9 +142,11 @@ public:
 	 else
 	 {
 	    unsigned ii = 0;
-	    for( auto sel : gc )
-	    {
-	       TS_ASSERT( sel.path() == "/" );
+            for( memory::group_context<int>::iterator it = gc.begin();
+                 it != gc.end();
+                 ++it )
+            {
+	       TS_ASSERT( it->path() == "/" );
 	       ++ii;
 	    }
 	    TS_ASSERT_EQUALS( ii, 1 );

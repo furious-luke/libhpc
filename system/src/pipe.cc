@@ -32,12 +32,14 @@ namespace hpc {
       }
 
       pipe::pipe( const string& pathname,
-                  pipe::flags flags )
+                  pipe::flags_type flags )
          : _fd( -1 ),
            _own( true )
       {
          open( pathname, flags );
       }
+
+#if CXX_0X
 
       pipe::pipe( pipe&& src )
          : _fd( src._fd ),
@@ -45,6 +47,8 @@ namespace hpc {
       {
          src._fd = -1;
       }
+
+#endif
 
       pipe::~pipe()
       {
@@ -62,7 +66,7 @@ namespace hpc {
 
       void
       pipe::open( const string& pathname,
-                  pipe::flags flags )
+                  pipe::flags_type flags )
       {
          close();
          _fd = ::open( pathname.c_str(), static_cast<int>( flags ) );
@@ -79,7 +83,7 @@ namespace hpc {
       }
 
       void
-      pipe::add_flags( pipe::flags flags )
+      pipe::add_flags( pipe::flags_type flags )
       {
          int cur_flags = ::fcntl( _fd, F_GETFL, 0 );
          ASSERT( cur_flags >= 0 );

@@ -35,7 +35,7 @@ namespace hpc {
             CLIENT
          };
 
-         ERRORS( address_in_use );
+         ERRORS( ADDRESS_IN_USE );
 
       public:
 

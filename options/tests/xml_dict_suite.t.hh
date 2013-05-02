@@ -81,7 +81,7 @@ public:
       }
       list<int> val = dict.get_list<int>( "list" );
       TS_ASSERT_EQUALS( val.size(), 2 );
-      auto it = val.begin();
+      list<int>::const_iterator it = val.begin();
       TS_ASSERT_EQUALS( *it, 1 );
       ++it;
       TS_ASSERT_EQUALS( *it, 2 );
@@ -118,9 +118,9 @@ public:
          dict.read( ss );
       }
       list<int> val = dict.get_list<int>( "list" );
-      list<optional<hpc::string>> attrs = dict.get_list_attributes<hpc::string>( "list", "label" );
+      list<optional<hpc::string> > attrs = dict.get_list_attributes<hpc::string>( "list", "label" );
       TS_ASSERT_EQUALS( attrs.size(), 3 );
-      auto it = attrs.begin();
+      list<optional<hpc::string> >::const_iterator it = attrs.begin();
       TS_ASSERT( **it == "one" );
       ++it;
       TS_ASSERT( *it == none );
@@ -137,9 +137,9 @@ public:
          dict.read( ss );
       }
       list<int> val = dict.get_list<int>( "list" );
-      list<optional<hpc::string>> attrs = dict.get_list_attributes<hpc::string>( "list", "label" );
+      list<optional<hpc::string> > attrs = dict.get_list_attributes<hpc::string>( "list", "label" );
       TS_ASSERT_EQUALS( attrs.size(), 3 );
-      auto it = attrs.begin();
+      list<optional<hpc::string> >::const_iterator it = attrs.begin();
       TS_ASSERT( **it == "one 2" );
       ++it;
       TS_ASSERT( *it == none );
@@ -194,7 +194,7 @@ public:
          std::stringstream ss( xml_str );
          dict.read( ss );
       }
-      auto nodes = dict.get_nodes( "/node" );
+      pugi::xpath_node_set nodes = dict.get_nodes( "/node" );
       TS_ASSERT_EQUALS( nodes.size(), 2 );
    }
 

@@ -43,10 +43,12 @@ namespace hpc {
 
       logger::~logger()
       {
-         for( auto buf : _buf )
+         for( std::map<int,std::stringstream*>::iterator it = _buf.begin();
+              it != _buf.end();
+              ++it )
          {
-            if( buf.second )
-               delete buf.second;
+            if( it->second )
+               delete it->second;
          }
       }
 
@@ -120,9 +122,11 @@ namespace hpc {
 	 bool tag_vis = _tags.empty();
 	 if( !tag_vis )
 	 {
-	    for( const auto tag : _tags )
+            for( std::set<std::string>::const_iterator it = _tags.begin();
+                 it != _tags.end();
+                 ++it )
 	    {
-	       if( current_tags().find( tag ) != current_tags().end() )
+	       if( current_tags().find( *it ) != current_tags().end() )
 	       {
 		  tag_vis = true;
 		  break;

@@ -33,39 +33,40 @@
    __ERRORS( count, __VA_ARGS__ )
 
 #define ERRORS( ... )                                   \
-   enum error {                                         \
+   enum error_codes {                                   \
       _ERRORS( PP_NARG( __VA_ARGS__ ), __VA_ARGS__ )    \
    }
 
-#define SETERR( code, place )                   \
-   ::hpc::debug::error_code = code;             \
+#define SETERR( ec, place )                     \
+   ::hpc::error::code = ec;                     \
    goto place
 
-#define HNDERR( cond, code, place )             \
+#define HNDERR( cond, ec, place )               \
    if( cond )                                   \
    {                                            \
-      SETERR( code, place );                    \
+      SETERR( ec, place );                      \
    }                                            \
    while( 0 )
 
-#define ERROK()                                         \
-   ::hpc::debug::error_code = ::hpc::debug::error::okay
+#define ERROK()                                 \
+   (::hpc::error::code = ::hpc::error::OKAY)
 
-#define CHKERR()                                                \
-   if( ::hpc::debug::error_code != ::hpc::debug::error::okay )  \
-   {                                                            \
-      LOGELN( "Error" );                                        \
-      abort();                                                  \
-   }                                                            \
+#define CHKERR()                                        \
+   if( ::hpc::error::code != ::hpc::error::OKAY )       \
+   {                                                    \
+      LOGELN( "Error" );                                \
+      abort();                                          \
+   }                                                    \
    while( 0 )
 
-#define ISERR( code )                                \
-   (::hpc::debug::error_code == code)
+#define ISERR( ec )                             \
+   (::hpc::error::code == ec)
 
 namespace hpc {
-   namespace debug {
+   namespace error {
 
-      extern __thread unsigned long error_code;
+      extern __thread unsigned long code;
+
    }
 }
 

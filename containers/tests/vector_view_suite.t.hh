@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <numeric>
 #include <cxxtest/TestSuite.h>
 #include "libhpc/containers/std_vector.hh"
+#include "libhpc/containers/functors.hh"
 
 using namespace hpc::impl::std;
 
@@ -146,7 +146,7 @@ public:
     vector<int>::view copy(view);
     vector<int>::view offs(this->vec, 7, 3);
     vector<int> diff(10);
-    std::iota(diff.begin(), diff.end(), 3);
+    hpc::iota(diff.begin(), diff.end(), 3);
     TS_ASSERT(view == copy);
     TS_ASSERT(!(view == offs));
     TS_ASSERT(!(view == diff));
@@ -162,9 +162,10 @@ public:
   void setUp()
   {
     this->vec.resize(10);
-    std::iota(vec.begin(), vec.end(), 0);
+    hpc::iota(vec.begin(), vec.end(), 0);
   }
 
 private:
+
   vector<int> vec;
 };

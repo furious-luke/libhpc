@@ -36,7 +36,8 @@ namespace hpc {
    template< class T,
              class Value >
    class range_map
-      : public map< range<T>, Value >
+      : public map< range<T>,
+                    Value >
    {
    public:
 
@@ -44,6 +45,7 @@ namespace hpc {
       typedef range<T> range_type;
       typedef Value mapped_type;
       typedef typename super_type::iterator iterator;
+      typedef typename super_type::cosnt_iterator const_iterator;
       typedef range_map_insert_iterator<T,Value> insert_iterator;
 
       insert_iterator
@@ -94,7 +96,8 @@ namespace hpc {
              _low->first.start() >= _range.finish() )
          {
             // Call parent insert.
-            auto res = ((typename range_map<T,Value>::super_type&)_map).insert( _range, _value );
+            typename range_map<T,Value>::const_iterator res =
+               ((typename range_map<T,Value>::super_type&)_map).insert( _range, _value );
             ASSERT( res.second, "Element should not have existed" );
 
             // Cache values.
@@ -127,7 +130,8 @@ namespace hpc {
             _map.erase( _low );
             _low = ((typename range_map<T,Value>::super_type&)_map).insert( range<T>( orig_start, start ), orig_val ).first;
 
-            auto res = ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _low->second );
+            typename range_map<T,Value>::iterator res =
+               ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _low->second );
             ASSERT( res.second, "Element should not have existed" );
          }
 
@@ -159,7 +163,8 @@ namespace hpc {
             _map.erase( _low );
             _low = ((typename range_map<T,Value>::super_type&)_map).insert( range<T>( finish, orig_finish ), orig_val ).first;
 
-            auto res = ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _low->second );
+            typename range_map<T,Value>::iterator res =
+               ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _low->second );
             ASSERT( res.second, "Element should not have existed" );
          }
 
@@ -174,7 +179,8 @@ namespace hpc {
             _map.erase( _low );
             _low = ((typename range_map<T,Value>::super_type&)_map).insert( range<T>( orig_start, _range.start() ), orig_val ).first;
 
-            auto res = ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _low->second );
+            typename range_map<T,Value>::iterator res =
+               ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _low->second );
             ASSERT( res.second, "Element should not have existed" );
 
             _cur_rng = _range;
@@ -193,7 +199,8 @@ namespace hpc {
             if( _cur_rng.finish() < _range.finish() )
             {
                _cur_rng.set( _cur_rng.finish(), _range.finish() );
-               auto res = ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _value );
+               typename range_map<T,Value>::iterator res =
+                  ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _value );
                ASSERT( res.second, "Element should not have existed" );
                _cur_val = &res.first->second;
             }
@@ -206,7 +213,8 @@ namespace hpc {
          {
             // Fill in the gap.
             _cur_rng.set( _cur_rng.finish(), _low->first.start() );
-            auto res = ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _value );
+            typename range_map<T,Value>::iterator res =
+               ((typename range_map<T,Value>::super_type&)_map).insert( _cur_rng, _value );
             ASSERT( res.second, "Element should not have existed" );
             _cur_val = &res.first->second;
          }
@@ -241,24 +249,27 @@ namespace hpc {
       friend class boost::iterator_core_access;
    };
 
-   ///
-   ///
-   ///
-   template< class T,
-             class Value >
-   void
-   invert_mapping( const range_map<T, Value>& mapping,
-                   map<Value, set<range<T>>>& inv )
-   {
-      for( const auto& elem : mapping )
-      {
-         for( const auto& val : elem.second )
-         {
-            // TODO: Combine sequential ranges.
-            inv[val].insert( elem.first );
-         }
-      }
-   }
+   // ///
+   // ///
+   // ///
+   // template< class T,
+   //           class Value >
+   // void
+   // invert_mapping( const range_map<T,Value>& mapping,
+   //                 map<Value,set<range<T> > >& inv )
+   // {
+   //    for( typename range_map<T,Value>::const_iterator rng_it = mapping.begin();
+   //         rng_it != mapping.end();
+   //         ++rng_it )
+   //    {
+   //       for( typename range_map<T,Value>:: const auto& val : rng_it->second )
+   //       {
+   //          // TODO: Combine sequential ranges.
+   //          inv[val].insert( elem.first );
+   //       }
+   //    }
+   // }
+
 }
 
 #endif

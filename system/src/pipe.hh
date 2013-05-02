@@ -19,11 +19,14 @@
 #define libhpc_system_pipe_hh
 
 #include <fcntl.h>
+#include <errno.h>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/string.hh"
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/po2_ring_buffer.hh"
 #include "types.hh"
+#include "gcc_4.6_fix.hh"
+#include "cc_version.hh"
 
 namespace hpc {
    namespace unix {
@@ -32,15 +35,15 @@ namespace hpc {
       {
       public:
 
-         enum flags
+         enum flags_type
          {
-            none = 0,
-            rdonly = O_RDONLY,
-            wronly = O_WRONLY,
-            rdwr = O_RDWR,
-            nonblock = O_NONBLOCK,
-            async = O_ASYNC,
-            cloexec = O_CLOEXEC
+            NONE = 0,
+            READ_ONLY = O_RDONLY,
+            WRITE_ONLY = O_WRONLY,
+            READ_WRITE = O_RDWR,
+            NONBLOCKING = O_NONBLOCK,
+            ASYNCHRONOUS = O_ASYNC,
+            CLOEXEC = O_CLOEXEC
          };
 
       public:
@@ -49,25 +52,29 @@ namespace hpc {
                bool own=true );
 
          pipe( const string& pathname,
-               pipe::flags flags=pipe::flags::rdonly );
+               pipe::flags_type flags = pipe::READ_ONLY );
+
+#if CXX_0X
 
          pipe( pipe&& src );
+
+#endif
 
          ~pipe();
 
          void
          set_fd( int fd,
-                 bool own=true );
+                 bool own = true );
 
          void
          open( const string& pathname,
-               pipe::flags flags=pipe::flags::rdonly );
+               pipe::flags_type flags = pipe::READ_ONLY );
 
          void
          close();
 
          void
-         add_flags( pipe::flags flags );
+         add_flags( pipe::flags_type flags );
 
          int
          fd() const;
@@ -94,12 +101,14 @@ namespace hpc {
          }
 
          template< class T >
-         void
+         size_t
          read( vector<T>& buf ) const
          {
+            buf.resize( buf.capacity() );
             size_t size = read( (byte*)buf.data(), buf.capacity()*sizeof(T) );
             ASSERT( size%sizeof(T) == 0 );
             buf.resize( size/sizeof(T) );
+            return size;
          }
 
          template< class T >
@@ -140,12 +149,13 @@ namespace hpc {
       };
 
       inline
-      pipe::flags
-      operator|( pipe::flags op0,
-         pipe::flags op1 )
+      pipe::flags_type
+      operator|( pipe::flags_type op_a,
+                 pipe::flags_type op_b )
       {
-         return pipe::flags( static_cast<int>( op0 ) | static_cast<int>( op1 ) );
+         return pipe::flags_type( static_cast<int>( op_a ) | static_cast<int>( op_b ) );
       }
+
    }
 }
 

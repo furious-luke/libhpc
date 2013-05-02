@@ -35,9 +35,9 @@ namespace hpc {
       ridders( Function func,
 	       T x1,
 	       T x2,
-	       T xtol = default_xtol,
-               unsigned max_its = default_max_its,
-	       optional<unsigned&> num_its = optional<unsigned&>() )
+	       optional<unsigned&> num_its = optional<unsigned&>(),
+               T xtol = default_xtol,
+               unsigned max_its = default_max_its )
       {
          // Evaluate boundaries.
 	 T f1, f2;

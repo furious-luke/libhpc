@@ -53,7 +53,7 @@ namespace hpc {
       xml_dict::read( const hpc::string& filename,
                       const hpc::string& path )
       {
-         std::ifstream file( filename, std::fstream::in );
+         std::ifstream file( filename.c_str(), std::fstream::in );
          read( file, path, filename );
       }
 

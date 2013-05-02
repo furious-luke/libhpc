@@ -46,11 +46,11 @@ public:
    {
       unsigned num_base_its, num_its;
       double cur_xtol = algorithm::default_xtol/100.0;
-      double root = algorithm::ridders( f_sq, -10.0, -0.5, cur_xtol, num_base_its );
+      double root = algorithm::ridders( f_sq, -10.0, -0.5, num_base_its, cur_xtol );
       TS_ASSERT( root >= -2.0 - cur_xtol && root <= -2.0 + cur_xtol );
 
       cur_xtol = 10000.0*algorithm::default_xtol;
-      root = algorithm::ridders( f_sq, -10.0, -0.5, cur_xtol, num_its );
+      root = algorithm::ridders( f_sq, -10.0, -0.5, num_its, cur_xtol );
       TS_ASSERT( root >= -2.0 - cur_xtol && root <= -2.0 + cur_xtol );
       TS_ASSERT( num_its < num_base_its );
    }

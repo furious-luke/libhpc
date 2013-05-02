@@ -45,7 +45,8 @@ main( int argc,
 	 map.insert( ii/2, ii );
       for( unsigned ii = 0; ii < 1000; ++ii )
       {
-	 auto rng = mmap.equal_range( ii/2 );
+         typedef hpc::multimap<int,int>::const_iterator const_it;
+         std::pair<const_it,const_it> rng = mmap.equal_range( ii/2 );
       }
 
       hpc::set<int> set;

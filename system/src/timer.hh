@@ -20,6 +20,7 @@
 
 #include <ostream>
 #include <time.h>
+#include "gcc_4.6_fix.hh"
 
 namespace hpc {
    namespace unix {
@@ -33,10 +34,13 @@ namespace hpc {
       timer();
 
       unsigned long
+      nsecs( const time_type& time );
+
+      unsigned long
       usecs( const time_type& time );
 
       unsigned long
-      nsecs( const time_type& time );
+      msecs( const time_type& time );
 
       double
       seconds( const time_type& time );

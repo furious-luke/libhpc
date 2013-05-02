@@ -80,7 +80,7 @@ namespace hpc {
 	 strm << "{";
 	 if( obj.size() )
          {
-	    auto it = obj.begin();
+            typename multimap::const_iterator it = obj.begin();
 	    strm << it->first << ": " << it->second;
 	    ++it;
 	    for( ; it != obj.end(); ++it )

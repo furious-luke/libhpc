@@ -19,6 +19,8 @@
 #define libhpc_memory_new_hh
 
 #include <stdlib.h>
+#include <new>
+#include "libhpc/system/cc_version.hh"
 
 #ifndef NMEMSTATS
 #define MEM_ENABLE_STATS()			\
@@ -31,17 +33,35 @@
 // to fundamental "new" and "delete".
 #ifndef NMEMDEBUG
 
+#if CXX_0X
+
 void*
 operator new( size_t size );
 
 void
-operator delete(void* ptr) noexcept( true );
+operator delete(void* ptr) noexcept;
 
 void*
 operator new[]( size_t size );
 
 void
-operator delete[]( void* ptr ) noexcept( true );
+operator delete[]( void* ptr ) noexcept;
+
+#else
+
+void*
+operator new( size_t size ) throw( std::bad_alloc );
+
+void
+operator delete(void* ptr) throw();
+
+void*
+operator new[]( size_t size ) throw( std::bad_alloc );
+
+void
+operator delete[]( void* ptr ) throw();
+
+#endif
 
 namespace hpc {
    namespace memory {

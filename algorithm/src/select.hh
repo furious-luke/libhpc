@@ -73,7 +73,7 @@ namespace hpc {
          ASSERT( position >= 0, "Invalid selection position." );
 
          // Find the minimum and maximum values.
-         auto minmax = std::minmax_element( start, finish );
+         std::pair<Iterator,Iterator> minmax = hpc::minmax_element( start, finish );
          value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN );
          value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX );
 

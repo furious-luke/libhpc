@@ -112,7 +112,7 @@ public:
       for( unsigned ii = 0; ii < 8; ++ii )
          rb.insert( ii );
       unsigned ii = 0;
-      for( auto it = rb.begin(); it != rb.end(); ++it, ++ii )
+      for( po2_ring_buffer<int>::iterator it = rb.begin(); it != rb.end(); ++it, ++ii )
          TS_ASSERT_EQUALS( *it, ii );
    }
 
@@ -122,7 +122,7 @@ public:
       rb.resize( 8 );
       for( unsigned ii = 0; ii < 8; ++ii )
          rb.insert( ii );
-      auto chunk = rb.first_vacant_chunk();
+      vector<int>::view chunk = rb.first_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 0 );
    }
 
@@ -132,7 +132,7 @@ public:
       rb.resize( 8 );
       for( unsigned ii = 0; ii < 4; ++ii )
          rb.insert( ii );
-      auto chunk = rb.first_vacant_chunk();
+      vector<int>::view chunk = rb.first_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 4 );
       TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() + 4 );
    }
@@ -146,7 +146,7 @@ public:
       rb.consume( 4 );
       for( unsigned ii = 0; ii < 6; ++ii )
          rb.insert( ii );
-      auto chunk = rb.first_vacant_chunk();
+      vector<int>::view chunk = rb.first_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 2 );
       TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() + 2 );
    }
@@ -160,7 +160,7 @@ public:
       rb.consume( 4 );
       for( unsigned ii = 0; ii < 2; ++ii )
          rb.insert( ii );
-      auto chunk = rb.first_vacant_chunk();
+      vector<int>::view chunk = rb.first_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 2 );
       TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() + 6 );
    }
@@ -171,7 +171,7 @@ public:
       rb.resize( 8 );
       for( unsigned ii = 0; ii < 8; ++ii )
          rb.insert( ii );
-      auto chunk = rb.second_vacant_chunk();
+      vector<int>::view chunk = rb.second_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 0 );
    }
 
@@ -181,7 +181,7 @@ public:
       rb.resize( 8 );
       for( unsigned ii = 0; ii < 4; ++ii )
          rb.insert( ii );
-      auto chunk = rb.second_vacant_chunk();
+      vector<int>::view chunk = rb.second_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 0 );
    }
 
@@ -194,7 +194,7 @@ public:
       rb.consume( 4 );
       for( unsigned ii = 0; ii < 6; ++ii )
          rb.insert( ii );
-      auto chunk = rb.second_vacant_chunk();
+      vector<int>::view chunk = rb.second_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 0 );
    }
 
@@ -207,7 +207,7 @@ public:
       rb.consume( 4 );
       for( unsigned ii = 0; ii < 2; ++ii )
          rb.insert( ii );
-      auto chunk = rb.second_vacant_chunk();
+      vector<int>::view chunk = rb.second_vacant_chunk();
       TS_ASSERT_EQUALS( chunk.size(), 4 );
       TS_ASSERT_EQUALS( chunk.data(), rb._buf.data() );
    }
@@ -219,7 +219,7 @@ public:
       for( unsigned ii = 0; ii < 4; ++ii )
          rb.insert( ii );
       rb.consume( 2 );
-      auto chunk = rb.first_vacant_chunk();
+      vector<int>::view chunk = rb.first_vacant_chunk();
       chunk[0] = 10;
       chunk[1] = 20;
       rb.extend( 2 );

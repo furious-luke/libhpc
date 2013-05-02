@@ -26,42 +26,42 @@ public:
    void test_ctor()
    {
 #if !defined(NLOG) && defined(_OPENMP)
-      logging::omp::file log( "test.log." );
+      // logging::omp::file log( "test.log." );
 #endif
    }
 
    void test_one_thread()
    {
 #if !defined(NLOG) && defined(_OPENMP)
-      logging::omp::file log( "test.log." );
-      log << "no indent" << setindent( 2 ) << logging::endl;
-      log << "indent" << setindent( -2 ) << logging::endl;
-      log << "no indent again" << logging::endl;
+      // logging::omp::file log( "test.log." );
+      // log << "no indent" << setindent( 2 ) << logging::endl;
+      // log << "indent" << setindent( -2 ) << logging::endl;
+      // log << "no indent again" << logging::endl;
 #endif
    }
 
    void test_three_threads()
    {
 #if !defined(NLOG) && defined(_OPENMP)
-      logging::omp::file log( "test.log." );
-#pragma omp parallel num_threads(3)
-      {
-	 log << "no indent" << setindent( 2 ) << logging::endl;
-	 log << "indent" << setindent( -2 ) << logging::endl;
-	 log << "no indent again" << logging::endl;
-      }
+//       logging::omp::file log( "test.log." );
+// #pragma omp parallel num_threads(3)
+//       {
+// 	 log << "no indent" << setindent( 2 ) << logging::endl;
+// 	 log << "indent" << setindent( -2 ) << logging::endl;
+// 	 log << "no indent again" << logging::endl;
+//       }
 #endif
    }
 
    void test_levels()
    {
 #if !defined(NLOG) && defined(_OPENMP)
-      logging::omp::file log( "test_levels.", 8 );
-#pragma omp parallel num_threads(3)
-      {
-	 for( unsigned ii = 0; ii < 20; ++ii )
-	    log << logging::pushlevel( ii ) << ii << "\n" << logging::poplevel;
-      }
+//       logging::omp::file log( "test_levels.", 8 );
+// #pragma omp parallel num_threads(3)
+//       {
+// 	 for( unsigned ii = 0; ii < 20; ++ii )
+// 	    log << logging::pushlevel( ii ) << ii << "\n" << logging::poplevel;
+//       }
 #endif
    }
 };

@@ -19,7 +19,7 @@
 #define hpc_containers_global_hh
 
 #include <ostream>
-#include <tuple>
+// #include <tuple> // TODO: C++11
 #include <boost/lexical_cast.hpp>
 
 namespace hpc {
@@ -34,16 +34,17 @@ namespace hpc {
       return strm;
    }
 
-   template< class T,
-	     class U,
-             class V >
-   std::ostream&
-   operator<<( std::ostream& strm,
-               const std::tuple<T,U,V>& obj )
-   {
-      strm << "(" << std::get<0>( obj ) << ", " << std::get<1>( obj ) << ", " << std::get<2>( obj ) << ")";
-      return strm;
-   }
+   // TODO: C++11
+   // template< class T,
+   //           class U,
+   //           class V >
+   // std::ostream&
+   // operator<<( std::ostream& strm,
+   //             const std::tuple<T,U,V>& obj )
+   // {
+   //    strm << "(" << std::get<0>( obj ) << ", " << std::get<1>( obj ) << ", " << std::get<2>( obj ) << ")";
+   //    return strm;
+   // }
 
    ///
    /// Convert anything to a string.

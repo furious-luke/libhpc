@@ -98,7 +98,7 @@ namespace hpc {
 	 strm << "[";
 	 if( obj.size() )
          {
-            auto it = obj.begin();
+            typename multiset::const_iterator it = obj.begin();
 	    strm << *it;
 	    ++it;
             while( it != obj.end() )

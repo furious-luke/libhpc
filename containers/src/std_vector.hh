@@ -35,6 +35,8 @@ namespace hpc {
             typedef typename ::std::vector<T>::size_type size_type;
             typedef typename ::std::vector<T>::const_reference const_reference;
             typedef typename ::std::vector<T>::reference reference;
+            typedef typename ::std::vector<T>::iterator iterator;
+            typedef typename ::std::vector<T>::const_iterator const_iterator;
 
             typedef vector_view<vector<T> > view;
 
@@ -62,6 +64,22 @@ namespace hpc {
 
             void
             take(vector<T>& src);
+
+#if !CXX_0X
+
+            const_iterator
+            cbegin() const
+            {
+               return this->begin();
+            }
+
+            const_iterator
+            cend() const
+            {
+               return this->end();
+            }
+
+#endif
 
             /// Dereference element at position 'idx'. I am overriding the STL version of
             /// this method because it does not check for out of bounds by default. I would

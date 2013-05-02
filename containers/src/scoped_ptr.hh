@@ -15,36 +15,111 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef containers_scoped_ptr_hh
-#define containers_scoped_ptr_hh
+#ifndef hpc_containers_scoped_ptr_hh
+#define hpc_containers_scoped_ptr_hh
 
-#include <boost/scoped_ptr.hpp>
+#include "libhpc/debug/assert.hh"
 
 namespace hpc {
 
+   ///
+   /// TODO: Extend to arrays (or wait for nvcc to support C++11).
+   ///
    template< class T >
    class scoped_ptr
-      : public std::unique_ptr<T>
    {
    public:
 
-      scoped_ptr( T* ptr=NULL )
-         : std::unique_ptr<T>( ptr )
+      scoped_ptr( T* ptr = 0 )
+         : _ptr( ptr )
       {
       }
 
-      // scoped_ptr&
-      // operator=( T* ptr )
-      // {
-      //    reset( ptr );
-      // }
+      scoped_ptr( const scoped_ptr<T>& src )
+         : _ptr( 0 )
+      {
+      }
+
+      scoped_ptr( scoped_ptr<T>& src )
+         : _ptr( src._ptr )
+      {
+         src._ptr = 0;
+      }
+
+      ~scoped_ptr()
+      {
+         if( _ptr )
+            delete _ptr;
+      }
+
+      T*
+      get()
+      {
+         return _ptr;
+      }
+
+      const T*
+      get() const
+      {
+         return _ptr;
+      }
+
+      T*
+      release()
+      {
+         T* tmp = _ptr;
+         _ptr = NULL;
+         return tmp;
+      }
 
       bool
       empty() const
       {
-         return this->get() == NULL;
+         return _ptr == 0;
       }
+
+      scoped_ptr<T>&
+      operator=( T* ptr )
+      {
+         if( _ptr )
+            delete _ptr;
+         _ptr = ptr;
+         return *this;
+      }
+
+      const T&
+      operator*() const
+      {
+         ASSERT( _ptr != 0 );
+         return *_ptr;
+      }
+
+      T&
+      operator*()
+      {
+         ASSERT( _ptr != 0 );
+         return *_ptr;
+      }
+
+      const T*
+      operator->() const
+      {
+         ASSERT( _ptr != 0 );
+         return _ptr;
+      }
+
+      T*
+      operator->()
+      {
+         ASSERT( _ptr != 0 );
+         return _ptr;
+      }
+
+   protected:
+
+      T* _ptr;
    };
+
 }
 
 #endif

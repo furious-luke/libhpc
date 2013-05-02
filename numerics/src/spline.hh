@@ -93,10 +93,14 @@ namespace hpc {
          operator()( const value_type& crd ) const
          {
             typedef typename hpc::vector<value_type>::view array_type;
-            auto it = std::lower_bound( _knots.begin(), _knots.end(), crd,
-                                        compose2( std::less<value_type>(),
-                                                  element<array_type>( 0 ),
-                                                  identity<value_type>() ) );
+
+            typename fibre<value_type>::const_iterator it = std::lower_bound(
+               _knots.begin(), _knots.end(), crd,
+               compose2( std::less<value_type>(),
+                         element<array_type>( 0 ),
+                         identity<value_type>() )
+               );
+
             unsigned poly;
             if( it == _knots.end() )
                poly = _ai.size() - 1;

@@ -30,8 +30,14 @@ namespace hpc {
    {
    public:
 
+      typedef T value_type;
+      typedef std::list<T> super_type;
+      typedef typename std::list<value_type>::const_iterator const_iterator;
+
+   public:
+
       list()
-	 : std::list<T>()
+	 : super_type()
       {
       }
 
@@ -39,8 +45,24 @@ namespace hpc {
       {
       }
 
+#if !CXX_0X
+
+      const_iterator
+      cbegin() const
+      {
+         return this->begin();
+      }
+
+      const_iterator
+      cend() const
+      {
+         return this->end();
+      }
+
+#endif
+
       bool
-      has( const T& elem )
+      has( const value_type& elem )
       {
          return std::find( this->begin(), this->end(), elem ) != this->end();
       }
@@ -51,7 +73,7 @@ namespace hpc {
       {
 	 strm << "[";
 	 if( obj.size() ) {
-	    typename list<T>::const_iterator it = obj.begin();
+	    const_iterator it = obj.begin();
 	    strm << *it;
 	    ++it;
 	    for( ; it != obj.end(); ++it )

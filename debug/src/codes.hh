@@ -15,15 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_codes_hh
-#define libhpc_debug_codes_hh
+#ifndef hpc_debug_codes_hh
+#define hpc_debug_codes_hh
 
 #include "error.hh"
 
 namespace hpc {
-   namespace debug {
+   namespace error {
 
-      ERRORS( okay, unknown, out_of_memory );
+      ERRORS( OKAY, UNKNOWN );
+
    }
 }
 

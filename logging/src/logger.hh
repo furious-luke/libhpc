@@ -160,11 +160,11 @@ namespace hpc {
 	 // Need this for threaded loggers.
 	 std::map<int,bool> _new_line;
          std::map<int,std::stringstream*> _buf;
-	 std::map<int,std::list<unsigned>> _levels;
+	 std::map<int,std::list<unsigned> > _levels;
 
 	 // Tags need a mapping from the tag to a count so we can
 	 // push and pop them properly.
-	 std::map<int,std::map<std::string,int>> _cur_tags;
+	 std::map<int,std::map<std::string,int> > _cur_tags;
 
          unsigned _min_level;
 	 std::set<std::string> _tags;

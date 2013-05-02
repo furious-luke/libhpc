@@ -16,8 +16,9 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace hpc {
-   namespace debug {
+   namespace error {
 
       __thread unsigned long error_code;
+
    }
 }

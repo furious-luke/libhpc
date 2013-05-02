@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <numeric>
 #include <cxxtest/TestSuite.h>
 #include "libhpc/containers/std_vector.hh"
+#include "libhpc/containers/functors.hh"
 
 using namespace hpc::impl::std;
 
@@ -102,9 +102,10 @@ public:
   void setUp()
   {
     this->vec.resize(10);
-    std::iota(vec.begin(), vec.end(), 0);
+    hpc::iota(vec.begin(), vec.end(), 0);
   }
 
 private:
+
   vector<int> vec;
 };

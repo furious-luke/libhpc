@@ -31,7 +31,7 @@ namespace hpc {
       {
       public:
 
-	 typedef std::basic_string<char, std::char_traits<char>, stat_alloc<char>> string;
+	 typedef std::basic_string<char, std::char_traits<char>, stat_alloc<char> > string;
 
       public:
 

@@ -107,8 +107,8 @@ public:
    }
 
 #ifndef NDEBUG
-   const size_t padding = 12;
+   static const size_t padding = 12;
 #else
-   const size_t padding = 8;
+   static const size_t padding = 8;
 #endif
 };

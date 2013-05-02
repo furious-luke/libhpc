@@ -46,15 +46,15 @@ namespace hpc {
       void
       push_tag( const std::string& tag )
       {
-	 for( auto& log : _stack )
-	    log->push_tag( tag );
+         for( stack::iterator it = _stack.begin(); it != _stack.end(); ++it )
+	    (*it)->push_tag( tag );
       }
 
       void
       pop_tag( const std::string& tag )
       {
-	 for( auto& log : _stack )
-	    log->pop_tag( tag );
+         for( stack::iterator it = _stack.begin(); it != _stack.end(); ++it )
+	    (*it)->pop_tag( tag );
       }
 
    }
@@ -68,6 +68,7 @@ namespace hpc {
    namespace logging {
 
       // instrument instr;
+
    }
 }
 

@@ -37,10 +37,10 @@ namespace hpc {
       {
       public:
 
-	 typedef std::basic_string<char,std::char_traits<char>,stat_alloc<char>> string_type;
-	 typedef std::map<group<T>*,int,std::less<group<T>*>,stat_alloc<std::pair<group<T>*,int>>> group_map;
-	 typedef std::map<int,group_map,std::less<int>,stat_alloc<std::pair<int,group_map>>> select_map;
-	 typedef std::set<group<T>,std::less<group<T>>,stat_alloc<group<T>>> group_set;
+	 typedef std::basic_string<char,std::char_traits<char>,stat_alloc<char> > string_type;
+	 typedef std::map<group<T>*,int,std::less<group<T>*>,stat_alloc<std::pair<group<T>*,int> > > group_map;
+	 typedef std::map<int,group_map,std::less<int>,stat_alloc<std::pair<int,group_map> > > select_map;
+	 typedef std::set<group<T>,std::less<group<T> >,stat_alloc<group<T> > > group_set;
 
 	 typedef group_iterator<T> iterator;
 
@@ -58,12 +58,12 @@ namespace hpc {
 	    CHECK( debug::check_path( path.c_str() ) );
 
 	    OMP_SET_LOCK( _group_lock );
-	    auto grp_res = _groups.insert( group<T>( path ) );
+            std::pair<typename group_set::iterator,bool> grp_res = _groups.insert( group<T>( path ) );
 	    OMP_UNSET_LOCK( _group_lock );
 
 	    OMP_SET_LOCK( _selection_lock );
-	    auto& the_map = _get_selection();
-	    auto sel_res = _get_selection().insert( std::make_pair( (group<T>*)&(*grp_res.first), 0 ) );
+	    group_map& the_map = _get_selection();
+            std::pair<typename group_map::iterator,bool> sel_res = the_map.insert( std::make_pair( (group<T>*)&(*grp_res.first), 0 ) );
 	    OMP_UNSET_LOCK( _selection_lock );
 
 	    ++sel_res.first->second;
@@ -75,13 +75,13 @@ namespace hpc {
 	    CHECK( debug::check_path( path.c_str() ) );
 
 	    OMP_SET_LOCK( _group_lock );
-	    auto grp_it = _groups.find( group<T>( path ) );
+            typename group_set::iterator grp_it = _groups.find( group<T>( path ) );
 	    ASSERT( grp_it != _groups.end(),
 		    "No group matching specified path." );
 	    OMP_UNSET_LOCK( _group_lock );
 
 	    OMP_SET_LOCK( _selection_lock );
-	    auto sel_it = _get_selection().find( (group<T>*)&(*grp_it) );
+            typename group_map::iterator sel_it = _get_selection().find( (group<T>*)&(*grp_it) );
 	    ASSERT( sel_it != _get_selection().end(),
 		    "Unable to locate a group for deselection." );
 	    ASSERT( sel_it->second > 0,
@@ -107,7 +107,7 @@ namespace hpc {
 	 find_group( const string_type& path )
 	 {
 	    OMP_SET_LOCK( _group_lock );
-	    auto it = _groups.find( group<T>( path ) );
+            typename group_set::iterator it = _groups.find( group<T>( path ) );
 	    OMP_UNSET_LOCK( _group_lock );
 	    ASSERT( it != _groups.end() );
 	    return *it;
@@ -119,7 +119,7 @@ namespace hpc {
 	 _get_selection()
 	 {
 	    OMP_SET_LOCK( _selection_lock );
-	    auto& sel = _selection[OMP_TID];
+	    group_map& sel = _selection[OMP_TID];
 	    OMP_UNSET_LOCK( _selection_lock );
 	    return sel;
 	 }

@@ -27,6 +27,8 @@ typedef unsigned char byte_t;
 
 #ifndef NMEMDEBUG
 
+#if CXX_0X
+
 void*
 operator new( size_t size )
 {
@@ -34,7 +36,7 @@ operator new( size_t size )
 }
 
 void
-operator delete( void* ptr ) noexcept( true )
+operator delete( void* ptr ) noexcept
 {
    hpc::memory::new_free(ptr);
 }
@@ -46,10 +48,38 @@ operator new[]( size_t size )
 }
 
 void
-operator delete[]( void* ptr ) noexcept( true )
+operator delete[]( void* ptr ) noexcept
 {
    hpc::memory::new_free(ptr);
 }
+
+#else
+
+void*
+operator new( size_t size ) throw( std::bad_alloc )
+{
+   return hpc::memory::new_alloc(size);
+}
+
+void
+operator delete( void* ptr ) throw()
+{
+   hpc::memory::new_free(ptr);
+}
+
+void*
+operator new[]( size_t size ) throw( std::bad_alloc )
+{
+   return hpc::memory::new_alloc(size);
+}
+
+void
+operator delete[]( void* ptr ) throw()
+{
+   hpc::memory::new_free(ptr);
+}
+
+#endif
 
 namespace hpc {
    namespace memory {

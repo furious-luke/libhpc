@@ -46,7 +46,7 @@ namespace hpc {
          ss << _base << std::setfill( '0' ) << std::setw( 5 ) << _my_rank;
          _filename = ss.str();
          remove( _filename.c_str() );
-         _file.open( _filename, std::fstream::out | std::fstream::app );
+         _file.open( _filename.c_str(), std::fstream::out | std::fstream::app );
          _get_new_line() = true;
       }
 

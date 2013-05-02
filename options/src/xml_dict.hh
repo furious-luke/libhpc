@@ -128,7 +128,7 @@ namespace hpc {
          optional<T>
          opt( const hpc::string& path ) const
          {
-            auto node = _get_node( path, false );
+            xml_node node = _get_node( path, false );
             if( node )
                return _coerce<T>( node.first_child().value() );
             else
@@ -150,7 +150,7 @@ namespace hpc {
          get( const hpc::string& path,
               const T& default_value ) const
          {
-            auto node = _get_node( path, false );
+            xml_node node = _get_node( path, false );
             if( node )
                return _coerce<T>( node.first_child().value() );
             else
@@ -222,12 +222,12 @@ namespace hpc {
          ///          'none' entry in the list will be given.
          ///
          template< class T >
-         hpc::list<optional<T>>
+         hpc::list<optional<T> >
          get_list_attributes( const hpc::string& path,
                               const hpc::string& attribute ) const
          {
             xml_node node = _get_node( path );
-            hpc::list<optional<T>> val;
+            hpc::list<optional<T> > val;
             for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
             {
                if( it->first_child() && it->first_child().type() == node_pcdata )

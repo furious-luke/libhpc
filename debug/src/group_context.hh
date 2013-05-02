@@ -155,7 +155,7 @@ namespace hpc {
 	 _get_num_selected()
 	 {
 	    OMP_SET_LOCK( _num_selected_lock );
-	    auto res = _num_selected.insert( std::make_pair( OMP_TID, 0 ) );
+            std::pair<std::map<int,int>::iterator,bool> res = _num_selected.insert( std::make_pair( OMP_TID, 0 ) );
 	    OMP_UNSET_LOCK( _num_selected_lock );
 	    return res.first->second;
 	 }
@@ -176,7 +176,7 @@ namespace hpc {
          int _num_groups;
          debug::group<T> _groups[max_groups];
 	 std::map<int,int> _num_selected;
-	 std::map<int,std::vector<int>> _selection;
+	 std::map<int,std::vector<int> > _selection;
 	 OMP_LOCK( _find_lock );
 	 OMP_LOCK( _num_selected_lock );
 	 OMP_LOCK( _selection_lock );
