@@ -18,10 +18,14 @@ vars.AddVariables(
     BoolVariable('MEMSTATS', 'Enable memory statistics.', False),
     BoolVariable('STACKTRACE', 'Enable stack trace.', False),
     BoolVariable('INSTRUMENT', 'Enable instrumentation.', False),
+    BoolVariable('WITH_CUDA', 'Enable CUDA.', False),
 )
 
 env = project.create_environment(vars)
-env.AppendUnique(CCFLAGS='-std=c++11')
+if env['WITH_CUDA']:
+    env.Tool('nvcc')
+else:
+    env.AppendUnique(CCFLAGS='-std=c++11')
 if not env['MEMDEBUG']:
     env.MergeFlags('-DNMEMDEBUG')
 if not env['MEMOPS']:

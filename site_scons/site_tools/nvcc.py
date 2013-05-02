@@ -8,6 +8,7 @@ selection method.
 
 """
 
+import importlib
 import SCons.Tool
 import SCons.Scanner.C
 import SCons.Defaults

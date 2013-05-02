@@ -18,6 +18,7 @@
 #ifndef hpc_algorithm_select_hh
 #define hpc_algorithm_select_hh
 
+#include <thrust/device_vector.h>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/containers/num.hh"
 #include "libhpc/containers/optional.hh"
@@ -80,6 +81,29 @@ namespace hpc {
          // Run Ridders until we find the balance point.
          select_function<Iterator> func( start, finish, position, comm );
          return ridders( func, x1, x2 );
+      }
+
+      template< class T >
+      T
+      select_thrust( thrust::detail::normal_iterator<thrust::device_ptr<T> > start,
+                     thrust::detail::normal_iterator<thrust::device_ptr<T> > finish,
+                     long position,
+                     const mpi::comm& comm = mpi::comm::world )
+      {
+         typedef T value_type;
+         typedef thrust::detail::normal_iterator<thrust::device_ptr<T> > iterator_type;
+
+         ASSERT( position >= 0, "Invalid selection position." );
+
+         // Find the minimum and maximum values.
+         thrust::pair<iterator_type,iterator_type> minmax = thrust::minmax_element( start, finish );
+         // value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN );
+         // value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX );
+
+         // Run Ridders until we find the balance point.
+         // select_function<Iterato> func( start, finish, position, comm );
+         // return ridders( func, x1, x2 );
+         return 0.0;
       }
 
    }

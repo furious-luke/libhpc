@@ -55,7 +55,7 @@ namespace hpc {
 	 if( !_run )
 	 {
 	    _run = true;
-	    _start = unix::timer();
+	    _start = posix::timer();
 	 }
       }
 
@@ -66,7 +66,7 @@ namespace hpc {
 	 if( !_stack )
 	 {
 	    _run = false;
-	    _total += unix::seconds( unix::timer() - _start );
+	    _total += posix::seconds( posix::timer() - _start );
 	 }
       }
 

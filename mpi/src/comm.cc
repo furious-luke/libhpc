@@ -63,7 +63,7 @@ namespace hpc {
 	 this->_comm = comm;
       }
 
-      const MPI_Comm
+      const MPI_Comm&
       comm::mpi_comm() const
       {
 	 return this->_comm;

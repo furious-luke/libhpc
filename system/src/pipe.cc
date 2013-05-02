@@ -22,7 +22,7 @@
 #include "pipe.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       pipe::pipe( int fd,
                   bool own )

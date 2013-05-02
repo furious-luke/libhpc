@@ -28,7 +28,7 @@
 #include "pipe.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       class poll
       {

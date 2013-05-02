@@ -1,14 +1,19 @@
 #include <libhpc/algorithm/select.hh>
+#include <libhpc/profile/timer.hh>
+#include <thrust/device_vector.h>
+#include <thrust/iterator/counting_iterator.h>
 
 using namespace hpc;
 
-int
-main( int argc,
-      char* argv[] )
+void
+application()
 {
-   mpi::initialise( argc, argv );
    mpi::comm comm( mpi::comm::world );
-   std::cout << "Launching with " << comm.size() << " rank(s).\n";
+   if( comm.rank() == 0 )
+      std::cout << "Launching with " << comm.size() << " rank(s).\n";
+
+   // How big is this test?
+   size_t size = 10000;
 
    // Make a device vector to test with, fill it with
    // sequential information for now.
@@ -23,12 +28,22 @@ main( int argc,
    profile::timer timer;
    comm.barrier();
    timer.start();
-   float x = algorithm::select( vec.begin(), vec.end(), (size*comm.size())/2, comm );
+   float x = algorithm::select_thrust<float>( vec.begin(), vec.end(), (size*comm.size())/2, comm );
    comm.barrier();
    timer.stop();
-   std::cout << "Selection value is " << x << "\n";
-   std::cout << "Took " << timer.total() << " seconds.\n";
+   if( comm.rank() == 0 )
+   {
+      std::cout << "Selection value is " << x << "\n";
+      std::cout << "Took " << timer.total() << " seconds.\n";
+   }
+}
 
-   // mpi::finalise();
+int
+main( int argc,
+      char* argv[] )
+{
+   mpi::initialise( argc, argv );
+   application();
+   mpi::finalise();
    return EXIT_SUCCESS;
 }

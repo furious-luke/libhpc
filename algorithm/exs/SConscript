@@ -11,7 +11,7 @@ sub_dirs = []
 dst_dir = '#' + env['BUILD'] + '/exs/'
 
 # Define libraries to use.
-libs = ['hpcmpi', 'containers', 'debug', 'system'] + env.get('LIBS', [])
+libs = ['hpcmpi', 'profile', 'logging', 'containers', 'debug', 'system'] + env.get('LIBS', [])
 
 # Declare local sources. Format is:
 #
@@ -19,6 +19,12 @@ libs = ['hpcmpi', 'containers', 'debug', 'system'] + env.get('LIBS', [])
 sources = [
     # ('', '', ''),
 ]
+
+# Add .cu files.
+if env['WITH_CUDA']:
+    sources.extend([
+        ('select_thrust', 'select_thrust.cu', {'LINK': 'g++', 'LIBS': ['cuda', 'cudart'], 'LIBPATH': env.get('LIBPATH') + ['/usr/lib/nvidia-304']}),
+    ])
 
 # Call the helper.
 execfile(helpers.get_build_apps_script(), globals())

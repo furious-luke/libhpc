@@ -18,7 +18,7 @@
 #include "poll.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       poll::poll( unsigned size )
       {

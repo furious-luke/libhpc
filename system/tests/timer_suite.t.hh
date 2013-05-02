@@ -27,10 +27,10 @@ public:
 
    void test_wait()
    {
-      unix::time_type start, finish;
-      start = unix::timer();
+      posix::time_type start, finish;
+      start = posix::timer();
       usleep( 1000000 ); // sleep for 1 second
-      finish = unix::timer();
+      finish = posix::timer();
       TS_ASSERT_EQUALS( (finish - start).tv_sec, 1 );
       TS_ASSERT( (finish - start).tv_nsec < 1000000 );
    }

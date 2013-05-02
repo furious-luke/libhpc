@@ -18,7 +18,7 @@
 #include "epoll.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       const size_t epoll::default_max_events = 1024;
 

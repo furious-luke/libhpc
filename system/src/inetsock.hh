@@ -22,7 +22,7 @@
 #include "socket.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       class inetsock
          : public socket

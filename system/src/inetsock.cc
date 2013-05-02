@@ -24,7 +24,7 @@
 #include "inetsock.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       inetsock::inetsock( kind_type kind )
          : socket(),

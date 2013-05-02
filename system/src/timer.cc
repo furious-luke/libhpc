@@ -18,7 +18,7 @@
 #include "timer.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       time_type
       timer()
@@ -54,11 +54,11 @@ namespace hpc {
    }
 }
 
-::hpc::unix::time_type
-operator-( const ::hpc::unix::time_type& op0,
-           const ::hpc::unix::time_type& op1 )
+::hpc::posix::time_type
+operator-( const ::hpc::posix::time_type& op0,
+           const ::hpc::posix::time_type& op1 )
 {
-   hpc::unix::time_type tmp;
+   hpc::posix::time_type tmp;
    if( op0.tv_nsec < op1.tv_nsec )
    {
       tmp.tv_sec = op0.tv_sec - op1.tv_sec - 1;
@@ -74,7 +74,7 @@ operator-( const ::hpc::unix::time_type& op0,
 
 std::ostream&
 operator<<( std::ostream& strm,
-            const ::hpc::unix::time_type& obj )
+            const ::hpc::posix::time_type& obj )
 {
    strm << obj.tv_sec << "(s) + " << obj.tv_nsec << "(ns)";
    return strm;

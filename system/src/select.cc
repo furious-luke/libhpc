@@ -18,7 +18,7 @@
 #include "select.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       select::select()
          : _max( 0 )

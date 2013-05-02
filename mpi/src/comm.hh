@@ -49,7 +49,7 @@ namespace hpc {
 	 void
 	 mpi_comm( MPI_Comm comm );
 
-	 const MPI_Comm
+	 const MPI_Comm&
 	 mpi_comm() const;
 
 	 int
@@ -639,7 +639,8 @@ namespace hpc {
 	 bool
 	 operator!=(MPI_Comm comm) const;
 
-      private:
+      protected:
+
 	 MPI_Comm _comm;
       };
    }

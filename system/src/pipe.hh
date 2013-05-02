@@ -29,7 +29,7 @@
 #include "cc_version.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       class pipe
       {
@@ -48,8 +48,8 @@ namespace hpc {
 
       public:
 
-         pipe( int fd=-1,
-               bool own=true );
+         pipe( int fd = -1,
+               bool own = true );
 
          pipe( const string& pathname,
                pipe::flags_type flags = pipe::READ_ONLY );

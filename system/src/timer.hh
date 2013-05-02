@@ -23,7 +23,7 @@
 #include "gcc_4.6_fix.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       typedef struct timespec time_type;
 
@@ -47,12 +47,12 @@ namespace hpc {
    }
 }
 
-::hpc::unix::time_type
-operator-( const ::hpc::unix::time_type& op0,
-           const ::hpc::unix::time_type& op1 );
+::hpc::posix::time_type
+operator-( const ::hpc::posix::time_type& op0,
+           const ::hpc::posix::time_type& op1 );
 
 std::ostream&
 operator<<( std::ostream& strm,
-            const ::hpc::unix::time_type& time );
+            const ::hpc::posix::time_type& time );
 
 #endif

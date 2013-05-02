@@ -21,7 +21,7 @@
 #include "pipe.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       class socket
          : public pipe

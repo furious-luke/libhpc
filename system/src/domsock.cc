@@ -21,7 +21,7 @@
 #include "domsock.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       void
       domsock::open()

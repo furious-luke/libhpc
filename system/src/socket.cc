@@ -20,7 +20,7 @@
 #include "socket.hh"
 
 namespace hpc {
-   namespace unix {
+   namespace posix {
 
       void
       socket::open( int family,
