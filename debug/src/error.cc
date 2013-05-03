@@ -18,7 +18,7 @@
 namespace hpc {
    namespace error {
 
-      __thread unsigned long error_code;
+      __thread unsigned long code;
 
    }
 }
