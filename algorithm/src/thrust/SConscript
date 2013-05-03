@@ -4,7 +4,7 @@ from sconsproject import helpers
 Import('env')
 
 # Define sub-directories.
-sub_dirs = ['thrust']
+sub_dirs = []
 
 # Define headers and sources.
 headers = env.Glob('*.hh') + env.Glob('*.tcc') + env.Glob('*.thh')

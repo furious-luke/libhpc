@@ -23,7 +23,7 @@ sources = [
 # Add .cu files.
 if env['WITH_CUDA']:
     sources.extend([
-        ('select_thrust', 'select_thrust.cu', {'LINK': 'g++', 'LIBS': ['cuda', 'cudart'], 'LIBPATH': env.get('LIBPATH') + ['/usr/lib/nvidia-304']}),
+        ('select_thrust', 'select_thrust.cu', {'LINK': 'g++'}),
     ])
 
 # Call the helper.

@@ -9,6 +9,7 @@ config.select(
     config.packages.pugixml(),
 #    config.packages.Eigen(required=False),
 #    config.packages.FFTW3(use_float=True, required=False),
+    config.packages.CUDA(required=False),
 )
 
 vars = project.create_variables()

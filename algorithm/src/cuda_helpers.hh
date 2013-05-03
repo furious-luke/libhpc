@@ -15,39 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_containers_hh
-#define hpc_containers_hh
+#ifndef hpc_algorithm_thrust_helpers_hh
+#define hpc_algorithm_thrust_helpers_hh
 
-#include <limits>
+#ifdef WITH_CUDA
 
-namespace hpc {
-   namespace num {
+#define DECLARE_DEVICE_HOST __device__ __host
 
-      template< class T >
-      T
-      approx( T x1,
-              T x2,
-              T delta = std::numeric_limits<T>::epsilon() )
-      {
-	 return (x1 > x2 - delta && x1 < x2 + delta);
-      }
+#else
 
-      template< class T >
-      bool
-      is_zero( T x )
-      {
-	 return approx( x, (T)0.0 );
-      }
+#define DECLARE_DEVICE_HOST
 
-      template< class T >
-      T
-      distribute( T x,
-                  T rank,
-                  T num_ranks )
-      {
-         return x/num_ranks + ((rank < (x%num_ranks)) ? 1 : 0);
-      }
-   }
-}
+#endif
 
 #endif
