@@ -20,7 +20,47 @@
 namespace hpc {
    namespace posix {
 
-      const size_t epoll::default_max_events = 1024;
+      int
+      epoll::event_type::fd() const
+      {
+         return data.fd;
+      }
+
+      void*
+      epoll::event_type::data_ptr() const
+      {
+         return data.ptr;
+      }
+
+      uint32
+      epoll::event_type::data_uint32() const
+      {
+         return data.u32;
+      }
+
+      bool
+      epoll::event_type::ready_in() const
+      {
+         return events & EPOLLIN;
+      }
+
+      bool
+      epoll::event_type::ready_out() const
+      {
+         return events & EPOLLOUT;
+      }
+
+      bool
+      epoll::event_type::error() const
+      {
+         return events & EPOLLERR;
+      }
+
+      bool
+      epoll::event_type::hangup() const
+      {
+         return events & EPOLLHUP;
+      }
 
       epoll::epoll()
          : _size( 0 )
@@ -28,21 +68,18 @@ namespace hpc {
       }
 
       epoll::epoll( const pipe& pipe,
-                    uint32_t events,
-                    size_t max_events )
+                    uint32_t events )
          : _size( 0 )
       {
-         open( max_events );
          add( pipe, events );
       }
 
       void
-      epoll::open( size_t max_events )
+      epoll::open()
       {
          close();
          _fd = epoll_create1( 0 );
          ASSERT( _fd >= 0 );
-         _events.reallocate( max_events );
       }
 
       void
@@ -61,7 +98,9 @@ namespace hpc {
 
          // Add the event.
          INSIST( epoll_ctl( _fd, EPOLL_CTL_ADD, pipe.fd(), &event ), >= 0 );
+         OMP_SET_LOCK( _lock );
          ++_size;
+         OMP_UNSET_LOCK( _lock );
       }
 
       void
@@ -97,69 +136,66 @@ namespace hpc {
       {
          ASSERT( pipe.fd() >= 0 );
          INSIST( epoll_ctl( _fd, EPOLL_CTL_DEL, pipe.fd(), NULL ), >= 0 );
+         OMP_SET_LOCK( _lock );
          --_size;
+         OMP_UNSET_LOCK( _lock );
       }
 
       void
-      epoll::wait( int timeout )
+      epoll::modify( const pipe& pipe,
+                     uint32_t events,
+                     epoll_data_t data )
       {
-         ASSERT( _size < _events.capacity() );
-         _events.resize( _size );
-         unsigned ready = epoll_wait( _fd, _events.data(), _size, timeout );
-         _events.resize( ready );
+         ASSERT( pipe.fd() >= 0 );
+         event_type event;
+
+         // Set the events.
+         event.events = events;
+
+         // Set the data.
+         event.data = data;
+
+         // Add the event.
+         INSIST( epoll_ctl( _fd, EPOLL_CTL_MOD, pipe.fd(), &event ), >= 0 );
       }
 
-      epoll::iterator
-      epoll::begin() const
+      void
+      epoll::modify( const pipe& pipe,
+                     uint32_t events )
       {
-         return _events.begin();
+         epoll_data_t data;
+         modify( pipe, events, data );
       }
 
-      epoll::iterator
-      epoll::end() const
+      void
+      epoll::modify( const pipe& pipe,
+                     uint32_t events,
+                     void* data )
       {
-         return _events.end();
+         epoll_data_t ed;
+         ed.ptr = data;
+         modify( pipe, events, ed );
       }
 
-      epoll_event_iterator::epoll_event_iterator( vector<epoll::event_type>::const_iterator it )
-         : epoll_event_iterator::iterator_adaptor_( it )
+      void
+      epoll::modify( const pipe& pipe,
+                     uint32_t events,
+                     uint32 data )
       {
+         epoll_data_t ed;
+         ed.u32 = data;
+         modify( pipe, events, ed );
       }
 
-      int
-      epoll_event_iterator::fd() const
+      void
+      epoll::wait( vector<event_type>& events,
+                   int timeout )
       {
-         return (*this)->data.fd;
+         ASSERT( _size <= events.capacity() );
+         events.resize( _size );
+         unsigned ready = epoll_wait( _fd, events.data(), _size, timeout );
+         events.resize( ready );
       }
 
-      void*
-      epoll_event_iterator::data() const
-      {
-         return (*this)->data.ptr;
-      }
-
-      bool
-      epoll_event_iterator::ready_in() const
-      {
-         return (*this)->events & EPOLLIN;
-      }
-
-      bool
-      epoll_event_iterator::ready_out() const
-      {
-         return (*this)->events & EPOLLOUT;
-      }
-
-      bool
-      epoll_event_iterator::error() const
-      {
-         return (*this)->events & EPOLLERR;
-      }
-
-      bool
-      epoll_event_iterator::hangup() const
-      {
-         return (*this)->events & EPOLLHUP;
-      }
    }
 }

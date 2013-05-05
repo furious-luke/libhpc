@@ -33,21 +33,42 @@ namespace hpc {
       {
       public:
 
-         typedef struct epoll_event event_type;
-         typedef class epoll_event_iterator iterator;
+         struct event_type
+            : public epoll_event
+         {
+            int
+            fd() const;
 
-         static const size_t default_max_events;
+            void*
+            data_ptr() const;
+
+            uint32
+            data_uint32() const;
+
+            bool
+            ready_in() const;
+
+            bool
+            ready_out() const;
+
+            bool
+            error() const;
+
+            bool
+            hangup() const;
+         };
+
+         typedef class epoll_event_iterator iterator;
 
       public:
 
          epoll();
 
          epoll( const pipe& pipe,
-                uint32_t events,
-                size_t max_events = default_max_events );
+                uint32_t events );
 
          void
-         open( size_t max_events = default_max_events );
+         open();
 
          void
          add( const pipe& pipe,
@@ -72,54 +93,34 @@ namespace hpc {
          remove( const pipe& pipe );
 
          void
-         wait( int timeout = -1 );
+         modify( const pipe& pipe,
+                 uint32_t events,
+                 epoll_data_t data );
 
-         iterator
-         begin() const;
+         void
+         modify( const pipe& pipe,
+                 uint32_t events );
 
-         iterator
-         end() const;
+         void
+         modify( const pipe& pipe,
+                 uint32_t events,
+                 void* data );
+
+         void
+         modify( const pipe& pipe,
+                 uint32_t events,
+                 uint32 data );
+
+         void
+         wait( vector<event_type>& events,
+               int timeout = -1 );
 
       protected:
 
          unsigned _size;
-         vector<event_type> _events;
+         OMP_LOCK( _lock );
       };
 
-      ///
-      ///
-      ///
-      class epoll_event_iterator
-         : public boost::iterator_adaptor< epoll_event_iterator,
-                                           vector<epoll::event_type>::const_iterator,
-                                           const epoll::event_type&,
-                                           std::forward_iterator_tag,
-                                           const epoll::event_type& >
-      {
-         friend class boost::iterator_core_access;
-
-      public:
-
-         epoll_event_iterator( vector<epoll::event_type>::const_iterator it );
-
-         int
-         fd() const;
-
-         void*
-         data() const;
-
-         bool
-         ready_in() const;
-
-         bool
-         ready_out() const;
-
-         bool
-         error() const;
-
-         bool
-         hangup() const;
-      };
    }
 }
 
