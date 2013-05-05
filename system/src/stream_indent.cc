@@ -23,7 +23,11 @@
 namespace hpc {
    namespace impl {
 
+#ifdef _OPENMP
+      std::map<std::pair<std::ostream*,int>,int> curindent;
+#else
       std::map<std::ostream*,int> curindent;
+#endif
 
    }
 
@@ -39,18 +43,32 @@ namespace hpc {
    operator<<( std::ostream& strm,
                setindent_t si )
    {
+#ifdef _OPENMP
+      int& val = impl::curindent[std::make_pair( &strm, OMP_TID )];
+#else
       int& val = impl::curindent[&strm];
+#endif
       val += si.indent;
       ASSERT( val >= 0 );
       if( val == 0 )
+      {
+#ifdef _OPENMP
+         impl::curindent.erase( std::make_pair( &strm, OMP_TID ) );
+#else
          impl::curindent.erase( &strm );
+#endif
+      }
       return strm;
    }
 
    std::ostream&
    indent( std::ostream& strm )
    {
+#ifdef _OPENMP
+      std::map<std::pair<std::ostream*,int>,int>::const_iterator it = impl::curindent.find( std::make_pair( &strm, OMP_TID ) );
+#else
       std::map<std::ostream*,int>::const_iterator it = impl::curindent.find( &strm );
+#endif
       int val = 0;
       if( it != impl::curindent.end() )
          val = it->second;
