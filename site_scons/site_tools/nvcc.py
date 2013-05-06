@@ -84,7 +84,7 @@ def generate(env):
   # XXX intelligently detect location of cuda libraries here
   lib_path = '/usr/local/cuda/lib'
 
-  env.PrependENVPath('PATH', exe_path)
+#  env.PrependENVPath('PATH', exe_path)
 
 def exists(env):
   return env.Detect('nvcc')
