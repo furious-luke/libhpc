@@ -50,6 +50,9 @@ namespace hpc {
 	 void
 	 stop_tally();
 
+	 unsigned long
+	 count() const;
+
 	 double
 	 total() const;
 
@@ -58,6 +61,9 @@ namespace hpc {
 
 	 double
 	 mean() const;
+
+	 double
+	 mean( const mpi::comm& comm ) const;
 
       protected:
 

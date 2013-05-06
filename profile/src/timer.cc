@@ -78,6 +78,12 @@ namespace hpc {
 	    ++_cnt;
       }
 
+      unsigned long
+      timer::count() const
+      {
+	 return _cnt;
+      }
+
       double
       timer::total() const
       {
@@ -96,5 +102,14 @@ namespace hpc {
 	 ASSERT( _cnt );
 	 return _total/(double)_cnt;
       }
+
+      double
+      timer::mean( const mpi::comm& comm ) const
+      {
+	 ASSERT( _cnt );
+	 ASSERT( comm.all_reduce( _cnt, MPI_MAX ) == comm.all_reduce( _cnt, MPI_MIN ) );
+	 return total( comm )/(double)_cnt;
+      }
+
    }
 }
