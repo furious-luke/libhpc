@@ -10,24 +10,28 @@ run_thrust( size_t size,
 {
    // Make a device vector to test with, fill it with
    // sequential information for now.
-   thrust::device_vector<float> vec( size );
+   thrust::device_vector<double> vec( size );
    thrust::copy(
-      thrust::counting_iterator<float>( comm.rank()*size ),
-      thrust::counting_iterator<float>( (comm.rank() + 1)*size ),
+      thrust::counting_iterator<double>( comm.rank()*size ),
+      thrust::counting_iterator<double>( (comm.rank() + 1)*size ),
       vec.begin()
       );
 
    // Calculate the selection while timing.
    hpc::profile::timer timer;
-   comm.barrier();
-   timer.start();
-   float x = hpc::algorithm::thrust::select<float>( vec.begin(), vec.end(), (size*comm.size())/3, comm );
-   comm.barrier();
-   timer.stop();
+   double x;
+   for( unsigned ii = 0; ii < 10; ++ii )
+   {
+      comm.barrier();
+      timer.start();
+      x = hpc::algorithm::thrust::select<double>( vec.begin(), vec.end(), (size*comm.size())/3, comm );
+      timer.stop_tally();
+   }
+   double mean = timer.mean( comm );
    if( comm.rank() == 0 )
    {
       std::cout << "Thrust selection value is " << x << "\n";
-      std::cout << "Took " << timer.total() << " seconds.\n";
+      std::cout << "Took " << mean << " seconds.\n";
    }
 }
 
@@ -37,20 +41,24 @@ run_host( size_t size,
 {
    // Make a device vector to test with, fill it with
    // sequential information for now.
-   hpc::vector<float> vec( size );
+   hpc::vector<double> vec( size );
    hpc::iota( vec.begin(), vec.end(), comm.rank()*size );
 
    // Calculate the selection while timing.
    hpc::profile::timer timer;
-   comm.barrier();
-   timer.start();
-   float x = hpc::algorithm::select( vec.begin(), vec.end(), (size*comm.size())/3, comm );
-   comm.barrier();
-   timer.stop();
+   double x;
+   for( unsigned ii = 0; ii < 10; ++ii )
+   {
+      comm.barrier();
+      timer.start();
+      x = hpc::algorithm::select( vec.begin(), vec.end(), (size*comm.size())/3, comm );
+      timer.stop_tally();
+   }
+   double mean = timer.mean( comm );
    if( comm.rank() == 0 )
    {
       std::cout << "Host selection value is " << x << "\n";
-      std::cout << "Took " << timer.total() << " seconds.\n";
+      std::cout << "Took " << mean << " seconds.\n";
    }
 }
 
