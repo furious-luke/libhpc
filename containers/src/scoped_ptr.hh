@@ -18,9 +18,46 @@
 #ifndef hpc_containers_scoped_ptr_hh
 #define hpc_containers_scoped_ptr_hh
 
+#if CXX_0X
+#include <memory>
+#endif
 #include "libhpc/debug/assert.hh"
 
 namespace hpc {
+
+#if CXX_0X
+
+   template< typename T >
+   class scoped_ptr final
+      : public std::unique_ptr<T>
+   {
+   public:
+
+      scoped_ptr( T* ptr = 0 )
+         : std::unique_ptr<T>( ptr )
+      {
+      }
+
+      scoped_ptr( scoped_ptr&& src )
+         : std::unique_ptr<T>( std::move( src ) )
+      {
+      }
+
+      bool
+      empty()
+      {
+         return this->get() != 0;
+      }
+
+      scoped_ptr&
+      operator=( T* ptr )
+      {
+         this->reset( ptr );
+         return *this;
+      }
+   };
+
+#else
 
    ///
    /// TODO: Extend to arrays (or wait for nvcc to support C++11).
@@ -115,10 +152,17 @@ namespace hpc {
          return _ptr;
       }
 
+      operator bool() const
+      {
+         return _ptr != 0;
+      }
+
    protected:
 
       T* _ptr;
    };
+
+#endif
 
 }
 
