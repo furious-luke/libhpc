@@ -23,7 +23,7 @@ namespace hpc {
       time_type
       timer()
       {
-         static time_type ts;
+	 time_type ts;
          clock_gettime( CLOCK_MONOTONIC, &ts );
          return ts;
       }
