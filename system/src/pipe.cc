@@ -97,21 +97,29 @@ namespace hpc {
          return _fd;
       }
 
-      void
+      size_t
       pipe::write( const byte* buf,
                    size_t size ) const
       {
          ASSERT( _fd >= 0 );
-         ASSERT( !size || buf );
          ssize_t res = ::write( _fd, buf, size );
+         if( res < 0 )
+         {
+            res = 0;
+            SETERR( EAGAIN, err0 );
+         }
+         else
+            ERROK();
          ASSERT( res >= 0 );
-         ASSERT( res == size );
+         ASSERT( res <= size );
+        err0:
+         return res;
       }
 
-      void
+      size_t
       pipe::write( const string& buf )
       {
-         write( (byte*)buf.data(), buf.size() );
+         return write( (byte*)buf.data(), buf.size() );
       }
 
       size_t

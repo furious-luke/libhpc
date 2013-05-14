@@ -31,6 +31,33 @@
 namespace hpc {
    namespace posix {
 
+      template< typename S,
+                typename T >
+      size_t
+      read( S& strm,
+            po2_ring_buffer<T>& buf )
+      {
+         typename vector<T>::view chunk = buf.first_vacant_chunk();
+         size_t size = strm.read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+         if( ISERR( EAGAIN ) )
+            return 0;
+         ASSERT( size%sizeof(T) == 0 );
+         size /= sizeof(T);
+         if( size == chunk.size() )
+         {
+            chunk = buf.second_vacant_chunk();
+            if( chunk.size() )
+            {
+               size_t size2 = strm.read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
+               ASSERT( size2%sizeof(T) == 0 );
+               size2 /= sizeof(T);
+               size += size2;
+            }
+         }
+         buf.extend( size );
+         return size;
+      }
+
       class pipe
       {
       public:
@@ -79,11 +106,11 @@ namespace hpc {
          int
          fd() const;
 
-         void
+         size_t
          write( const byte* buf,
                 size_t size ) const;
 
-         void
+         size_t
          write( const string& buf );
 
          size_t
@@ -113,27 +140,9 @@ namespace hpc {
 
          template< class T >
          size_t
-         read( po2_ring_buffer<T>& buf ) const
+         read( po2_ring_buffer<T>& buf )
          {
-            typename vector<T>::view chunk = buf.first_vacant_chunk();
-            ssize_t size = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
-            if( ISERR( EAGAIN ) )
-               return 0;
-            ASSERT( size%sizeof(T) == 0 );
-            size /= sizeof(T);
-            if( size == chunk.size() )
-            {
-               chunk = buf.second_vacant_chunk();
-               if( chunk.size() )
-               {
-                  ssize_t size2 = read( (byte*)chunk.data(), chunk.size()*sizeof(T) );
-                  ASSERT( size2%sizeof(T) == 0 );
-                  size2 /= sizeof(T);
-                  size += size2;
-               }
-            }
-            buf.extend( size );
-            return size;
+            return posix::read<pipe,T>( *this, buf );
          }
 
          bool
