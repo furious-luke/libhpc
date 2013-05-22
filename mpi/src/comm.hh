@@ -453,19 +453,17 @@ namespace hpc {
 	 template< class T >
 	 void
 	 bcasta( vector<T>& data,
-		 int root ) const
+		 int root = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map, T>) );
 	    typename vector<T>::size_type size = data.size();
-	    this->bcast(size, root);
-	    data.resize(size);
-	    MPI_INSIST(MPI_Bcast(
-			  data.data(),
-			  data.size(),
-                          MPI_MAP_TYPE(T),
-			  root,
-			  this->_comm
-			  ));
+	    this->bcast( size, root );
+	    data.resize( size );
+	    MPI_INSIST( MPI_Bcast( data.data(),
+                                   data.size(),
+                                   MPI_MAP_TYPE( T ),
+                                   root,
+                                   this->_comm ) );
 	 }
 
 	 void
@@ -589,18 +587,16 @@ namespace hpc {
 	 T
 	 scan( const T& out,
 	       MPI_Op op = MPI_SUM,
-	       bool exclusive=false ) const
+	       bool exclusive = true ) const
 	 {
 	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map, T>) );
 	    T inc;
-	    MPI_INSIST( MPI_Scan(
-			  (void*)&out,
-			  &inc,
-			  1,
-                          MPI_MAP_TYPE(T),
-			  op,
-			  this->_comm
-			  ) );
+	    MPI_INSIST( MPI_Scan( (void*)&out,
+                                  &inc,
+                                  1,
+                                  MPI_MAP_TYPE( T ),
+                                  op,
+                                  this->_comm ) );
 	    if( exclusive )
 	       inc -= out;
 	    return inc;

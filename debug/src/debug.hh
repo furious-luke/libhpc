@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_hh
-#define debug_hh
+#ifndef hpc_debug_hh
+#define hpc_debug_hh
 
 #include "omp_help.hh"
 #include "omp_lock.hh"
@@ -31,5 +31,6 @@
 #include "checks.hh"
 #include "error.hh"
 #include "codes.hh"
+#include "except.hh"
 
 #endif
