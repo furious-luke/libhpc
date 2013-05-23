@@ -50,7 +50,7 @@ else:
 layers = [
     'debug', 'memory', 'system', 'logging', 'profile',
     'containers', 'algorithm', 'regexp', 'options',
-    'mpi', 'h5', 'numerics', 'optimise'
+    'mpi', 'h5', 'numerics',
 ]
 
 project.build(layers, proj_name='libhpc', env=env, vars=vars)
