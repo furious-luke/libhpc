@@ -58,6 +58,14 @@ namespace hpc {
          return size;
       }
 
+      template< class S >
+      size_t
+      write( S& strm,
+             const string& buf )
+      {
+         return strm.write( (const byte*)buf.data(), buf.size() );
+      }
+
       class pipe
       {
       public:

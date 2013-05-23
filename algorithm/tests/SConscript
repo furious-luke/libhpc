@@ -11,10 +11,12 @@ Import('env')
 suites = [
     ('ridders_suite.t.hh',),
     ('select_suite.t.hh',),
+    ('indexer_suite.t.hh', 'indexer.cc', range(10)),
+    ('farmer_suite.t.hh', 'farmer.cc', range(10)),
 ]
 
 # Define libraries to link against.
-libs = ['hpcmpi', 'containers', 'debug', 'system'] + env.get('LIBS', [])
+libs = ['hpcmpi', 'containers', 'logging', 'debug', 'system'] + env.get('LIBS', [])
 
 # Call the helper.
 execfile(helpers.get_build_tests_script(), globals())

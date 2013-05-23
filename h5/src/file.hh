@@ -178,8 +178,8 @@ namespace hpc {
 	 read( const std::string& name,
 	       typename vector<T>::view data )
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype datatype( mpl::at<h5::datatype::type_map,T>::type::value );
 
 	    vector<hsize_t> dims(1), count(1), offset(1);
 	    dims[0] = this->_comm->all_reduce(data.size(), MPI_SUM);
@@ -281,7 +281,7 @@ namespace hpc {
 	 void
 	 reada( const std::string& name,
 	 	vector<T>& data,
-	 	const mpi::comm& comm=mpi::comm::self )
+	 	const mpi::comm& comm = mpi::comm::self )
 	 {
 	    // TODO: Needs to be parallel.
 	    hsize_t size = read_local_data_size( name );

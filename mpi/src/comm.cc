@@ -246,6 +246,15 @@ namespace hpc {
 	 }
       }
 
+      void
+      comm::probe( MPI_Status& stat,
+                   int from,
+                   int tag ) const
+      {
+	 int flag;
+	 MPI_INSIST( MPI_Probe( from, tag, _comm, &stat ) );
+      }
+
       bool
       comm::iprobe(MPI_Status& stat,
 		   int from,

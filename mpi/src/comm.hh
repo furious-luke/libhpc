@@ -157,17 +157,15 @@ namespace hpc {
 	 void
 	 send( const T& out,
 	       int to,
-	       int tag=0 ) const
+	       int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<mpi::data_type::type_map, T>));
-	    MPI_INSIST(MPI_Send(
-			  (void*)&out,
-			  1,
-                          MPI_MAP_TYPE(T),
-			  to,
-			  tag,
-			  this->_comm
-			  ));
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    MPI_INSIST( MPI_Send( (void*)&out,
+                                  1,
+                                  MPI_MAP_TYPE( T ),
+                                  to,
+                                  tag,
+                                  _comm ) );
 	 }
 
 	 template< class T >
@@ -319,7 +317,7 @@ namespace hpc {
 	 void
 	 recv( T& value,
 	       int from,
-	       int tag=0 ) const
+	       int tag = 0 ) const
 	 {
 	    BOOST_MPL_ASSERT((mpl::has_key<mpi::data_type::type_map, T>));
 	    MPI_INSIST(MPI_Recv(
@@ -573,6 +571,11 @@ namespace hpc {
 			  this->_comm
 			  ) );
 	 }
+
+         void
+	 probe( MPI_Status& stat,
+		int from = MPI_ANY_SOURCE,
+		int tag = MPI_ANY_TAG ) const;
 
 	 bool
 	 iprobe(MPI_Status& stat,
