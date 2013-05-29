@@ -15,34 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_options_format_hh
-#define libhpc_options_format_hh
-
-#include "libhpc/containers/string.hh"
+#ifndef libhpc_options_parse_hh
+#define libhpc_options_parse_hh
 
 namespace hpc {
    namespace options {
 
-      class format
+      template< class Parser,
+		class... Args >
+      void
+      parse( dictionary& dict,
+	     Args&&... args )
       {
-      public:
+	 Parser parser;
+	 parser.parse( dict, std::forward<Args>( args )... );
+	 dict.write_variables();
+      }
 
-	static const char* default_separator;
-
-      public:
-
-         virtual
-         void
-         start_list( const hpc::string& name ) = 0;
-
-         virtual
-         void
-         add_list_item( const hpc::string& value ) = 0;
-
-         virtual
-         void
-         end_list() = 0;
-      };
    }
 }
 

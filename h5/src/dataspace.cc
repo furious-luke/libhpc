@@ -88,8 +88,8 @@ namespace hpc {
       void
       dataspace::close()
       {
-	 if(this->_id != -1 && this->_id != H5S_ALL && this->_id != H5S_NULL)
-	    INSIST(H5Sclose(this->_id), >= 0);
+	 if( _id != -1 && _id != H5S_ALL && _id != H5S_NULL )
+	    INSIST( H5Sclose( _id ), >= 0 );
       }
 
       hsize_t

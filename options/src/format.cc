@@ -15,35 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_options_format_hh
-#define libhpc_options_format_hh
-
-#include "libhpc/containers/string.hh"
+#include "format.hh"
 
 namespace hpc {
    namespace options {
 
-      class format
-      {
-      public:
+     const char* format::default_separator = "-";
 
-	static const char* default_separator;
-
-      public:
-
-         virtual
-         void
-         start_list( const hpc::string& name ) = 0;
-
-         virtual
-         void
-         add_list_item( const hpc::string& value ) = 0;
-
-         virtual
-         void
-         end_list() = 0;
-      };
    }
 }
-
-#endif

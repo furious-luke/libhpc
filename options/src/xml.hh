@@ -36,6 +36,10 @@ namespace hpc {
 
          ~xml();
 
+	 void
+	 parse( dictionary& dict,
+		const hpc::string& filename );
+
          void
          read( const hpc::string& filename,
                dictionary& dict,
@@ -48,11 +52,13 @@ namespace hpc {
 
          void
          write( const hpc::string& filename,
-                const dictionary& dict );
+                const dictionary& dict,
+		bool all = false );
 
          void
          write( std::ostream& filename,
-                const dictionary& dict );
+                const dictionary& dict,
+		bool all = false );
 
          virtual
          void
@@ -75,7 +81,8 @@ namespace hpc {
 
          void
          _iter_dict( pugi::xml_node& node,
-                     const dictionary& dict );
+                     const dictionary& dict,
+		     bool all );
 
          hpc::string
          _node_name( pugi::xml_node& node ) const;

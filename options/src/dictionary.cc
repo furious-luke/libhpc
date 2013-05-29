@@ -38,7 +38,9 @@ namespace hpc {
       dictionary::dictionary( const hpc::string& prefix )
          : _pre( prefix ),
            _sep( ":" ),
-           _ready( false )
+           _ready( false ),
+	   _help_req( false ),
+	   _help_val_req( false )
       {
 	 std::transform( _pre.begin(), _pre.end(), _pre.begin(), ::tolower );
       }
@@ -46,10 +48,110 @@ namespace hpc {
       void
       dictionary::clear()
       {
+	 _ready = false;
          _opts.deallocate();
          _dicts.deallocate();
          _opts_mm.clear();
          _dicts_mm.clear();
+	 _pos_opts.clear();
+	 _s_to_l.clear();
+      }
+
+      void
+      dictionary::reset_positionals()
+      {
+	 _cur_pos = 0;
+      }
+
+      void
+      dictionary::write_variables() const
+      {
+	 for( auto it = options_cbegin(); it != options_cend(); ++it )
+	    (*it)->write_variable();
+	 for( auto it = dicts_begin(); it != dicts_end(); ++it )
+	    (*it)->write_variables();
+      }
+
+      bool
+      dictionary::help_requested() const
+      {
+	 return _help_req | _help_val_req;
+      }
+
+      void
+      dictionary::print_help( const hpc::string& binary,
+			      const hpc::string& short_pre,
+			      const hpc::string& long_pre ) const
+      {
+	 if( !binary.empty() )
+	 {
+	    std::cout << "Usage:\n\n";
+	    std::cout << "    " << binary << " []\n\n";
+	 }
+
+	 std::cout << "Options:\n\n";
+	 for( auto it = options_cbegin(); it != options_cend(); ++it )
+	 {
+	    if( (*it)->short_name() != "*" )
+	    {
+	       unsigned col = 0;
+	       std::cout << "  " << long_pre << (*it)->name();
+	       col += 2 + long_pre.size() + (*it)->name().size();
+
+	       if( !(*it)->short_name().empty() && (*it)->short_name() != "*" )
+	       {
+		  std::cout << ", " << short_pre << (*it)->short_name();
+		  col += 2 + short_pre.size() + (*it)->short_name().size();
+	       }
+
+	       if( !(*it)->description().empty() )
+	       {
+		  if( col <= 24 )
+		  {
+		     while( col != 24 )
+		     {
+			std::cout << " ";
+			++col;
+		     }
+		  }
+		  else
+		     std::cout << "\n                        ";
+
+		  // Split description if needed.
+		  hpc::string desc = (*it)->description();
+
+		  // Add default value to description.
+		  if( _help_val_req )
+		  {
+		     if( (*it)->has_value_or_default() )
+		     {
+			desc += "\n                         Value: ";
+			desc += (*it)->store();
+		     }
+		  }
+
+		  std::cout << " " << desc << "\n";
+	       }
+	    }
+	 }
+      }
+
+      bool
+      dictionary::has_errors() const
+      {
+	 return false;
+      }
+
+      void
+      dictionary::print_errors() const
+      {
+	 std::cout << "ERRORS\n";
+      }
+
+      bool
+      dictionary::config_requested() const
+      {
+	 return opt<hpc::string>( "gen-config" );
       }
 
       const dictionary&
@@ -68,7 +170,7 @@ namespace hpc {
 
       void
       dictionary::add_option( option_base* opt,
-                              optional<const hpc::string&> prefix )
+			      optional<const hpc::string&> prefix )
       {
          dictionary* sub;
          if( prefix )
@@ -118,18 +220,28 @@ namespace hpc {
 
 #ifndef NDEBUG
          for( unsigned ii = 0; ii < sub->_opts.size(); ++ii )
+	 {
+	    // Check no duplicates.
             ASSERT( sub->_opts[ii]->name() != opt->name() );
+	    ASSERT( opt->short_name().empty() || 
+		    opt->short_name() == "*" ||
+		    sub->_opts[ii]->short_name() != opt->short_name() );
+	 }
 #endif
          sub->_opts.push_back( opt ); // TODO: Fix slowness maybe?
          sub->_opts_mm.add_match( opt->name() );
+	 if( !opt->short_name().empty() && opt->short_name() != "*" )
+	    sub->_s_to_l.insert( opt->short_name(), opt->name() );
+	 if( opt->short_name() == "*" )
+	    sub->_pos_opts.push_back( opt );
          sub->_ready = false;
       }
 
       void
       dictionary::add_option( option_base* opt,
-                              const char* prefix )
+			      const char* prefix )
       {
-         add_option( opt, hpc::string( prefix ) );
+	 add_option( opt, hpc::string( prefix ) );
       }
 
       void
@@ -170,11 +282,45 @@ namespace hpc {
          return false;
       }
 
+      bool
+      dictionary::has_short_option( const hpc::string& name ) const
+      {
+         ASSERT( _ready, "Dictionary has not been compiled." );
+	 // TODO: Need to search sub-dictionaries.
+	 return _s_to_l.has( name );
+      }
+
+      const hpc::string&
+      dictionary::short_to_long( const hpc::string& name ) const
+      {
+         ASSERT( _ready, "Dictionary has not been compiled." );
+	 // TODO: Need to search sub-dictionaries.
+	 return _s_to_l.get( name );
+      }
+
+      void
+      dictionary::set_next_positional( const hpc::string& value )
+      {
+	 if( _cur_pos < _pos_opts.size() )
+	    *_pos_opts[_cur_pos++] = value;
+	 else
+	 {
+	    // TODO: Set an error instead of asserting.
+	 }
+      }
+
       void
       dictionary::compile()
       {
          if( !_ready )
          {
+	    // Add in help options.
+	    add_option<boolean>( "help", "h", false, _help_req, "Show help." );
+	    add_option<boolean>( "help-values", "hv", false, _help_val_req, "Show help with current values." );
+
+	    // Add an option to automatically generate a sample config file.
+	    add_option<string>( "gen-config", "", none, none, "Generate configuration file." );
+
             _opts_mm.compile();
             _dicts_mm.compile();
             _ready = true;

@@ -21,10 +21,16 @@
 namespace hpc {
    namespace options {
 
-      option_base::option_base( const hpc::string& name )
+      option_base::option_base( const hpc::string& name,
+				const hpc::string& short_name,
+				const hpc::string& desc,
+				kind_type kind )
          : _name( name ),
+	   _short( short_name ),
+	   _desc( desc ),
            _has_val( false ),
-           _is_list( false )
+	   _has_def( false ),
+	   _kind( kind )
       {
 	 std::transform( _name.begin(), _name.end(), _name.begin(), ::tolower );
       }
@@ -40,6 +46,11 @@ namespace hpc {
       }
 
       void
+      option_base::write_variable() const
+      {
+      }
+
+      void
       option_base::set_name( const hpc::string& name )
       {
          _name = name;
@@ -52,6 +63,18 @@ namespace hpc {
          return _name;
       }
 
+      const hpc::string&
+      option_base::short_name() const
+      {
+         return _short;
+      }
+
+      const hpc::string&
+      option_base::description() const
+      {
+	 return _desc;
+      }
+
       bool
       option_base::has_value() const
       {
@@ -59,9 +82,21 @@ namespace hpc {
       }
 
       bool
+      option_base::has_value_or_default() const
+      {
+	 return _has_val | _has_def;
+      }
+
+      bool
       option_base::is_list() const
       {
-         return _is_list;
+         return _kind == LIST;
+      }
+
+      bool
+      option_base::is_boolean() const
+      {
+         return _kind == BOOLEAN;
       }
 
       option_base&
@@ -72,21 +107,27 @@ namespace hpc {
       }
 
       string::string( const hpc::string& name,
+		      const hpc::string& short_name,
                       optional<hpc::string> default_value,
+		      optional<hpc::string&> variable,
+		      const hpc::string& desc,
 		      bool strip )
-         : option<hpc::string>( name, default_value ),
+         : option<hpc::string>( name, short_name, default_value, variable, desc ),
 	   _strip( strip )
       {
       }
 
       string::string( const hpc::string& name,
-                      optional<const char*> default_value,
+		      const hpc::string& short_name,
+		      const char* default_value,
+		      optional<hpc::string&> variable,
+		      const hpc::string& desc,
 		      bool strip )
-         : option<hpc::string>( name ),
+	 : option<hpc::string>( name, short_name, none, variable, desc ),
 	   _strip( strip )
       {
-         if( default_value )
-            _def = hpc::string( *default_value );
+	 if( default_value != NULL )
+	    _def = hpc::string( default_value );
       }
 
       void
@@ -99,63 +140,35 @@ namespace hpc {
       hpc::string
       string::store() const
       {
-         return *_val;
+	 if( _val )
+	    return *_val;
+	 else
+	    return *_def;
       }
 
       boolean::boolean( const hpc::string& name,
-                        optional<bool> default_value )
-         : option<bool>( name, default_value )
+			const hpc::string& short_name,
+			optional<bool> default_value,
+			optional<bool&> variable,
+			const hpc::string& desc )
+	 : option<bool>( name, short_name, default_value, variable, desc, BOOLEAN )
       {
       }
 
       void
       boolean::parse( const hpc::string& value )
       {
-         _val = boost::lexical_cast<bool>( value );
+	 // TODO: Optimise this with RE.
+	 hpc::string low;
+	 low.resize( value.size() );
+	 std::transform( value.begin(), value.end(), low.begin(), ::tolower );
+         _val = (value == "true" ||
+		 value == "t" ||
+		 value == "1" ||
+		 value == "yes" ||
+		 value == "y");
          _has_val = true;
       }
 
-      hpc::string
-      boolean::store() const
-      {
-      }
-
-      integer::integer( const hpc::string& name,
-                        optional<unsigned long> default_value )
-         : option<unsigned long>( name, default_value )
-      {
-      }
-
-      void
-      integer::parse( const hpc::string& value )
-      {
-         _val = boost::lexical_cast<unsigned long>( value );
-         _has_val = true;
-      }
-
-      hpc::string
-      integer::store() const
-      {
-         return to_string( *_val );
-      }
-
-      real::real( const hpc::string& name,
-                  optional<double> default_value )
-         : option<double>( name, default_value )
-      {
-      }
-
-      void
-      real::parse( const hpc::string& value )
-      {
-         _val = boost::lexical_cast<double>( value );
-         _has_val = true;
-      }
-
-      hpc::string
-      real::store() const
-      {
-         return to_string( *_val );
-      }
    }
 }

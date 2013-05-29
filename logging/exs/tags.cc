@@ -8,8 +8,10 @@ int
 main( int argc,
       char** argv )
 {
+#ifndef NLOG
    logging::stdout* log = new logging::stdout( 0, "hello" );
    log->add_tag( "world" );
+#endif
    LOG_PUSH( log );
    LOG_PUSH_TAG( "hello" );
    LOGLN( "Hello world!", setindent( 2 ) );

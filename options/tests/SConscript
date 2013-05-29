@@ -12,6 +12,7 @@ suites = [
     ('xml_suite.t.hh', 'bad_option.cc', 'option.cc', 'dictionary.cc', 'xml.cc'),
     ('dictionary_suite.t.hh', 'bad_option.cc', 'option.cc', 'dictionary.cc', 'xml.cc'),
     ('xml_dict_suite.t.hh', 'bad_option.cc', 'xml_dict.cc'),
+    ('cmd_line_suite.t.hh', 'cmd_line.cc', 'bad_option.cc', 'option.cc', 'dictionary.cc', 'format.cc'),
 ]
 
 # Define libraries to link against.

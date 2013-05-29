@@ -56,6 +56,37 @@ namespace hpc {
          void
          clear();
 
+	 void
+	 reset_positionals();
+
+	 void
+	 write_variables() const;
+
+	 bool
+	 help_requested() const;
+
+	 void
+	 print_help( const hpc::string& binary = hpc::string(),
+		     const hpc::string& short_pre = "-",
+		     const hpc::string& long_pre = "--" ) const;
+
+	 bool
+	 has_errors() const;
+
+	 void
+	 print_errors() const;
+
+	 bool
+	 config_requested() const;
+
+	 template< class Format >
+	 void
+	 generate_config() const
+	 {
+	    Format fmt;
+	    fmt.write( *opt<hpc::string>( "gen-config" ), *this, true );
+	 }
+
          template< class T >
          const T
          get( const hpc::string& name ) const
@@ -131,13 +162,21 @@ namespace hpc {
          dictionary&
          sub( const hpc::string& prefix );
 
-         void
-         add_option( option_base* opt,
-                     optional<const hpc::string&> prefix=optional<const hpc::string&>() );
+	 template< typename Option,
+		   typename... Args >
+	 void
+	 add_option( Args&&... args )
+	 {
+	    add_option( new Option( std::forward<Args>( args )... ) );
+	 }
 
-         void
+	 void
          add_option( option_base* opt,
-                     const char* prefix );
+		     optional<const hpc::string&> prefix = optional<const hpc::string&>() );
+
+	 void
+         add_option( option_base* opt,
+		     const char* prefix );
 
          void
          add_dictionary( dictionary* dict );
@@ -150,6 +189,15 @@ namespace hpc {
 
          bool
          has_option( const hpc::string& name ) const;
+
+	 bool
+	 has_short_option( const hpc::string& name ) const;
+
+	 const hpc::string&
+	 short_to_long( const hpc::string& name ) const;
+
+	 void
+	 set_next_positional( const hpc::string& value );
 
          vector<shared_ptr<option_base> >::const_iterator
          options_cbegin() const;
@@ -186,14 +234,21 @@ namespace hpc {
 
       protected:
 
+      protected:
+
          bool _ready;
          hpc::string _sep;
          hpc::string _pre;
          vector<shared_ptr<option_base> > _opts;
          vector<shared_ptr<dictionary> > _dicts;
+	 vector<shared_ptr<option_base> > _pos_opts;
          multimatch _opts_mm;
          multimatch _dicts_mm;
+	 map<hpc::string,hpc::string> _s_to_l;
+	 unsigned _cur_pos;
+	 bool _help_req, _help_val_req;
       };
+
    }
 }
 

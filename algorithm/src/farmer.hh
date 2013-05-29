@@ -39,6 +39,15 @@ namespace hpc {
          void
          set_comm( const mpi::comm& comm );
 
+	 template< class Master >
+         range<unsigned long long>
+         serial_request( Master& me )
+	 {
+	    range<unsigned long long> rng( _first, _last );
+	    me.next( _first, _last );
+	    return rng;
+	 }
+
          range<unsigned long long>
          request();
 

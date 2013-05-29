@@ -44,6 +44,8 @@ namespace hpc {
 	 static datatype string;
          static datatype std_i32be;
          static datatype std_i64be;
+         static datatype std_u32be;
+         static datatype std_u64be;
          static datatype ieee_f32be;
          static datatype ieee_f64be;
 

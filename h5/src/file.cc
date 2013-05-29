@@ -68,11 +68,12 @@ namespace hpc {
       void
       file::close()
       {
-	 if(this->_id != -1) {
-	    H5Fclose( this->_id );  // is collective
-            this->_id = -1;
+	 if( _id != -1 )
+	 {
+	    INSIST( H5Fclose( _id ), >= 0 );  // is collective
+            _id = -1;
          }
-	 this->_comm = mpi::comm::self;
+	 _comm = mpi::comm::self;
       }
 
       template<>

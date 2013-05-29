@@ -45,6 +45,12 @@ namespace hpc {
       {
       }
 
+      xml_dict::xml_dict( xml_node root )
+         : _sep( ":" ),
+           _root( root )
+      {
+      }
+
       xml_dict::~xml_dict()
       {
       }

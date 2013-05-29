@@ -26,7 +26,7 @@ public:
    void test_defaults()
    {
       options::dictionary dict;
-      dict.add_option( new options::integer( "integer", 10 ) );
+      dict.add_option<options::integer>( "integer", "i", 10 );
       dict.compile();
       TS_ASSERT_EQUALS( dict.get<int>( "integer" ), 10 );
    }
@@ -41,7 +41,7 @@ public:
    void test_no_value()
    {
       options::dictionary dict;
-      dict.add_option( new options::integer( "integer" ) );
+      dict.add_option<options::integer>( "integer", "i" );
       dict.compile();
       TS_ASSERT_THROWS( dict.get<int>( "integer" ), options::no_value );
    }

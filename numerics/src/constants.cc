@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <math.h>
 #include "constants.hh"
 
 namespace hpc {
@@ -24,5 +25,8 @@ namespace hpc {
       const double c_mpc_gyr = 3.06391536e2; // Mpc/Gyr
       const double parsec = 3.08567758e16; // m
       const double mpc = 3.08567758e22; // m
+      const double gravitation = 6.672e-8; // ?
+
+      const double pi = M_PI;
    }
 }

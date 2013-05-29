@@ -15,34 +15,61 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_options_format_hh
-#define libhpc_options_format_hh
+#ifndef libhpc_options_cmd_line_hh
+#define libhpc_options_cmd_line_hh
 
+#include <iostream>
 #include "libhpc/containers/string.hh"
+#include "format.hh"
+#include "dictionary.hh"
 
 namespace hpc {
    namespace options {
 
-      class format
+      class cmd_line
+         : public format
       {
       public:
 
-	static const char* default_separator;
+	 static const char* default_equality_symbol;
 
       public:
 
-         virtual
-         void
-         start_list( const hpc::string& name ) = 0;
+	 cmd_line();
+
+	 void
+	 parse( dictionary& dict,
+		int argc,
+		const char* argv[] );
 
          virtual
          void
-         add_list_item( const hpc::string& value ) = 0;
+         start_list( const hpc::string& name );
 
          virtual
          void
-         end_list() = 0;
+         add_list_item( const hpc::string& value );
+
+         virtual
+         void
+         end_list();
+
+      protected:
+
+	 const char*
+	 _is_short( const char* opt );
+
+	 const char*
+	 _is_long( const char* opt );
+
+      protected:
+
+         hpc::string _sep;
+	 hpc::string _eq_sym;
+	 hpc::string _short_pre;
+	 hpc::string _long_pre;
       };
+
    }
 }
 

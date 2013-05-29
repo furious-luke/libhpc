@@ -38,8 +38,20 @@ namespace hpc {
       {
       public:
 
+	 enum kind_type
+	 {
+	    LIST,
+	    BOOLEAN,
+	    NORMAL
+	 };
+
+      public:
+
          explicit
-         option_base( const hpc::string& name = hpc::string() );
+         option_base( const hpc::string& name = hpc::string(),
+		      const hpc::string& short_name = hpc::string(),
+		      const hpc::string& desc = hpc::string(),
+		      kind_type kind = NORMAL );
 
          ~option_base();
 
@@ -55,17 +67,33 @@ namespace hpc {
          void
          store_visit( format& fmt );
 
+	 virtual
+	 void
+	 write_variable() const;
+
          void
          set_name( const hpc::string& name );
 
          const hpc::string&
          name() const;
 
+	 const hpc::string&
+	 short_name() const;
+
+	 const hpc::string&
+	 description() const;
+
          bool
          has_value() const;
 
          bool
+         has_value_or_default() const;
+
+         bool
          is_list() const;
+
+         bool
+         is_boolean() const;
 
          option_base&
          operator=( const hpc::string& value );
@@ -73,8 +101,11 @@ namespace hpc {
       protected:
 
          hpc::string _name;
+	 hpc::string _short;
+	 hpc::string _desc;
          bool _has_val;
-         bool _is_list;
+	 bool _has_def;
+	 kind_type _kind;
       };
 
       ///
@@ -91,15 +122,52 @@ namespace hpc {
       public:
 
          option( const hpc::string& name,
-                 optional<T> default_value = optional<T>() )
-            : option_base( name ),
-              _def( default_value )
+		 const hpc::string& short_name = hpc::string(),
+                 optional<T> def = optional<T>(),
+		 optional<T&> variable = optional<T&>(),
+		 const hpc::string& desc = hpc::string(),
+		 kind_type kind = NORMAL )
+            : option_base( name, short_name, desc, kind ),
+              _def( def ),
+	      _var( variable )
          {
+	    if( def )
+	       _has_def = true;
          }
 
          ~option()
          {
          }
+
+         virtual
+         void
+         parse( const hpc::string& value )
+	 {
+	    _val = boost::lexical_cast<value_type>( value );
+	    _has_val = true;
+	 }
+
+         virtual
+         hpc::string
+         store() const
+	 {
+	    if( _val )
+	       return to_string( *_val );
+	    else
+	       return to_string( *_def );
+	 }
+
+	 virtual
+	 void
+	 write_variable() const
+	 {
+	    if( _var )
+	    {
+	       auto val = get();
+	       if( val )
+		  *_var = *val;
+	    }
+	 }
 
          void
          set_value( const T& value )
@@ -154,6 +222,7 @@ namespace hpc {
 
          optional<T> _val;
          optional<T> _def;
+	 optional<T&> _var;
       };
 
       ///
@@ -165,11 +234,17 @@ namespace hpc {
       public:
 
          string( const hpc::string& name,
-                 optional<hpc::string> default_value = optional<hpc::string>(),
+		 const hpc::string& short_name,
+                 optional<hpc::string> default_value,
+		 optional<hpc::string&> variable = optional<hpc::string&>(),
+		 const hpc::string& desc = hpc::string(),
 		 bool strip = true );
 
          string( const hpc::string& name,
-                 optional<const char*> default_value,
+		 const hpc::string& short_name = hpc::string(),
+                 const char* default_value = NULL,
+		 optional<hpc::string&> variable = optional<hpc::string&>(),
+		 const hpc::string& desc = hpc::string(),
 		 bool strip = true );
 
          virtual
@@ -185,65 +260,28 @@ namespace hpc {
 	 bool _strip;
       };
 
-      ///
-      ///
-      ///
       class boolean
          : public option<bool>
       {
       public:
 
          boolean( const hpc::string& name,
-                  optional<bool> default_value = optional<bool>() );
+		  const hpc::string& short_name,
+		  optional<bool> default_value,
+		  optional<bool&> variable = optional<bool&>(),
+		  const hpc::string& desc = hpc::string() );
 
          virtual
          void
          parse( const hpc::string& value );
-
-         virtual
-         hpc::string
-         store() const;
       };
 
-      ///
-      ///
-      ///
-      class integer
-         : public option<unsigned long>
-      {
-      public:
-
-         integer( const hpc::string& name,
-                  optional<unsigned long> default_value = optional<unsigned long>() );
-
-         virtual
-         void
-         parse( const hpc::string& value );
-
-         virtual
-         hpc::string
-         store() const;
-      };
-
-      ///
-      ///
-      ///
-      class real
-         : public option<double>
-      {
-      public:
-
-         real( const hpc::string& name,
-               optional<double> default_value = optional<double>() );
-
-         virtual
-         void
-         parse( const hpc::string& value );
-
-         virtual
-         hpc::string
-         store() const;
-      };
+      typedef option<int>                integer;
+      typedef option<unsigned>           integer_u;
+      typedef option<long long>          integer_ll;
+      typedef option<unsigned long long> integer_ull;
+      typedef option<float>              real;
+      typedef option<double>             real_d;
 
       ///
       ///
@@ -260,11 +298,12 @@ namespace hpc {
 
       public:
 
-         list( const hpc::string& name )
-            : option_base( name ),
+         list( const hpc::string& name,
+	       const hpc::string& short_name = hpc::string(),
+	       const hpc::string& desc = hpc::string() )
+            : option_base( name, short_name, desc, LIST ),
               _sub_opt( "" )
          {
-            _is_list = true;
          }
 
          virtual
@@ -337,14 +376,16 @@ namespace hpc {
          sub_option_type _sub_opt;
       };
 
-      typedef boost::mpl::map< boost::mpl::pair<hpc::string, string>,
-                               boost::mpl::pair<bool, boolean>,
-                               boost::mpl::pair<int, integer>,
-                               boost::mpl::pair<unsigned int, integer>,
-                               boost::mpl::pair<long, integer>,
-                               boost::mpl::pair<unsigned long, integer>,
-                               boost::mpl::pair<float, real>,
-                               boost::mpl::pair<double, real> > type_map;
+      typedef boost::mpl::map< boost::mpl::pair<hpc::string,        string>,
+                               boost::mpl::pair<bool,               boolean>,
+                               boost::mpl::pair<int,                integer>,
+                               boost::mpl::pair<unsigned int,       integer_u>,
+                               boost::mpl::pair<long,               integer>,
+                               boost::mpl::pair<unsigned long,      integer_u>,
+                               boost::mpl::pair<long long,          integer_ll>,
+                               boost::mpl::pair<unsigned long long, integer_ull>,
+                               boost::mpl::pair<float,              real>,
+                               boost::mpl::pair<double,             real_d> > type_map;
    }
 }
 

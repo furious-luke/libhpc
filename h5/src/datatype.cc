@@ -30,6 +30,8 @@ namespace hpc {
       datatype datatype::string( H5T_STRING );
       datatype datatype::std_i32be( H5T_STD_I32BE );
       datatype datatype::std_i64be( H5T_STD_I64BE );
+      datatype datatype::std_u32be( H5T_STD_U32BE );
+      datatype datatype::std_u64be( H5T_STD_U64BE );
       datatype datatype::ieee_f32be( H5T_IEEE_F32BE );
       datatype datatype::ieee_f64be( H5T_IEEE_F64BE );
 
@@ -84,6 +86,8 @@ namespace hpc {
                           _id != H5T_STRING &&
                           _id != H5T_STD_I32BE &&
                           _id != H5T_STD_I64BE &&
+                          _id != H5T_STD_U32BE &&
+                          _id != H5T_STD_U64BE &&
                           _id != H5T_IEEE_F32BE &&
                           _id != H5T_IEEE_F64BE) )
          {

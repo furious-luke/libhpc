@@ -21,10 +21,16 @@
 namespace hpc {
    namespace constant {
 
+      // Astronomy/astrophysics.
       extern const double c; // m/s
       extern const double c_mpc_gyr; // Mpc/Gyr
       extern const double parsec; // m
       extern const double mpc; // m
+      extern const double gravitation; // ?
+
+      // Mathematical.
+      extern const double pi;
+
    }
 }
 

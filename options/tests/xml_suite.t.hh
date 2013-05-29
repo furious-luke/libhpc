@@ -26,9 +26,9 @@ public:
    void test_empty()
    {
       options::dictionary dict;
-      dict.add_option( new options::string( "word" ) );
-      dict.add_option( new options::integer( "integer" ) );
-      dict.add_option( new options::real( "real" ) );
+      dict.add_option<options::string>( "word" );
+      dict.add_option<options::integer>( "integer" );
+      dict.add_option<options::real>( "real" );
       dict.compile();
 
       options::xml xml;
@@ -40,10 +40,10 @@ public:
    void test_save_and_load()
    {
       options::dictionary dict;
-      dict.add_option( new options::string( "word" ) );
-      dict.add_option( new options::string( "yeah" ) );
-      dict.add_option( new options::integer( "integer" ) );
-      dict.add_option( new options::real( "real" ) );
+      dict.add_option<options::string>( "word" );
+      dict.add_option<options::string>( "yeah" );
+      dict.add_option<options::integer>( "integer" );
+      dict.add_option<options::real>( "real" );
       dict.compile();
 
       dict["word"] = "hello";
@@ -56,10 +56,10 @@ public:
       xml.write( filename, dict );
 
       options::dictionary new_dict;
-      new_dict.add_option( new options::string( "word" ) );
-      new_dict.add_option( new options::string( "yeah" ) );
-      new_dict.add_option( new options::integer( "integer" ) );
-      new_dict.add_option( new options::real( "real" ) );
+      new_dict.add_option<options::string>( "word" );
+      new_dict.add_option<options::string>( "yeah" );
+      new_dict.add_option<options::integer>( "integer" );
+      new_dict.add_option<options::real>( "real" );
       new_dict.compile();
 
       xml.read( filename, new_dict );
@@ -75,13 +75,13 @@ public:
    void test_sub_dictionary()
    {
       options::dictionary* dict1 = new options::dictionary( "sub" );
-      dict1->add_option( new options::string( "word" ) );
-      dict1->add_option( new options::integer( "integer" ) );
-      dict1->add_option( new options::real( "real" ) );
+      dict1->add_option<options::string>( "word" );
+      dict1->add_option<options::integer>( "integer" );
+      dict1->add_option<options::real>( "real" );
       options::dictionary dict2;
-      dict2.add_option( new options::string( "word" ) );
-      dict2.add_option( new options::integer( "integer" ) );
-      dict2.add_option( new options::real( "real" ) );
+      dict2.add_option<options::string>( "word" );
+      dict2.add_option<options::integer>( "integer" );
+      dict2.add_option<options::real>( "real" );
       dict2.add_dictionary( dict1 );
       dict2.compile();
 
@@ -97,13 +97,13 @@ public:
       xml.write( filename, dict2 );
 
       options::dictionary* new_dict1 = new options::dictionary( "sub" );
-      new_dict1->add_option( new options::string( "word" ) );
-      new_dict1->add_option( new options::integer( "integer" ) );
-      new_dict1->add_option( new options::real( "real" ) );
+      new_dict1->add_option<options::string>( "word" );
+      new_dict1->add_option<options::integer>( "integer" );
+      new_dict1->add_option<options::real>( "real" );
       options::dictionary new_dict2;
-      new_dict2.add_option( new options::string( "word" ) );
-      new_dict2.add_option( new options::integer( "integer" ) );
-      new_dict2.add_option( new options::real( "real" ) );
+      new_dict2.add_option<options::string>( "word" );
+      new_dict2.add_option<options::integer>( "integer" );
+      new_dict2.add_option<options::real>( "real" );
       new_dict2.add_dictionary( new_dict1 );
       new_dict2.compile();
 
@@ -122,13 +122,14 @@ public:
    void test_path()
    {
       options::dictionary* dict1 = new options::dictionary( "sub" );
-      dict1->add_option( new options::string( "word" ) );
-      dict1->add_option( new options::integer( "integer" ) );
-      dict1->add_option( new options::real( "real" ) );
+      dict1->add_option<options::string>( "word" );
+      dict1->add_option<options::integer>( "integer" );
+      dict1->add_option<options::real>( "real" );
       options::dictionary dict2;
-      dict2.add_option( new options::string( "word" ) );
-      dict2.add_option( new options::integer( "integer" ) );
-      dict2.add_option( new options::real( "real" ) );
+      dict2.add_option<options::string>( "word" );
+      dict2.add_option<options::integer>( "integer" );
+      dict2.add_option<options::real>( "real" );
+
       dict2.add_dictionary( dict1 );
       dict2.compile();
 
@@ -144,9 +145,9 @@ public:
       xml.write( filename, dict2 );
 
       options::dictionary new_dict1;
-      new_dict1.add_option( new options::string( "word" ) );
-      new_dict1.add_option( new options::integer( "integer" ) );
-      new_dict1.add_option( new options::real( "real" ) );
+      new_dict1.add_option<options::string>( "word" );
+      new_dict1.add_option<options::integer>( "integer" );
+      new_dict1.add_option<options::real>( "real" );
       new_dict1.compile();
 
       xml.read( filename, new_dict1, "/sub/*" );
@@ -161,8 +162,8 @@ public:
    void test_list()
    {
       options::dictionary dict;
-      dict.add_option( new options::string( "first" ) );
-      dict.add_option( new options::list<options::integer>( "list_of_ints" ) );
+      dict.add_option<options::string>( "first" );
+      dict.add_option<options::list<options::integer>>( "list_of_ints" );
 
       dict.compile();
 
@@ -176,8 +177,8 @@ public:
       xml.write( filename, dict );
 
       options::dictionary new_dict;
-      new_dict.add_option( new options::string( "first" ) );
-      new_dict.add_option( new options::list<options::integer>( "list_of_ints" ) );
+      new_dict.add_option<options::string>( "first" );
+      new_dict.add_option<options::list<options::integer>>( "list_of_ints" );
       new_dict.compile();
 
       xml.read( filename, new_dict );

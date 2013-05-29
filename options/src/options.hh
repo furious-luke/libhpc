@@ -21,5 +21,7 @@
 #include "option.hh"
 #include "dictionary.hh"
 #include "xml.hh"
+#include "cmd_line.hh"
+#include "parse.hh"
 
 #endif

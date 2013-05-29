@@ -46,9 +46,10 @@ namespace hpc {
          create( loc, name, datatype, dataspace, chunk_size, deflate, props );
       }
 
-      dataset::~dataset() {
-	 if(this->_id != -1)
-	    H5Dclose(this->_id);
+      dataset::~dataset()
+      {
+	 if( _id != -1 )
+	    INSIST( H5Dclose( _id ), >= 0 );
       }
 
       void

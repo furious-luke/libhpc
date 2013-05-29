@@ -58,7 +58,12 @@ namespace hpc {
          ///
          /// Default constructor.
          ///
-         xml_dict();
+	 xml_dict();
+
+         ///
+         /// XML base constructor.
+         ///
+	 xml_dict( xml_node root );
 
          ///
          /// Destructor.
