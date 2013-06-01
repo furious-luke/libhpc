@@ -72,5 +72,17 @@ namespace hpc {
 	 INSIST( H5Pset_deflate( _id, 9 ), >= 0 );
       }
 
+      void
+      property_list::set_family( hsize_t size )
+      {
+	 INSIST( H5Pset_fapl_family( _id, size, H5P_DEFAULT ), >= 0 );
+      }
+
+      void
+      property_list::set_parallel( const mpi::comm& comm )
+      {
+	 INSIST( H5Pset_fapl_mpio( _id, comm.mpi_comm(), MPI_INFO_NULL ), >= 0 );
+      }
+
    }
 }

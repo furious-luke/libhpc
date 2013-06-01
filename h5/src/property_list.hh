@@ -28,6 +28,9 @@ namespace hpc {
       {
       public:
 
+	 ///
+	 /// @param[in] id One of H5P_FILE_ACCESS, H5P_DATASET_CREATE
+	 ///
 	 property_list( hid_t id );
 
 	 ~property_list();
@@ -43,7 +46,7 @@ namespace hpc {
 
 	 void
 	 set_external( const string& name,
-		       hsize_t size,
+		       hsize_t size = (hsize_t)1 << 31,
 		       hsize_t offset = 0 );
 
 	 void
@@ -51,6 +54,12 @@ namespace hpc {
 
 	 void
 	 set_deflate( bool state = true );
+
+	 void
+	 set_family( hsize_t size = (hsize_t)1 << 31 );
+
+	 void
+	 set_parallel( const mpi::comm& comm = mpi::comm::world );
 
       protected:
 

@@ -51,7 +51,7 @@ namespace hpc {
 	 ~dataset();
 
 	 void
-	 open( h5::location& loc,
+	 open( const h5::location& loc,
 	       const std::string& name );
 
 	 void
@@ -71,6 +71,9 @@ namespace hpc {
 
 	 void
 	 space( h5::dataspace& space ) const;
+
+	 hsize_t
+	 extent() const;
 
 	 void
 	 read( void* buf,

@@ -44,25 +44,28 @@ namespace hpc {
       void
       file::open( const std::string& filename,
 		  unsigned int flags,
-		  const mpi::comm& comm )
+		  const mpi::comm& comm,
+		  optional<property_list&> props )
       {
 	 this->_comm = &comm;
 
-	 hid_t plist_id;
+	 h5::property_list local_props( H5P_FILE_CREATE );
 	 if(*this->_comm != mpi::comm::null && this->_comm->size() != 1) {
-	    plist_id = H5Pcreate(H5P_FILE_ACCESS);
-	    H5Pset_fapl_mpio(plist_id, this->_comm->mpi_comm(), MPI_INFO_NULL);
+	    if( !props )
+	       props = local_props;
+	    (*props).set_parallel( comm );
 	 }
+
+	 hid_t props_id;
+	 if( props )
+	    props_id = (*props).id();
 	 else
-	    plist_id = H5P_DEFAULT;
+	    props_id = H5P_DEFAULT;
 
 	 if(flags == H5F_ACC_TRUNC || flags == H5F_ACC_EXCL)
-	    this->_id = H5Fcreate(filename.c_str(), flags, H5P_DEFAULT, plist_id);
+	    this->_id = H5Fcreate(filename.c_str(), flags, H5P_DEFAULT, props_id);
 	 else
-	    this->_id = H5Fopen(filename.c_str(), flags, plist_id);
-
-	 if(*this->_comm != mpi::comm::null && this->_comm->size() != 1)
-	    H5Pclose(plist_id);
+	    this->_id = H5Fopen(filename.c_str(), flags, props_id);
       }
 
       void

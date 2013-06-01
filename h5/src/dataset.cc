@@ -53,7 +53,7 @@ namespace hpc {
       }
 
       void
-      dataset::open( h5::location& loc,
+      dataset::open( const h5::location& loc,
 		     const std::string& name )
       {
 	 this->close();
@@ -123,6 +123,14 @@ namespace hpc {
 #else
 	 space.set_id(H5Dget_space(this->_id));
 #endif
+      }
+
+      hsize_t
+      dataset::extent() const
+      {
+	 h5::dataspace space;
+	 this->space( space );
+	 return space.size();
       }
 
       void

@@ -15,16 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi
-#define hpc_mpi
-
-#include "init.hh"
-#include "assert.hh"
-#include "logger.hh"
-#include "data_type.hh"
-#include "request.hh"
-#include "requests.hh"
+#include "libhpc/containers/string.hh"
 #include "comm.hh"
-#include "helpers.hh"
+
+#ifndef hpc_mpi_helpers_hh
+#define hpc_mpi_helpers_hh
+
+namespace hpc {
+   namespace mpi {
+
+      string
+      rank_string( const mpi::comm& comm = mpi::comm::world );
+
+   }
+}
 
 #endif

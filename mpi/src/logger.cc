@@ -55,8 +55,9 @@ namespace hpc {
       {
 	 double timestamp = MPI_Wtime() - log_base_time;
 	 std::streamsize old_prec = _file.precision();
-	 _file << std::setprecision( 9 ) << std::left << std::setw( 14 ) << timestamp << std::setprecision( old_prec );
-	 _file << " " << _my_rank << " : " << indent;
+	 buffer() << std::setprecision( 9 ) << std::left << std::setw( 14 ) << timestamp << std::setprecision( old_prec );
+	 buffer() << " " << _my_rank << " : " << indent;
+	 write_buffer( "" );
 	 _get_new_line() = false;
       }
    }

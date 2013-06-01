@@ -104,34 +104,35 @@ namespace hpc {
 		  col += 2 + short_pre.size() + (*it)->short_name().size();
 	       }
 
+	       hpc::string desc;
 	       if( !(*it)->description().empty() )
 	       {
 		  if( col <= 24 )
 		  {
 		     while( col != 24 )
 		     {
-			std::cout << " ";
+			desc += " ";
 			++col;
 		     }
 		  }
 		  else
-		     std::cout << "\n                        ";
+		     desc = "\n                        ";
 
 		  // Split description if needed.
-		  hpc::string desc = (*it)->description();
-
-		  // Add default value to description.
-		  if( _help_val_req )
-		  {
-		     if( (*it)->has_value_or_default() )
-		     {
-			desc += "\n                         Value: ";
-			desc += (*it)->store();
-		     }
-		  }
-
-		  std::cout << " " << desc << "\n";
+		  desc += (*it)->description();
 	       }
+
+	       // Add default value to description.
+	       if( _help_val_req )
+	       {
+		  if( (*it)->has_value_or_default() )
+		  {
+		     desc += "\n                         Value: ";
+		     desc += (*it)->store();
+		  }
+	       }
+
+	       std::cout << " " << desc << "\n";
 	    }
 	 }
       }

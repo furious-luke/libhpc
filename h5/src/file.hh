@@ -51,7 +51,8 @@ namespace hpc {
 	 void
 	 open( const std::string& filename,
 	       unsigned int flags,
-	       const mpi::comm& comm=mpi::comm::self );
+	       const mpi::comm& comm = mpi::comm::self,
+	       optional<property_list&> props = optional<property_list&>() );
 
 	 void
 	 close();

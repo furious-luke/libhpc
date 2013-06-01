@@ -19,6 +19,7 @@
 #define hpc_algorithm_indexer_hh
 
 #include "libhpc/debug/assert.hh"
+#include "libhpc/logging/logging.hh"
 #include "libhpc/hpcmpi/comm.hh"
 
 class indexer_suite;
@@ -44,8 +45,8 @@ namespace hpc {
          unsigned long long
          request( unsigned long long size );
 
-         void
-         master();
+	 void
+	 master( std::function<void(unsigned long long,unsigned long long)> cb = std::function<void(unsigned long long,unsigned long long)>() );
 
       protected:
 

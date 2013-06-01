@@ -17,6 +17,7 @@
 
 #include "location.hh"
 #include "group.hh"
+#include "dataset.hh"
 
 namespace hpc {
    namespace h5 {
@@ -59,5 +60,14 @@ namespace hpc {
 	 h5::group group;
 	 group.create(*this, name);
       }
+
+      hsize_t
+      location::extent( const string& name ) const
+      {
+	 h5::dataset dset;
+	 dset.open( *this, name );
+	 return dset.extent();
+      }
+
    }
 }

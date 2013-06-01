@@ -47,6 +47,9 @@ namespace hpc {
 	 void
 	 create_group( const std::string& name );
 
+	 hsize_t
+	 extent( const string& name ) const;
+
 	 template< class T >
 	 void
 	 write( const std::string& name,
