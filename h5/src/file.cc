@@ -49,7 +49,7 @@ namespace hpc {
       {
 	 this->_comm = &comm;
 
-	 h5::property_list local_props( H5P_FILE_CREATE );
+	 h5::property_list local_props( H5P_FILE_ACCESS );
 	 if(*this->_comm != mpi::comm::null && this->_comm->size() != 1) {
 	    if( !props )
 	       props = local_props;

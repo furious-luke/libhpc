@@ -43,7 +43,8 @@ namespace hpc {
          set_max_its( unsigned its );
 
          unsigned long long
-         request( unsigned long long size );
+         request( unsigned long long size,
+                  std::function<void(unsigned long long,unsigned long long)> cb = std::function<void(unsigned long long,unsigned long long)>() );
 
 	 void
 	 master( std::function<void(unsigned long long,unsigned long long)> cb = std::function<void(unsigned long long,unsigned long long)>() );

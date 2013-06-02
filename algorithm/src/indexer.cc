@@ -43,7 +43,8 @@ namespace hpc {
       }
 
       unsigned long long
-      indexer::request( unsigned long long size )
+      indexer::request( unsigned long long size,
+                        std::function<void(unsigned long long,unsigned long long)> cb )
       {
 	 unsigned long long base;
 	 if( _comm->size() > 1 )
@@ -56,6 +57,8 @@ namespace hpc {
 	 else
 	 {
 	    base = _base;
+	    if( cb )
+	       cb( _base, size );
 	    _base += size;
 	 }
          return base;

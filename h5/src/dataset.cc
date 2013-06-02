@@ -185,7 +185,6 @@ namespace hpc {
 	 {
 	    h5::dataspace dspace( *this );
 	    ASSERT( dspace.simple_extent_num_dims() == 1 );
-	    ASSERT( dspace.size() <= size );
 	 }
 #endif
 

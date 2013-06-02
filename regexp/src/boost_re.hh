@@ -47,6 +47,7 @@ namespace hpc {
                search( const string& str,
                        optional<hpc::re::match&> match = optional<hpc::re::match&>() ) const;
             };
+
          }
       }
    }
