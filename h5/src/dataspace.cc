@@ -95,9 +95,13 @@ namespace hpc {
       hsize_t
       dataspace::size() const
       {
-	 vector<hsize_t> dims( simple_extent_num_dims() );
-	 simple_extent_dims( dims );
-	 return std::accumulate( dims.begin(), dims.end(), 1, std::multiplies<hsize_t>() );
+#ifndef NDEBUG
+	 hssize_t size = H5Sget_simple_extent_npoints( _id );
+	 ASSERT( size >= 0 );
+	 return (hsize_t)size;
+#else
+	 return (hsize_t)H5Sget_simple_extent_npoints( _id );
+#endif
       }
 
       hsize_t
