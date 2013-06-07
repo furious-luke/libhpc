@@ -36,6 +36,8 @@ namespace hpc {
 
 	 static datatype native_char;
 	 static datatype native_int;
+	 static datatype native_uint;
+	 static datatype native_long;
 	 static datatype native_ulong;
 	 static datatype native_llong;
 	 static datatype native_ullong;
@@ -49,16 +51,16 @@ namespace hpc {
          static datatype ieee_f32be;
          static datatype ieee_f64be;
 
-	 typedef mpl::map< mpl::pair<int, mpl::int_<-2> >,
-			   mpl::pair<unsigned, mpl::int_<-3> >,
-			   mpl::pair<long, mpl::int_<-4> >,
-			   mpl::pair<unsigned long, mpl::int_<-5> >,
-			   mpl::pair<long long, mpl::int_<-6> >,
+	 typedef mpl::map< mpl::pair<int,                mpl::int_<-2> >,
+			   mpl::pair<unsigned,           mpl::int_<-3> >,
+			   mpl::pair<long,               mpl::int_<-4> >,
+			   mpl::pair<unsigned long,      mpl::int_<-5> >,
+			   mpl::pair<long long,          mpl::int_<-6> >,
 			   mpl::pair<unsigned long long, mpl::int_<-7> >,
-			   mpl::pair<float, mpl::int_<-8> >,
-			   mpl::pair<double, mpl::int_<-9> >,
-			   mpl::pair<char, mpl::int_<-10> >,
-			   mpl::pair<std::string, mpl::int_<-11> > > type_map;
+			   mpl::pair<float,              mpl::int_<-8> >,
+			   mpl::pair<double,             mpl::int_<-9> >,
+			   mpl::pair<char,               mpl::int_<-10> >,
+			   mpl::pair<std::string,        mpl::int_<-11> > > type_map;
 
 	 datatype( hid_t id=-1 );
 

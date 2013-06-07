@@ -22,6 +22,8 @@ namespace hpc {
 
       datatype datatype::native_char( H5T_NATIVE_CHAR );
       datatype datatype::native_int( H5T_NATIVE_INT );
+      datatype datatype::native_uint( H5T_NATIVE_UINT );
+      datatype datatype::native_long( H5T_NATIVE_LONG );
       datatype datatype::native_ulong( H5T_NATIVE_ULONG );
       datatype datatype::native_llong( H5T_NATIVE_LLONG );
       datatype datatype::native_ullong( H5T_NATIVE_ULLONG );
