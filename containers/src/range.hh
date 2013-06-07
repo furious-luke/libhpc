@@ -173,7 +173,7 @@ namespace hpc {
       operator<<( std::ostream& strm,
 		  const range& obj )
       {
-	 strm << "(" << obj._start << ", " << obj._finish << ")";
+	 strm << "[" << obj._start << "-" << obj._finish << ")";
 	 return strm;
       }
 
