@@ -1,5 +1,5 @@
 import subprocess, os, multiprocessing
-import config
+import sconsconfig as config
 import helpers
 
 
