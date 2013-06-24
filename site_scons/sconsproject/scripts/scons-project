@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import argparse, sys, os
+import sconsproject.utils as utils
+
+##
+##
+##
+def start_project(args):
+    base = os.getcwd()
+    utils.copy_data('base', os.path.join(base, args.name))
+
+##
+##
+##
+def start_sub(args):
+    base = os.getcwd()
+    if not os.path.exists(os.path.join(base, 'SConstruct')):
+        print 'Not in a project root directory'
+        sys.exit()
+    utils.copy_data('sub', os.path.join(base, args.name))
+    utils.subs(os.path.join(base, args.name, 'SConscript'), {'sub_name': args.name})
+
+##
+##
+##
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser('Manage SCons projects.')
+    subparsers = parser.add_subparsers(help='sub-command help')
+
+    start_parser = subparsers.add_parser('startproject', help='start a new SCons project')
+    start_parser.add_argument('name', help='project name')
+    start_parser.set_defaults(func=start_project)
+
+    update_parser = subparsers.add_parser('startsub', help='start a new subproject')
+    update_parser.add_argument('name', help='project name')
+    update_parser.set_defaults(func=start_sub)
+
+    args = parser.parse_args()
+    args.func(args)

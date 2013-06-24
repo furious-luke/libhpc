@@ -1,0 +1,11 @@
+from sconsproject import helpers
+
+# Bring in the SCons environment.
+Import('env')
+
+# Define headers and sources.
+headers = env.Glob('*.hh') + env.Glob('*.tcc') + env.Glob('*.thh')
+sources = env.Glob('*.cc')
+
+# Call the helper.
+execfile(helpers.get_build_src_script(), globals())
