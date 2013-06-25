@@ -25,8 +25,9 @@ namespace hpc {
          trivial = 10,
          debug = 20,
          info = 30,
-         error = 40,
-         critical = 50
+         warning = 40,
+         error = 50,
+         critical = 60
       };
    }
 }

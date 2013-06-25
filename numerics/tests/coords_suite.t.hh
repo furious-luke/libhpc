@@ -110,6 +110,12 @@ public:
       TS_ASSERT( diff[0] > diff[1] );
    }
 
+   void test_redshift_to_comoving_distance()
+   {
+      double dist = numerics::redshift_to_comoving_distance<double>( 3, 1000, 73, 0.75, 0.25 );
+      TS_ASSERT_DELTA( dist, 4690.3/0.73, 10 );
+   }
+
    void test_redshift_to_light_travel_distance()
    {
       double dist = numerics::redshift_to_light_travel_distance( 0.02, 1000 );
@@ -119,7 +125,7 @@ public:
 
    void test_redshift_to_luminosity_distance()
    {
-      double dist = numerics::redshift_to_luminosity_distance( 0.02, 1000 );
-      TS_ASSERT_DELTA( dist, 85.84, 1e-1 );
+      double dist = numerics::redshift_to_luminosity_distance<double>( 3, 1000, 73, 0.75, 0.25 );
+      TS_ASSERT_DELTA( dist, 25694.0, 10 );
    }
 };

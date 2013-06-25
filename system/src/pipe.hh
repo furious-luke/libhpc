@@ -28,6 +28,11 @@
 #include "gcc_4.6_fix.hh"
 #include "cc_version.hh"
 
+// Issue with some versions of CentOS.
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
+
 namespace hpc {
    namespace posix {
 

@@ -48,8 +48,7 @@ namespace hpc {
 
       dataset::~dataset()
       {
-	 if( _id != -1 )
-	    INSIST( H5Dclose( _id ), >= 0 );
+	 close();
       }
 
       void
@@ -100,7 +99,10 @@ namespace hpc {
       dataset::close()
       {
 	 if(this->_id != -1)
+	 {
 	    INSIST(H5Dclose(this->_id), >= 0);
+	    _id = -1;
+	 }
       }
 
       H5T_class_t
@@ -131,6 +133,21 @@ namespace hpc {
 	 h5::dataspace space;
 	 this->space( space );
 	 return space.size();
+      }
+
+      void
+      dataset::set_extent( hsize_t size )
+      {
+#ifndef NDEBUG
+	 {
+	    h5::dataspace dspace( *this );
+	    ASSERT( dspace.simple_extent_num_dims() == 1 );
+	 }
+#endif
+
+	 hsize_t size_vec[1];
+	 size_vec[0] = size;
+	 INSIST( H5Dset_extent( _id, size_vec ), >= 0 );
       }
 
       void

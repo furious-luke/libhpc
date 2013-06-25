@@ -23,6 +23,7 @@ namespace hpc {
 
       // Astronomy/astrophysics.
       extern const double c; // m/s
+      extern const double c_km_s; // km/s
       extern const double c_mpc_gyr; // Mpc/Gyr
       extern const double parsec; // m
       extern const double mpc; // m

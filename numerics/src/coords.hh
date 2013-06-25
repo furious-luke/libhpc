@@ -166,8 +166,8 @@ namespace hpc {
 				     T omega_m = 0.27 )
       {
          ASSERT( z >= 0.0 );
-         T sum = simpson( redshift_to_comoving_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
-         return sum*300000.0/hubble;
+         T sum = simpson( redshift_to_comoving_distance_func<T>( omega_v, omega_m ), 0, z, points );
+         return (constant::c_km_s/hubble)*sum;
       }
 
       template< class T >
@@ -207,7 +207,7 @@ namespace hpc {
       {
          ASSERT( z >= 0.0 );
          T sum = simpson( redshift_to_light_travel_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
-         return sum*300000.0/hubble;
+         return (constant::c_km_s/hubble)*sum;
       }
 
       ///
@@ -223,7 +223,7 @@ namespace hpc {
       {
          ASSERT( z >= 0.0 );
          T sum = simpson( redshift_to_comoving_distance_func<T>( omega_v, omega_m ), 0.0, z, points );
-	 T dh = 300000.0/hubble;
+         T dh = constant::c_km_s/hubble;
 	 sum *= dh;
 	 T omega_k = 1.0 - omega_m - omega_v;
 	 if( omega_k > 1e-8 )

@@ -76,7 +76,40 @@ namespace hpc {
 	    h5::dataspace mem_space( dims );
 	    mem_space.select_all();
 
-	    file_set.write( &value, datatype, mem_space, file_space, *_comm );
+	    // What to do when calling to write a single element from
+	    // many ranks? I'll just take one of them for now.
+	    if( _comm->rank() == 0 )
+	       file_set.write( &value, datatype, mem_space, file_space, mpi::comm::self );
+	 }
+
+	 template< class T >
+	 void
+	 write_serial( const std::string& name,
+		       const typename vector<T>::view& data,
+		       boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
+		       bool deflate=false )
+	 {
+	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
+	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
+
+	    vector<hsize_t> dims(1), count(1), offset(1);
+	    dims[0] = data.size();
+	    count[0] = data.size();
+	    offset[0] = 0;
+
+	    h5::dataspace file_space(dims);
+	    h5::dataset file_set;
+	    file_set.create(*this, name, datatype, file_space, chunk_size, deflate);
+	    file_space.select_all();
+	    file_space.select_hyperslab(H5S_SELECT_SET, count, offset);
+
+	    dims[0] = data.size();
+	    h5::dataspace mem_space(dims);
+	    mem_space.select_all();
+
+	    // Only one rank writes.
+	    if( _comm->rank() == 0 )
+	       file_set.write(data, datatype, mem_space, file_space, mpi::comm::self);
 	 }
 
 	 template< class T >

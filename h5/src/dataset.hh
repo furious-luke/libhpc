@@ -76,6 +76,9 @@ namespace hpc {
 	 extent() const;
 
 	 void
+	 set_extent( hsize_t size );
+
+	 void
 	 read( void* buf,
 	       const h5::datatype& mem_type,
 	       const h5::dataspace& mem_space=h5::dataspace::all,
