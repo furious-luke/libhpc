@@ -40,7 +40,8 @@ namespace hpc {
       {
       public:
 
-         logger( const std::string& filename );
+         logger( const std::string& filename,
+		 unsigned level = 0 );
 
          virtual
          ~logger();

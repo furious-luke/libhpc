@@ -28,8 +28,9 @@ namespace hpc {
 
       double log_base_time;
 
-      logger::logger( const std::string& filename )
-         : logging::file( filename ),
+      logger::logger( const std::string& filename,
+		      unsigned level )
+         : logging::file( filename, level ),
            _base( filename )
       {
       }
