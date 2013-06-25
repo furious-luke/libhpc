@@ -1,3 +1,8 @@
+# Modify Python path to locate local scons-config and
+# scons-project.
+import sys, os
+sys.path.append(os.path.join(os.getcwd(), 'site_scons'))
+
 import sconsproject as project
 from sconsproject import config
 
