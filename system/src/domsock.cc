@@ -20,6 +20,11 @@
 #include "libhpc/logging/logging.hh"
 #include "domsock.hh"
 
+// Fix for CentOS.
+#ifndef MSG_CMSG_CLOEXEC
+#define MSG_CMSG_CLOEXEC 0
+#endif
+
 namespace hpc {
    namespace posix {
 
