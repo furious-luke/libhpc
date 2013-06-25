@@ -19,14 +19,8 @@
 #define libhpc_system_hh
 
 #include "types.hh"
+#include "stream_indent.hh"
 #include "timer.hh"
-#include "daemon.hh"
 #include "id.hh"
-#include "pipe.hh"
-#include "select.hh"
-#include "poll.hh"
-#include "epoll.hh"
-#include "inetsock.hh"
-#include "domsock.hh"
 
 #endif
