@@ -15,18 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/system/helpers.hh"
-#include "helpers.hh"
+#ifndef libhpc_system_helpers_hh
+#define libhpc_system_helpers_hh
+
+#include <iomanip>
+#include <sstream>
+#include "libhpc/containers/string.hh"
 
 namespace hpc {
-   namespace mpi {
 
-      string
-      rank_string( const mpi::comm& comm,
-		   unsigned width )
-      {
-	 return index_string( comm.rank(), width );
-      }
-
+   template< class T >
+   string
+   index_string( T idx,
+		 unsigned width = 5 )
+   {
+      std::stringstream ss;
+      ss << std::setfill( '0' ) << std::setw( width ) << idx;
+      return ss.str();
    }
+
 }
+
+#endif

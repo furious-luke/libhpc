@@ -25,7 +25,8 @@ namespace hpc {
    namespace mpi {
 
       string
-      rank_string( const mpi::comm& comm = mpi::comm::world );
+      rank_string( const mpi::comm& comm = mpi::comm::world,
+		   unsigned width = 5 );
 
    }
 }

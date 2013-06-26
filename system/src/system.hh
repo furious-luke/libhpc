@@ -22,5 +22,6 @@
 #include "stream_indent.hh"
 #include "timer.hh"
 #include "id.hh"
+#include "helpers.hh"
 
 #endif
