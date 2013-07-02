@@ -75,8 +75,8 @@
 #define LOGI( ... )                             \
    LOGLV( ::hpc::logging::info, __VA_ARGS__ )
 
-#define LOGW( ... )                             \
-   LOGLV( ::hpc::logging::warning, __VA_ARGS__ )
+#define LOGW( ... )                                                     \
+                                                                                                                                         LOGLV( ::hpc::logging::warning, __VA_ARGS__ )
 
 #define LOGE( ... )                             \
    LOGLV( ::hpc::logging::error, __VA_ARGS__ )
@@ -91,6 +91,8 @@
 #ifndef NLOGDEBUG
 #define LOGDLN( ... )                                   \
    LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
+#define LOGDLN_TAG( tag, ... )                                          \
+   (LOG_PUSH_TAG( tag ), LOGDLN( __VA_ARGS__ ), LOG_POP_TAG( tag ))
 #else
 #define LOGDLN( ... )
 #endif
@@ -98,8 +100,8 @@
 #define LOGILN( ... )                           \
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
 
-#define LOGWLN( ... )                           \
-   LOGLVLN( ::hpc::logging::warning, __VA_ARGS__ )
+#define LOGWLN( ... )                                   \
+      LOGLVLN( ::hpc::logging::warning, __VA_ARGS__ )
 
 #define LOGELN( ... )                           \
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
@@ -124,11 +126,11 @@
 #define LOG_POP()                               \
    ::hpc::logging::pop()
 
-#define LOG_PUSH_TAG( tag ) \
+#define LOG_PUSH_TAG( tag )                     \
    ::hpc::logging::push_tag( tag )
 
-#define LOG_POP_TAG( tag ) \
-    ::hpc::logging::pop_tag( tag )
+#define LOG_POP_TAG( tag )                      \
+   ::hpc::logging::pop_tag( tag )
 
 namespace hpc {
    namespace logging {
