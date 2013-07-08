@@ -67,21 +67,21 @@ namespace hpc {
       }
 
       ///
-      /// Spherical coordinates in common physics interpretation, theta being
-      /// the angle between the z axis and r. Phi being the angle between the
-      /// x axis and the y axis.
-      ///
-      /// theta = inclination
-      /// phi = azimuth
+      /// Convert cartesian coordinates to ECS. RA is the angle between
+      /// the x and y axis, and DEC is the angle between the equatorial
+      /// plane in (1, 1, 0) and the radial vector (x, y, z).
       ///
       template< class T >
       void
       cartesian_to_ecs( T x, T y, T z,
-                        T& ra, T& dec )
+                        T& ra, T& dec,
+                        optional<T&> r = optional<T&>() )
       {
-         T r;
-         cartesian_to_spherical( x, y, z, r, dec, ra );
+         T _r;
+         cartesian_to_spherical( x, y, z, _r, dec, ra );
          dec = 0.5*M_PI - dec;
+         if( r )
+            *r = _r;
       }
 
       ///
