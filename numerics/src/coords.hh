@@ -20,6 +20,7 @@
 
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/num.hh"
+#include "libhpc/containers/optional.hh"
 #include "constants.hh"
 #include "simpson.hh"
 
@@ -95,11 +96,13 @@ namespace hpc {
       template< class T >
       void
       ecs_to_cartesian( T ra, T dec,
-                        T& x, T& y, T& z )
+                        T& x, T& y, T& z,
+                        optional<T> rad = optional<T>() )
                         
       {
          dec = 0.5*M_PI - dec;
-         spherical_to_cartesian( 1.0, dec, ra, x, y, z );
+         T _rad = rad ? *rad : 1;
+         spherical_to_cartesian( _rad, dec, ra, x, y, z );
       }
 
       template< class T >
