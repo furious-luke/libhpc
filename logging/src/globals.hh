@@ -95,6 +95,7 @@
    (LOG_PUSH_TAG( tag ), LOGDLN( __VA_ARGS__ ), LOG_POP_TAG( tag ))
 #else
 #define LOGDLN( ... )
+#define LOGDLN_TAG( tag, ... )
 #endif
 
 #define LOGILN( ... )                           \
