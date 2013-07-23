@@ -5,7 +5,7 @@ class CUDA(Package):
 
     def __init__(self, **kwargs):
         super(CUDA, self).__init__(**kwargs)
-        self.libs=[['cuda', 'cudart']]
+        self.libs=[['cudart']]
         self.check_text = r'''
 #include <stdlib.h>
 #include <stdio.h>
