@@ -55,6 +55,7 @@ namespace hpc {
 	 return strm;
       }
    };
-};
+
+}
 
 #endif

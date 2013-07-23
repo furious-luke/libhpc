@@ -24,7 +24,7 @@ namespace hpc {
 
    template< class T >
    class array< T, 2 >
-      : public impl::boost::array< T, 2 >
+      : public impl::boost::array<T,2>
    {
    public:
 
@@ -53,6 +53,7 @@ namespace hpc {
 	 return strm;
       }
    };
-};
+
+}
 
 #endif

@@ -51,6 +51,10 @@ namespace hpc {
 	 return strm;
       }
    };
-};
+
+}
+
+#include "array2.hh"
+#include "array3.hh"
 
 #endif
