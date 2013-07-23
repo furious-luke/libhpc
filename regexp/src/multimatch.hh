@@ -73,6 +73,7 @@ namespace hpc {
 
       list<string> _matches;
       re::re _re;
+      bool _ready;
    };
 };
 
