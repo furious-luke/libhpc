@@ -31,7 +31,7 @@ namespace hpc {
    public:
 
       typedef typename impl::boost::array<T,N>::size_type size_type;
-      typedef index key_type;
+      typedef size_t key_type;
       typedef T mapped_type;
 
    public:
@@ -44,7 +44,7 @@ namespace hpc {
 	 if( obj.size() )
          {
 	    strm << obj[0];
-	    for( index ii = 1; ii < obj.size(); ++ii )
+	    for( size_t ii = 1; ii < obj.size(); ++ii )
 	       strm << ", " << obj[ii];
 	 }
 	 strm << "]";

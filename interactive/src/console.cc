@@ -1,226 +1,227 @@
 #include "console.hh"
 #include "text.hh"
 
-namespace tao {
-   using namespace hpc;
+namespace hpc {
+   namespace gl {
 
-   console::console()
-      : _scr( 0, 0),
-        _num_lines( 10 ),
-        _line_height( 15 ),
-        _alpha( 0.5 ),
-        _open( 0 ),
-        _anim( 0, 10*15 ),
-        _cur_x( 2 ),
-        _cur_on( true ),
-        _cur_msecs( 0 ),
-        _cur_flash( 500 )
-   {
-   }
-
-   void
-   console::reshape( uint16 width,
-                     uint16 height )
-   {
-      _scr[0] = width;
-      _scr[1] = height;
-   }
-
-   void
-   console::toggle()
-   {
-      if( _open == 1 )
-         close();
-      else
-         open();
-   }
-
-   void
-   console::open()
-   {
-      _anim.reset();
-      _open = 1;
-      _cur_old = posix::timer();
-   }
-
-   void
-   console::close()
-   {
-      _anim.reset( false );
-      _open = 2;
-   }
-
-   bool
-   console::display()
-   {
-      if( _open )
+      console::console()
+         : _scr( 0, 0),
+           _num_lines( 10 ),
+           _line_height( 15 ),
+           _alpha( 0.5 ),
+           _open( 0 ),
+           _anim( 0, 10*15 ),
+           _cur_x( 2 ),
+           _cur_on( true ),
+           _cur_msecs( 0 ),
+           _cur_flash( 500 )
       {
-         if( !_anim.done() )
-            ++_anim;
-         draw();
-         if( _open == 2 && _anim.done() )
-            _open = 0;
-         return _anim.done();
       }
-      else
-         return true;
-   }
 
-   bool
-   console::idle()
-   {
-      if( _open )
-         return _update_cursor();
-      else
-         return false;
-   }
-
-   console::keyboard_state_type
-   console::keyboard( int key )
-   {
-      if( !_open )
-         return MISSED;
-
-      if( (key >= ' ' && key <= '_') ||
-          (key >= 'a' && key <= '}') )
+      void
+      console::reshape( uint16 width,
+                        uint16 height )
       {
-         _line += (char)key;
-         _cur_x += glutBitmapWidth( GLUT_BITMAP_9_BY_15, key );
-         return CAUGHT;
+         _scr[0] = width;
+         _scr[1] = height;
       }
-      else if( key == 8 )
+
+      void
+      console::toggle()
       {
-         if( !_line.empty() )
+         if( _open == 1 )
+            close();
+         else
+            open();
+      }
+
+      void
+      console::open()
+      {
+         _anim.reset();
+         _open = 1;
+         _cur_old = posix::timer();
+      }
+
+      void
+      console::close()
+      {
+         _anim.reset( false );
+         _open = 2;
+      }
+
+      bool
+      console::display()
+      {
+         if( _open )
          {
-            _cur_x -= glutBitmapWidth( GLUT_BITMAP_9_BY_15, _line.back() );
-            _line.pop_back();
+            if( !_anim.done() )
+               ++_anim;
+            draw();
+            if( _open == 2 && _anim.done() )
+               _open = 0;
+            return _anim.done();
+         }
+         else
+            return true;
+      }
+
+      bool
+      console::idle()
+      {
+         if( _open )
+            return _update_cursor();
+         else
+            return false;
+      }
+
+      console::keyboard_state_type
+      console::keyboard( int key )
+      {
+         if( !_open )
+            return MISSED;
+
+         if( (key >= ' ' && key <= '_') ||
+             (key >= 'a' && key <= '}') )
+         {
+            _line += (char)key;
+            _cur_x += glutBitmapWidth( GLUT_BITMAP_9_BY_15, key );
             return CAUGHT;
          }
+         else if( key == 8 )
+         {
+            if( !_line.empty() )
+            {
+               _cur_x -= glutBitmapWidth( GLUT_BITMAP_9_BY_15, _line.back() );
+               _line.pop_back();
+               return CAUGHT;
+            }
+         }
+         else if( key == 13 )
+         {
+            _hist.push_back( _line );
+            _line.clear();
+            _cur_x = 2;
+            return ACTION;
+         }
+
+         return MISSED;
       }
-      else if( key == 13 )
+
+      void
+      console::draw()
       {
-         _hist.push_back( _line );
-         _line.clear();
-         _cur_x = 2;
-         return ACTION;
+         _set_persp();
+         glTranslatef( 0, *_anim - _num_lines*_line_height, 0 );
+         glPushAttrib( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_POLYGON_BIT );
+         _draw_bg();
+         _draw_hist();
+         _draw_cursor();
+         glPopAttrib();
+         _unset_persp();
       }
 
-      return MISSED;
-   }
-
-   void
-   console::draw()
-   {
-      _set_persp();
-      glTranslatef( 0, *_anim - _num_lines*_line_height, 0 );
-      glPushAttrib( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_POLYGON_BIT );
-      _draw_bg();
-      _draw_hist();
-      _draw_cursor();
-      glPopAttrib();
-      _unset_persp();
-   }
-
-   void
-   console::write( const string& str )
-   {
-      _hist.push_back( str );
-   }
-
-   const string&
-   console::line() const
-   {
-      ASSERT( !_hist.empty(), "No lines in empty history." );
-      return _hist.back();
-   }
-
-   void
-   console::_set_persp()
-   {
-      glMatrixMode( GL_PROJECTION );
-      glPushMatrix();
-      glLoadIdentity();
-      gluOrtho2D( 0, _scr[0], 0, _scr[1] );
-      glMatrixMode( GL_MODELVIEW );
-      glPushMatrix();
-      glLoadIdentity();
-   }
-
-   void
-   console::_unset_persp()
-   {
-      glMatrixMode( GL_PROJECTION );
-      glPopMatrix();
-      glMatrixMode( GL_MODELVIEW );
-      glPopMatrix();
-   }
-
-   void
-   console::_draw_bg()
-   {
-      // Need to make sure the geometry works.
-      ASSERT( _num_lines*_line_height < _scr[1], "Console geometry doesn't fit on screen." );
-
-      // Now draw the background.
-      glDisable( GL_LIGHTING );
-      glDisable( GL_DEPTH_TEST );
-      glEnable( GL_BLEND );
-      glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-      glPolygonMode( GL_FRONT, GL_FILL );
-      glColor4f( 0, 0, 0, _alpha );
-      glBegin( GL_QUADS );
-      glVertex2i( 0, 0 );
-      glVertex2i( _scr[0], 0 );
-      glVertex2i( _scr[0], _num_lines*_line_height );
-      glVertex2i( 0, _num_lines*_line_height );
-      glEnd();
-   }
-
-   void
-   console::_draw_hist()
-   {
-      glDisable( GL_BLEND );
-      glColor3f( 0.7, 0.7, 0.7 );
-
-      draw_text_fit( _line.begin(), _line.end(), 0, 4, _scr[0] );
-
-      unsigned ii = 1;
-      for( auto it = _hist.rbegin();
-           it != _hist.rend() && ii < _num_lines;
-           ++it, ++ii )
+      void
+      console::write( const string& str )
       {
-         draw_text_fit( it->begin(), it->end(), 0, 4 + ii*_line_height, _scr[0] );
+         _hist.push_back( str );
       }
-   }
 
-   bool
-   console::_update_cursor()
-   {
-      posix::time_type cur_new = posix::timer();
-      if( posix::msecs( cur_new - _cur_old ) > _cur_flash )
+      const string&
+      console::line() const
       {
-         if( _cur_on )
-            _cur_on = false;
-         else
-            _cur_on = true;
-         _cur_old = cur_new;
-         return true;
+         ASSERT( !_hist.empty(), "No lines in empty history." );
+         return _hist.back();
       }
-      else
-         return false;
-   }
 
-   void
-   console::_draw_cursor()
-   {
-      if( _cur_on )
+      void
+      console::_set_persp()
       {
-         glLineWidth( 2 );
-         glBegin( GL_LINES );
-         glVertex2f( _cur_x, 0 );
-         glVertex2f( _cur_x, _line_height );
+         glMatrixMode( GL_PROJECTION );
+         glPushMatrix();
+         glLoadIdentity();
+         gluOrtho2D( 0, _scr[0], 0, _scr[1] );
+         glMatrixMode( GL_MODELVIEW );
+         glPushMatrix();
+         glLoadIdentity();
+      }
+
+      void
+      console::_unset_persp()
+      {
+         glMatrixMode( GL_PROJECTION );
+         glPopMatrix();
+         glMatrixMode( GL_MODELVIEW );
+         glPopMatrix();
+      }
+
+      void
+      console::_draw_bg()
+      {
+         // Need to make sure the geometry works.
+         ASSERT( _num_lines*_line_height < _scr[1], "Console geometry doesn't fit on screen." );
+
+         // Now draw the background.
+         glDisable( GL_LIGHTING );
+         glDisable( GL_DEPTH_TEST );
+         glEnable( GL_BLEND );
+         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+         glPolygonMode( GL_FRONT, GL_FILL );
+         glColor4f( 0, 0, 0, _alpha );
+         glBegin( GL_QUADS );
+         glVertex2i( 0, 0 );
+         glVertex2i( _scr[0], 0 );
+         glVertex2i( _scr[0], _num_lines*_line_height );
+         glVertex2i( 0, _num_lines*_line_height );
          glEnd();
       }
-   }
 
+      void
+      console::_draw_hist()
+      {
+         glDisable( GL_BLEND );
+         glColor3f( 0.7, 0.7, 0.7 );
+
+         draw_text_fit( _line.begin(), _line.end(), 0, 4, _scr[0] );
+
+         unsigned ii = 1;
+         for( auto it = _hist.rbegin();
+              it != _hist.rend() && ii < _num_lines;
+              ++it, ++ii )
+         {
+            draw_text_fit( it->begin(), it->end(), 0, 4 + ii*_line_height, _scr[0] );
+         }
+      }
+
+      bool
+      console::_update_cursor()
+      {
+         posix::time_type cur_new = posix::timer();
+         if( posix::msecs( cur_new - _cur_old ) > _cur_flash )
+         {
+            if( _cur_on )
+               _cur_on = false;
+            else
+               _cur_on = true;
+            _cur_old = cur_new;
+            return true;
+         }
+         else
+            return false;
+      }
+
+      void
+      console::_draw_cursor()
+      {
+         if( _cur_on )
+         {
+            glLineWidth( 2 );
+            glBegin( GL_LINES );
+            glVertex2f( _cur_x, 0 );
+            glVertex2f( _cur_x, _line_height );
+            glEnd();
+         }
+      }
+
+   }
 }

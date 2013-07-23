@@ -1,29 +1,30 @@
-#ifndef tao_zen_command_context_hh
-#define tao_zen_command_context_hh
+#ifndef libhpc_interactive_command_context_hh
+#define libhpc_interactive_command_context_hh
 
-#include <libhpc/containers/vector.hh>
-#include <libhpc/regexp/multimatch.hh>
+#include "libhpc/containers/vector.hh"
+#include "libhpc/regexp/multimatch.hh"
 #include "command.hh"
 
-namespace tao {
-   using namespace hpc;
+namespace hpc {
+   namespace command {
 
-   class context
-   {
-   public:
+      class context
+      {
+      public:
 
-      void
-      add( const string& re,
-           command::function_type action );
+         void
+         add( const string& re,
+              command::function_type action );
 
-      bool
-      operator()( const string& line );
+         bool
+         operator()( const string& line );
 
-   protected:
+      protected:
 
-      vector<command> _cmds;
-   };
+         vector<command> _cmds;
+      };
 
+   }
 }
 
 #endif

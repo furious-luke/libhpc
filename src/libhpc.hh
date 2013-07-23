@@ -30,5 +30,6 @@
 #include "libhpc/h5/h5.hh"
 #include "libhpc/numerics/numerics.hh"
 #include "libhpc/algorithm/algorithm.hh"
+#include "libhpc/interactive/interactive.hh"
 
 #endif

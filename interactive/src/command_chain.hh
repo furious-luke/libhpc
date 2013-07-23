@@ -1,26 +1,27 @@
-#ifndef tao_zen_command_chain_hh
-#define tao_zen_command_chain_hh
+#ifndef libhpc_interactive_command_chain_hh
+#define libhpc_interactive_command_chain_hh
 
 #include "command_context.hh"
 
-namespace tao {
-   using namespace hpc;
+namespace hpc {
+   namespace command {
 
-   class chain
-   {
-   public:
+      class chain
+      {
+      public:
 
-      void
-      add( context& ctx );
+         void
+         add( context& ctx );
 
-      bool
-      operator()( const string& line );
+         bool
+         operator()( const string& line );
 
-   protected:
+      protected:
 
-      list<context*> _ctxs;
-   };
+         list<context*> _ctxs;
+      };
 
+   }
 }
 
 #endif

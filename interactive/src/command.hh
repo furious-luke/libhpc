@@ -1,40 +1,41 @@
-#ifndef tao_zen_command_hh
-#define tao_zen_command_hh
+#ifndef libhpc_interactive_command_hh
+#define libhpc_interactive_command_hh
 
-#include <libhpc/regexp/re.hh>
+#include "libhpc/regexp/re.hh"
 
-namespace tao {
-   using namespace hpc;
+namespace hpc {
+   namespace command {
 
-   class command
-   {
-   public:
+      class command
+      {
+      public:
 
-      typedef std::function<void(const re::match&)> function_type;
+         typedef std::function<void(const re::match&)> function_type;
 
-   public:
+      public:
 
-      command();
+         command();
 
-      command( const string& re_str,
-               function_type action );
+         command( const string& re_str,
+                  function_type action );
 
-      const string&
-      re_string() const;
+         const string&
+         re_string() const;
 
-      const re::re&
-      re() const;
+         const re::re&
+         re() const;
 
-      void
-      operator()( const re::match& match ) const;
+         void
+         operator()( const re::match& match ) const;
 
-   protected:
+      protected:
 
-      string _re_str;
-      hpc::re::re _re;
-      function_type _act;
-   };
+         string _re_str;
+         hpc::re::re _re;
+         function_type _act;
+      };
 
+   }
 }
 
 #endif

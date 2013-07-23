@@ -15,6 +15,7 @@ config.select(
 #    config.packages.Eigen(required=False),
 #    config.packages.FFTW3(use_float=True, required=False),
     config.packages.CUDA(required=False),
+    config.packages.glut(required=False),
 )
 
 vars = project.create_variables()
@@ -55,7 +56,7 @@ else:
 layers = [
     'debug', 'memory', 'system', 'logging', 'profile',
     'containers', 'algorithm', 'regexp', 'options',
-    'mpi', 'h5', 'numerics',
+    'mpi', 'h5', 'numerics', 'interactive',
 ]
 
 project.build(layers, proj_name='libhpc', env=env, vars=vars)
