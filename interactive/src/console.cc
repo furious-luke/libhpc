@@ -1,6 +1,8 @@
 #include "console.hh"
 #include "text.hh"
 
+#ifdef HAVE_GLUT
+
 namespace hpc {
    namespace gl {
 
@@ -225,3 +227,5 @@ namespace hpc {
 
    }
 }
+
+#endif

@@ -1,6 +1,8 @@
 #ifndef libhpc_interactive_text_hh
 #define libhpc_interactive_text_hh
 
+#ifdef HAVE_GLUT
+
 #include <glut.h>
 #include "libhpc/containers/string.hh"
 
@@ -55,5 +57,7 @@ namespace hpc {
 
    }
 }
+
+#endif
 
 #endif

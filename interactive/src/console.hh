@@ -1,6 +1,8 @@
 #ifndef libhpc_interactive_console_hh
 #define libhpc_interactive_console_hh
 
+#ifdef HAVE_GLUT
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "libhpc/system/types.hh"
@@ -96,5 +98,7 @@ namespace hpc {
 
    }
 }
+
+#endif
 
 #endif

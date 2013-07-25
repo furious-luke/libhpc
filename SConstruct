@@ -56,11 +56,7 @@ else:
 layers = [
     'debug', 'memory', 'system', 'logging', 'profile',
     'containers', 'algorithm', 'regexp', 'options',
-    'mpi', 'h5', 'numerics',
+    'mpi', 'h5', 'numerics', 'interactive'
 ]
-
-# Only include interactive if GLUT was found.
-if config.package(config.packages.glut).found:
-   layers.append('interactive')
 
 project.build(layers, proj_name='libhpc', env=env, vars=vars)
