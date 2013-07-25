@@ -11,6 +11,7 @@ Import('env')
 suites = [
     ('matrix_suite.t.hh',),
     ('interp_iterator_suite.t.hh',),
+    ('interp_suite.t.hh',),
     ('tridiag_suite.t.hh',),
     ('spline_suite.t.hh',),
     ('coords_suite.t.hh', 'constants.cc'),

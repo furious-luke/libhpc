@@ -1,15 +1,21 @@
 import sys, os
 from Package import Package
 
-class CUDA(Package):
+class glut(Package):
 
     def __init__(self, **kwargs):
-        super(CUDA, self).__init__(**kwargs)
-        self.libs=[['cuda', 'cudart']]
+        defaults = {
+        }
+        defaults.update(kwargs)
+        super(glut, self).__init__(**defaults)
+        self.libs=[
+            ['GL', 'GLU', 'glut'],
+        ]
+        self.extra_libs=[]
         self.check_text = r'''
 #include <stdlib.h>
 #include <stdio.h>
-#include <cuda.h>
+#include <glut.h>
 int main(int argc, char* argv[]) {
    return EXIT_SUCCESS;
 }
@@ -17,10 +23,10 @@ int main(int argc, char* argv[]) {
 
     def check(self, ctx):
         env = ctx.env
-        ctx.Message('Checking for CUDA ... ')
+        ctx.Message('Checking for glut ... ')
         self.check_options(env)
 
-        res = super(CUDA, self).check(ctx)
+        res = super(glut, self).check(ctx)
 
         self.check_required(res[0])
         ctx.Result(res[0])
