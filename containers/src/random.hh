@@ -61,7 +61,8 @@ typedef mpl::map< mpl::pair<double, boost::variate_generator<engine_type&, boost
    template< class T >
    T
    generate_uniform( const T& low = 0,
-                     const T& high = 1 )
+                     const T& high = 1,
+                     engine_type& engine = hpc::engine )
    {
       return typename mpl::at<uniform_distribution_types,T>::type( low, high )( engine );
    }

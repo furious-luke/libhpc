@@ -30,6 +30,8 @@
 #include "libhpc/h5/h5.hh"
 #include "libhpc/numerics/numerics.hh"
 #include "libhpc/algorithm/algorithm.hh"
+#ifdef HAVE_GLUT
 #include "libhpc/interactive/interactive.hh"
+#endif
 
 #endif
