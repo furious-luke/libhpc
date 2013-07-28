@@ -41,13 +41,13 @@ namespace hpc {
       public:
 
          void
-         set_abscissa( vector<value_type>& abs )
+         set_abscissa( hpc::vector<value_type>& abs )
          {
             _abs.take( abs );
          }
 
          void
-         set_values( vector<value_type>& vals )
+         set_values( hpc::vector<value_type>& vals )
          {
             _vals.take( vals );
          }
@@ -78,8 +78,8 @@ namespace hpc {
 
       protected:
 
-         vector<value_type> _abs;
-         vector<value_type> _vals;
+         hpc::vector<value_type> _abs;
+         hpc::vector<value_type> _vals;
       };
 
    }

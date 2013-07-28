@@ -133,6 +133,9 @@
 #define LOG_POP_TAG( tag )                      \
    ::hpc::logging::pop_tag( tag )
 
+#define WARN( expr, ... )                               \
+   ((expr) ? LOGWLN( "WARNING: ", __VA_ARGS__ ) : 0)
+
 namespace hpc {
    namespace logging {
 
@@ -180,6 +183,7 @@ namespace hpc {
 #define LOG_POP()
 #define LOG_PUSH_TAG( tag )
 #define LOG_POP_TAG( tag )
+#define WARN( expr, ... )
 
 #endif
 
