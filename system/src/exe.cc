@@ -15,14 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
-
-#include "types.hh"
-#include "stream_indent.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
+#include <vector>
 #include "exe.hh"
 
-#endif
+namespace hpc {
+   namespace nix {
+
+      boost::filesystem::path
+      executable_path()
+      {
+         // Get the path to (and including) the executable.
+         int path_size = 100;
+         std::vector<char> path( path_size + 1 );
+         do
+         {
+            if( path_size >= path.size() )
+               path.resize( 2*path_size );
+            path_size = readlink( "/proc/self/exe", path.data(), path.size() );
+         }
+         while( path_size >= path.size() );
+
+         // Return a boost filesystem path.
+         return boost::filesystem::path( path.begin(), path.end() );
+      }
+
+   }
+}

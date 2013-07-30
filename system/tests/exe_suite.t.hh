@@ -15,14 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#include <string.h>
+#include <unistd.h>
+#include <cxxtest/TestSuite.h>
+#include "libhpc/system/exe.hh"
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
+using namespace hpc;
 
-#endif
+class exe_suite : public CxxTest::TestSuite {
+public:
+
+   void test_executable_path()
+   {
+      auto path = nix::executable_path();
+   }
+};

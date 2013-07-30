@@ -15,14 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_timer_hh
+#define libhpc_system_timer_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
+#include <boost/filesystem/path.hpp>
+
+namespace hpc {
+   namespace nix {
+
+      boost::filesystem::path
+      executable_path();
+
+   }
+}
 
 #endif

@@ -53,7 +53,7 @@ namespace hpc {
          }
 
          value_type
-         operator[]( const value_type& x )
+         operator[]( const value_type& x ) const
          {
             ASSERT( _abs.size() == _vals.size(), "Incompatible abscissa and values." );
 

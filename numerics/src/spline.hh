@@ -18,6 +18,7 @@
 #ifndef libhpc_numerics_spline_hh
 #define libhpc_numerics_spline_hh
 
+#include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/fibre.hh"

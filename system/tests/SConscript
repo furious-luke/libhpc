@@ -11,6 +11,7 @@ Import('env')
 suites = [
     ('stream_indent_suite.t.hh', 'stream_indent.cc'),
     ('timer_suite.t.hh', 'timer.cc'),
+    ('exe_suite.t.hh', 'exe.cc'),
 ]
 
 # Define libraries to link against.
