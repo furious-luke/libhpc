@@ -222,6 +222,13 @@ namespace hpc {
          return *_ptr;
       }
 
+      template< class U >
+      size_t
+      distance_to( const vector_view_iterator<U>& op ) const
+      {
+         return op._ptr - _ptr;
+      }
+
    protected:
 
       T* _ptr;
