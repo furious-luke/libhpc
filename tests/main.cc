@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <numeric>
-#include <cxxtest/TestSuite.h>
-#include "libhpc/debug/error.hh"
+#include <stdlib.h>
+#include <libhpc/debug/unit_test.hh>
 
 using namespace hpc;
 
-class error_suite : public CxxTest::TestSuite {
-public:
-
-   void test_all()
-   {
-   }
-};
+int
+main( int argc,
+      char* argv[] )
+{
+   test::runner runner;
+   runner.run_all();
+   return EXIT_SUCCESS;
+}

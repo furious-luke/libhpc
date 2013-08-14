@@ -15,16 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <numeric>
-#include <cxxtest/TestSuite.h>
+#include "libhpc/debug/unit_test.hh"
 #include "libhpc/debug/assert.hh"
+#include "libhpc/debug/except.hh"
 
 using namespace hpc;
+using namespace hpc::test;
 
-class assert_suite : public CxxTest::TestSuite {
-public:
-
-   void test_basic()
+///
+///
+///
+test_case ANON(
+   "/debug/assert/basic",
+   "test basic usage",
+   []( test_case& tc )
    {
       bool inside = false;
       try
@@ -38,16 +42,22 @@ public:
 #endif
       {
          inside = true;
-         TS_ASSERT( asrt.what() != NULL );
       }
 #ifndef NDEBUG
-      TS_ASSERT( inside );
+      TEST( inside == true, "Should have caught an assertion." );
 #else
-      TS_ASSERT( !inside );
+      TEST( inside == false, "Should not have caught an assertion." );
 #endif
    }
+   );
 
-   void test_with_message()
+///
+///
+///
+test_case ANON(
+   "/debug/assert/message",
+   "make sure messages are passed correctly",
+   []( test_case& tc )
    {
       bool inside = false;
       try
@@ -61,13 +71,36 @@ public:
 #endif
       {
          inside = true;
-         TS_ASSERT( asrt.what() != NULL );
       }
 #ifndef NDEBUG
-      TS_ASSERT( inside );
+      TEST( inside == true, "Should have caught an assertion." );
 #else
-      TS_ASSERT( !inside );
+      TEST( inside == false, "Should not have caught an assertion." );
 #endif
    }
+   );
 
-};
+///
+///
+///
+test_case ANON(
+   "/debug/except/basic",
+   "",
+   []( test_case& tc )
+   {
+      bool inside = false;
+      try
+      {
+         EXCEPT( 0 );
+      }
+      catch( std::exception& ex )
+      {
+         inside = true;
+      }
+#ifndef NDEBUG
+      TEST( inside == true );
+#else
+      TEST( inside == false );
+#endif
+   }
+   );
