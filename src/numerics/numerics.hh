@@ -21,6 +21,7 @@
 #include "constants.hh"
 #include "vector.hh"
 #include "matrix.hh"
+#include "interp.hh"
 #include "tridiag.hh"
 #include "spline.hh"
 #include "interp_iterator.hh"

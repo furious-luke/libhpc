@@ -21,6 +21,7 @@
 namespace hpc {
 
    multimatch::multimatch()
+      : _ready( false )
    {
    }
 
@@ -34,21 +35,27 @@ namespace hpc {
    multimatch::add_match( const string& str )
    {
       _matches.push_back( str );
+      _ready = false;
    }
 
    void
    multimatch::compile()
    {
-      string pattern = boost::algorithm::join( _matches, ")|(" );
-      if( !pattern.empty() )
-         pattern = "(" + pattern + ")";
-      _re.construct( pattern );
+      if( !_ready )
+      {
+         string pattern = boost::algorithm::join( _matches, ")|(" );
+         if( !pattern.empty() )
+            pattern = "(" + pattern + ")";
+         _re.construct( pattern );
+         _ready = true;
+      }
    }
 
    optional<index>
    multimatch::match( const string& str,
                       re::match& match ) const
    {
+      ASSERT( _ready, "Multimatch not compiled." );
       if( _re.match( str, match ) )
          return (index)match.last_capture();
       else
@@ -66,6 +73,7 @@ namespace hpc {
    multimatch::search( const string& str,
                        re::match& match ) const
    {
+      ASSERT( _ready, "Multimatch not compiled." );
       if( _re.search( str, match ) )
          return (index)match.last_capture();
       else

@@ -149,7 +149,7 @@ namespace hpc {
       }
 
       typename vector<T>::view
-      operator*()
+      operator*() const
       {
          return typename vector<T>::view( this->_ptr, this->_fibre_size );
       }

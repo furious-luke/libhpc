@@ -29,7 +29,7 @@ namespace hpc {
    public:
 
       typedef typename impl::boost::array<T,3>::size_type size_type;
-      typedef index key_type;
+      typedef size_t key_type;
       typedef T mapped_type;
 
    public:
@@ -55,6 +55,7 @@ namespace hpc {
 	 return strm;
       }
    };
-};
+
+}
 
 #endif

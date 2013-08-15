@@ -15,23 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#include <vector>
+#include "exe.hh"
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/hpcmpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+namespace hpc {
+   namespace nix {
 
-#endif
+      boost::filesystem::path
+      executable_path()
+      {
+         // Get the path to (and including) the executable.
+         int path_size = 100;
+         std::vector<char> path( path_size + 1 );
+         do
+         {
+            if( path_size >= path.size() )
+               path.resize( 2*path_size );
+            path_size = readlink( "/proc/self/exe", path.data(), path.size() );
+         }
+         while( path_size >= path.size() );
+
+         // Return a boost filesystem path.
+         return boost::filesystem::path( path.begin(), path.end() );
+      }
+
+   }
+}

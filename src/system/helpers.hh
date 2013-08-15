@@ -34,6 +34,9 @@ namespace hpc {
       return ss.str();
    }
 
+   void
+   to_lower( string& str );
+
 }
 
 #endif

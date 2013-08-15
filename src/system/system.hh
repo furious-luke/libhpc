@@ -23,5 +23,6 @@
 #include "timer.hh"
 #include "id.hh"
 #include "helpers.hh"
+#include "exe.hh"
 
 #endif

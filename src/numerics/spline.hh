@@ -18,6 +18,7 @@
 #ifndef libhpc_numerics_spline_hh
 #define libhpc_numerics_spline_hh
 
+#include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/fibre.hh"
@@ -33,6 +34,12 @@ namespace hpc {
       ///
       ///
       template< class T >
+      class spline_knot_iterator;
+
+      ///
+      ///
+      ///
+      template< class T >
       class spline
       {
          friend class ::spline_suite;
@@ -40,16 +47,29 @@ namespace hpc {
       public:
 
          typedef T value_type;
+         typedef spline_knot_iterator<value_type> knot_iterator;
 
       public:
+
+         void
+         set_size( unsigned size )
+         {
+            _knots.set_fibre_size( 2 );
+            _knots.resize( size );
+         }
 
          void
          set_knots( fibre<value_type>& knots )
          {
             ASSERT( knots.fibre_size() == 2 );
             ASSERT( knots.size() > 1 );
-
             _knots.take( knots );
+            update();
+         }
+
+         void
+         update()
+         {
             _diff.reallocate( _knots.size() - 1 );
             _ai.reallocate( _knots.size() - 1 );
             _bi.reallocate( _knots.size() - 1 );
@@ -87,6 +107,30 @@ namespace hpc {
          {
             ASSERT( seg < _diff.size() );
             return _knots(seg + 1,0) - _knots(seg,0);
+         }
+
+         knot_iterator
+         abscissa_begin()
+         {
+            return knot_iterator( _knots.begin(), 0 );
+         }
+
+         knot_iterator
+         abscissa_end()
+         {
+            return knot_iterator( _knots.end(), 0 );
+         }
+
+         knot_iterator
+         values_begin()
+         {
+            return knot_iterator( _knots.begin(), 1 );
+         }
+
+         knot_iterator
+         values_end()
+         {
+            return knot_iterator( _knots.end(), 1 );
          }
 
          value_type
@@ -189,6 +233,58 @@ namespace hpc {
          hpc::vector<value_type> _diff;
          hpc::vector<value_type> _ai, _bi;
       };
+
+      template< class T >
+      class spline_knot_iterator
+         : public boost::iterator_facade< spline_knot_iterator<T>,
+                                          T,
+                                          std::forward_iterator_tag,
+                                          T& >
+      {
+         friend class boost::iterator_core_access;
+
+      public:
+
+         typedef T value_type;
+         typedef value_type& reference_type;
+
+      public:
+
+         spline_knot_iterator()
+         {
+         }
+
+         spline_knot_iterator( typename fibre<value_type>::iterator it,
+                               unsigned idx )
+            : _it( it ),
+              _idx( idx )
+         {
+         }
+
+         void
+         increment()
+         {
+            ++_it;
+         }
+
+         bool
+         equal( const spline_knot_iterator& op ) const
+         {
+            return _it == op._it;
+         }
+
+         reference_type
+         dereference() const
+         {
+            return (*_it)[_idx];
+         }
+
+      protected:
+
+         typename fibre<value_type>::iterator _it;
+         unsigned _idx;
+      };
+
    }
 }
 
