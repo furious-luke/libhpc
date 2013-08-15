@@ -42,10 +42,10 @@ cp_opts = (
 )
 
 # Define compilers/linkers.
-cc  = use('clangxx', cc_opts, compile=True)
-sl  = use('clangxx', cc_opts, shared_lib=True)
-sl_inst = use('clangxx', cc_opts, targets.contains('install'), shared_lib=True, prefix=args.prefix)
-bin = use('clangxx', cc_opts)
+cc  = use('cxx_compiler', cc_opts, compile=True)
+sl  = use('cxx_compiler', cc_opts, shared_lib=True)
+sl_inst = use('cxx_compiler', cc_opts, targets.contains('install'), shared_lib=True, prefix=args.prefix)
+bin = use('cxx_compiler', cc_opts)
 ar  = use('ar', cc_opts, add=True)
 
 # Which packages will we be using?
@@ -64,11 +64,11 @@ sl  = sl  + boost + mpi + hdf5 + pugixml
 bin = bin + boost + mpi + hdf5 + pugixml
 
 # Copy all headers.
-hdrs = rule(r'src/.+\.hh', cp & hdr_inst, target_strip_dirs=1)
-tccs = rule(r'src/.+\.tcc', cp & hdr_inst, target_strip_dirs=1)
+hdrs = rule(r'src/.+\.hh$', cp & hdr_inst, target_strip_dirs=1)
+tccs = rule(r'src/.+\.tcc$', cp & hdr_inst, target_strip_dirs=1)
 
 # Build all sources.
-objs = rule(r'src/.+\.cc', cc)
+objs = rule(r'src/.+\.cc$', cc)
 
 # Link into static/shared library.
 static_lib = rule(objs, ar, target=platform.make_static_library('lib/hpc'))
