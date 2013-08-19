@@ -23,30 +23,29 @@ namespace hpc {
 
       struct test_case_node_t
       {
-         test_case* tc;
+         test_case_base* tc;
          test_case_node_t* next;
       };
 
       test_case_node_t* head = NULL;
+      test_case_base* _cur_tc;
 
-      test_case::test_case( const std::string& name,
-                            const std::string& desc,
-                            std::function<void(test_case&)> func )
+      test_case_base::test_case_base( const std::string& name,
+                            const std::string& desc )
          : _name( name ),
-           _desc( desc ),
-           _func( func )
+           _desc( desc )
       {
          _add_test_case();
       }
 
-      void
-      test_case::run()
+      const std::string&
+      test_case_base::name() const
       {
-         _func( *this );
+         return _name;
       }
 
       void
-      test_case::_add_test_case()
+      test_case_base::_add_test_case()
       {
          if( head )
          {
@@ -66,13 +65,13 @@ namespace hpc {
       }
 
       void
-      runner::run( test_case& tc )
+      runner::run( test_case_base& tc )
       {
-         std::cout << tc.name();
+         std::cout << tc.name() << " ";
          try
          {
             tc.run();
-            std::cout << "ok\n";
+            std::cout << " ok\n";
          }
          catch( test_failed& ex )
          {

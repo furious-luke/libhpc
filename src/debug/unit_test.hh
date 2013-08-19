@@ -25,7 +25,8 @@
 #include <boost/format.hpp>
 
 #define TEST( expr, ... )                                               \
-   (::hpc::test::decompose()->*expr).set_expr_str( #expr ).test( tc, ##__VA_ARGS__ )
+   (::hpc::test::decompose()->*expr).set_expr_str( #expr ).test(        \
+      *::hpc::test::_cur_tc, ##__VA_ARGS__ )
 
 #define ANON2( x, y )                           \
    x##y
@@ -38,8 +39,10 @@ namespace hpc {
    namespace test {
 
       template< class > class side;
-      class test_case;
+      class test_case_base;
       template< class, class > class expression;
+
+      extern test_case_base* _cur_tc;
 
       class test_failed
          : public std::exception
@@ -53,7 +56,7 @@ namespace hpc {
       {
       public:
 
-         test_expression_failed( const test_case& tc,
+         test_expression_failed( const test_case_base& tc,
                                  const expression<T,U>& expr,
                                  const std::string& desc );
 
@@ -66,7 +69,7 @@ namespace hpc {
 
       protected:
 
-         const test_case& _tc;
+         const test_case_base& _tc;
          const expression<T,U>& _expr;
          const std::string& _desc;
          std::string _msg;
@@ -121,8 +124,6 @@ namespace hpc {
          const T& _val;
       };
 
-      class test_case;
-
       template< class T,
                 class U >
       class expression
@@ -171,7 +172,7 @@ namespace hpc {
          }
 
          void
-         test( test_case& tc,
+         test( test_case_base& tc,
                const std::string& desc = std::string() );
 
          const T&
@@ -215,37 +216,19 @@ namespace hpc {
          const char* _expr_str;
       };
 
-      class test_case
+      class test_case_base
       {
       public:
 
-         test_case( const std::string& name,
-                    const std::string& desc,
-                    std::function<void(test_case&)> func );
+         test_case_base( const std::string& name,
+                         const std::string& desc );
 
+         virtual
          void
-         run();
-
-         template< class T,
-                   class U >
-         void
-         test_expression( const expression<T,U>& expr,
-                          const std::string& desc )
-         {
-            if( !expr )
-            {
-               // Failed, log the failure and conclude this test.
-               throw test_expression_failed<T,U>( *this, expr, desc );
-            }
-            else
-               std::cout << ".";
-         }
+         run() = 0;
 
          const std::string&
-         name() const
-         {
-            return _name;
-         }
+         name() const;
 
       protected:
 
@@ -256,16 +239,61 @@ namespace hpc {
 
          std::string _name;
          std::string _desc;
-         std::function<void(test_case&)> _func;
       };
 
-      template< class Fixture >
-      class test_case_fix
-         : public test_case
+      template< class Fixture = void >
+      class test_case
+         : public test_case_base
       {
+      public:
+
+         test_case( const std::string& name,
+                    const std::string& desc,
+                    std::function<void(Fixture&)> func )
+            : test_case_base( name, desc ),
+              _func( func )
+         {
+         }
+
+         virtual
+         void
+         run()
+         {
+            _cur_tc = this;
+            _func( fix );
+         }
+
       protected:
 
+         std::function<void(Fixture&)> _func;
          Fixture fix;
+      };
+
+      template<>
+      class test_case<void>
+         : public test_case_base
+      {
+      public:
+
+         test_case( const std::string& name,
+                    const std::string& desc,
+                    std::function<void()> func )
+            : test_case_base( name, desc ),
+              _func( func )
+         {
+         }
+
+         virtual
+         void
+         run()
+         {
+            _cur_tc = this;
+            _func();
+         }
+
+      protected:
+
+         std::function<void()> _func;
       };
 
       class runner
@@ -273,7 +301,7 @@ namespace hpc {
       public:
 
          virtual void
-         run( test_case& tc );
+         run( test_case_base& tc );
 
          void
          run_all();
@@ -281,7 +309,7 @@ namespace hpc {
 
       template< class T,
                 class U >
-      test_expression_failed<T,U>::test_expression_failed( const test_case& tc,
+      test_expression_failed<T,U>::test_expression_failed( const test_case_base& tc,
                                                            const expression<T,U>& expr,
                                                            const std::string& desc )
          : _tc( tc ),
@@ -301,10 +329,16 @@ namespace hpc {
       template< class T,
                 class U >
       void
-      expression<T,U>::test( test_case& tc,
+      expression<T,U>::test( test_case_base& tc,
                              const std::string& desc )
       {
-         tc.test_expression( *this, desc );
+         if( !(*this) )
+         {
+            // Failed, log the failure and conclude this test.
+            throw test_expression_failed<T,U>( tc, *this, desc );
+         }
+         else
+            std::cout << ".";
       }
 
    }
