@@ -76,4 +76,4 @@ shared_lib = rule(objs, sl & sl_inst, target=platform.make_shared_library('lib/h
 rule(static_lib, lib_inst, target_strip_dirs=2)
 
 # Build the unit test runner.
-ut_objs = rule(r'tests/.+\.cc', bin, target='bin/libhpc_unit', libraries=['hpc'])
+rule(r'tests/.+\.cc$', bin, target='bin/libhpc_unit', libraries=['hpc'])

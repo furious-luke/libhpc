@@ -25,10 +25,10 @@ using namespace hpc::test;
 ///
 ///
 ///
-test_case ANON(
+test_case<> ANON(
    "/debug/assert/basic",
    "test basic usage",
-   []( test_case& tc )
+   []()
    {
       bool inside = false;
       try
@@ -54,10 +54,10 @@ test_case ANON(
 ///
 ///
 ///
-test_case ANON(
+test_case<> ANON(
    "/debug/assert/message",
    "make sure messages are passed correctly",
-   []( test_case& tc )
+   []()
    {
       bool inside = false;
       try
@@ -83,10 +83,10 @@ test_case ANON(
 ///
 ///
 ///
-test_case ANON(
+test_case<> ANON(
    "/debug/except/basic",
    "",
-   []( test_case& tc )
+   []()
    {
       bool inside = false;
       try
@@ -97,10 +97,6 @@ test_case ANON(
       {
          inside = true;
       }
-#ifndef NDEBUG
       TEST( inside == true );
-#else
-      TEST( inside == false );
-#endif
    }
    );

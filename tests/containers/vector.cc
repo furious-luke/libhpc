@@ -15,44 +15,59 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <cxxtest/TestSuite.h>
+#include "libhpc/debug/unit_test.hh"
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/functors.hh"
 
 using namespace hpc;
+using namespace hpc::test;
 
-class vector_suite : public CxxTest::TestSuite {
-public:
-
-   void test_default_ctor()
+struct fixture
+{
+   fixture()
    {
-      vector<int> vec;
-      this->check_empty(vec);
+      vec.resize( 10 );
+      hpc::iota( vec.begin(), vec.end(), 0 );
    }
 
-   void test_view_conversion()
-   {
-      vector<int>::view view = this->vec;
-   }
-
-   void check_empty(vector<int>& vec)
-   {
-      TS_ASSERT(vec.empty());
-   }
-
-   void check_contents(vector<int>& vec)
-   {
-      TS_ASSERT_EQUALS(vec.size(), 10);
-      for(int ii = 0; ii < 10; ++ii)
-	 TS_ASSERT_EQUALS(vec[ii], ii);
-   }
-
-   void setUp()
-   {
-      this->vec.resize(10);
-      hpc::iota(vec.begin(), vec.end(), 0);
-   }
-
-private:
    vector<int> vec;
 };
+
+void
+check_empty( vector<int>& vec )
+{
+   TEST( vec.empty() == true, "Must be empty." );
+}
+
+void
+check_contents( vector<int>& vec )
+{
+   TEST( vec.size() == 10 );
+   for( int ii = 0; ii < 10; ++ii )
+      TEST( vec[ii] == ii );
+}
+
+///
+///
+///
+test_case<> ANON(
+   "/containers/vector/default_constructor",
+   "",
+   []()
+   {
+      vector<int> vec;
+      check_empty( vec );
+   }
+   );
+
+///
+///
+///
+test_case<fixture> ANON(
+   "/containers/vector/view_conversion",
+   "",
+   []( fixture& fix )
+   {
+      vector<int>::view view = fix.vec;
+   }
+   );
