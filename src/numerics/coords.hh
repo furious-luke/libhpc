@@ -18,6 +18,7 @@
 #ifndef libhpc_numerics_coords_hh
 #define libhpc_numerics_coords_hh
 
+#include <math.h>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/num.hh"
 #include "libhpc/containers/optional.hh"
