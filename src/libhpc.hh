@@ -26,7 +26,7 @@
 #include "libhpc/containers/containers.hh"
 #include "libhpc/regexp/regexp.hh"
 #include "libhpc/options/options.hh"
-#include "libhpc/hpcmpi/mpi.hh"
+#include "libhpc/mpi/mpi.hh"
 #include "libhpc/h5/h5.hh"
 #include "libhpc/numerics/numerics.hh"
 #include "libhpc/algorithm/algorithm.hh"
