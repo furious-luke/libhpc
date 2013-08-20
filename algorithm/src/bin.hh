@@ -15,13 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_algorithm_algorithm_hh
-#define libhpc_algorithm_algorithm_hh
+#ifndef hpc_algorithm_bin_hh
+#define hpc_algorithm_bin_hh
 
-#include "median.hh"
-#include "farmer.hh"
-#include "indexer.hh"
-#include "dual.hh"
-#include "bin.hh"
+namespace hpc {
+   namespace algorithm {
+
+      template< class InputIterator >
+      unsigned
+      bin( const InputIterator& start,
+	   const InputIterator& finish,
+	   typename InputIterator::value_type value )
+      {
+	 auto it = std::lower_bound( start, finish, value );
+	 return it - start;
+      }
+
+   }
+}
 
 #endif

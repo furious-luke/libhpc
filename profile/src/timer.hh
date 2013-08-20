@@ -67,7 +67,7 @@ namespace hpc {
 
       protected:
 
-	 posix::time_type _start;
+	 ::hpc::posix::time_type _start;
 	 double _total;
 	 unsigned long _cnt;
 	 bool _run;

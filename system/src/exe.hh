@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_timer_hh
-#define libhpc_system_timer_hh
+#ifndef libhpc_system_exe_hh
+#define libhpc_system_exe_hh
 
 #include <boost/filesystem/path.hpp>
 
