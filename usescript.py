@@ -1,13 +1,13 @@
 # Define some arguments.
 args = (arguments()
-        ('--debug', action='store_true', help='Enable debugging mode.')
         ('--prefix', default='/usr/local', help='Installation path.')
-        ('--enable-instrument', dest='instrument', action='store_true', help='Enable instrumentation.')
-        ('--enable-stacktrace', dest='stacktrace', action='store_true', help='Enable debugging stacktrace.')
-        ('--enable-memory-debug', dest='memory_debug', action='store_true', help='Enable memory debugging.')
-        ('--enable-memory-ops', dest='memory_ops', action='store_true', help='Enable memory operation logging.')
-        ('--enable-memory-stats', dest='memory_stats', action='store_true', help='Enable memory statistics logging.')
-        ('--disable-logging', dest='nlog', action='store_true', help='Disable all logging routines.'))
+        ('--enable-debug', dest='debug', action='boolean', default=False, help='Enable/disable debugging mode.')
+        ('--enable-instrument', dest='instrument', action='boolean', default=False, help='Enable/disable instrumentation.')
+        ('--enable-stacktrace', dest='stacktrace', action='boolean', default=False, help='Enable/disable debugging stacktrace.')
+        ('--enable-memory-debug', dest='memory_debug', action='boolean', default=False, help='Enable/disable memory debugging.')
+        ('--enable-memory-ops', dest='memory_ops', action='boolean', default=False, help='Enable/disable memory operation logging.')
+        ('--enable-memory-stats', dest='memory_stats', action='boolean', default=False, help='Enable/disable memory statistics logging.')
+        ('--enable-logging', dest='nlog', action='boolean', default=True, help='Enable/disable all logging routines.'))
 
 # Need to define optional packages ahead of some options
 # so we can include preprocessor definitions.
