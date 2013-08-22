@@ -3,7 +3,7 @@
 
 #ifdef HAVE_GLUT
 
-#include <glut.h>
+#include <GL/glut.h>
 #include "libhpc/containers/string.hh"
 
 namespace hpc {

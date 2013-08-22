@@ -93,7 +93,7 @@ namespace hpc {
          bool _cur_on;
          unsigned _cur_msecs;
          unsigned _cur_flash;
-         posix::time_type _cur_old;
+         time_type _cur_old;
       };
 
    }

@@ -42,7 +42,7 @@ namespace hpc {
       {
          _anim.reset();
          _open = 1;
-         _cur_old = posix::timer();
+         _cur_old = timer();
       }
 
       void
@@ -198,8 +198,8 @@ namespace hpc {
       bool
       console::_update_cursor()
       {
-         posix::time_type cur_new = posix::timer();
-         if( posix::msecs( cur_new - _cur_old ) > _cur_flash )
+         time_type cur_new = timer();
+         if( msecs( cur_new - _cur_old ) > _cur_flash )
          {
             if( _cur_on )
                _cur_on = false;

@@ -9,6 +9,10 @@ args = (arguments()
         ('--enable-memory-stats', dest='memory_stats', action='store_true', help='Enable memory statistics logging.')
         ('--disable-logging', dest='nlog', action='store_true', help='Disable all logging routines.'))
 
+# Need to define optional packages ahead of some options
+# so we can include preprocessor definitions.
+glut = use('glut')
+
 # Define some options.
 cc_opts = (
     options(cxx11=True,
@@ -17,12 +21,14 @@ cc_opts = (
     options(args.debug == True,
             prefix='build/debug',
             library_dirs=['build/debug/lib'],
+            rpath_dirs=['build/debug/lib'],
             header_dirs=['build/debug/include'],
             optimise=0,
             symbols=True) +
     options(args.debug == False,
             prefix='build/optimised',
             library_dirs=['build/optimised/lib'],
+            rpath_dirs=['build/optimised/lib'],
             header_dirs=['build/optimised/include'],
             optimise=3,
             symbols=False,
@@ -32,7 +38,8 @@ cc_opts = (
     options(args.stacktrace == False,   define=['NSTACKTRACE']) +
     options(args.memory_debug == False, define=['NMEMDEBUG']) +
     options(args.memory_ops == False,   define=['NMEMOPS']) +
-    options(args.memory_stats == False, define=['NMEMSTATS'])
+    options(args.memory_stats == False, define=['NMEMSTATS']) +
+    options(glut.have == True, define=['HAVE_GLUT'])
 )
 cp_opts = (
     options(args.debug == True,
@@ -53,15 +60,15 @@ boost   = use('boost')
 mpi     = use('mpi')
 hdf5    = use('hdf5')
 pugixml = use('pugixml')
-files   = use('files')
 cp      = files.feature('copy', cp_opts)
 hdr_inst = files.feature('copy', None, targets.contains('install'), prefix=args.prefix + '/include/libhpc')
 lib_inst = files.feature('copy', None, targets.contains('install'), prefix=args.prefix)
 
 # Setup flows.
-cc  = cc  + boost + mpi + hdf5 + pugixml
-sl  = sl  + boost + mpi + hdf5 + pugixml
-bin = bin + boost + mpi + hdf5 + pugixml
+pkgs = boost + mpi + hdf5 + pugixml + (glut | identity)
+cc  = cc  + pkgs
+sl  = sl  + pkgs
+bin = bin + pkgs
 
 # Copy all headers.
 hdrs = rule(r'src/.+\.hh$', cp & hdr_inst, target_strip_dirs=1)

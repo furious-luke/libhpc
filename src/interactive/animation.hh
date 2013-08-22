@@ -53,7 +53,7 @@ namespace hpc {
          {
             _pos = 0;
             _fac = 0;
-            _old = posix::timer();
+            _old = timer();
             _fwd = forward;
          }
 
@@ -68,7 +68,7 @@ namespace hpc {
          void
          increment()
          {
-            _pos = std::min<double>( posix::msecs( posix::timer() - _old ), _dur );
+            _pos = std::min<double>( msecs( timer() - _old ), _dur );
             _fac = _pos*_inv_dur;
          }
 
@@ -95,7 +95,7 @@ namespace hpc {
          double _dur;
          double _inv_dur;
          double _fac;
-         posix::time_type _old;
+         time_type _old;
          bool _fwd;
       };
 
