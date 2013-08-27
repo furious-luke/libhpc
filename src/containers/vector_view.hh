@@ -229,6 +229,12 @@ namespace hpc {
          return op._ptr - _ptr;
       }
 
+      void
+      advance( size_t dist )
+      {
+         _ptr += dist;
+      }
+
    protected:
 
       T* _ptr;
