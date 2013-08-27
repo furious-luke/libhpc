@@ -7,7 +7,7 @@ args = (arguments()
         ('--enable-memory-debug', dest='memory_debug', action='boolean', default=False, help='Enable/disable memory debugging.')
         ('--enable-memory-ops', dest='memory_ops', action='boolean', default=False, help='Enable/disable memory operation logging.')
         ('--enable-memory-stats', dest='memory_stats', action='boolean', default=False, help='Enable/disable memory statistics logging.')
-        ('--enable-logging', dest='nlog', action='boolean', default=True, help='Enable/disable all logging routines.'))
+        ('--enable-logging', dest='logging', action='boolean', default=True, help='Enable/disable all logging routines.'))
 
 # Need to define optional packages ahead of some options
 # so we can include preprocessor definitions.
@@ -34,7 +34,7 @@ cc_opts = (
             symbols=False,
             define=['NDEBUG']) +
     options(args.instrument == False,   define=['NINSTRUMENT']) +
-    options(args.nlog == True,          define=['NLOG']) +
+    options(args.logging == False,      define=['NLOG']) +
     options(args.stacktrace == False,   define=['NSTACKTRACE']) +
     options(args.memory_debug == False, define=['NMEMDEBUG']) +
     options(args.memory_ops == False,   define=['NMEMOPS']) +
@@ -71,8 +71,7 @@ sl  = sl  + pkgs
 bin = bin + pkgs
 
 # Copy all headers.
-hdrs = rule(r'src/.+\.hh$', cp & hdr_inst, target_strip_dirs=1)
-tccs = rule(r'src/.+\.tcc$', cp & hdr_inst, target_strip_dirs=1)
+hdrs = rule(r'src/.+\.(?:hh|hpp|tcc)$', cp & hdr_inst, target_strip_dirs=1)
 
 # Build all sources.
 objs = rule(r'src/.+\.cc$', cc)
