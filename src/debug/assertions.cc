@@ -24,14 +24,23 @@
 namespace hpc {
    namespace debug {
 
-      assertion::assertion( const char* msg ) throw()
+      assertion::assertion( const char* expr,
+                            const char* file,
+                            int line,
+#ifndef NSTACKTRACE
+                            const stacktrace& st,
+#endif
+                            const std::string msg ) throw()
          : exception(),
-           _file( NULL ),
-           _line( 0 ),
-           _expr( NULL )
+           _expr( expr ),
+           _file( file ),
+           _line( line ),
+#ifndef NSTACKTRACE
+           _st( st ),
+#endif
+           _msg( msg )
       {
-         if( msg )
-            _msg = msg;
+         _write_buffer( _buf );
       }
 
       assertion::assertion( const assertion& asrt )

@@ -26,20 +26,8 @@
 
 #ifndef NLOG
 
-#define _LOG1( strm, p0 ) (strm << p0)
-#define _LOG2( strm, p0, p1 ) (strm << p0 << p1)
-#define _LOG3( strm, p0, p1, p2 ) (strm << p0 << p1 << p2)
-#define _LOG4( strm, p0, p1, p2, p3 ) (strm << p0 << p1 << p2 << p3)
-#define _LOG5( strm, p0, p1, p2, p3, p4 ) (strm << p0 << p1 << p2 << p3 << p4)
-#define _LOG6( strm, p0, p1, p2, p3, p4, p5 ) (strm << p0 << p1 << p2 << p3 << p4 << p5)
-#define _LOG7( strm, p0, p1, p2, p3, p4, p5, p6 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6)
-#define _LOG8( strm, p0, p1, p2, p3, p4, p5, p6, p7 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7)
-#define _LOG9( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8)
-#define _LOG10( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9)
-#define _LOG11( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 ) (strm << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10)
-
 #define _LOG_( count, ... )                             \
-   _LOG##count( ::hpc::logging::_stack, __VA_ARGS__ )
+   _OSTREAM##count( ::hpc::logging::_stack, __VA_ARGS__ )
 
 #define _LOG( count, ... )                      \
    _LOG_( count, __VA_ARGS__ )
