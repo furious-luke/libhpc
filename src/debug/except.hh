@@ -22,7 +22,8 @@
 
 #ifndef NEXCEPT
 
-#define EXCEPT _ASSERT
+#define EXCEPT( expr, ... )                                     \
+  _ASSERT( expr, ::hpc::debug::assertion, ##__VA_ARGS__ )
 
 #else
 

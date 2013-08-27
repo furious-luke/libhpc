@@ -62,7 +62,7 @@ test_case<> ANON(
       bool inside = false;
       try
       {
-         ASSERT( 0, "Something!" );
+         ASSERT( 0, "Integer: ", 100, "Real: ", 33.3 );
       }
 #ifndef NDEBUG
       catch( debug::assertion& asrt )

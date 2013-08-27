@@ -31,27 +31,7 @@ namespace hpc {
 #ifndef NSTACKTRACE
                const debug::stacktrace& st,
 #endif
-	       const char* msg )
-      {
-	 _assert(
-            state, comm, file, line, expr,
-#ifndef NSTACKTRACE
-            st,
-#endif
-            debug::assertion( msg )
-            );
-      }
-
-      void
-      _assert( bool state,
-	       const mpi::comm& comm,
-	       const char* file,
-	       int line,
-	       const char* expr,
-#ifndef NSTACKTRACE
-               const debug::stacktrace& st,
-#endif
-	       debug::assertion asrt )
+               std::stringstream msg )
       {
 	 state = comm.all_reduce( state, MPI_LAND );
 	 debug::_assert(
@@ -59,9 +39,10 @@ namespace hpc {
 #ifndef NSTACKTRACE
             st,
 #endif
-            asrt
+            std::stringstream() << msg.str()
             );
       }
+
    }
 }
 

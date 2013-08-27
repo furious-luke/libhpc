@@ -18,6 +18,8 @@
 #ifndef libhpc_debug_assert_hh
 #define libhpc_debug_assert_hh
 
+#include <sstream>
+#include "libhpc/system/narg.hh"
 #include "assertions.hh"
 #include "stacktrace.hh"
 
@@ -25,18 +27,20 @@
 
 #ifndef NSTACKTRACE
 
-#define _ASSERT( expr, ... )                    \
-   ::hpc::debug::_assert(                       \
-      expr, __FILE__, __LINE__, #expr,          \
-      ::hpc::debug::stacktrace(), ##__VA_ARGS__ \
-      )
+#define _ASSERT( expr, type, ... )                                      \
+   ((expr) ? (void)0 : (throw type(                                     \
+                           #expr, __FILE__, __LINE__,                   \
+                           ::hpc::debug::stacktrace(),                  \
+                           OSTREAM( ::std::stringstream(), ##__VA_ARGS__ ).str() \
+                           )))
 
 #else
 
-#define _ASSERT( expr, ... )                            \
-   ::hpc::debug::_assert(                               \
-      expr, __FILE__, __LINE__, #expr, ##__VA_ARGS__    \
-      )
+#define _ASSERT( expr, type, ... )                                      \
+   ((expr) ? (void)0 : (throw type(                                     \
+                           #expr, __FILE__, __LINE__,                   \
+                           OSTREAM( ::std::stringstream(), ##__VA_ARGS__ ).str() \
+                           )))
 
 #endif
 
@@ -46,39 +50,10 @@
 
 #endif
 
-namespace hpc {
-   namespace debug {
-
-#if !defined( NDEBUG ) || !defined( NEXCEPT )
-
-      void
-      _assert( bool state,
-               const char* file,
-               int line,
-               const char* expr,
-#ifndef NSTACKTRACE
-               const stacktrace& st,
-#endif
-               const char* msg = NULL );
-
-      void
-      _assert( bool state,
-               const char* file,
-               int line,
-               const char* expr,
-#ifndef NSTACKTRACE
-               const stacktrace& st,
-#endif
-               assertion asrt );
-
-#endif
-
-   }
-}
-
 #ifndef NDEBUG
 
-#define ASSERT _ASSERT
+#define ASSERT( expr, ... )                                     \
+   _ASSERT( expr, ::hpc::debug::assertion, ##__VA_ARGS__ )
 
 #else
 

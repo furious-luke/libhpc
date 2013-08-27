@@ -28,25 +28,22 @@
 
 #include "libhpc/debug/stacktrace.hh"
 
-#define MPI_ASSERT( expr, comm, ... )           \
-   ::hpc::mpi::_assert(                         \
-      expr, comm, __FILE__, __LINE__, #expr,    \
-      ::hpc::debug::stacktrace(), ##__VA_ARGS__ \
+#define MPI_ASSERT( expr, comm, ... )                   \
+   ::hpc::mpi::_assert(                                 \
+      expr, comm, __FILE__, __LINE__, #expr,            \
+      ::hpc::debug::stacktrace(),                       \
+      OSTREAM( ::std::stringstream(), ##__VA_ARGS__ )   \
       )
 
 #else
 
-#define MPI_ASSERT( expr, comm, ... )                           \
-   ::hpc::debug::_assert(                                       \
-      expr, comm __FILE__, __LINE__, #expr, ##__VA_ARGS__       \
+#define MPI_ASSERT( expr, comm, ... )                   \
+   ::hpc::debug::_assert(                               \
+      expr, comm __FILE__, __LINE__, #expr,             \
+      OSTREAM( ::std::stringstream(), ##__VA_ARGS__ )   \
       )
 
 #endif
-
-// #define MPI_ASSERT( expr, comm, ... )           \
-//    hpc::mpi::_assert(                           \
-//       expr, comm, __FILE__, __LINE__, #expr,    \
-//       ##__VA_ARGS__ )
 
 namespace hpc {
    namespace mpi {
@@ -60,18 +57,8 @@ namespace hpc {
 #ifndef NSTACKTRACE
                const debug::stacktrace& st,
 #endif
-	       const char* msg = NULL );
+               std::stringstream msg );
 
-      void
-      _assert( bool state,
-               const mpi::comm& comm,
-               const char* file,
-               int line,
-               const char* expr,
-#ifndef NSTACKTRACE
-               const debug::stacktrace& st,
-#endif
-               debug::assertion ass );
    }
 }
 

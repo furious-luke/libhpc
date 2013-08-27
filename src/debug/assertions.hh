@@ -36,7 +36,10 @@ namespace hpc {
       {
       public:
 
-         assertion( const char* msg = NULL ) throw();
+         assertion( const char* expr,
+                    const char* file,
+                    int line,
+                    const std::string msg = std::string() ) throw();
 
          assertion( const assertion& asrt );
 
