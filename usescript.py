@@ -82,8 +82,7 @@ static_lib = rule(objs, ar, target=platform.make_static_library('lib/hpc'))
 shared_lib = rule(objs, sl & sl_inst, target=platform.make_shared_library('lib/hpc'))
 rule(static_lib, lib_inst, target_strip_dirs=2)
 
-# # Build the unit test runner.
-# rule(r'tests/.+\.cc$', bin, target='bin/libhpc_unit', libraries=['hpc'])
-
+# Build each unit test individually and attach the results to a
+# dummy target that will always be invalidated.
 tests = rule(r'tests/.+\.cc$', bin, libraries=['hpc'], single=False, suffix='')
-rule(tests, run_tests, has_targets=False)
+rule(tests, run_tests, target=dummies.always)
