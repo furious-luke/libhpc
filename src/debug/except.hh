@@ -23,7 +23,7 @@
 #ifndef NEXCEPT
 
 #define EXCEPT( expr, ... )                                     \
-  _ASSERT( expr, ::hpc::debug::assertion, ##__VA_ARGS__ )
+  _ASSERT( expr, ::hpc::exception, ##__VA_ARGS__ )
 
 #else
 

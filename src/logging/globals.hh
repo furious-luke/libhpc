@@ -26,14 +26,14 @@
 
 #ifndef NLOG
 
-#define _LOG_( count, ... )                             \
+#define _LOG_( count, ... )                                     \
    _OSTREAM##count( ::hpc::logging::_stack, __VA_ARGS__ )
 
 #define _LOG( count, ... )                      \
    _LOG_( count, __VA_ARGS__ )
 
-#define LOG( ... )                              \
-   _LOG( PP_NARG( __VA_ARGS__ ), __VA_ARGS__ )
+#define LOG( ... )                                      \
+   _LOG( PP_NARG( 0, ##__VA_ARGS__ ), ##__VA_ARGS__ )
 
 #define LOGLN( ... )                            \
    LOG( __VA_ARGS__, ::hpc::logging::endl )
@@ -63,8 +63,8 @@
 #define LOGI( ... )                             \
    LOGLV( ::hpc::logging::info, __VA_ARGS__ )
 
-#define LOGW( ... )                                                     \
-                                                                                                                                         LOGLV( ::hpc::logging::warning, __VA_ARGS__ )
+#define LOGW( ... )                                     \
+   LOGLV( ::hpc::logging::warning, __VA_ARGS__ )
 
 #define LOGE( ... )                             \
    LOGLV( ::hpc::logging::error, __VA_ARGS__ )
@@ -90,7 +90,7 @@
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
 
 #define LOGWLN( ... )                                   \
-      LOGLVLN( ::hpc::logging::warning, __VA_ARGS__ )
+   LOGLVLN( ::hpc::logging::warning, __VA_ARGS__ )
 
 #define LOGELN( ... )                           \
    LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
@@ -109,8 +109,8 @@
       new ::hpc::logging::file( filename ) )
 
 #define LOG_CONSOLE()                           \
-   ::hpc::logging::push(                        \
-      new ::hpc::logging::stdout() )
+      ::hpc::logging::push(                     \
+         new ::hpc::logging::stdout() )
 
 #define LOG_POP()                               \
    ::hpc::logging::pop()

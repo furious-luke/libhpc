@@ -25,7 +25,7 @@
 #include <boost/format.hpp>
 
 #define TEST( expr, ... )                                               \
-   (::hpc::test::decompose()->*expr).set_expr_str( #expr ).test(        \
+   (::hpc::test::decompose()->*expr).set_info( #expr, __FILE__, __LINE__ ).test( \
       *::hpc::test::_cur_tc, ##__VA_ARGS__ )
 
 #define ANON2( x, y )                           \
@@ -33,7 +33,7 @@
 #define ANON1( x, y )                           \
    ANON2( x, y )
 #define ANON                                    \
-   ANON1( tc_, __LINE__ )
+   ANON1( hpc_test_case_, __COUNTER__ )
 
 namespace hpc {
    namespace test {
@@ -148,9 +148,13 @@ namespace hpc {
          }
 
          expression&
-         set_expr_str( const char* expr_str )
+         set_info( const char* expr_str,
+                   const char* file,
+                   int line )
          {
             _expr_str = expr_str;
+            _file = file;
+            _line = line;
             return *this;
          }
 
@@ -193,6 +197,18 @@ namespace hpc {
             return _expr_str;
          }
 
+         const char*
+         file() const
+         {
+            return _file;
+         }
+
+         int
+         line() const
+         {
+            return _line;
+         }
+
       protected:
 
          std::string
@@ -214,6 +230,8 @@ namespace hpc {
          side<U> _right;
          expression_type _op;
          const char* _expr_str;
+         const char* _file;
+         int _line;
       };
 
       class test_case_base
@@ -320,9 +338,12 @@ namespace hpc {
                             "    %2%\n"
                             "  where\n"
                             "    LHS: %3%\n"
-                            "    RHS: %4%\n" );
+                            "    RHS: %4%\n"
+                            "  at\n"
+                            "    %5%:%6%\n" );
          fmt % tc.name();
          fmt % expr.str() % expr.lhs() % expr.rhs();
+         fmt % expr.file() % expr.line();
          _msg = fmt.str();
       }
 

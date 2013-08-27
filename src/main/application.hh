@@ -15,33 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi_init_hh
-#define hpc_mpi_init_hh
-
-// #ifndef MPICH_SKIP_MPICXX
-// #define MPICH_SKIP_MPICXX
-// #endif
-// #ifndef OMPI_SKIP_MPICXX
-// #define OMPI_SKIP_MPICXX
-// #endif
-#include <mpi.h>
+#ifndef libhpc_main_application_hh
+#define libhpc_main_application_hh
 
 namespace hpc {
-   namespace mpi {
 
-      void
-      initialise();
+   class application
+   {
+   public:
 
-      void
-      initialise( int& argc,
-                  char**& argv );
+      application( int argc,
+                   char* argv[] );
+   };
 
-      bool
-      initialised();
-
-      void
-      finalise( bool mpi=true );
-   }
 }
 
 #endif

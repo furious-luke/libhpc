@@ -15,33 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi_init_hh
-#define hpc_mpi_init_hh
+#ifndef libhpc_main_main_hh
+#define libhpc_main_main_hh
 
-// #ifndef MPICH_SKIP_MPICXX
-// #define MPICH_SKIP_MPICXX
-// #endif
-// #ifndef OMPI_SKIP_MPICXX
-// #define OMPI_SKIP_MPICXX
-// #endif
-#include <mpi.h>
+#ifndef HPC_APP_CLASS
+#error libhpc: Must have an application class defined.
+#endif
 
-namespace hpc {
-   namespace mpi {
-
-      void
-      initialise();
-
-      void
-      initialise( int& argc,
-                  char**& argv );
-
-      bool
-      initialised();
-
-      void
-      finalise( bool mpi=true );
-   }
+int
+main( int argc,
+      char* argv[] )
+{
+   typedef HPC_APP_CLASS application_type;
+   application_type app( argc, argv );
+   return app();
 }
 
 #endif

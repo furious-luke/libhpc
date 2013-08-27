@@ -104,6 +104,22 @@ namespace hpc {
       }
 
    }
+
+   exception::exception( const char* expr,
+                         const char* file,
+                         int line,
+#ifndef NSTACKTRACE
+                         const stacktrace& st,
+#endif
+                         const std::string msg ) throw()
+      : debug::assertion( expr, file, line,
+#ifndef NSTACKTRACE
+                          st,
+#endif
+                          msg )
+   {
+   }
+
 }
 
 #endif

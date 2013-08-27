@@ -15,35 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef NDEBUG
-
-#include "assert.hh"
+#include "application.hh"
+#include "libhpc/mpi/mpi.hh"
 
 namespace hpc {
-   namespace mpi {
 
-      void
-      _assert( bool state,
-	       const mpi::comm& comm,
-	       const char* file,
-	       int line,
-	       const char* expr,
-#ifndef NSTACKTRACE
-               const debug::stacktrace& st,
-#endif
-               std::stringstream msg )
-      {
-	 state = comm.all_reduce( state, MPI_LAND );
-	 debug::_assert(
-            state, file, line, expr,
-#ifndef NSTACKTRACE
-            st,
-#endif
-            std::stringstream() << msg.str()
-            );
-      }
-
+   application::application( int argc,
+                             char* argv[] )
+   {
    }
-}
 
-#endif
+}

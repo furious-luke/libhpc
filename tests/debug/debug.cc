@@ -15,88 +15,92 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/debug/unit_test.hh"
+#include "libhpc/debug/unit_test_main.hh"
 #include "libhpc/debug/assert.hh"
 #include "libhpc/debug/except.hh"
 
 using namespace hpc;
 using namespace hpc::test;
 
-///
-///
-///
-test_case<> ANON(
-   "/debug/assert/basic",
-   "test basic usage",
-   []()
-   {
-      bool inside = false;
-      try
-      {
-         ASSERT( 0 );
-      }
-#ifndef NDEBUG
-      catch( debug::assertion& asrt )
-#else
-      catch( std::exception& asrt )
-#endif
-      {
-         inside = true;
-      }
-#ifndef NDEBUG
-      TEST( inside == true, "Should have caught an assertion." );
-#else
-      TEST( inside == false, "Should not have caught an assertion." );
-#endif
-   }
-   );
+namespace debug_debug {
 
-///
-///
-///
-test_case<> ANON(
-   "/debug/assert/message",
-   "make sure messages are passed correctly",
-   []()
-   {
-      bool inside = false;
-      try
+   ///
+   ///
+   ///
+   test_case<> ANON(
+      "/debug/assert/basic",
+      "test basic usage",
+      []()
       {
-         ASSERT( 0, "Integer: ", 100, "Real: ", 33.3 );
-      }
+         bool inside = false;
+         try
+         {
+            ASSERT( 0 );
+         }
 #ifndef NDEBUG
-      catch( debug::assertion& asrt )
+         catch( debug::assertion& asrt )
 #else
-      catch( std::exception& asrt )
+            catch( std::exception& asrt )
 #endif
-      {
-         inside = true;
-      }
+            {
+               inside = true;
+            }
 #ifndef NDEBUG
-      TEST( inside == true, "Should have caught an assertion." );
+         TEST( inside == true, "Should have caught an assertion." );
 #else
-      TEST( inside == false, "Should not have caught an assertion." );
+         TEST( inside == false, "Should not have caught an assertion." );
 #endif
-   }
-   );
+      }
+      );
 
-///
-///
-///
-test_case<> ANON(
-   "/debug/except/basic",
-   "",
-   []()
-   {
-      bool inside = false;
-      try
+   ///
+   ///
+   ///
+   test_case<> ANON(
+      "/debug/assert/message",
+      "make sure messages are passed correctly",
+      []()
       {
-         EXCEPT( 0 );
+         bool inside = false;
+         try
+         {
+            ASSERT( 0, "Integer: ", 100, "Real: ", 33.3 );
+         }
+#ifndef NDEBUG
+         catch( debug::assertion& asrt )
+#else
+            catch( std::exception& asrt )
+#endif
+            {
+               inside = true;
+            }
+#ifndef NDEBUG
+         TEST( inside == true, "Should have caught an assertion." );
+#else
+         TEST( inside == false, "Should not have caught an assertion." );
+#endif
       }
-      catch( std::exception& ex )
+      );
+
+   ///
+   ///
+   ///
+   test_case<> ANON(
+      "/debug/except/basic",
+      "check exceptions are raised correctly",
+      []()
       {
-         inside = true;
+         bool inside = false;
+         try
+         {
+            EXCEPT( 0 );
+         }
+         catch( hpc::exception& ex )
+         {
+            inside = true;
+         }
+         TEST( inside == true, "Must have caught exception." );
       }
-      TEST( inside == true );
-   }
-   );
+      );
+
+}

@@ -24,43 +24,8 @@
 #include "libhpc/debug/assertions.hh"
 #include "comm.hh"
 
-#ifndef NSTACKTRACE
-
-#include "libhpc/debug/stacktrace.hh"
-
-#define MPI_ASSERT( expr, comm, ... )                   \
-   ::hpc::mpi::_assert(                                 \
-      expr, comm, __FILE__, __LINE__, #expr,            \
-      ::hpc::debug::stacktrace(),                       \
-      OSTREAM( ::std::stringstream(), ##__VA_ARGS__ )   \
-      )
-
-#else
-
-#define MPI_ASSERT( expr, comm, ... )                   \
-   ::hpc::debug::_assert(                               \
-      expr, comm __FILE__, __LINE__, #expr,             \
-      OSTREAM( ::std::stringstream(), ##__VA_ARGS__ )   \
-      )
-
-#endif
-
-namespace hpc {
-   namespace mpi {
-
-      void
-      _assert( bool state,
-	       const mpi::comm& comm,
-	       const char* file,
-	       int line,
-	       const char* expr,
-#ifndef NSTACKTRACE
-               const debug::stacktrace& st,
-#endif
-               std::stringstream msg );
-
-   }
-}
+#define MPI_ASSERT( expr, comm, ... )                           \
+   ASSERT( (comm).all_reduce( expr, MPI_LAND ), ##__VA_ARGS__ )
 
 #else
 

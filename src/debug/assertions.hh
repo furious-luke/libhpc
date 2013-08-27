@@ -39,6 +39,9 @@ namespace hpc {
          assertion( const char* expr,
                     const char* file,
                     int line,
+#ifndef NSTACKTRACE
+                    const stacktrace& st,
+#endif
                     const std::string msg = std::string() ) throw();
 
          assertion( const assertion& asrt );
@@ -75,6 +78,19 @@ namespace hpc {
       };
 
    }
+
+   class exception
+      : public debug::assertion
+   {
+   public:
+      exception( const char* expr,
+                 const char* file,
+                 int line,
+#ifndef NSTACKTRACE
+                 const stacktrace& st,
+#endif
+                 const std::string msg = std::string() ) throw();
+   };
 }
 
 #endif

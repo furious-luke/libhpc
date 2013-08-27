@@ -24,7 +24,7 @@
 namespace hpc {
    namespace mpi {
 
-      bool initialized = false;
+      bool _init = false;
 
       void
       initialise()
@@ -39,11 +39,11 @@ namespace hpc {
                   char**& argv )
       {
 	 int flag;
-	 MPI_Initialized(&flag);
-	 if(!flag)
-	    MPI_INSIST(MPI_Init(&argc, &argv));
+	 MPI_Initialized( &flag );
+	 if( !flag )
+	    MPI_INSIST( MPI_Init( &argc, &argv ) );
 
-	 if( !initialized )
+	 if( !_init )
          {
 	    // Need to initialise data types here because we calculate sizes during construction, which
 	    // needs MPI to be initialized. Note that NULL is already done.
@@ -96,7 +96,7 @@ namespace hpc {
             mpi::data_type::_type_map[10] = MPI_DOUBLE;
 #endif
 
-	    initialized = true;
+	    _init = true;
 	 }
 
 #ifndef NLOG
@@ -107,9 +107,18 @@ namespace hpc {
 #endif
       }
 
-      void finalise(bool mpi) {
-	 if(!initialized) {
+      bool
+      initialised()
+      {
+	 int flag;
+	 MPI_Initialized( &flag );
+         return flag;
+      }
 
+      void finalise( bool mpi )
+      {
+	 if( !_init )
+         {
 	    // Eliminate shared pointer counts.
 	    _shared_ptr_cnts.erase(&mpi::comm::null);
 	    _shared_ptr_cnts.erase(&mpi::comm::self);
@@ -127,15 +136,17 @@ namespace hpc {
 	    _shared_ptr_cnts.erase(&mpi::data_type::floating);
 	    _shared_ptr_cnts.erase(&mpi::data_type::double_floating);
 
-	    initialized = false;
+	    _init = false;
 	 }
 
-	 if( mpi ) {
+	 if( mpi )
+         {
 	    int flag;
-	    MPI_Initialized(&flag);
-	    if(flag)
-	       MPI_INSIST(MPI_Finalize());
+	    MPI_Initialized( &flag );
+	    if( flag )
+	       MPI_INSIST( MPI_Finalize() );
 	 }
       }
+
    }
 }

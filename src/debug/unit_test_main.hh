@@ -15,33 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi_init_hh
-#define hpc_mpi_init_hh
+#ifndef libhpc_debug_unit_test_main_hh
+#define libhpc_debug_unit_test_main_hh
 
-// #ifndef MPICH_SKIP_MPICXX
-// #define MPICH_SKIP_MPICXX
-// #endif
-// #ifndef OMPI_SKIP_MPICXX
-// #define OMPI_SKIP_MPICXX
-// #endif
-#include <mpi.h>
+#include <stdlib.h>
+#include "unit_test.hh"
 
-namespace hpc {
-   namespace mpi {
-
-      void
-      initialise();
-
-      void
-      initialise( int& argc,
-                  char**& argv );
-
-      bool
-      initialised();
-
-      void
-      finalise( bool mpi=true );
-   }
+int
+main( int argc,
+      char* argv[] )
+{
+   using namespace hpc;
+   test::runner runner;
+   runner.run_all();
+   return EXIT_SUCCESS;
 }
 
 #endif

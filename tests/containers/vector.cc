@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/debug/unit_test.hh"
+#include "libhpc/debug/unit_test_main.hh"
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/functors.hh"
 

@@ -30,11 +30,11 @@
    _ERRORS##count( __VA_ARGS__ )
 
 #define _ERRORS( count, ... )                   \
-   __ERRORS( count, __VA_ARGS__ )
+   __ERRORS( count, ##__VA_ARGS__ )
 
-#define ERRORS( ... )                                   \
-   enum error_codes {                                   \
-      _ERRORS( PP_NARG( __VA_ARGS__ ), __VA_ARGS__ )    \
+#define ERRORS( ... )                                           \
+   enum error_codes {                                           \
+      _ERRORS( PP_NARG( 0, ##__VA_ARGS__ ), ##__VA_ARGS__ )     \
    }
 
 #define SETERR( ec, place )                     \
