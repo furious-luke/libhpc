@@ -30,11 +30,11 @@ namespace hpc {
          class array
             : public ::boost::array< T, N >
          {
-         public:
+         // public:
 
-            typedef typename ::boost::array<T,N>::size_type size_type;
-            typedef typename ::boost::array<T,N>::const_reference const_reference;
-            typedef typename ::boost::array<T,N>::reference reference;
+         //    typedef typename ::boost::array<T,N>::size_type size_type;
+         //    typedef typename ::boost::array<T,N>::const_reference const_reference;
+         //    typedef typename ::boost::array<T,N>::reference reference;
          };
       }
    }

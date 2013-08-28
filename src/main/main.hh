@@ -27,8 +27,18 @@ main( int argc,
       char* argv[] )
 {
    typedef HPC_APP_CLASS application_type;
-   application_type app( argc, argv );
-   return app();
+   int ec = 0;
+   try
+   {
+      application_type app( argc, argv );
+      app();
+   }
+   catch( hpc::exception& ex )
+   {
+      std::cout << ex.message() << "\n";
+      ++ec;
+   }
+   return ec;
 }
 
 #endif

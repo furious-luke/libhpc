@@ -84,6 +84,12 @@ namespace hpc {
          return _buf.c_str();
       }
 
+      const std::string&
+      assertion::message() const
+      {
+         return _msg;
+      }
+
       void
       assertion::_write_buffer( std::string& buf ) throw()
       {

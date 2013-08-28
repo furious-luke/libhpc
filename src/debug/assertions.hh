@@ -61,6 +61,9 @@ namespace hpc {
          virtual const char*
          what() const throw();
 
+         const std::string&
+         message() const;
+
       protected:
 
          void

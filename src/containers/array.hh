@@ -24,37 +24,59 @@
 namespace hpc {
 
    template< class T,
-             int N >
-   class array
-      : public impl::boost::array< T, N >
-   {
-   public:
+             std::size_t N >
+   using array = ::boost::array<T,N>;
 
-      typedef typename impl::boost::array<T,N>::size_type size_type;
-      typedef size_t key_type;
-      typedef T mapped_type;
+   // template< class T,
+   //           int N >
+   // struct array
+   //    : public ::boost::array< T, N >
+   // {
+   // // public:
 
-   public:
+   // //    typedef typename impl::boost::array<T,N>::size_type size_type;
+   // //    typedef size_t key_type;
+   // //    typedef T mapped_type;
 
-      friend std::ostream&
-      operator<<( std::ostream& strm,
-		  const array& obj )
-      {
-	 strm << "[";
-	 if( obj.size() )
-         {
-	    strm << obj[0];
-	    for( size_t ii = 1; ii < obj.size(); ++ii )
-	       strm << ", " << obj[ii];
-	 }
-	 strm << "]";
-	 return strm;
-      }
-   };
+   // // public:
+
+   // //    friend std::ostream&
+   // //    operator<<( std::ostream& strm,
+   // //      	  const array& obj )
+   // //    {
+   // //       strm << "[";
+   // //       if( obj.size() )
+   // //       {
+   // //          strm << obj[0];
+   // //          for( size_t ii = 1; ii < obj.size(); ++ii )
+   // //             strm << ", " << obj[ii];
+   // //       }
+   // //       strm << "]";
+   // //       return strm;
+   // //    }
+   // };
 
 }
 
-#include "array2.hh"
-#include "array3.hh"
+namespace boost {
+
+   template< class T,
+             ::std::size_t N >
+   ::std::ostream&
+   operator<<( ::std::ostream& strm,
+               const ::boost::array<T,N>& obj )
+   {
+      strm << "[";
+      if( obj.size() )
+      {
+         strm << obj[0];
+         for( size_t ii = 1; ii < obj.size(); ++ii )
+            strm << ", " << obj[ii];
+      }
+      strm << "]";
+      return strm;
+   }
+
+}
 
 #endif
