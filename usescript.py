@@ -32,7 +32,7 @@ cc_opts = (
             header_dirs=['build/optimised/include'],
             optimise=3,
             symbols=False,
-            define=['NDEBUG']) +
+            define=['NDEBUG', 'NLOGTRIVIAL', 'NLOGDEBUG']) +
     options(args.instrument == False,   define=['NINSTRUMENT']) +
     options(args.logging == False,      define=['NLOG']) +
     options(args.stacktrace == False,   define=['NSTACKTRACE']) +

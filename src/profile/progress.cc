@@ -57,19 +57,43 @@ namespace hpc {
       void
       progress::update()
       {
-         LOG_ENTER();
-
          unsigned num_updates = (_comp - _old_comp)/_update_fac;
-         LOGDLN( "Have ", num_updates, " updates to do." );
+         LOGTLN( "Have ", num_updates, " updates to do." );
          for( unsigned ii = 0; ii < num_updates; ++ii )
          {
-            LOGDLN( "Updating." );
+            LOGTLN( "Updating." );
             _gcomp = _comm->all_reduce( _comp );
          }
          _old_comp = _comp;
-
-         LOG_EXIT();
       }
+
+      // void
+      // progress::update()
+      // {
+      //    if( _rank == 0 )
+      //    {
+      //       // Process all incoming updates.
+      //       MPI_Status stat;
+      //       while( _comm.iprobe( stat, MPI_ANY_SOURCE, _tag ) )
+      //       {
+      //          _comm.recv(
+      //       }
+      //    }
+      //    else
+      //    {
+      //       // I would like to cancel any ongoing send, but that is
+      //       // usually very expensive. Instead just ignore this send.
+      //       if( !_req )
+      //       {
+      //          // Only perform a send if my completion is different.
+      //          if( _comp != _old_comp )
+      //          {
+      //             _comm.isend( _comp, _root, _req, _tag );
+      //             _old_comp = _comp;
+      //          }
+      //       }
+      //    }
+      // }
 
       double
       progress::complete() const

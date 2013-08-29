@@ -118,15 +118,16 @@ namespace hpc {
       bool
       logger::visible()
       {
+         const auto& cur_tags = current_tags();
 	 bool level_vis = levels().empty() || levels().front() >= _min_level;
-	 bool tag_vis = _tags.empty();
+	 bool tag_vis = _tags.empty() && cur_tags.empty();
 	 if( !tag_vis )
 	 {
             for( std::set<std::string>::const_iterator it = _tags.begin();
                  it != _tags.end();
                  ++it )
 	    {
-	       if( current_tags().find( *it ) != current_tags().end() )
+	       if( cur_tags.find( *it ) != cur_tags.end() )
 	       {
 		  tag_vis = true;
 		  break;

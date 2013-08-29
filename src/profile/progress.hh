@@ -57,6 +57,7 @@ namespace hpc {
 
         shared_ptr<mpi::comm> _comm;
 	int _root;
+        int _tag;
         double _update_fac;
 	double _lsize, _gsize;
 	double _comp, _old_comp;

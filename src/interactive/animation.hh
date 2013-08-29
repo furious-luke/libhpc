@@ -32,8 +32,8 @@ namespace hpc {
 
          animation( const value_type& start,
                     const value_type& finish )
-            : _rng( start, finish ),
-              _ease( 0, 0 ),
+            : _rng{ { start, finish } },
+              _ease{ { 0, 0 } },
               _dur( 200 ),
               _inv_dur( 1.0/200.0 )
          {

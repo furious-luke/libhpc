@@ -7,7 +7,7 @@ namespace hpc {
    namespace gl {
 
       console::console()
-         : _scr( 0, 0),
+         : _scr{ { 0, 0 } },
            _num_lines( 10 ),
            _line_height( 15 ),
            _alpha( 0.5 ),

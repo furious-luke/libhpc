@@ -103,5 +103,11 @@ namespace hpc {
       {
 	 return this->_req != op;
       }
+
+      request::operator bool() const
+      {
+         return _req != MPI_REQUEST_NULL;
+      }
+
    }
 }

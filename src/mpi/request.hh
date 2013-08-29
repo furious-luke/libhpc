@@ -62,6 +62,8 @@ namespace hpc {
 	 bool
 	 operator!=(const MPI_Request op) const;
 
+         operator bool() const;
+
       private:
 	 MPI_Request _req;
 
