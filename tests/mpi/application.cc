@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <string.h>
 #include "libhpc/debug/unit_test_main.hh"
 #include "libhpc/mpi/application.hh"
 #include "libhpc/mpi/init.hh"
