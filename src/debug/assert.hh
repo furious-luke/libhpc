@@ -29,7 +29,7 @@
 
 #define _ASSERT( expr, type, ... )                              \
    ((expr) ? (void)0 : (                                        \
-      throw type(                                               \
+      throw (type&)type().details(                              \
          #expr, __FILE__, __LINE__,                             \
          ::hpc::debug::stacktrace(),                            \
          ((const ::std::stringstream&)OSTREAM(                  \
@@ -40,7 +40,7 @@
 
 #define _ASSERT( expr, type, ... )                              \
    ((expr) ? (void)0 : (                                        \
-      throw type(                                               \
+      throw (type&)type().details(                              \
          #expr, __FILE__, __LINE__,                             \
          ((const ::std::stringstream&)OSTREAM(                  \
             ::std::stringstream(), ##__VA_ARGS__ )).str()       \

@@ -24,9 +24,17 @@
 #include <assert.h>
 #include <boost/format.hpp>
 
-#define TEST( expr, ... )                                               \
-   (::hpc::test::decompose()->*expr).set_info( #expr, __FILE__, __LINE__ ).test( \
-      *::hpc::test::_cur_tc, ##__VA_ARGS__ )
+#define TEST( expr, ... )                       \
+   (::hpc::test::decompose()->*expr).set_info(  \
+      #expr, __FILE__, __LINE__ ).test(         \
+         *::hpc::test::_cur_tc, ##__VA_ARGS__ )
+
+#define DELTA( lhs, rhs, epsilon, ... )                 \
+   (::hpc::test::decompose()->*lhs)                     \
+   .delta( rhs, epsilon )                               \
+   .set_delta_info(                                     \
+      #lhs, #rhs, epsilon, __FILE__, __LINE__ ).test(   \
+         *::hpc::test::_cur_tc, ##__VA_ARGS__ )
 
 #define ANON2( x, y )                           \
    x##y
@@ -37,6 +45,12 @@
 
 namespace hpc {
    namespace test {
+
+      enum comparison_type
+      {
+         EQUAL,
+         NOT_EQUAL
+      };
 
       template< class > class side;
       class test_case_base;
@@ -87,8 +101,6 @@ namespace hpc {
          }
       };
 
-      template< class, class > class expression;
-
       template< class T >
       class side
       {
@@ -103,14 +115,25 @@ namespace hpc {
          expression<T,U>
          operator==( const U& op ) const
          {
-            return expression<T,U>( *this, side<U>( op ), expression<T,U>::EQUAL );
+            bool res = _val == op;
+            return expression<T,U>( *this, side<U>( op ), res );
          }
 
          template< class U >
          expression<T,U>
          operator!=( const U& op ) const
          {
-            return expression<T,U>( *this, side<U>( op ), expression<T,U>::NOT_EQUAL );
+            bool res = _val != op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
+         delta( const U& op,
+                double epsilon ) const
+         {
+            bool res = (_val >= op - epsilon && _val <= op + epsilon);
+            return expression<T,U>( *this, side<U>( op ), res );
          }
 
          const T&
@@ -130,20 +153,12 @@ namespace hpc {
       {
       public:
 
-         enum expression_type
-         {
-            EQUAL,
-            NOT_EQUAL
-         };
-
-      public:
-
          expression( const side<T>& left,
                      const side<U>& right,
-                     expression_type op )
+                     bool result )
             : _left( left ),
               _right( right ),
-              _op( op )
+              _res( result )
          {
          }
 
@@ -158,26 +173,27 @@ namespace hpc {
             return *this;
          }
 
-         operator bool() const
+         expression&
+         set_delta_info( const char* lhs,
+                         const char* rhs,
+                         double epsilon,
+                         const char* file,
+                         int line )
          {
-            switch( _op )
-            {
-               case EQUAL:
-                  return *_left == *_right;
-                  break;
-
-               case NOT_EQUAL:
-                  return *_left != *_right;
-                  break;
-
-               default:
-                  assert( 0 );
-            }
+            _expr_str = boost::str( boost::format( "%1% == %2% within tolerance of %3%" ) % lhs % rhs % epsilon );
+            _file = file;
+            _line = line;
+            return *this;
          }
 
          void
          test( test_case_base& tc,
                const std::string& desc = std::string() );
+
+         operator bool()
+         {
+            return _res;
+         }
 
          const T&
          lhs() const
@@ -191,7 +207,7 @@ namespace hpc {
             return *_right;
          }
 
-         const char*
+         const std::string&
          str() const
          {
             return _expr_str;
@@ -211,25 +227,10 @@ namespace hpc {
 
       protected:
 
-         std::string
-         _op_str() const
-         {
-            switch( _op )
-            {
-               case EQUAL:
-                  return "==";
-               case NOT_EQUAL:
-                  return "!=";
-            };
-            assert( 0 );
-         }
-
-      protected:
-
          side<T> _left;
          side<U> _right;
-         expression_type _op;
-         const char* _expr_str;
+         bool _res;
+         std::string _expr_str;
          const char* _file;
          int _line;
       };
@@ -269,8 +270,19 @@ namespace hpc {
                     const std::string& desc,
                     std::function<void(Fixture&)> func )
             : test_case_base( name, desc ),
-              _func( func )
+              _func( func ),
+              _fix( 0 )
          {
+         }
+
+         virtual
+         ~test_case()
+         {
+            if( _fix )
+            {
+               delete _fix;
+               _fix = 0;
+            }
          }
 
          virtual
@@ -278,13 +290,16 @@ namespace hpc {
          run()
          {
             _cur_tc = this;
-            _func( fix );
+            _fix = new Fixture;
+            _func( *_fix );
+            delete _fix;
+            _fix = 0;
          }
 
       protected:
 
          std::function<void(Fixture&)> _func;
-         Fixture fix;
+         Fixture* _fix;
       };
 
       template<>

@@ -31,7 +31,7 @@ namespace hpc {
       test_case_base* _cur_tc;
 
       test_case_base::test_case_base( const std::string& name,
-                            const std::string& desc )
+                                      const std::string& desc )
          : _name( name ),
            _desc( desc )
       {

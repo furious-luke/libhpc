@@ -18,28 +18,15 @@
 #ifndef libhpc_options_bad_option_hh
 #define libhpc_options_bad_option_hh
 
+#include "libhpc/debug/assertions.hh"
 #include "libhpc/containers/string.hh"
 
 namespace hpc {
    namespace options {
 
       class bad_option
-         : public std::exception
+         : public hpc::exception
       {
-      public:
-
-         bad_option( const hpc::string& option_name );
-
-         virtual
-         ~bad_option() throw();
-
-         virtual const char*
-         what() const throw();
-
-      public:
-
-         hpc::string _name;
-         hpc::string _msg;
       };
 
    }

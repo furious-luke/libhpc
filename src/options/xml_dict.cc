@@ -16,7 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
-#include "libhpc/debug/assert.hh"
+#include "libhpc/debug/except.hh"
 #include "xml_dict.hh"
 #include "bad_option.hh"
 
@@ -24,20 +24,6 @@ using namespace pugi;
 
 namespace hpc {
    namespace options {
-
-      bad_xml::bad_xml( const hpc::string& filename )
-         : bad_option( filename )
-      {
-         std::stringstream ss;
-         ss << "\n\nThere was an error parsing XML.";
-         if( !filename.empty() )
-            ss << "  Filename: " << filename << "\n";
-         _msg = ss.str();
-      }
-
-      bad_xml::~bad_xml() throw()
-      {
-      }
 
       xml_dict::xml_dict()
          : _sep( ":" ),
@@ -49,6 +35,25 @@ namespace hpc {
          : _sep( ":" ),
            _root( root )
       {
+      }
+
+      xml_dict::xml_dict( std::istream& strm,
+                          const hpc::string& xpath_root )
+         : _sep( ":" ),
+           _root( 0 )
+      {
+         read( strm, xpath_root );
+      }
+
+      xml_dict::xml_dict( const xml_dict& src )
+         : _sep( src._sep ),
+           _root( 0 )
+      {
+         _doc.reset( src._doc );
+         if( src._root == src._doc )
+            _root = _doc;
+         else if( src._root )
+            _root = _find_root( _doc, src._root.path() );
       }
 
       xml_dict::~xml_dict()
@@ -71,8 +76,7 @@ namespace hpc {
          if( !_root )
          {
             xml_parse_result result = _doc.load( stream );
-            if( !result )
-               throw bad_xml( filename );
+            EXCEPTAS( result, bad_xml, "Error: Couldn't read XML from file: ", filename );
             _root = _find_root( _doc, xpath_root );
          }
          else
@@ -89,6 +93,12 @@ namespace hpc {
       xml_dict::get_nodes( const hpc::string& xpath ) const
       {
          return _root.select_nodes( xpath.c_str() );
+      }
+
+      xpath_node
+      xml_dict::get_node( const hpc::string& xpath ) const
+      {
+         return _root.select_single_node( xpath.c_str() );
       }
 
       xml_node
@@ -112,8 +122,7 @@ namespace hpc {
       {
          xml_document doc;
          xml_parse_result result = doc.load( stream );
-         if( !result )
-            throw bad_xml( filename );
+         EXCEPTAS( result, bad_xml, "Error: Couldn't read XML from file: ", filename );
          xml_node root = _find_root( doc, path );
          for( xml_node_iterator it = root.begin(); it != root.end(); ++it )
             _merge_node( _root, *it );
@@ -156,10 +165,8 @@ namespace hpc {
          xpath_node node = _root.select_single_node( xpath.c_str() );
          if( !node )
          {
-            if( except )
-               throw bad_option( path );
-            else
-               return (xml_node)NULL;
+            EXCEPTAS( !except, bad_option, "Error: Couldn't find option in XML dictionary: ", path );
+            return (xml_node)0;
          }
          return node.node();
       }

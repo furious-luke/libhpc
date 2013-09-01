@@ -24,51 +24,18 @@
 namespace hpc {
    namespace debug {
 
-      assertion::assertion( const char* expr,
-                            const char* file,
-                            int line,
-#ifndef NSTACKTRACE
-                            const stacktrace& st,
-#endif
-                            const std::string msg ) throw()
-         : exception(),
-           _expr( expr ),
-           _file( file ),
-           _line( line ),
-#ifndef NSTACKTRACE
-           _st( st ),
-#endif
-           _msg( msg )
-      {
-         _write_buffer( _buf );
-      }
-
-      assertion::assertion( const assertion& asrt )
-         : exception( asrt ),
-           _file( asrt._file ),
-           _line( asrt._line ),
-           _expr( asrt._expr ),
-           _msg( asrt._msg ),
-           _buf( asrt._buf )
-      {
-      }
-
-      assertion::~assertion() throw()
-      {
-      }
-
-      void
-      assertion::details( const char* file,
+      assertion&
+      assertion::details( const char* expr,
+                          const char* file,
                           int line,
-                          const char* expr
 #ifndef NSTACKTRACE
-                          , const stacktrace& st
+                          const stacktrace& st,
 #endif
-         ) throw()
+                          const std::string& msg ) throw()
       {
+         _expr = expr;
          _file = file;
          _line = line;
-         _expr = expr;
 #ifndef NSTACKTRACE
          _st = st;
 #endif
@@ -76,6 +43,8 @@ namespace hpc {
          // Need to do this here because the "what" method
          // is const.
          _write_buffer( _buf );
+
+         return *this;
       }
 
       const char*
@@ -110,22 +79,6 @@ namespace hpc {
       }
 
    }
-
-   exception::exception( const char* expr,
-                         const char* file,
-                         int line,
-#ifndef NSTACKTRACE
-                         const stacktrace& st,
-#endif
-                         const std::string msg ) throw()
-      : debug::assertion( expr, file, line,
-#ifndef NSTACKTRACE
-                          st,
-#endif
-                          msg )
-   {
-   }
-
 }
 
 #endif

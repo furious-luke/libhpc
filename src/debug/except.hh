@@ -25,9 +25,13 @@
 #define EXCEPT( expr, ... )                                     \
   _ASSERT( expr, ::hpc::exception, ##__VA_ARGS__ )
 
+#define EXCEPTAS( expr, type, ... )             \
+   _ASSERT( expr, type, ##__VA_ARGS__ )
+
 #else
 
 #define EXCEPT( expr, ... )
+#define EXCEPTAS( expr, type, ... )
 
 #endif
 

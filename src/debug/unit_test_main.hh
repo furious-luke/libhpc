@@ -20,12 +20,18 @@
 
 #include <stdlib.h>
 #include "unit_test.hh"
+#ifdef HPC_UNIT_TEST_LOG
+#include "libhpc/logging/logging.hh"
+#endif
 
 int
 main( int argc,
       char* argv[] )
 {
    using namespace hpc;
+#ifdef HPC_UNIT_TEST_LOG
+   LOG_PUSH( new logging::stdout );
+#endif
    test::runner runner;
    runner.run_all();
    return EXIT_SUCCESS;

@@ -37,12 +37,6 @@ namespace hpc {
       class bad_xml
          : public bad_option
       {
-      public:
-
-         bad_xml( const hpc::string& filename = hpc::string() );
-
-         virtual
-         ~bad_xml() throw();
       };
 
       ///
@@ -64,6 +58,11 @@ namespace hpc {
          /// XML base constructor.
          ///
 	 xml_dict( xml_node root );
+
+         xml_dict( std::istream& strm,
+                   const hpc::string& xpath_root = hpc::string() );
+
+         xml_dict( const xml_dict& src );
 
          ///
          /// Destructor.
@@ -249,6 +248,9 @@ namespace hpc {
 
          xpath_node_set
          get_nodes( const hpc::string& xpath ) const;
+
+         xpath_node
+         get_node( const hpc::string& xpath ) const;
 
       protected:
 

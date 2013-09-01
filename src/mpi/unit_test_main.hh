@@ -15,31 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <sstream>
-#include "bad_option.hh"
+#ifndef libhpc_mpi_unit_test_main_hh
+#define libhpc_mpi_unit_test_main_hh
 
-namespace hpc {
-   namespace options {
+#include <stdlib.h>
+#include "libhpc/debug/unit_test.hh"
+#include "libhpc/mpi/init.hh"
+#ifdef HPC_UNIT_TEST_LOG
+#include "libhpc/mpi/logger.hh"
+#endif
 
-      bad_option::bad_option( const hpc::string& option_name )
-         : std::exception(),
-           _name( option_name )
-      {
-         std::stringstream ss;
-         ss << "Invalid option requested from dictionary.\n";
-         ss << "  Option name: " << option_name << "\n";
-         _msg = ss.str();
-      }
-
-      bad_option::~bad_option() throw()
-      {
-      }
-
-      const char*
-      bad_option::what() const throw()
-      {
-         return _msg.c_str();
-      }
-
+int
+main( int argc,
+      char* argv[] )
+{
+   using namespace hpc;
+   mpi::initialise( argc, argv );
+#ifdef HPC_UNIT_TEST_LOG
+   LOG_PUSH( new mpi::logger );
+#endif
+   {
+      test::runner runner;
+      runner.run_all();
    }
+   mpi::finalise();
+   return EXIT_SUCCESS;
 }
+
+#endif

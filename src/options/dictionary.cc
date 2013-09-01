@@ -22,19 +22,6 @@
 namespace hpc {
    namespace options {
 
-      no_value::no_value( const hpc::string& option_name )
-         : bad_option( option_name )
-      {
-         std::stringstream ss;
-         ss << "No value found in dictionary and no default set.\n";
-         ss << "  Option name: " << _name << "\n";
-         _msg = ss.str();
-      }
-
-      no_value::~no_value() throw()
-      {
-      }
-
       dictionary::dictionary( const hpc::string& prefix )
          : _pre( prefix ),
            _sep( ":" ),
@@ -431,8 +418,7 @@ namespace hpc {
       dictionary::operator[]( const hpc::string& name ) const
       {
          const option_base* opt = find( name );
-         if( !opt )
-            throw bad_option( name );
+         EXCEPTAS( (bool)opt, bad_option, "Error: No option in dictionary by name: ", name );
          return *opt;
       }
 
