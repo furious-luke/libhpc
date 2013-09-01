@@ -17,7 +17,7 @@
 
 #include <limits>
 #include "libhpc/debug/debug.hh"
-#include "match.hh"
+#include "boost_match.hh"
 
 namespace hpc {
    namespace re {
