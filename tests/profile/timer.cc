@@ -17,16 +17,16 @@
 
 #include <string.h>
 #include <unistd.h>
-#include <cxxtest/TestSuite.h>
-#include "libhpc/containers/num.hh"
+#include <libhpc/debug/unit_test_main.hh>
 #include "libhpc/profile/timer.hh"
 
 using namespace hpc;
+using namespace hpc::test;
 
-class timer_suite : public CxxTest::TestSuite {
-public:
-
-   void test_stop()
+test_case<> ANON(
+   "/profile/timer/stop",
+   "",
+   []()
    {
       profile::timer timer;
       for( unsigned ii = 0; ii < 10; ++ii )
@@ -35,10 +35,14 @@ public:
 	 usleep( 100000 ); // sleep for 1/10 second
 	 timer.stop();
       }
-      TS_ASSERT_DELTA( timer.total(), 1.0, 1e-2 );
+      DELTA( timer.total(), 1.0, 1e-2 );
    }
+   );
 
-   void test_stop_tally()
+test_case<> ANON(
+   "/profile/timer/tally",
+   "",
+   []()
    {
       profile::timer timer;
       for( unsigned ii = 0; ii < 10; ++ii )
@@ -47,7 +51,7 @@ public:
 	 usleep( 100000 ); // sleep for 1/10 second
 	 timer.stop_tally();
       }
-      TS_ASSERT_DELTA( timer.total(), 1.0, 1e-2 );
-      TS_ASSERT_DELTA( timer.mean(), 0.1, 1e-2 );
+      DELTA( timer.total(), 1.0, 1e-2 );
+      DELTA( timer.mean(), 0.1, 1e-2 );
    }
-};
+   );
