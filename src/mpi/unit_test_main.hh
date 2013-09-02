@@ -32,7 +32,7 @@ main( int argc,
    using namespace hpc;
    mpi::initialise( argc, argv );
 #ifdef HPC_UNIT_TEST_LOG
-   LOG_PUSH( new mpi::logger );
+   LOG_PUSH( new mpi::logger( "hpc_unit_test.log" ) );
 #endif
    {
       test::runner runner;

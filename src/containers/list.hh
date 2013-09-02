@@ -67,6 +67,18 @@ namespace hpc {
          return std::find( this->begin(), this->end(), elem ) != this->end();
       }
 
+      const value_type&
+      first() const
+      {
+         return *this->begin();
+      }
+
+      value_type&
+      first()
+      {
+         return *this->begin();
+      }
+
       friend std::ostream&
       operator<<( std::ostream& strm,
 		  const list& obj )
