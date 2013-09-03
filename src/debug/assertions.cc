@@ -36,6 +36,7 @@ namespace hpc {
          _expr = expr;
          _file = file;
          _line = line;
+         _msg = msg;
 #ifndef NSTACKTRACE
          _st = st;
 #endif
