@@ -15,68 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_profile_timer_hh
-#define libhpc_profile_timer_hh
-
-#include "libhpc/system/timer.hh"
-#include "libhpc/mpi/comm.hh"
-#include "timer_handle.hh"
+#ifndef libhpc_profile_timer_handle_hh
+#define libhpc_profile_timer_handle_hh
 
 namespace hpc {
    namespace profile {
 
-      ///
-      ///
-      ///
-      class timer
+      class timer;
+
+      class timer_handle
       {
       public:
 
-         typedef timer_handle handle;
+         enum stop_type
+         {
+            NORMAL,
+            TALLY
+         };
 
       public:
 
-	 timer();
+	 timer_handle( profile::timer* timer = 0,
+                       stop_type stop = NORMAL );
 
-	 ~timer();
+         timer_handle( const timer_handle& ) = delete;
 
-	 void
-	 reset();
+         timer_handle( timer_handle&& src );
 
-	 bool
-	 running() const;
-
-         handle
-         start( handle::stop_type stop = handle::NORMAL );
-
-	 void
-	 stop();
-
-	 void
-	 stop_tally();
-
-	 unsigned long
-	 count() const;
-
-	 double
-	 total() const;
-
-	 double
-	 total( const mpi::comm& comm ) const;
-
-	 double
-	 mean() const;
-
-	 double
-	 mean( const mpi::comm& comm ) const;
+	 ~timer_handle();
 
       protected:
 
-	 time_type _start;
-	 double _total;
-	 unsigned long _cnt;
-	 bool _run;
-	 unsigned _stack;
+         profile::timer* _timer;
+         stop_type _stop;
       };
 
    }

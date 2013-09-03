@@ -48,8 +48,8 @@ namespace hpc {
 	 return _run;
       }
 
-      void
-      timer::start()
+      timer::handle
+      timer::start( handle::stop_type stop )
       {
 	 ++_stack;
 	 if( !_run )
@@ -57,6 +57,7 @@ namespace hpc {
 	    _run = true;
 	    _start = hpc::timer();
 	 }
+         return handle( this, stop );
       }
 
       void
