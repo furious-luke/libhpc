@@ -15,13 +15,32 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_algorithm_algorithm_hh
-#define libhpc_algorithm_algorithm_hh
+#ifndef hpc_algorithm_dual_hh
+#define hpc_algorithm_dual_hh
 
-#include "dual.hh"
-#include "bin.hh"
-#include "median.hh"
-#include "farmer.hh"
-#include "indexer.hh"
+namespace hpc {
+   namespace algorithm {
+
+      template< class InputIterator,
+		class OutputIterator >
+      void
+      dual( InputIterator start,
+	    const InputIterator& finish,
+	    OutputIterator result )
+      {
+	 typedef typename InputIterator::value_type value_type;
+	 if( start != finish )
+	 {
+	    value_type cur = *start++;
+	    while( start != finish )
+	    {
+	       *result++ = 0.5*(*start - cur);
+	       cur = *start++;
+	    }
+	 }
+      }
+
+   }
+}
 
 #endif
