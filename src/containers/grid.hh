@@ -46,7 +46,7 @@ namespace hpc {
                    T sides )
       {
          this->_sides.reallocate( dim );
-         boost::fill( this->_sides, sides );
+         std::fill( _sides.begin(), _sides.end(), sides );
          this->_setup_basis();
       }
 

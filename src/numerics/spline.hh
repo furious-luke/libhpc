@@ -25,61 +25,63 @@
 #include "libhpc/containers/functors.hh"
 #include "tridiag.hh"
 
-class spline_suite;
-
 namespace hpc {
    namespace numerics {
 
       ///
       ///
       ///
-      template< class T >
-      class spline_knot_iterator;
+      template< class > class spline_knot_iterator;
 
       ///
       ///
       ///
-      template< class T >
+      template< class T,
+                class PointsSeq = vector<T>,
+                class ValuesSeq = vector<T> >
       class spline
       {
-         friend class ::spline_suite;
-
       public:
 
          typedef T value_type;
+         typedef PointsSeq knot_points_type;
+         typedef ValuesSeq knot_values_type;
          typedef spline_knot_iterator<value_type> knot_iterator;
 
       public:
 
          void
-         set_size( unsigned size )
+         set_knot_points( knot_points_type& pnts )
          {
-            _knots.set_fibre_size( 2 );
-            _knots.resize( size );
+            _pnts = pnts;
          }
 
          void
-         set_knots( fibre<value_type>& knots )
+         set_knot_values( knot_values_type& vals )
          {
-            ASSERT( knots.fibre_size() == 2 );
-            ASSERT( knots.size() > 1 );
-            _knots.take( knots );
-            update();
+            _vals = val;
          }
 
          void
          update()
          {
-            _diff.reallocate( _knots.size() - 1 );
-            _ai.reallocate( _knots.size() - 1 );
-            _bi.reallocate( _knots.size() - 1 );
+            ASSERT( _pnts.size() == _vals.size(), "Mismatched points/values arrays in spline." );
+            _diff.reallocate( _vals.size() - 1 );
+            _ai.reallocate( _vals.size() - 1 );
+            _bi.reallocate( _vals.size() - 1 );
             _solve();
          }
 
-         const fibre<value_type>&
-         knots() const
+         const knot_points_type&
+         knot_points_type() const
          {
-            return _knots;
+            return _pnts;
+         }
+
+         const knot_values_type&
+         knot_values_type() const
+         {
+            return _vals;
          }
 
          unsigned
@@ -229,7 +231,8 @@ namespace hpc {
 
       protected:
 
-         fibre<value_type> _knots;
+         knot_values_type _vals;
+         knot_points_type _pnts;
          hpc::vector<value_type> _diff;
          hpc::vector<value_type> _ai, _bi;
       };

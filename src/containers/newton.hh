@@ -47,17 +47,16 @@ namespace hpc {
          // Only loop up until or maximum.
          T f, df, delta;
          int ii;
-         for( ii = 0; ii < max_its; ++ii ) {
+         for( ii = 0; ii < max_its; ++ii )
+         {
             f = func( x );
             df = func.derivative( x, f );
             delta = f/df;
             x -= delta;
 
             // Values must remain bracketed.
-            ASSERT(
-               (x1 - x)*(x - x2) >= 0.0,
-               "Function moved outside bracketed range in Newton's method."
-               );
+            ASSERT( (x1 - x)*(x - x2) >= 0.0,
+                    "Function moved outside bracketed range in Newton's method." );
 
             // Check for convergence.
             if( fabs( delta ) < tolerance )
@@ -73,6 +72,7 @@ namespace hpc {
 
          return x;
       }
+
    }
 }
 
