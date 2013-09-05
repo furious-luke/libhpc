@@ -32,8 +32,9 @@ namespace hpc {
    {
    public:
 
-      typedef index size_type;
-      typedef index key_type;
+      typedef Vector vector_type;
+      typedef size_t size_type;
+      typedef size_t key_type;
       typedef typename Vector::value_type mapped_type;
       typedef typename Vector::value_type value_type;
       typedef typename Vector::const_pointer const_pointer;
@@ -43,85 +44,116 @@ namespace hpc {
       typedef vector_view_iterator<value_type> iterator;
       typedef vector_view_iterator<const value_type> const_iterator;
 
-      vector_view();
+      vector_view()
+         : _ptr( 0 ),
+           _size( 0 )
+      {
+      }
 
-      vector_view(const Vector& vec);
+      vector_view( const vector_type& vec )
+         : _ptr( (pointer)vec.data() ),
+           _size( vec.size() )
+      {
+      }
 
-      vector_view(const Vector& vec,
-		  index size,
-		  index offs=0);
+      vector_view( const Vector& vec,
+                   size_t size,
+                   size_t offs = 0 )
+         : _ptr( (pointer)vec.data() + offs ),
+           _size( size )
+      {
+         ASSERT( size >= 0 );
+         ASSERT( offs >= 0 );
+         ASSERT( offs + size <= vec.size() );
+      }
 
-      vector_view( const vector_view& src );
+      vector_view( const vector_view& src )
+         : _ptr( (pointer)src.data() ),
+           _size( src.size() )
+      {
+      }
 
       vector_view( const vector_view& view,
-		   index size,
-		   index offs=0 )
+		   size_t size,
+		   size_t offs = 0 )
+         : _ptr( (pointer)view.data() + offs ),
+           _size( size )
       {
-	 ASSERT(size >= 0);
-	 ASSERT(offs >= 0);
-	 ASSERT(offs + size <= view.size());
-	 this->_ptr = (pointer)view.data() + offs;
-	 this->_size = size;
+	 ASSERT( size >= 0 );
+	 ASSERT( offs >= 0 );
+	 ASSERT( offs + size <= view.size() );
       }
 
       vector_view( const_pointer ptr,
-                   index size,
-                   index offs=0 )
+                   size_t size,
+                   size_t offs = 0 )
       {
-         this->_ptr = (pointer)ptr + offs;
-         this->_size = size;
-      }
-
-      ~vector_view();
-
-      void
-      setup( const vector_view& src )
-      {
-	 this->_size = src._size;
-	 this->_ptr = src._ptr;
+         _ptr = (pointer)ptr + offs;
+         _size = size;
       }
 
       void
-      setup( const vector_view& src,
-	     index size,
-	     index offs=0 )
+      assign( const vector_view& op,
+              size_t size,
+              size_t offs = 0 )
       {
-	 ASSERT(size >= 0);
-	 ASSERT(offs >= 0);
-	 ASSERT(offs + size <= src.size());
-	 this->_ptr = (pointer)src.data() + offs;
-	 this->_size = size;
+	 ASSERT( size >= 0 );
+	 ASSERT( offs >= 0 );
+	 ASSERT( offs + size <= op.size() );
+	 _ptr = (pointer)op.data() + offs;
+	 _size = size;
       }
 
       void
-      shrink( index size,
-              index offs = 0 )
+      shrink( size_t size,
+              size_t offs = 0 )
       {
          ASSERT( size + offs <= this->_size );
-         this->_ptr += offs;
-         this->_size = size;
+         _ptr += offs;
+         _size = size;
       }
 
       size_type
-      size() const;
+      size() const
+      {
+         return _size;
+      }
 
       bool
-      empty() const;
+      empty() const
+      {
+         return _size == 0;
+      }
 
       const pointer
-      data() const;
+      data() const
+      {
+         return _ptr;
+      }
 
       const_iterator
-      begin() const;
+      begin() const
+      {
+         return const_iterator( _ptr );
+      }
 
       iterator
-      begin();
+      begin()
+      {
+         return iterator( _ptr );
+      }
 
       const_iterator
-      end() const;
+      end() const
+      {
+         return const_iterator( _ptr + _size );
+      }
 
       iterator
-      end();
+      end()
+      {
+         return iterator( _ptr + _size );
+      }
 
       const_element_reference
       front() const
@@ -136,28 +168,47 @@ namespace hpc {
       }
 
       const_element_reference
-      operator[](int idx) const;
+      operator[]( size_t idx ) const
+      {
+         ASSERT( idx < _size, "Index out of bounds." );
+         return _ptr[idx];
+      }
 
       element_reference
-      operator[](int idx);
+      operator[]( size_t idx )
+      {
+         ASSERT( idx < _size, "Index out of bounds." );
+         return _ptr[idx];
+      }
 
       vector_view&
-      operator=( const vector_view& src )
+      operator=( const vector_view& op )
       {
-	 ::std::copy(src.begin(), src.end(), this->begin());
+         _ptr = op._ptr;
+         _size = op._size;
       }
 
       bool
-      operator==(const vector_view& op) const;
+      operator==( const vector_view& op ) const
+      {
+         if( _size != op._size )
+            return false;
+         for( size_t ii = 0; ii < _size; ++ii )
+         {
+            if( _ptr[ii] != op._ptr[ii] )
+               return false;
+         }
+         return true;
+      }
 
       operator pointer()
       {
-	 return this->_ptr;
+	 return _ptr;
       }
 
       operator const pointer() const
       {
-	 return this->_ptr;
+	 return _ptr;
       }
 
       friend std::ostream&
@@ -165,16 +216,18 @@ namespace hpc {
 		  const vector_view<Vector>& obj )
       {
 	 strm << "[";
-	 if(obj.size()) {
+	 if( obj.size() )
+         {
 	    strm << obj[0];
-	    for(index ii = 1; ii < obj.size(); ++ii)
+	    for( size_t ii = 1; ii < obj.size(); ++ii )
 	       strm << ", " << obj[ii];
 	 }
 	 strm << "]";
 	 return strm;
       }
 
-   private:
+   protected:
+
       pointer _ptr;
       size_type _size;
    };
@@ -186,7 +239,7 @@ namespace hpc {
 				       std::random_access_iterator_tag >
    {
       friend class boost::iterator_core_access;
-      template< class > friend class vector_view_iterator;
+      // template< class > friend class vector_view_iterator;
 
    public:
 
@@ -243,14 +296,12 @@ namespace hpc {
    template< class Vector >
    struct type_traits< vector_view<Vector> >
    {
-      typedef vector_view<Vector> value;
+      typedef       vector_view<Vector> value;
       typedef const vector_view<Vector> const_value;
-      typedef vector_view<Vector> reference;
+      typedef       vector_view<Vector> reference;
       typedef const vector_view<Vector> const_reference;
    };
 
 }
-
-#include "vector_view.tcc"
 
 #endif

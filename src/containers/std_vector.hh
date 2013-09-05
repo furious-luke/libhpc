@@ -93,6 +93,7 @@ namespace hpc {
             reference
             operator[](size_type idx);
          };
+
       }
    }
 }

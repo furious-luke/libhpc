@@ -48,6 +48,11 @@ namespace hpc {
       {
       }
 
+      vector( vector<T>&& src )
+	 : impl::std::vector<T>( src )
+      {
+      }
+
       vector( const typename vector<T>::view& src )
 	 : impl::std::vector<T>()
       {
@@ -94,14 +99,21 @@ namespace hpc {
       vector<T>&
       operator=( const vector<T>& op )
       {
-      	 impl::std::vector<T>::operator=(op);
+      	 return (vector<T>&)impl::std::vector<T>::operator=( op );
+      }
+
+      vector<T>&
+      operator=( vector<T>&& op )
+      {
+         return (vector<T>&)impl::std::vector<T>::operator=( std::move( op ) );
       }
 
       vector<T>&
       operator=( const typename vector<T>::view& op )
       {
-      	 this->resize(op.size());
-      	 ::std::copy(op.begin(), op.end(), this->begin());
+      	 this->resize( op.size() );
+      	 ::std::copy( op.begin(), op.end(), this->begin() );
+         return *this;
       }
 
       friend std::ostream&
