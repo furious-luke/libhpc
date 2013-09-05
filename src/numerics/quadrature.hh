@@ -339,17 +339,76 @@ namespace hpc {
                 class PointIter,
                 class WeightIter >
       void
-      quadrature( Generator gen,
-                  unsigned order,
-                  PointIter points,
-                  WeightIter weights,
-                  unsigned dim = 1,
-                  typename PointIter::value_type tolerance = 1e-8 )
+      make_quadrature( Generator gen,
+                       unsigned order,
+                       PointIter points,
+                       WeightIter weights,
+                       unsigned dim = 1,
+                       typename PointIter::value_type tolerance = 1e-8 )
       {
          vector<double> points_1d( order + 1 );
          vector<double> weights_1d( order + 1 );
          gen( order + 1, points_1d.begin(), weights_1d.begin(), tolerance );
          outer_product( order + 1, dim, points_1d.begin(), weights_1d.begin(), points, weights );
+      }
+
+      template< class T >
+      class quadrature
+      {
+      public:
+
+         typedef T value_type;
+
+      public:
+
+         template< class Seq >
+         void
+         set_points( Seq& pnts )
+         {
+            _pnts = std::move( pnts );
+         }
+
+         template< class Seq >
+         void
+         set_points( const Seq& pnts )
+         {
+            _pnts = pnts;
+         }
+
+         template< class Seq >
+         void
+         set_weights( Seq& wgts )
+         {
+            _wgts = std::move( wgts );
+         }
+
+         template< class Seq >
+         void
+         set_weights( const Seq& wgts )
+         {
+            _wgts = wgts;
+         }
+
+      protected:
+
+         vector<value_type> _pnts;
+         vector<value_type> _wgts;
+      };
+
+      template< class Generator,
+                class T >
+      void
+      make_quadrature( Generator gen,
+                       unsigned order,
+                       quadrature<T>& quad,
+                       unsigned dim = 1 )
+      {
+         unsigned size = powi( order, dim );
+         vector<double> points( size );
+         vector<double> weights( size );
+         make_quadrature( gen, order, points.begin(), weights.begin(), dim );
+         quad.set_points( points );
+         quad.set_weights( weights );
       }
 
    }

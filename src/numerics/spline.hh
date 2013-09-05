@@ -31,11 +31,6 @@ namespace hpc {
       ///
       ///
       ///
-      template< class > class spline_knot_iterator;
-
-      ///
-      ///
-      ///
       template< class T,
                 class PointsSeq = vector<T>,
                 class ValuesSeq = vector<T> >
@@ -46,20 +41,21 @@ namespace hpc {
          typedef T value_type;
          typedef PointsSeq knot_points_type;
          typedef ValuesSeq knot_values_type;
-         typedef spline_knot_iterator<value_type> knot_iterator;
 
       public:
 
+         template< class Seq >
          void
-         set_knot_points( knot_points_type& pnts )
+         set_knot_points( Seq& pnts )
          {
-            _pnts = pnts;
+            _pnts = std::move( pnts );
          }
 
+         template< class Seq >
          void
-         set_knot_values( knot_values_type& vals )
+         set_knot_values( Seq& vals )
          {
-            _vals = val;
+            _vals = std::move( vals );
          }
 
          void
@@ -73,13 +69,13 @@ namespace hpc {
          }
 
          const knot_points_type&
-         knot_points_type() const
+         knot_points() const
          {
             return _pnts;
          }
 
          const knot_values_type&
-         knot_values_type() const
+         knot_values() const
          {
             return _vals;
          }
@@ -93,66 +89,55 @@ namespace hpc {
          value_type
          segment_start( unsigned seg ) const
          {
-            ASSERT( seg < _diff.size() );
-            return _knots(seg,0);
+            return _pnts[seg];
          }
 
          value_type
          segment_finish( unsigned seg ) const
          {
-            ASSERT( seg < _diff.size() );
-            return _knots(seg + 1,0);
+            return _pnts[seg + 1];
          }
 
          value_type
          segment_width( unsigned seg ) const
          {
-            ASSERT( seg < _diff.size() );
-            return _knots(seg + 1,0) - _knots(seg,0);
+            return _pnts[seg + 1] - _pnts[seg];
          }
 
-         knot_iterator
-         abscissa_begin()
+         typename knot_points_type::const_iterator
+         points_begin()
          {
-            return knot_iterator( _knots.begin(), 0 );
+            return _pnts.cbegin();
          }
 
-         knot_iterator
-         abscissa_end()
+         typename knot_points_type::const_iterator
+         points_end()
          {
-            return knot_iterator( _knots.end(), 0 );
+            return _pnts.cend();
          }
 
-         knot_iterator
+         typename knot_values_type::const_iterator
          values_begin()
          {
-            return knot_iterator( _knots.begin(), 1 );
+            return _vals.cbegin();
          }
 
-         knot_iterator
+         typename knot_values_type::const_iterator
          values_end()
          {
-            return knot_iterator( _knots.end(), 1 );
+            return _vals.cend();
          }
 
          value_type
          operator()( const value_type& crd ) const
          {
-            typedef typename hpc::vector<value_type>::view array_type;
-
-            typename fibre<value_type>::const_iterator it = std::lower_bound(
-               _knots.begin(), _knots.end(), crd,
-               compose2( std::less<value_type>(),
-                         element<array_type>( 0 ),
-                         identity<value_type>() )
-               );
-
             unsigned poly;
-            if( it == _knots.end() )
+            auto it = std::lower_bound( _pnts.begin(), _pnts.end(), crd );
+            if( it == _pnts.end() )
                poly = _ai.size() - 1;
             else
             {
-               poly = it - _knots.begin();
+               poly = it - _pnts.begin();
                if( poly > 0 )
                   --poly;
             }
@@ -166,23 +151,35 @@ namespace hpc {
             return _eval_poly( crd, poly );
          }
 
+         const typename vector<value_type>::view
+         ai() const
+         {
+            return _ai;
+         }
+
+         const typename vector<value_type>::view
+         bi() const
+         {
+            return _bi;
+         }
+
       protected:
 
          value_type
          _eval_poly( const value_type& crd,
                      unsigned poly ) const
          {
-            value_type t = (crd - _knots(poly,0))*_diff[poly];
+            value_type t = (crd - _pnts[poly])*_diff[poly];
             value_type u = 1.0 - t;
-            return u*_knots(poly,1) + t*_knots(poly + 1,1) + t*u*(_ai[poly]*u + _bi[poly]*t);
+            return u*_vals[poly] + t*_vals[poly + 1] + t*u*(_ai[poly]*u + _bi[poly]*t);
          }
 
          void
          _solve()
          {
-            hpc::vector<value_type> diag( _knots.size() ), off_diag( _knots.size() - 1 );
-            hpc::vector<value_type> rhs( _knots.size() ), work( _knots.size() - 1 );
-            hpc::vector<value_type> sol( _knots.size() );
+            hpc::vector<value_type> diag( _pnts.size() ), off_diag( _pnts.size() - 1 );
+            hpc::vector<value_type> rhs( _pnts.size() ), work( _pnts.size() - 1 );
+            hpc::vector<value_type> sol( _pnts.size() );
 
             _assemble( diag, off_diag, rhs );
             tridiag_symm_solve<value_type>( diag, off_diag, rhs, sol, work );
@@ -190,7 +187,7 @@ namespace hpc {
             for( unsigned ii = 0; ii < _ai.size(); ++ii )
             {
                value_type tmp0 = _diff[ii];
-               value_type tmp1 = _knots(ii + 1,1) - _knots(ii,1);
+               value_type tmp1 = _vals[ii + 1] - _vals[ii];
                _ai[ii] = sol[ii]*tmp0 - tmp1;
                _bi[ii] = -sol[ii + 1]*tmp0 + tmp1;
             }
@@ -208,25 +205,27 @@ namespace hpc {
             // Calculate differences first.
             for( unsigned ii = 0; ii < _diff.size(); ++ii )
             {
-               _diff[ii] = _knots(ii + 1,0) - _knots(ii,0);
-               ASSERT( _diff[ii] > 2.0*std::numeric_limits<value_type>::epsilon() );
+               _diff[ii] = _pnts[ii + 1] - _pnts[ii];
+               ASSERT( _diff[ii] > 2.0*std::numeric_limits<value_type>::epsilon(),
+                       "Can't assemble spline system with aliased points." );
             }
 
             value_type prev = 2.0/_diff[0];
             diag[0] = prev;
             off_diag[0] = 0.5*prev;
-            rhs[0] = 3.0*(_knots(1,1) - _knots(0,1))/(_diff[0]*_diff[0]);
+            rhs[0] = 3.0*(_vals[1] - _vals[0])/(_diff[0]*_diff[0]);
             unsigned ii = 1;
             for( ; ii < off_diag.size(); ++ii )
             {
                value_type tmp = 2.0/_diff[ii];
                diag[ii] = prev + tmp;
                off_diag[ii] = 0.5*tmp;
-               rhs[ii] = 3.0*((_knots(ii,1) - _knots(ii - 1,1))/(_diff[ii - 1]*_diff[ii - 1]) + (_knots(ii + 1,1) - _knots(ii,1))/(_diff[ii]*_diff[ii]));
+               rhs[ii] = 3.0*((_vals[ii] - _vals[ii - 1])/(_diff[ii - 1]*_diff[ii - 1]) + 
+                              (_vals[ii + 1] - _vals[ii])/(_diff[ii]*_diff[ii]));
                prev = tmp;
             }
             diag[ii] = prev;
-            rhs[ii] = 3.0*(_knots(ii,1) - _knots(ii - 1,1))/(_diff[ii - 1]*_diff[ii - 1]);
+            rhs[ii] = 3.0*(_vals[ii] - _vals[ii - 1])/(_diff[ii - 1]*_diff[ii - 1]);
          }
 
       protected:
@@ -235,57 +234,6 @@ namespace hpc {
          knot_points_type _pnts;
          hpc::vector<value_type> _diff;
          hpc::vector<value_type> _ai, _bi;
-      };
-
-      template< class T >
-      class spline_knot_iterator
-         : public boost::iterator_facade< spline_knot_iterator<T>,
-                                          T,
-                                          std::forward_iterator_tag,
-                                          T& >
-      {
-         friend class boost::iterator_core_access;
-
-      public:
-
-         typedef T value_type;
-         typedef value_type& reference_type;
-
-      public:
-
-         spline_knot_iterator()
-         {
-         }
-
-         spline_knot_iterator( typename fibre<value_type>::iterator it,
-                               unsigned idx )
-            : _it( it ),
-              _idx( idx )
-         {
-         }
-
-         void
-         increment()
-         {
-            ++_it;
-         }
-
-         bool
-         equal( const spline_knot_iterator& op ) const
-         {
-            return _it == op._it;
-         }
-
-         reference_type
-         dereference() const
-         {
-            return (*_it)[_idx];
-         }
-
-      protected:
-
-         typename fibre<value_type>::iterator _it;
-         unsigned _idx;
       };
 
    }

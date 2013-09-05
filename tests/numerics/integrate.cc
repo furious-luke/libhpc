@@ -94,7 +94,7 @@ namespace {
             unsigned order = 0;
             unsigned size = order + 1;
             vector<double> points( size ), weights( size );
-            quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
+            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
             double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), constant<double>( 1.0 ) );
             DELTA( sum, 2.0, 1e-6 );
          }
@@ -104,7 +104,7 @@ namespace {
             unsigned order = 1;
             unsigned size = order + 1;
             vector<double> points( size ), weights( size );
-            quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
+            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
             double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), linear<double>( 1.0, 0.0 ) );
             DELTA( sum, 0.0, 1e-6 );
             sum = quadrature_summation( points.begin(), points.end(), weights.begin(), linear<double>( 1.0, 1.0 ) );
@@ -116,7 +116,7 @@ namespace {
             unsigned order = 2;
             unsigned size = order + 1;
             vector<double> points( size ), weights( size );
-            quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
+            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
             double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), quadratic<double>() );
             DELTA( sum, 2.0/3.0, 1e-6 );
          }

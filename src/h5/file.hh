@@ -151,7 +151,7 @@ namespace hpc {
 	    hpc::displs_to_counts(displs.begin(), displs.size());
 	    vector<index>::view counts;
 	    if(!displs.empty())
-	       counts.setup(displs, displs.size() - 1);
+	       counts.assign(displs, displs.size() - 1);
 	    this->write<index>(name + "_counts", counts, chunk_size, deflate);
 	    if(!displs.empty())
 	       hpc::counts_to_displs(displs.begin(), displs.size() - 1);
@@ -160,7 +160,7 @@ namespace hpc {
 	    index rank_offs = this->_comm->scan(displs.back(), MPI_SUM, true);
 	    vector<index>::view offs_displs;
 	    if(!displs.empty())
-	       offs_displs.setup(displs, displs.size() - 1);
+               offs_displs.assign(displs, displs.size() - 1);
 	    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::plus<index>(), rank_offs));
 	    this->write<index>(name + "_displs", offs_displs, chunk_size, deflate);
 	    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::minus<index>(), rank_offs));
