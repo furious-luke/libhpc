@@ -49,15 +49,13 @@ namespace hpc {
                       WeightIter weights,
                       T tolerance = num::default_newton_tolerance )
       {
-         // Store a copy of the iterators so we can go over
-         // them again later.
-         PointIter first_point = points;
-         WeightIter first_weight = weights;
-
          // Gauss-Legendre polynomial roots are symmetric; we only need
          // to calculate half of them.
          unsigned np = size;
          unsigned half = (np + 1)/2;
+
+         // Need to cache the first half of the points.
+         vector<T> cache( 2*half );
 
          // Construct the bracket for the half range.
          T xl = 0.5*(x2 - x1);
@@ -77,17 +75,17 @@ namespace hpc {
             x = num::newton<polynomial::legendre<T>, T>( legendre, xl, xu, x, df, tolerance );
 
             *points++ = xu - xl*x;
-            // points[np - ii - 1] = points[ii];
+            cache[2*(ii - 1)] = xu - xl*x;
             *weights++ = 2.0*xl/((1.0 - x*x)*df*df);
-            // weights[np - ii - 1] = weights[ii];
+            cache[2*(ii - 1) + 1] = 2.0*xl/((1.0 - x*x)*df*df);
          }
 
          // Copy the first half of the values to the second.
          half = np/2;
          for( unsigned ii = 0; ii < half; ++ii )
          {
-            *points++ = -*first_point++;
-            *weights++ = *first_weight++;
+            *points++ = -cache[2*(half - ii - 1)];
+            *weights++ = cache[2*(half - ii - 1) + 1];
          }
       }
 
@@ -389,6 +387,24 @@ namespace hpc {
             _wgts = wgts;
          }
 
+         size_t
+         size() const
+         {
+            return _wgts.size();
+         }
+
+         const vector<value_type>&
+         points() const
+         {
+            return _pnts;
+         }
+
+         const vector<value_type>&
+         weights() const
+         {
+            return _wgts;
+         }
+
       protected:
 
          vector<value_type> _pnts;
@@ -403,7 +419,7 @@ namespace hpc {
                        quadrature<T>& quad,
                        unsigned dim = 1 )
       {
-         unsigned size = powi( order, dim );
+         unsigned size = powi( order + 1, dim );
          vector<double> points( size );
          vector<double> weights( size );
          make_quadrature( gen, order, points.begin(), weights.begin(), dim );

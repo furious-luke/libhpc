@@ -28,5 +28,6 @@
 #include "simpson.hh"
 #include "coords.hh"
 #include "dft.hh"
+#include "spline_integrator.hh"
 
 #endif

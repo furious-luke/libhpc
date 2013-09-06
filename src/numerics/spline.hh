@@ -32,8 +32,8 @@ namespace hpc {
       ///
       ///
       template< class T,
-                class PointsSeq = vector<T>,
-                class ValuesSeq = vector<T> >
+                class PointsSeq = std::vector<T>,
+                class ValuesSeq = std::vector<T> >
       class spline
       {
       public:

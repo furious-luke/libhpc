@@ -24,9 +24,8 @@
 namespace hpc {
 
    template< class >
-   struct view
+   class view
    {
-      typedef int type;
    };
 
    template< class T,
