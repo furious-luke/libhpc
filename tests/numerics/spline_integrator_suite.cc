@@ -18,26 +18,63 @@
 #include <libhpc/debug/unit_test_main.hh>
 #include "libhpc/numerics/spline.hh"
 #include "libhpc/numerics/spline_integrator.hh"
-#include "libhpc/numerics/spline_spline_function.hh"
 
 using namespace hpc;
 using namespace hpc::test;
 using namespace hpc::numerics;
+using namespace std::placeholders;
 
 namespace {
 
-   struct function_type
-   {
-      typedef double value_type;
-
-      double
-      operator()( double x,
-                  double sp0,
-                  double sp1 )
+   test_case<> ANON(
+      "/numerics/spline_integrator/flat",
+      "",
+      []()
       {
-         return sp0*sp1;
+	 spline<double> sp0;
+	 {
+	    std::vector<double> pnts( 3 ), vals( 3 );
+	    pnts[0] = -1.0; vals[0] = 1.0;
+	    pnts[1] =  0.0; vals[1] = 1.0;
+	    pnts[2] =  1.0; vals[2] = 1.0;
+	    sp0.set_knot_points( pnts );
+	    sp0.set_knot_values( vals );
+	    sp0.update();
+	 }
+
+         spline_integrator<double> integ;
+         double sum = integ( sp0, std::bind( identity<double>(), _2 ) );
+	 DELTA( sum, 2.0, 1e-6 );
       }
-   };
+      );
+
+   test_case<> ANON(
+      "/numerics/spline_integrator/parabola",
+      "",
+      []()
+      {
+	 spline<double> sp0;
+	 {
+	    std::vector<double> pnts( 9 ), vals( 9 );
+	    pnts[0] = -1.0;  vals[0] = 1.0;
+	    pnts[1] = -0.75; vals[1] = 0.5625;
+	    pnts[2] = -0.5;  vals[2] = 0.25;
+	    pnts[3] = -0.25; vals[3] = 0.0625;
+	    pnts[4] =  0.0;  vals[4] = 0.0;
+	    pnts[5] =  0.25; vals[5] = 0.0625;
+	    pnts[6] =  0.5;  vals[6] = 0.25;
+	    pnts[7] =  0.75; vals[7] = 0.5625;
+	    pnts[8] =  1.0;  vals[8] = 1.0;
+	    sp0.set_knot_points( pnts );
+	    sp0.set_knot_values( vals );
+	    sp0.update();
+	 }
+
+         spline_integrator<double> integ;
+         double sum = integ( sp0, std::bind( identity<double>(), _2 )  );
+	 DELTA( sum, 2.0/3.0, 1e-2 );
+      }
+      );
 
    test_case<> ANON(
       "/numerics/spline_spline_integrator/no_overlap",
@@ -66,9 +103,12 @@ namespace {
             sp1.update();
          }
 
-         typedef spline_spline_function<spline<double>,spline<double>,function_type> sp_function_type;
-         spline_spline_integrator<sp_function_type> integ;
-         TEST( integ( sp_function_type( sp0, sp1, function_type() ) ) == 0.0 );
+         spline_spline_integrator<double> integ;
+         double sum = integ(
+            sp0, sp1,
+            std::bind( std::multiplies<double>(), _2, _3 )
+            );
+         TEST( sum == 0.0 );
       }
       );
 
@@ -99,9 +139,12 @@ namespace {
 	    sp1.update();
 	 }
 
-	 typedef spline_spline_function<spline<double>,spline<double>,function_type> sp_function_type;
-	 spline_spline_integrator<sp_function_type> integ;
-	 DELTA( integ( sp_function_type( sp0, sp1, function_type() ) ), 2.0, 1e-6 );
+         spline_spline_integrator<double> integ;
+         double sum = integ(
+            sp0, sp1,
+            std::bind( std::multiplies<double>(), _2, _3 )
+            );
+	 DELTA( sum, 2.0, 1e-6 );
       }
       );
 
@@ -136,9 +179,12 @@ namespace {
 	    sp1.update();
 	 }
 
-	 typedef spline_spline_function<spline<double>,spline<double>,function_type> sp_function_type;
-	 spline_spline_integrator<sp_function_type> integ;
-	 DELTA( integ( sp_function_type( sp0, sp1, function_type() ) ), 2.0/5.0, 1e-1 );
+         spline_spline_integrator<double> integ;
+         double sum = integ(
+            sp0, sp1,
+            std::bind( std::multiplies<double>(), _2, _3 )
+            );
+	 DELTA( sum, 2.0/5.0, 1e-1 );
       }
       );
 

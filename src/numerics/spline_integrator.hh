@@ -24,119 +24,117 @@
 namespace hpc {
    namespace numerics {
 
-      template< class Function >
-      class spline_spline_integrator
+      template< class T >
+      class spline_integrator
       {
-	 public:
+      public:
 
-	    typedef Function function_type;
-	    typedef typename function_type::value_type value_type;
-	    typedef typename function_type::spline0_type spline0_type;
-	    typedef typename function_type::spline1_type spline1_type;
+         typedef T value_type;
 
-	 public:
+      public:
 
-	    spline_spline_integrator()
-	    {
-	       make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), 6, _quad );
-	    }
+         spline_integrator( unsigned order = 3 )
+         {
+            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, _quad );
+         }
 
-	    value_type
-	    operator()( function_type func )
-	    {
-	       const auto& sp0 = func.spline0();
-	       const auto& sp1 = func.spline1();
+         template< class Spline,
+                   class Func >
+         value_type
+         operator()( const Spline& sp,
+                     Func func ) const
+         {
+            value_type sum = 0.0;
+            for( unsigned ii = 0; ii < sp.num_segments(); ++ii )
+            {
+               value_type low = sp.segment_start( ii );
+               value_type w = sp.segment_width( ii );
+               value_type jac_det = 0.5*w;
+               value_type cur_sum = 0.0;
+               for( unsigned jj = 0; jj < _quad.size(); ++jj )
+               {
+                  value_type x = low + w*0.5*(1.0 + _quad.points()[jj]);
+                  cur_sum += _quad.weights()[jj]*func( x, sp( x, ii ) );
+               }
+               cur_sum *= jac_det;
+               sum += cur_sum;
+            }
+            return sum;
+         }
 
-	       // Find the range of overlap.
-	       value_type low = std::max( sp0.knot_points().front(), sp1.knot_points().front() );
-	       value_type upp = std::min( sp0.knot_points().back(), sp1.knot_points().back() );
-
-	       // If there is no overlap, return 0.
-	       if( upp <= low )
-		  return 0.0;
-
-	       // Make the interpolation iterator.
-	       auto it = make_interp_iterator(
-		  sp0.knot_points().begin(),
-		  sp0.knot_points().end(),
-		  sp1.knot_points().begin(),
-		  sp1.knot_points().end(),
-		  1e-7
-		  );
-
-	       // Skip anything outside of the overlap range.
-	       while( !num::approx( *it, low, 1e-7 ) )
-		  ++it;
-
-	       // Sum until we hit the upper limit.
-	       value_type sum = 0.0;
-	       while( !num::approx( *it++, upp, 1e-7 ) )
-	       {
-		  value_type w = *it - low;
-		  value_type jac_det = 0.5*w;
-		  unsigned sp0_poly = it.indices()[0] - 1;
-		  unsigned sp1_poly = it.indices()[1] - 1;
-		  value_type cur_sum = 0.0;
-		  for( unsigned ii = 0; ii < _quad.size(); ++ii )
-		  {
-		     value_type x = low + w*0.5*(1.0 + _quad.points()[ii]);
-		     cur_sum += _quad.weights()[ii]*func( x, sp0_poly, sp1_poly );
-		  }
-		  cur_sum *= jac_det;
-		  sum += cur_sum;
-		  low = *it;
-	       }
-
-	       return sum;
-	    }
-
-	 protected:
+      protected:
 
          quadrature<value_type> _quad;
       };
 
-      template< class Function >
-      class spline_integrator
+      template< class T >
+      class spline_spline_integrator
       {
-	 public:
+      public:
 
-	    typedef Function function_type;
-	    typedef typename function_type::value_type value_type;
-	    typedef typename function_type::spline_type spline_type;
+         typedef T value_type;
 
-	 public:
+      public:
 
-	    spline_integrator()
-	    {
-	       make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), 3, _quad );
-	    }
+         spline_spline_integrator( unsigned order = 6 )
+         {
+            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, _quad );
+         }
 
-	    value_type
-	    operator()( const function_type& func )
-	    {
-	       const auto& sp = func.spline();
+         template< class Spline0,
+                   class Spline1,
+                   class Func >
+         value_type
+         operator()( const Spline0& sp0,
+                     const Spline1& sp1,
+                     Func func ) const
+         {
+            // Find the range of overlap.
+            value_type low = std::max( sp0.knot_points().front(), sp1.knot_points().front() );
+            value_type upp = std::min( sp0.knot_points().back(),  sp1.knot_points().back() );
 
-	       value_type sum = 0.0;
-	       for( unsigned ii = 0; ii < sp.num_segments(); ++ii )
-	       {
-		  value_type low = sp.segment_start( ii );
-		  value_type w = sp.segment_width( ii );
-		  value_type jac_det = 0.5*w;
-		  value_type cur_sum = 0.0;
-		  for( unsigned ii = 0; ii < _quad.size(); ++ii )
-		  {
-		     value_type x = low + w*0.5*(1.0 + _quad.points()[ii]);
-		     cur_sum += _quad.weights()[ii]*func( x, ii );
-		  }
-		  cur_sum *= jac_det;
-		  sum += cur_sum;
-	       }
-	       return sum;
-	    }
+            // If there is no overlap, return 0.
+            if( upp <= low )
+               return 0.0;
 
-	 protected:
+            // Make the interpolation iterator.
+            auto it = make_interp_iterator(
+               sp0.knot_points().begin(),
+               sp0.knot_points().end(),
+               sp1.knot_points().begin(),
+               sp1.knot_points().end(),
+               1e-7
+               );
 
-            quadrature<value_type> _quad;
+            // Skip anything outside of the overlap range.
+            while( !num::approx( *it, low, 1e-7 ) )
+               ++it;
+
+            // Sum until we hit the upper limit.
+            value_type sum = 0.0;
+            while( !num::approx( *it++, upp, 1e-7 ) )
+            {
+               value_type w = *it - low;
+               value_type jac_det = 0.5*w;
+               unsigned sp0_poly = it.indices()[0] - 1;
+               unsigned sp1_poly = it.indices()[1] - 1;
+               value_type cur_sum = 0.0;
+               for( unsigned ii = 0; ii < _quad.size(); ++ii )
+               {
+                  value_type x = low + w*0.5*(1.0 + _quad.points()[ii]);
+                  cur_sum += _quad.weights()[ii]*func( x, sp0( x, sp0_poly ), sp1( x, sp1_poly ) );
+               }
+               cur_sum *= jac_det;
+               sum += cur_sum;
+               low = *it;
+            }
+
+            return sum;
+         }
+
+      protected:
+
+         quadrature<value_type> _quad;
       };
 
    }
