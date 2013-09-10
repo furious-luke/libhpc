@@ -53,9 +53,23 @@ namespace hpc {
 
          template< class Seq >
          void
+         set_knot_points( const Seq& pnts )
+         {
+            _pnts = pnts;
+         }
+
+         template< class Seq >
+         void
          set_knot_values( Seq& vals )
          {
             _vals = std::move( vals );
+         }
+
+         template< class Seq >
+         void
+         set_knot_values( const Seq& vals )
+         {
+            _vals = vals;
          }
 
          void

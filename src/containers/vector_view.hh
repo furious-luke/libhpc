@@ -18,6 +18,7 @@
 #ifndef libhpc_containers_vector_view_hh
 #define libhpc_containers_vector_view_hh
 
+#include <vector>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/system/types.hh"
@@ -243,7 +244,7 @@ namespace hpc {
 
    public:
 
-      explicit vector_view_iterator( T* ptr )
+      explicit vector_view_iterator( T* ptr = 0 )
          : _ptr( ptr )
       {
       }

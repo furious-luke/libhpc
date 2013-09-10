@@ -32,6 +32,7 @@
 #include "vector_view.hh"
 #include "std_vector.hh"
 #include "vector.hh"
+#include "view.hh"
 #include "array.hh"
 // #include "array2.hh"
 // #include "array3.hh"

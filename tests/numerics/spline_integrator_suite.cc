@@ -49,6 +49,34 @@ namespace {
       );
 
    test_case<> ANON(
+      "/numerics/spline_integrator/flat_lambda",
+      "",
+      []()
+      {
+	 spline<double> sp0;
+	 {
+	    std::vector<double> pnts( 3 ), vals( 3 );
+	    pnts[0] = -1.0; vals[0] = 1.0;
+	    pnts[1] =  0.0; vals[1] = 1.0;
+	    pnts[2] =  1.0; vals[2] = 1.0;
+	    sp0.set_knot_points( pnts );
+	    sp0.set_knot_values( vals );
+	    sp0.update();
+	 }
+
+         spline_integrator<double> integ;
+         double sum = integ(
+            sp0,
+            []( double x, double val )
+            {
+               return val*(1.0/x);
+            }
+            );
+	 DELTA( sum, 0.0, 1e-6 );
+      }
+      );
+
+   test_case<> ANON(
       "/numerics/spline_integrator/parabola",
       "",
       []()
