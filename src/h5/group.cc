@@ -93,5 +93,14 @@ namespace hpc {
 	 if(this->_id >= 0)
 	    INSIST(H5Gclose(this->_id), >= 0);
       }
+
+      hsize_t
+      group::size() const
+      {
+	 hsize_t size;
+	 INSIST( H5Gget_num_objs( _id, &size ), >= 0 );
+	 return size;
+      }
+
    }
 }

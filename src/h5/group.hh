@@ -60,7 +60,11 @@ namespace hpc {
 
 	 void
 	 close();
+
+	 hsize_t
+	 size() const;
       };
+
    }
 }
 
