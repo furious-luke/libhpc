@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_farmer_hh
-#define hpc_algorithm_farmer_hh
+#ifndef hpc_algorithm_farmer2_hh
+#define hpc_algorithm_farmer2_hh
 
 #include "libhpc/debug/assert.hh"
 #include "libhpc/logging/logging.hh"
@@ -27,7 +27,7 @@ namespace hpc {
 
       template< class Master,
 		class Worker >
-      class farmer
+      class farmer2
       {
       public:
 
@@ -36,20 +36,19 @@ namespace hpc {
 
       public:
 
-         farmer( const mpi::comm& comm = mpi::comm::world,
-                 int tag = 8503 )
+         farmer2( const mpi::comm& comm = mpi::comm::world,
+                  int tag = 8503 )
             : _own_mast( true ),
               _own_work( true ),
               _mast( 0 ),
               _work( 0 ),
               _comm( &comm ),
               _max_its( 10 ),
-              _tag( tag ),
-              _comm( 0 )
+              _tag( tag )
          {
          }
 
-         ~farmer()
+         ~farmer2()
          {
             if( _own_mast && _mast )
                delete _mast;
@@ -110,6 +109,9 @@ namespace hpc {
             if( !_work )
                _work = new worker_type;
 
+            // Prepare the first batch.
+            _mast->next( _first, _last );
+
             // Loop until all complete.
             bool done = false;
             while( !done )
@@ -118,17 +120,16 @@ namespace hpc {
                if( _first != _last )
                {
                   // Call worker to process.
-                  range<unsigned long long> rng({ _first, _last });
-                  _work->process( rng );
+                  _work->process( _first, _last );
 
                   // Update for next batch.
-                  _mast->next( *this, _first, _last );
+                  _mast->next( _first, _last );
                }
                else
                   done = true;
 
                // Call out to any idling process.
-               _mast->idle( *this );
+               _mast->idle();
             }
 
             LOGDLN( "Done.", setindent( -1 ) );
@@ -175,7 +176,7 @@ namespace hpc {
                      _first = _last;
 
                      // Update for next batch.
-                     _mast->next( *this, _first, _last );
+                     _mast->next( _first, _last );
                   }
                   else
                   {
@@ -190,7 +191,7 @@ namespace hpc {
                }
 
                // Call out to any idling process.
-               _mast->idle( *this );
+               _mast->idle();
 
                done = (_rem == 0);
             }
@@ -217,16 +218,15 @@ namespace hpc {
                _comm->send<int>( flag, 0, _tag );
 
                // Receive new task range.
-              vector<unsigned long long> rng( 2 );
+               vector<unsigned long long> rng( 2 );
                _comm->recv<unsigned long long>( rng, 0, _tag );
                LOGDLN( "Received task range: [", rng[0], "-", rng[1], ")" );
 
                // If the range is empty it means we're done.
-               range<unsigned long long> rng( rng[0], rng[1] );
-               if( rng.empty() )
+               if( rng[0] == rng[1] )
                   done = true;
                else
-                  _work->process( rng );
+                  _work->process( rng[0], rng[1] );
             }
 
             LOGDLN( "Done.", setindent( -1 ) );
