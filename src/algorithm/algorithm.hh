@@ -22,6 +22,7 @@
 #include "bin.hh"
 #include "median.hh"
 #include "farmer.hh"
+#include "farmer2.hh"
 #include "indexer.hh"
 
 #endif

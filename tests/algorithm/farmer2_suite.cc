@@ -24,9 +24,11 @@ using namespace hpc::test;
 namespace {
 
    struct master_type
+      : public algorithm::master
    {
-      master_type()
-         : base( 0 )
+      master_type( const mpi::comm& comm )
+	 : algorithm::master( comm ),
+	   base( 0 )
       {
       }
 
@@ -51,7 +53,14 @@ namespace {
    };
 
    struct worker_type
+      : public algorithm::worker
    {
+      worker_type( const mpi::comm& comm,
+		   const mpi::comm& work_comm )
+	 : algorithm::worker( comm, work_comm )
+      {
+      }
+
       void
       process( unsigned long long first,
                unsigned long long last )

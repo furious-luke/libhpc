@@ -25,6 +25,41 @@
 namespace hpc {
    namespace algorithm {
 
+      class farm_object
+      {
+      public:
+
+	 farm_object( const mpi::comm& comm );
+
+      protected:
+
+	 const mpi::comm* _comm;
+      };
+
+      class master
+	 : public farm_object
+      {
+      public:
+
+	 master( const mpi::comm& comm );
+      };
+
+      class worker
+	 : public farm_object
+      {
+      public:
+
+	 worker( const mpi::comm& comm,
+		 const mpi::comm& work_comm );
+
+	 void
+	 set_work_comm( const mpi::comm& work_comm );
+
+      protected:
+
+	 const mpi::comm* _work_comm;
+      };
+
       template< class Master,
 		class Worker >
       class farmer2
@@ -60,10 +95,6 @@ namespace hpc {
          set_comm( const mpi::comm& comm )
          {
             _comm = &comm;
-            if( _mast )
-               _mast->set_comm( comm );
-            if( _work )
-               _work->set_comm( comm );
          }
 
          void
@@ -72,7 +103,7 @@ namespace hpc {
             if( _own_mast && _mast )
                delete _mast;
             _mast = mast;
-            _own_mast == (bool)_mast;
+            _own_mast = (_mast == 0);
          }
 
          void
@@ -81,7 +112,7 @@ namespace hpc {
             if( _own_work && _work )
                delete _work;
             _work = work;
-            _own_work == (bool)_work;
+            _own_work = (_work == 0);
          }
 
          void
@@ -96,6 +127,18 @@ namespace hpc {
                _worker();
          }
 
+	 master_type*
+	 master()
+	 {
+	    return _mast;
+	 }
+
+	 worker_type*
+	 worker()
+	 {
+	    return _work;
+	 }
+
       protected:
 
          void
@@ -105,9 +148,9 @@ namespace hpc {
 
             // Construct.
             if( !_mast )
-               _mast = new master_type;
+	       _mast = new master_type( *_comm );
             if( !_work )
-               _work = new worker_type;
+               _work = new worker_type( *_comm, *_comm );
 
             // Prepare the first batch.
             _mast->next( _first, _last );
@@ -140,9 +183,13 @@ namespace hpc {
          {
             LOGDLN( "Entering farming master.", setindent( 1 ) );
 
+	    // Setup comms (help worker).
+	    mpi::comm work_comm;
+	    _comm->create_excl( 0, work_comm );
+
             // Construct.
             if( !_mast )
-               _mast = new master_type;
+               _mast = new master_type( *_comm );
 
             // Prepare the first batch.
             _mast->next( _first, _last );
@@ -204,9 +251,14 @@ namespace hpc {
          {
             LOGDLN( "Entering worker loop.", setindent( 1 ) );
 
+	    // Setup comms.
+	    mpi::comm work_comm;
+	    _comm->create_excl( 0, work_comm );
+
             // Construct.
             if( !_work )
-               _work = new worker_type;
+               _work = new worker_type( *_comm, work_comm );
+	    _work->set_work_comm( work_comm );
 
             // Loop until we're done.
             bool done = false;

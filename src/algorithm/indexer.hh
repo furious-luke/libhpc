@@ -49,6 +49,9 @@ namespace hpc {
 	 void
 	 master( std::function<void(unsigned long long,unsigned long long)> cb = std::function<void(unsigned long long,unsigned long long)>() );
 
+	 unsigned long long
+	 base() const;
+
       protected:
 
          unsigned long long _base;

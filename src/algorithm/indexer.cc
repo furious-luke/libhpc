@@ -53,6 +53,8 @@ namespace hpc {
 	    _comm->send( size, 0, _tag );
 	    _comm->recv( base, 0, _tag );
 	    LOGDLN( "Received index base: ", base );
+	    if( cb )
+	       cb( base, size );
 	 }
 	 else
 	 {
@@ -70,19 +72,29 @@ namespace hpc {
 	 // Must be the master to run this.
 	 ASSERT( _comm->rank() == 0 );
 
-	 MPI_Status stat;
-	 unsigned it = 0;
-	 while( it++ < _max_its && _comm->iprobe( stat, MPI_ANY_SOURCE, _tag ) )
+	 // If we are running serially then skip this part.
+	 if( _comm->size() > 1 )
 	 {
-	    LOGDLN( "Have an incoming index request from: ", stat.MPI_SOURCE );
-	    unsigned long long size;
-	    _comm->recv( size, stat.MPI_SOURCE, _tag );
-	    LOGDLN( "Requested ", size, " indices." );
-	    if( cb )
-	       cb( _base, size );
-	    _comm->send( _base, stat.MPI_SOURCE, _tag );
-	    _base += size;
+	    MPI_Status stat;
+	    unsigned it = 0;
+	    while( it++ < _max_its && _comm->iprobe( stat, MPI_ANY_SOURCE, _tag ) )
+	    {
+	       LOGDLN( "Have an incoming index request from: ", stat.MPI_SOURCE );
+	       unsigned long long size;
+	       _comm->recv( size, stat.MPI_SOURCE, _tag );
+	       LOGDLN( "Requested ", size, " indices." );
+	       if( cb )
+		  cb( _base, size );
+	       _comm->send( _base, stat.MPI_SOURCE, _tag );
+	       _base += size;
+	    }
 	 }
+      }
+
+      unsigned long long
+      indexer::base() const
+      {
+	 return _base;
       }
 
       //    class indexer_iterator
