@@ -100,7 +100,7 @@ namespace hpc {
 
       void
       comm::create_excl( int rank,
-                         mpi::comm& new_comm )
+                         mpi::comm& new_comm ) const
       {
 	 MPI_Group group, new_group;
 	 MPI_INSIST( MPI_Comm_group( this->_comm, &group ) );

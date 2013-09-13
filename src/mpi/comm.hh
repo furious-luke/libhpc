@@ -63,7 +63,7 @@ namespace hpc {
 
          void
          create_excl( int rank,
-                      mpi::comm& new_comm );
+                      mpi::comm& new_comm ) const;
 
 	 void
 	 create_range_incl( int first,
