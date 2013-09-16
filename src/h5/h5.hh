@@ -20,5 +20,6 @@
 
 #include "file.hh"
 #include "property_list.hh"
+#include "derive.hh"
 
 #endif
