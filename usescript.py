@@ -2,6 +2,7 @@
 args = (arguments()
         ('--prefix', default='/usr/local', help='Installation path.')
         ('--enable-debug', dest='debug', action='boolean', default=False, help='Enable/disable debugging mode.')
+        ('--enable-openmp', dest='openmp', action='boolean', default=False, help='Enable/disable OpenMP.')
         ('--enable-instrument', dest='instrument', action='boolean', default=False, help='Enable/disable instrumentation.')
         ('--enable-stacktrace', dest='stacktrace', action='boolean', default=False, help='Enable/disable debugging stacktrace.')
         ('--enable-memory-debug', dest='memory_debug', action='boolean', default=False, help='Enable/disable memory debugging.')
@@ -33,6 +34,7 @@ cc_opts = (
             optimise=3,
             symbols=False,
             define=['NDEBUG', 'NLOGTRIVIAL', 'NLOGDEBUG']) +
+    options(args.openmp == True,        openmp=True) + 
     options(args.instrument == False,   define=['NINSTRUMENT']) +
     options(args.logging == False,      define=['NLOG']) +
     options(args.stacktrace == False,   define=['NSTACKTRACE']) +
