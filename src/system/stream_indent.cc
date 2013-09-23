@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "libhpc/debug/assert.hh"
+#include "libhpc/debug/omp_help.hh"
 #include "libhpc/memory/memory.hh"
 #include "stream_indent.hh"
 #include <map>

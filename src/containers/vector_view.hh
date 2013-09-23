@@ -263,6 +263,12 @@ namespace hpc {
          ++_ptr;
       }
 
+      void
+      decrement()
+      {
+         --_ptr;
+      }
+
       template< class U >
       bool
       equal( const vector_view_iterator<U>& op ) const
