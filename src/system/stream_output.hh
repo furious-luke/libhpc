@@ -15,15 +15,33 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_stream_output_hh
+#define libhpc_system_stream_output_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
+#include <iostream>
+#include <vector>
+
+namespace hpc {
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               const std::vector<T>& obj )
+   {
+      strm << "[";
+      if( !obj.empty() )
+      {
+         auto it = obj.cbegin();
+         strm << *it++;
+         while( it != obj.cend() )
+         {
+            strm << ", " << *it++;
+         }
+      }
+      strm << "]";
+      return strm;
+   }
+
+}
 
 #endif
