@@ -23,6 +23,7 @@
 #include "libhpc/containers/vector.hh"
 #include "libhpc/containers/fibre.hh"
 #include "libhpc/containers/functors.hh"
+#include "libhpc/containers/assign.hh"
 #include "tridiag.hh"
 
 namespace hpc {
@@ -48,28 +49,28 @@ namespace hpc {
          void
          set_knot_points( Seq& pnts )
          {
-            _pnts = std::move( pnts );
+            assign( _pnts, std::move( pnts ) );
          }
 
          template< class Seq >
          void
          set_knot_points( const Seq& pnts )
          {
-            _pnts = pnts;
+            assign( _pnts, pnts );
          }
 
          template< class Seq >
          void
          set_knot_values( Seq& vals )
          {
-            _vals = std::move( vals );
+            assign( _vals, std::move( vals ) );
          }
 
          template< class Seq >
          void
          set_knot_values( const Seq& vals )
          {
-            _vals = vals;
+            assign( _vals, vals );
          }
 
          void
@@ -118,28 +119,34 @@ namespace hpc {
             return _pnts[seg + 1] - _pnts[seg];
          }
 
+         knot_points_type&
+         points()
+         {
+            return _pnts;
+         }
+
+         knot_values_type&
+         values()
+         {
+            return _vals;
+         }
+
          typename knot_points_type::const_iterator
-         points_begin()
+         points_begin() const
          {
             return _pnts.cbegin();
          }
 
          typename knot_points_type::const_iterator
-         points_end()
+         points_end() const
          {
             return _pnts.cend();
          }
 
          typename knot_values_type::const_iterator
-         values_begin()
+         values_begin() const
          {
             return _vals.cbegin();
-         }
-
-         typename knot_values_type::const_iterator
-         values_end()
-         {
-            return _vals.cend();
          }
 
          value_type
