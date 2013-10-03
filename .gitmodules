@@ -1,0 +1,3 @@
+[submodule ".use"]
+	path = .use
+	url = git://github.com/furious-luke/use.git
