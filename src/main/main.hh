@@ -22,6 +22,8 @@
 #error libhpc: Must have an application class defined.
 #endif
 
+#include "libhpc/debug/assertions.hh"
+
 int
 main( int argc,
       char* argv[] )

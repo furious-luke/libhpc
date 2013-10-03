@@ -129,6 +129,22 @@ namespace hpc {
 
          template< class U >
          expression<T,U>
+         operator<( const U& op ) const
+         {
+            bool res = _val < op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
+         operator>( const U& op ) const
+         {
+            bool res = _val > op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
          delta( const U& op,
                 double epsilon ) const
          {
