@@ -37,7 +37,7 @@ main( int argc,
    }
    catch( hpc::exception& ex )
    {
-      std::cout << ex.message() << "\n";
+      std::cerr << ex.message() << "\n";
       ++ec;
    }
    return ec;
