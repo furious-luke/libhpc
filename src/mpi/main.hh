@@ -15,41 +15,36 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "application.hh"
+#ifndef libhpc_main_main_hh
+#define libhpc_main_main_hh
+
+#ifndef HPC_APP_CLASS
+#error libhpc: Must have an application class defined.
+#endif
+
+#include "libhpc/debug/assertions.hh"
 #include "init.hh"
-#include "comm.hh"
 
-namespace hpc {
-   namespace mpi {
-
-      application::application( int argc,
-                                char* argv[],
-                                bool finalise )
-         : hpc::application( argc, argv ),
-           _final( finalise )
+int
+main( int argc,
+      char* argv[] )
+{
+   typedef HPC_APP_CLASS application_type;
+   {
+      hpc::mpi::initialise( argc, argv );
+      try
       {
-	 // mpi::initialise( argc, argv );
-         _rank = mpi::comm::world.rank();
-         _size = mpi::comm::world.size();
+	 application_type app( argc, argv );
+	 app();
       }
-
-      application::~application()
+      catch( hpc::exception& ex )
       {
-         // if( _final )
-         //    mpi::finalise();
+	 std::cerr << ex.message() << "\n";
+	 hpc::mpi::comm::world.abort();
       }
-
-      int
-      application::rank() const
-      {
-         return _rank;
-      }
-
-      int
-      application::size() const
-      {
-         return _size;
-      }
-
+      hpc::mpi::finalise();
    }
+   return EXIT_SUCCESS;
 }
+
+#endif

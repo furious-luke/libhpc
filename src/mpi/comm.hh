@@ -626,6 +626,9 @@ namespace hpc {
 	    return inc;
 	 }
 
+	 void
+	 abort( int ec = 1 );
+
 	 bool
 	 operator==(const comm& comm) const;
 

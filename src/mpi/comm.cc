@@ -273,6 +273,12 @@ namespace hpc {
 	 return this->iprobe(stat, from, tag);
       }
 
+      void
+      comm::abort( int ec )
+      {
+	 MPI_Abort( _comm, ec );
+      }
+
       bool
       comm::operator==(const comm& comm) const
       {
