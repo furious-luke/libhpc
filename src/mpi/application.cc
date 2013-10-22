@@ -23,20 +23,15 @@ namespace hpc {
    namespace mpi {
 
       application::application( int argc,
-                                char* argv[],
-                                bool finalise )
-         : hpc::application( argc, argv ),
-           _final( finalise )
+                                char* argv[] )
+         : hpc::application( argc, argv )
       {
-	 // mpi::initialise( argc, argv );
          _rank = mpi::comm::world.rank();
          _size = mpi::comm::world.size();
       }
 
       application::~application()
       {
-         // if( _final )
-         //    mpi::finalise();
       }
 
       int
