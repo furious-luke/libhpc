@@ -52,6 +52,10 @@
 
 #endif
 
+#define LOGBLOCKI( ... )                                \
+   LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
+   ::hpc::logging::block ANON( ::hpc::logging::info )
+
 namespace hpc {
    namespace logging {
 

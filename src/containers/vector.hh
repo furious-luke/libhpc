@@ -19,7 +19,7 @@
 #define libhpc_containers_vector_hh
 
 #include "std_vector.hh"
-#include "vector_view.hh"
+#include "view.hh"
 #include "global.hh"
 
 namespace hpc {
@@ -130,6 +130,13 @@ namespace hpc {
 	 return strm;
       }
    };
-};
+
+   template< class T >
+   struct view< vector<T> >
+   {
+      typedef vector_view<vector<T>> type;
+   };
+
+}
 
 #endif
