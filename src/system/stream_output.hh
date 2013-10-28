@@ -20,28 +20,44 @@
 
 #include <iostream>
 #include <vector>
+#include <set>
 
-namespace hpc {
-
-   template< class T >
-   std::ostream&
-   operator<<( std::ostream& strm,
-               const std::vector<T>& obj )
+template< class T >
+std::ostream&
+operator<<( std::ostream& strm,
+            const std::vector<T>& obj )
+{
+   strm << "[";
+   if( !obj.empty() )
    {
-      strm << "[";
-      if( !obj.empty() )
+      auto it = obj.cbegin();
+      strm << *it++;
+      while( it != obj.cend() )
       {
-         auto it = obj.cbegin();
-         strm << *it++;
-         while( it != obj.cend() )
-         {
-            strm << ", " << *it++;
-         }
+         strm << ", " << *it++;
       }
-      strm << "]";
-      return strm;
    }
+   strm << "]";
+   return strm;
+}
 
+template< class T >
+std::ostream&
+operator<<( std::ostream& strm,
+            const std::set<T>& obj )
+{
+   strm << "{";
+   if( !obj.empty() )
+   {
+      auto it = obj.cbegin();
+      strm << *it++;
+      while( it != obj.cend() )
+      {
+         strm << ", " << *it++;
+      }
+   }
+   strm << "}";
+   return strm;
 }
 
 #endif
