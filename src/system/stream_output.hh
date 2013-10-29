@@ -20,44 +20,68 @@
 
 #include <iostream>
 #include <vector>
+#include <list>
 #include <set>
 
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            const std::vector<T>& obj )
-{
-   strm << "[";
-   if( !obj.empty() )
-   {
-      auto it = obj.cbegin();
-      strm << *it++;
-      while( it != obj.cend() )
-      {
-         strm << ", " << *it++;
-      }
-   }
-   strm << "]";
-   return strm;
-}
+namespace hpc {
 
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            const std::set<T>& obj )
-{
-   strm << "{";
-   if( !obj.empty() )
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       const std::vector<T>& obj )
    {
-      auto it = obj.cbegin();
-      strm << *it++;
-      while( it != obj.cend() )
+      strm << "[";
+      if( !obj.empty() )
       {
-         strm << ", " << *it++;
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
       }
+      strm << "]";
+      return strm;
    }
-   strm << "}";
-   return strm;
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       const std::set<T>& obj )
+   {
+      strm << "{";
+      if( !obj.empty() )
+      {
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
+      }
+      strm << "}";
+      return strm;
+   }
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       std::list<T> const& obj )
+   {
+      strm << "[";
+      if( !obj.empty() )
+      {
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
+      }
+      strm << "]";
+      return strm;
+   }
+
 }
 
 #endif

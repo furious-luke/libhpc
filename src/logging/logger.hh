@@ -25,13 +25,69 @@
 #include <map>
 #include <set>
 #include "libhpc/system/stream_indent.hh"
-
-class tags_suite;
+#include "libhpc/system/stream_output.hh"
 
 #ifndef NLOG
 
 namespace hpc {
    namespace logging {
+
+      template< class T >
+      std::ostream&
+      operator<<( std::ostream& strm,
+		  const std::vector<T>& obj )
+      {
+	 strm << "[";
+	 if( !obj.empty() )
+	 {
+	    auto it = obj.cbegin();
+	    strm << *it++;
+	    while( it != obj.cend() )
+	    {
+	       strm << ", " << *it++;
+	    }
+	 }
+	 strm << "]";
+	 return strm;
+      }
+
+      template< class T >
+      std::ostream&
+      operator<<( std::ostream& strm,
+		  const std::set<T>& obj )
+      {
+	 strm << "{";
+	 if( !obj.empty() )
+	 {
+	    auto it = obj.cbegin();
+	    strm << *it++;
+	    while( it != obj.cend() )
+	    {
+	       strm << ", " << *it++;
+	    }
+	 }
+	 strm << "}";
+	 return strm;
+      }
+
+      template< class T >
+      std::ostream&
+      operator<<( std::ostream& strm,
+		  std::list<T> const& obj )
+      {
+	 strm << "[";
+	 if( !obj.empty() )
+	 {
+	    auto it = obj.cbegin();
+	    strm << *it++;
+	    while( it != obj.cend() )
+	    {
+	       strm << ", " << *it++;
+	    }
+	 }
+	 strm << "]";
+	 return strm;
+      }
 
       ///
       ///
@@ -46,8 +102,6 @@ namespace hpc {
       ///
       class logger
       {
-	 friend class ::tags_suite;
-
       public:
 
          logger( unsigned min_level = 0,

@@ -15,32 +15,32 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_dual_hh
-#define hpc_algorithm_dual_hh
+#include <libhpc/debug/unit_test_main.hh>
+#include "libhpc/logging/globals.hh"
 
-namespace hpc {
-   namespace algorithm {
+using namespace hpc;
+using namespace hpc::test;
 
-      template< class InputIterator,
-		class OutputIterator >
-      void
-      dual( InputIterator start,
-	    const InputIterator& finish,
-	    OutputIterator result )
+namespace {
+
+   test_case<> ANON(
+      "/libhpc/logging/logiln/std/vector",
+      "",
+      []()
       {
-	 typedef typename InputIterator::value_type value_type;
-	 if( start != finish )
-	 {
-	    value_type cur = *start++;
-	    while( start != finish )
-	    {
-	       *result++ = 0.5*(*start + cur);
-	       cur = *start++;
-	    }
-	 }
+	 std::vector<int> vals;
+	 LOGILN( vals );
       }
+      );
 
-   }
+   test_case<> ANON(
+      "/libhpc/logging/logiln/std/list",
+      "",
+      []()
+      {
+	 std::list<int> vals;
+	 LOGILN( vals );
+      }
+      );
+
 }
-
-#endif
