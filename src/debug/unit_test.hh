@@ -37,6 +37,24 @@
       #lhs, #rhs, epsilon, __FILE__, __LINE__ ).test(   \
          *::hpc::test::_cur_tc, ##__VA_ARGS__ )
 
+#define THROWS( expr, ex )                              \
+   try {                                                \
+      expr;                                             \
+      throw hpc::test::test_failed();                   \
+   } catch( ex& e ) {                                   \
+      std::cout << ".";                                 \
+   } catch( ... ) {                                     \
+      throw hpc::test::test_failed();                   \
+   }
+
+#define NOTHROWS( expr )                                \
+   try {                                                \
+      expr;                                             \
+      std::cout << ".";                                 \
+   } catch( ... ) {                                     \
+      throw hpc::test::test_failed();                   \
+   }
+
 namespace hpc {
    namespace test {
 
@@ -101,7 +119,7 @@ namespace hpc {
       public:
 
          side( const T& val )
-            : _val( val )
+         : _val( val )
          {
          }
 
@@ -131,9 +149,25 @@ namespace hpc {
 
          template< class U >
          expression<T,U>
+         operator<=( const U& op ) const
+         {
+            bool res = _val <= op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
          operator>( const U& op ) const
          {
             bool res = _val > op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
+         operator>=( const U& op ) const
+         {
+            bool res = _val >= op;
             return expression<T,U>( *this, side<U>( op ), res );
          }
 
