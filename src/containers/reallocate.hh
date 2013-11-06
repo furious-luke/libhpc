@@ -15,15 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_logging_hh
-#define libhpc_logging_logging_hh
+#ifndef libhpc_containers_reallocate_hh
+#define libhpc_containers_reallocate_hh
 
-#include "logger.hh"
-#include "file.hh"
-#include "stdout.hh"
-#include "omp_file.hh"
-#include "globals.hh"
-#include "levels.hh"
-#include "block.hh"
+namespace hpc {
+
+   template< class T,
+             class ...Args >
+   void
+   reallocate( std::vector<T,Args...>& obj,
+               typename std::vector<T,Args...>::size_type size )
+   {
+      std::vector<T,Args...> tmp;
+      obj.swap( tmp );
+      obj.resize( size );
+   }
+
+}
 
 #endif

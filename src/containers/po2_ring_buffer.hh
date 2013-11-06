@@ -136,7 +136,7 @@ namespace hpc {
       value_type
       pop()
       {
-         ASSERT( _size );
+         ASSERT( _size, "Insufficient space in ring buffer." );
          size_type pos = norm( _start );
          consume();
          return _buf[pos];
