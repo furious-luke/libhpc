@@ -24,5 +24,6 @@
 #include "omp_file.hh"
 #include "globals.hh"
 #include "levels.hh"
+#include "block.hh"
 
 #endif
