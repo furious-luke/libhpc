@@ -39,7 +39,7 @@ main( int argc,
       }
       catch( hpc::exception& ex )
       {
-	 std::cerr << ex.message() << "\n";
+         std::cerr << "\nError: " << ex.message() << "\n\n";
 	 hpc::mpi::comm::world.abort();
       }
       hpc::mpi::finalise();

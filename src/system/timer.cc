@@ -81,7 +81,7 @@ namespace hpc {
 operator-( const ::hpc::time_type& op0,
            const ::hpc::time_type& op1 )
 {
-   return { op1.time - op0.time };
+   return { op0.time - op1.time };
 }
 
 std::ostream&
