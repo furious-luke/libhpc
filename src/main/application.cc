@@ -16,13 +16,39 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hh"
-#include "libhpc/mpi/mpi.hh"
+#include "libhpc/debug/except.hh"
 
 namespace hpc {
+
+   // Store a global reference to the application for
+   // signal handlers.
+   application* global_app = nullptr;
+
+   ///
+   /// Handle signals.
+   ///
+   void
+   hpc_signaled( int param )
+   {
+      if( global_app )
+         global_app->signaled( param );
+   }
 
    application::application( int argc,
                              char* argv[] )
    {
+   }
+
+   void
+   application::handle_signal( int sig )
+   {
+      ::signal( sig, hpc_signaled );
+   }
+
+   void
+   application::signaled( int param )
+   {
+      EXCEPT( 0, "Recieved signal ", param, ", terminating." );
    }
 
 }

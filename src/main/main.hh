@@ -24,6 +24,15 @@
 
 #include "libhpc/debug/assertions.hh"
 
+namespace hpc {
+
+   extern hpc::application* global_app;
+
+}
+
+///
+/// Entry point.
+///
 int
 main( int argc,
       char* argv[] )
@@ -33,11 +42,12 @@ main( int argc,
    try
    {
       application_type app( argc, argv );
+      hpc::global_app = &app;
       app();
    }
    catch( hpc::exception& ex )
    {
-      std::cerr << "\nError: " << ex.message() << "\n\n";
+      std::cerr << "\nERROR: " << ex.message() << "\n\n";
       ++ec;
    }
    return ec;

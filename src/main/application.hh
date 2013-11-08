@@ -18,6 +18,8 @@
 #ifndef libhpc_main_application_hh
 #define libhpc_main_application_hh
 
+#include <signal.h>
+
 namespace hpc {
 
    class application
@@ -26,6 +28,13 @@ namespace hpc {
 
       application( int argc,
                    char* argv[] );
+
+      void
+      handle_signal( int sig );
+
+      virtual
+      void
+      signaled( int param );
    };
 
 }
