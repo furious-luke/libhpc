@@ -49,12 +49,14 @@ namespace hpc {
       {
 	 this->_comm = &comm;
 
+#ifdef PARALLELHDF5
 	 h5::property_list local_props( H5P_FILE_ACCESS );
 	 if(*this->_comm != mpi::comm::null && this->_comm->size() != 1) {
 	    if( !props )
 	       props = local_props;
 	    (*props).set_parallel( comm );
 	 }
+#endif
 
 	 hid_t props_id;
 	 if( props )

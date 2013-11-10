@@ -58,8 +58,12 @@ namespace hpc {
 	 void
 	 set_family( hsize_t size = (hsize_t)1 << 31 );
 
+#ifdef PARALLELHDF5
+
 	 void
 	 set_parallel( const mpi::comm& comm = mpi::comm::world );
+
+#endif
 
       protected:
 
