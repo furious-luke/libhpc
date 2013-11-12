@@ -22,8 +22,9 @@
 #error libhpc: Must have an application class defined.
 #endif
 
-#include "libhpc/debug/assertions.hh"
-#include "init.hh"
+#include <libhpc/debug/assertions.hh>
+#include <libhpc/mpi/init.hh>
+#include <libhpc/mpi/comm.hh>
 
 namespace hpc {
 
