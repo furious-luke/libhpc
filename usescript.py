@@ -43,7 +43,7 @@ cc_opts = (
     options(args.memory_ops == False,   define=['NMEMOPS']) +
     options(args.memory_stats == False, define=['NMEMSTATS']) +
     options(glut.have == True, define=['HAVE_GLUT']) +
-    options(hdf5.has_feature('parallel'), define=['PARALLELHDF5'])
+    options(hdf5.has_feature('parallel') == True, define=['PARALLELHDF5'])
 )
 cp_opts = (
     options(args.debug == True,

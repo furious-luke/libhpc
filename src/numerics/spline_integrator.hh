@@ -62,6 +62,59 @@ namespace hpc {
             return sum;
          }
 
+         template< class Spline,
+                   class Func,
+		   class Trans >
+         value_type
+         operator()( const Spline& sp,
+                     Func func,
+		     Trans trans ) const
+         {
+            value_type sum = 0.0;
+            for( unsigned ii = 0; ii < sp.num_segments(); ++ii )
+            {
+               value_type low = sp.segment_start( ii );
+	       value_type upp = sp.segment_finish( ii );
+	       value_type w = upp - low;
+               value_type jac_det = 0.5*(trans( upp ) - trans( low ));
+               value_type cur_sum = 0.0;
+               for( unsigned jj = 0; jj < _quad.size(); ++jj )
+               {
+                  value_type x = low + w*0.5*(1.0 + _quad.points()[jj]);
+                  cur_sum += _quad.weights()[jj]*func( trans( x ), sp( x, ii ) );
+               }
+               cur_sum *= jac_det;
+               sum += cur_sum;
+            }
+            return sum;
+         }
+
+         template< class Spline,
+                   class Func >
+         value_type
+         reverse( const Spline& sp,
+		  Func func ) const
+         {
+            value_type sum = 0.0;
+            for( unsigned ii = 0; ii < sp.num_segments(); ++ii )
+            {
+	       unsigned idx = sp.num_segments() - ii - 1;
+               value_type low = sp.segment_start( idx );
+               value_type w = sp.segment_width( idx );
+               value_type jac_det = 0.5*w;
+               value_type cur_sum = 0.0;
+               for( unsigned jj = 0; jj < _quad.size(); ++jj )
+               {
+		  unsigned jj_idx = _quad.size() - jj - 1;
+                  value_type x = low + w*0.5*(1.0 + _quad.points()[jj_idx]);
+                  cur_sum += _quad.weights()[jj]*func( x, sp( x, idx ) );
+               }
+               cur_sum *= jac_det;
+               sum += cur_sum;
+            }
+            return sum;
+         }
+
       protected:
 
          quadrature<value_type> _quad;
