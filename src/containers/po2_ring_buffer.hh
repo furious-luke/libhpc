@@ -172,6 +172,12 @@ namespace hpc {
          return idx & _mask;
       }
 
+      bool
+      empty() const
+      {
+         return _size == 0;
+      }
+
       size_t
       size() const
       {
