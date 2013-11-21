@@ -18,6 +18,7 @@
 #ifndef hpc_algorithm_ridders_hh
 #define hpc_algorithm_ridders_hh
 
+#include <boost/optional.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/containers/num.hh"
 #include "libhpc/containers/optional.hh"
@@ -31,7 +32,7 @@ namespace hpc {
 
       template< class Function,
 		class T >
-      T
+      boost::optional<T>
       ridders( Function func,
 	       T x1,
 	       T x2,
@@ -95,11 +96,10 @@ namespace hpc {
 	 }
 	 else if( num::is_zero( f1 ) )
 	    return x1;
-	 else
-         {
-	    ASSERT( num::is_zero( f2 ), "Initial x values must bracket root." );
+	 else if( num::is_zero( f2 ) )
 	    return x2;
-	 }
+	 else
+	    return none;
       }
 
    }
