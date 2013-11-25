@@ -56,6 +56,8 @@ namespace hpc {
 	 if(this->_type != MPI_DATATYPE_NULL &&
 #if defined( MPICH ) || defined( MPICH2 )
 	    this->_type != MPIR_CXX_BOOL &&
+#elif OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
+            this->_type != MPI_CHAR &&
 #else
             this->_type != MPI_C_BOOL &&
 #endif

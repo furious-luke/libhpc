@@ -49,9 +49,11 @@ namespace hpc {
 	    // needs MPI to be initialized. Note that NULL is already done.
 	    mpi::data_type::byte.mpi_data_type(MPI_BYTE);
 #if defined( MPICH ) || defined( MPICH2 )
-	    mpi::data_type::boolean.mpi_data_type(MPIR_CXX_BOOL);
+	    mpi::data_type::boolean.mpi_data_type( MPIR_CXX_BOOL );
+#elif OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
+            mpi::data_type::boolean.mpi_data_type( MPI_CHAR );
 #else
-	    mpi::data_type::boolean.mpi_data_type(MPI_C_BOOL);
+	    mpi::data_type::boolean.mpi_data_type( MPI_C_BOOL );
 #endif
 	    mpi::data_type::character.mpi_data_type(MPI_CHAR);
 	    mpi::data_type::integer.mpi_data_type(MPI_INT);
@@ -84,7 +86,11 @@ namespace hpc {
             // data type mapping.
 #if !( defined( MPICH ) || defined( MPICH2 ) )
             mpi::data_type::_type_map[0] = MPI_BYTE;
+#if OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
+            mpi::data_type::_type_map[1] = MPI_CHAR;
+#else
             mpi::data_type::_type_map[1] = MPI_C_BOOL;
+#endif
             mpi::data_type::_type_map[2] = MPI_CHAR;
             mpi::data_type::_type_map[3] = MPI_INT;
             mpi::data_type::_type_map[4] = MPI_UNSIGNED;
