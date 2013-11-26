@@ -45,9 +45,9 @@ main( int argc,
       hpc::global_app = &app;
       app();
    }
-   catch( hpc::exception& ex )
+   catch( std::exception& ex )
    {
-      std::cerr << "\nERROR: " << ex.message() << "\n\n";
+      std::cerr << "\nERROR: " << ex.what() << "\n\n";
       ++ec;
    }
    return ec;

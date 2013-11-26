@@ -45,9 +45,9 @@ main( int argc,
          hpc::global_app = &app;
 	 app();
       }
-      catch( hpc::exception& ex )
+      catch( std::exception& ex )
       {
-         std::cerr << "\nError: " << ex.message() << "\n\n";
+         std::cerr << "\nError: " << ex.what() << "\n\n";
 	 hpc::mpi::comm::world.abort();
       }
       hpc::mpi::finalise();
