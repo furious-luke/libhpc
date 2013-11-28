@@ -15,18 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#if !defined(NLOG) && defined(_OPENMP)
+#if !defined(NLOG) && !defined(NTHREAD)
 
 #include <stdlib.h>
 #include <stdio.h>
 #include "libhpc/containers/containers.hh"
-#include "omp_file.hh"
+#include "thread_file.hh"
 
 namespace hpc {
    namespace logging {
-      namespace omp {
+      namespace thread {
 
-	 file::file( const std::string& filename,
+	 file::file( std::string const& filename,
 		     unsigned min_level )
 	    : logging::file( filename, min_level ),
 	      _base( filename )
@@ -48,13 +48,14 @@ namespace hpc {
 	 file::write()
 	 {
             // Open the file right now.
-            int tid = omp_get_thread_num();
+            std::thread::id tid = std::this_thread::get_id();
             std::stringstream ss;
-            ss << _base << std::setfill( '0' ) << std::setw( 5 ) << tid;
+            ss << _base << tid;
             std::string filename = ss.str();
-#pragma omp critical( omp_file_write )
+            _write.lock();
             if( _tids.insert( tid ).second )
                remove( filename.c_str() );
+            _write.unlock();
             std::ofstream file( filename, std::fstream::out | std::fstream::app );
 
             // Output.
@@ -64,7 +65,6 @@ namespace hpc {
 	 void
 	 file::_open_file()
 	 {
-
 	 }
 
 	 void

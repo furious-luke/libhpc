@@ -18,6 +18,8 @@
 #ifndef libhpc_logging_logger_hh
 #define libhpc_logging_logger_hh
 
+#include <thread>
+#include <mutex>
 #include <typeinfo>
 #include <sstream>
 #include <iomanip>
@@ -212,13 +214,17 @@ namespace hpc {
 
 	 // Using mappings from thread ID to the object in question.
 	 // Need this for threaded loggers.
-	 std::map<int,bool> _new_line;
-         std::map<int,std::stringstream*> _buf;
-	 std::map<int,std::list<unsigned> > _levels;
+	 std::map<std::thread::id,bool> _new_line;
+         std::mutex _new_line_mutex;
+         std::map<std::thread::id,std::stringstream*> _buf;
+         std::mutex _buf_mutex;
+	 std::map<std::thread::id,std::list<unsigned> > _levels;
+         std::mutex _levels_mutex;
 
 	 // Tags need a mapping from the tag to a count so we can
 	 // push and pop them properly.
-	 std::map<int,std::map<std::string,int> > _cur_tags;
+	 std::map<std::thread::id,std::map<std::string,int> > _cur_tags;
+         std::mutex _tags_mutex;
 
          unsigned _min_level;
 	 std::set<std::string> _tags;

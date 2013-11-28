@@ -15,12 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_omp_file_hh
-#define libhpc_logging_omp_file_hh
+#ifndef libhpc_logging_thread_file_hh
+#define libhpc_logging_thread_file_hh
 
-#if !defined(NLOG) && defined(_OPENMP)
+#if !defined(NLOG) && !defined(NTHREAD)
 
-#include <omp.h>
+#include <thread>
+#include <mutex>
 #include <typeinfo>
 #include <fstream>
 #include <sstream>
@@ -30,7 +31,7 @@
 
 namespace hpc {
    namespace logging {
-      namespace omp {
+      namespace thread {
 
 	 ///
 	 ///
@@ -40,7 +41,7 @@ namespace hpc {
 	 {
 	 public:
 
-	    file( const std::string& filename,
+	    file( std::string const& filename,
 		  unsigned min_level = 0 );
 
 	    virtual
@@ -62,9 +63,11 @@ namespace hpc {
 
 	 protected:
 
-	    std::set<unsigned> _tids;
+            std::mutex _write;
+	    std::set<std::thread::id> _tids;
 	    std::string _base;
 	 };
+
       }
    }
 }

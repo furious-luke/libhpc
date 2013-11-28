@@ -22,6 +22,7 @@
 #include "file.hh"
 #include "stdout.hh"
 #include "omp_file.hh"
+#include "thread_file.hh"
 #include "globals.hh"
 #include "levels.hh"
 #include "block.hh"
