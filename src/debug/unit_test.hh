@@ -42,7 +42,7 @@
       expr;                                             \
       throw hpc::test::test_failed();                   \
    } catch( ex& e ) {                                   \
-      std::cout << "." << std::flush                    \
+      std::cout << "." << std::flush;                   \
    } catch( ... ) {                                     \
       throw hpc::test::test_failed();                   \
    }
@@ -50,7 +50,7 @@
 #define NOTHROWS( expr )                                \
    try {                                                \
       expr;                                             \
-      std::cout << "." << std::flush                    \
+      std::cout << "." << std::flush;                   \
    } catch( ... ) {                                     \
       throw hpc::test::test_failed();                   \
    }
