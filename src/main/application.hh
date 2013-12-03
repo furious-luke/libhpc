@@ -32,6 +32,9 @@ namespace hpc {
       void
       handle_signal( int sig );
 
+      void
+      ignore_signal( int sig );
+
       virtual
       void
       signaled( int param );

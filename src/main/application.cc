@@ -17,6 +17,7 @@
 
 #include "application.hh"
 #include "libhpc/debug/except.hh"
+#include "libhpc/logging/globals.hh"
 
 namespace hpc {
 
@@ -46,8 +47,15 @@ namespace hpc {
    }
 
    void
+   application::ignore_signal( int sig )
+   {
+      ::signal( sig, SIG_IGN );
+   }
+
+   void
    application::signaled( int param )
    {
+      LOGILN( "Recieved signal: ", param );
       EXCEPT( 0, "Recieved signal ", param, ", terminating." );
    }
 
