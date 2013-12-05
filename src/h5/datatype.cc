@@ -60,6 +60,14 @@ namespace hpc {
 	    _id = id;
       }
 
+      datatype::datatype( datatype const& src )
+      {
+	 if( src._id != -1 )
+	    INSIST( (_id = H5Tcopy( src._id )), >= 0 );
+	 else
+	    _id = -1;
+      }
+
       datatype::datatype( datatype&& src )
          : _id( src._id )
       {
