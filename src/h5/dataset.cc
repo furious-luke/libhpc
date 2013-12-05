@@ -105,6 +105,14 @@ namespace hpc {
 	 }
       }
 
+      h5::datatype
+      dataset::datatype() const
+      {
+	 hid_t type = H5Dget_type( _id );
+	 ASSERT( type >= 0 );
+	 return h5::datatype( type );
+      }
+
       H5T_class_t
       dataset::type_class() const
       {

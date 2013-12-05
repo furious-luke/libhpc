@@ -93,6 +93,10 @@ namespace hpc {
 			  H5S_seloper_t op=H5S_SELECT_SET );
 
 	 void
+	 select_elements2( hpc::view<std::vector<hsize_t>>::type const& elems,
+                           H5S_seloper_t op = H5S_SELECT_SET );
+
+	 void
 	 select_slices( int slice_dim,
 			const vector<hsize_t>::view& idxs,
 			H5S_seloper_t op=H5S_SELECT_SET );

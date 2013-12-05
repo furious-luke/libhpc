@@ -201,6 +201,23 @@ namespace hpc {
       }
 
       void
+      dataspace::select_elements2( hpc::view<std::vector<hsize_t>>::type const& elems,
+                                   H5S_seloper_t op )
+      {
+	 if( elems.size() )
+         {
+	    vector<hsize_t> dims( simple_extent_num_dims() );
+	    simple_extent_dims( dims );
+	    ASSERT( elems.size()%dims.size() == 0,
+                    "Flattened element selection array does not divide evenly between the "
+                    "number of dimensions in the dataset.");
+	    INSIST( H5Sselect_elements( _id, op, elems.size()/dims.size(), elems.data() ), >= 0 );
+	 }
+	 else if( op == H5S_SELECT_SET )
+	    select_none();
+      }
+
+      void
       dataspace::select_slices( int slice_dim,
 				const vector<hsize_t>::view& idxs,
 				H5S_seloper_t op )

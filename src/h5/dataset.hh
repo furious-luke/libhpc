@@ -66,6 +66,9 @@ namespace hpc {
 	 void
 	 close();
 
+         h5::datatype
+         datatype() const;
+
 	 H5T_class_t
 	 type_class() const;
 
@@ -84,6 +87,36 @@ namespace hpc {
 	       const h5::dataspace& mem_space=h5::dataspace::all,
 	       const h5::dataspace& file_space=h5::dataspace::all,
 	       const mpi::comm& comm=mpi::comm::self );
+
+	 template< class T >
+	 void
+	 read( typename hpc::view<std::vector<T>>::type buf,
+	       hpc::view<std::vector<hsize_t>>::type const& elems,
+               mpi::comm& comm = mpi::comm::self )
+	 {
+            ASSERT( buf.size() == elems.size(), "Buffer size mismatch." );
+
+            // // Map to a HDF5 datatype.
+	    // BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    // h5::datatype dtype( mpl::at<h5::datatype::type_map, T>::type::value );
+
+            // Load the HDF5 datatype from the dataset.
+            h5::datatype dtype = this->datatype();
+
+            // Get the filespace and set elements.
+	    h5::dataspace file_space;
+	    space( file_space );
+	    file_space.select_elements2( elems );
+
+            // Create the memory space.
+            vector<hsize_t> dims( 1 );
+	    dims[0] = buf.size();
+	    h5::dataspace mem_space( dims );
+	    mem_space.select_all();
+
+            // Read from the dataset.
+	    read( buf.data(), dtype, mem_space, file_space, comm );
+	 }
 
 	 void
 	 write( const void* buf,

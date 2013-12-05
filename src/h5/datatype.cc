@@ -60,6 +60,12 @@ namespace hpc {
 	    _id = id;
       }
 
+      datatype::datatype( datatype&& src )
+         : _id( src._id )
+      {
+         src._id = -1;
+      }
+
       datatype::~datatype()
       {
          close();

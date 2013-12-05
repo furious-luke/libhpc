@@ -64,6 +64,8 @@ namespace hpc {
 
 	 datatype( hid_t id=-1 );
 
+         datatype( datatype&& src );
+
 	 ~datatype();
 
          void
