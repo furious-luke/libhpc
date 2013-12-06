@@ -62,7 +62,9 @@ namespace hpc {
 			   mpl::pair<char,               mpl::int_<-10> >,
 			   mpl::pair<std::string,        mpl::int_<-11> > > type_map;
 
-	 datatype( hid_t id=-1 );
+	 datatype( hid_t id = -1 );
+
+	 datatype( datatype const& src );
 
          datatype( datatype&& src );
 
