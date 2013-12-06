@@ -113,7 +113,7 @@ namespace hpc {
       void
       extend( size_type size = 1 )
       {
-         ASSERT( _size + size < _buf.size() );
+         ASSERT( _size + size <= _buf.size() );
          _size += size;
       }
 
