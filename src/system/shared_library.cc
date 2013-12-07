@@ -15,16 +15,42 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
-
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
 #include "shared_library.hh"
 
-#endif
+namespace hpc {
+
+   shared_library::shared_library()
+      : _hnd( nullptr )
+   {
+   }
+
+   shared_library::shared_library( fs::path const& path )
+      : _hnd( nullptr )
+   {
+      open( path );
+   }
+
+   shared_library::~shared_library()
+   {
+      close();
+   }
+
+   void
+   shared_library::close()
+   {
+      if( _hnd )
+      {
+         INSIST( dlclose( _hnd ), == 0 );
+         _hnd = nullptr;
+      }
+   }
+
+   void
+   shared_library::open( fs::path const& path )
+   {
+      close();
+      _hnd = dlopen( path.c_str(), RTLD_LAZY );
+      EXCEPT( _hnd, "Failed to load shared library: ", path );
+   }
+
+}
