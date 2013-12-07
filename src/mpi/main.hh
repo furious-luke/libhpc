@@ -22,8 +22,15 @@
 #error libhpc: Must have an application class defined.
 #endif
 
-#include "libhpc/debug/assertions.hh"
-#include "init.hh"
+#include <libhpc/debug/assertions.hh>
+#include <libhpc/mpi/init.hh>
+#include <libhpc/mpi/comm.hh>
+
+namespace hpc {
+
+   extern hpc::application* global_app;
+
+}
 
 int
 main( int argc,
@@ -35,11 +42,12 @@ main( int argc,
       try
       {
 	 application_type app( argc, argv );
+         hpc::global_app = &app;
 	 app();
       }
-      catch( hpc::exception& ex )
+      catch( std::exception& ex )
       {
-	 std::cerr << ex.message() << "\n";
+         std::cerr << "\nError: " << ex.what() << "\n\n";
 	 hpc::mpi::comm::world.abort();
       }
       hpc::mpi::finalise();

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include "libhpc/system/stream_indent.hh"
+#include "libhpc/system/stream_output.hh"
 #include "libhpc/containers/containers.hh"
 #include "logger.hh"
 
@@ -43,7 +44,7 @@ namespace hpc {
 
       logger::~logger()
       {
-         for( std::map<int,std::stringstream*>::iterator it = _buf.begin();
+         for( std::map<std::thread::id,std::stringstream*>::iterator it = _buf.begin();
               it != _buf.end();
               ++it )
          {
@@ -140,52 +141,44 @@ namespace hpc {
       std::stringstream&
       logger::buffer()
       {
-#ifdef _OPENMP
-         int tid = omp_get_thread_num();
-#else
-         int tid = 0;
-#endif
-#pragma omp critical( logger_buffer )
+         std::thread::id tid = std::this_thread::get_id();
+         _buf_mutex.lock();
          if( _buf.find( tid ) == _buf.end() )
             _buf.insert( std::make_pair( tid, new std::stringstream ) );
+         _buf_mutex.unlock();
          return *_buf[tid];
       }
 
       std::list<unsigned>&
       logger::levels()
       {
-#ifdef _OPENMP
-         int tid = omp_get_thread_num();
-#else
-         int tid = 0;
-#endif
-#pragma omp critical( logger_levels )
+         std::thread::id tid = std::this_thread::get_id();
+         _levels_mutex.lock();
          if( _levels.find( tid ) == _levels.end() )
             _levels.insert( std::make_pair( tid, std::list<unsigned>() ) );
+         _levels_mutex.unlock();
          return _levels[tid];
       }
 
       std::map<std::string,int>&
       logger::current_tags()
       {
-	 int tid = OMP_TID;
-#pragma omp critical( logger_tags )
+         std::thread::id tid = std::this_thread::get_id();
+         _tags_mutex.lock();
          if( _cur_tags.find( tid ) == _cur_tags.end() )
             _cur_tags.insert( std::make_pair( tid, std::map<std::string,int>() ) );
+         _tags_mutex.unlock();
          return _cur_tags[tid];
       }
 
       bool&
       logger::_get_new_line()
       {
-#ifdef _OPENMP
-         int tid = omp_get_thread_num();
-#else
-         int tid = 0;
-#endif
-#pragma omp critical( logger_get_new_line )
+         std::thread::id tid = std::this_thread::get_id();
+         _new_line_mutex.lock();
          if( _new_line.find( tid ) == _new_line.end() )
             _new_line.insert( std::make_pair( tid, true ) );
+         _new_line_mutex.unlock();
          return _new_line[tid];
       }
 

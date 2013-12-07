@@ -15,16 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_logging_hh
-#define libhpc_logging_logging_hh
+#ifndef libhpc_system_anon_hh
+#define libhpc_system_anon_hh
 
-#include "logger.hh"
-#include "file.hh"
-#include "stdout.hh"
-#include "omp_file.hh"
-#include "thread_file.hh"
-#include "globals.hh"
-#include "levels.hh"
-#include "block.hh"
+#define ANON2( x, y )                           \
+   x##y
+#define ANON1( x, y )                           \
+   ANON2( x, y )
+#define ANON                                    \
+   ANON1( hpc_test_case_, __COUNTER__ )
 
 #endif

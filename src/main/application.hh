@@ -18,6 +18,8 @@
 #ifndef libhpc_main_application_hh
 #define libhpc_main_application_hh
 
+#include <signal.h>
+
 namespace hpc {
 
    class application
@@ -28,6 +30,16 @@ namespace hpc {
                    char* argv[],
                    std::string const& name = "",
                    std::string const& info = "" );
+
+      void
+      handle_signal( int sig );
+
+      void
+      ignore_signal( int sig );
+
+      virtual
+      void
+      signaled( int param );
 
       bool
       parse_options( int argc,

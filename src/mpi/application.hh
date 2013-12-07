@@ -29,8 +29,7 @@ namespace hpc {
       public:
 
          application( int argc,
-                      char* argv[],
-                      bool finalise = true );
+                      char* argv[] );
 
          virtual
          ~application();
@@ -43,7 +42,6 @@ namespace hpc {
 
       public:
 
-         bool _final;
          int _rank;
          int _size;
       };

@@ -16,33 +16,39 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <libhpc/debug/unit_test_main.hh>
-#include "libhpc/h5/derive.hh"
+#include <libhpc/logging/thread_file.hh>
 
-using namespace hpc;
 using namespace hpc::test;
 
 namespace {
 
-   struct test_struct
+   void
+   do_something( hpc::logging::thread::file& log )
    {
-      int an_int;
-      byte a_byte;
-      float a_float;
-   };
+      log << "no indent" << hpc::setindent( 2 ) << hpc::logging::endl;
+      log << "indent" << hpc::setindent( -2 ) << hpc::logging::endl;
+      log << "no indent again" << hpc::logging::endl;
+   }
 
    test_case<> ANON(
-      "/h5/derive",
+      "/serial",
       "",
       []()
       {
-	 h5::derive der;
-	 der.add( h5::datatype::native_int, HOFFSET( test_struct, an_int ), h5::datatype::std_i32be, "An integer!" );
-	 der.add( h5::datatype::native_char, HOFFSET( test_struct, a_byte ), h5::datatype::native_char, "A byte!" );
-	 der.add( h5::datatype::native_float, HOFFSET( test_struct, a_float ), h5::datatype::native_float, "A float!" );
-	 h5::datatype mem_type, file_type;
-	 der.commit( mem_type, file_type );
-	 // TEST( mem_type.size() == 9 );
-	 TEST( file_type.size() == 9 );
+         // hpc::logging::thread::file log( "test.log." );
+         // do_something( log );
+      }
+      );
+
+   test_case<> ANON(
+      "/multithread",
+      "",
+      []()
+      {
+         // hpc::logging::thread::file log( "test.log." );
+         // std::thread thread( std::bind( do_something, std::ref( log ) ) );
+         // do_something( log );
+         // thread.join();
       }
       );
 

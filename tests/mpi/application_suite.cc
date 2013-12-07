@@ -39,10 +39,11 @@ namespace mpi_application {
 
          // Wrap in block to make sure it is destroyed afterwards.
          {
-            mpi::application app( argc, argv, false );
-            TEST( mpi::initialised() == true, "Must have been initialised." );
+	    mpi::initialise( argc, argv );
+            mpi::application app( argc, argv );
             TEST( app.size() == 1, "Must have communicator size of 1." );
             TEST( app.rank() == 0, "Must be master rank." );
+	    mpi::finalise();
          }
          TEST( mpi::initialised() == true, "Must not have been finalised." );
 

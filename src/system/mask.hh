@@ -15,16 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_logging_hh
-#define libhpc_logging_logging_hh
+#ifndef libhpc_system_mask_hh
+#define libhpc_system_mask_hh
 
-#include "logger.hh"
-#include "file.hh"
-#include "stdout.hh"
-#include "omp_file.hh"
-#include "thread_file.hh"
-#include "globals.hh"
-#include "levels.hh"
-#include "block.hh"
+namespace hpc {
+
+   template< class T >
+   T
+   bit_mask( T size )
+   {
+      T mask = 0;
+      if( size > 0 )
+      {
+         unsigned num_bits = log2i( size );
+         for( unsigned ii = 0; ii < num_bits; ++ii )
+            mask |= (1 << ii);
+      }
+      return mask;
+   }
+
+}
 
 #endif

@@ -67,7 +67,7 @@ namespace hpc {
       void
       runner::run( test_case_base& tc )
       {
-         std::cout << tc.name() << " ";
+         std::cout << tc.name() << " " << std::flush;
          try
          {
             tc.run();

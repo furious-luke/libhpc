@@ -15,17 +15,41 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_timer_hh
-#define libhpc_system_timer_hh
+#ifndef libhpc_system_exe_hh
+#define libhpc_system_exe_hh
 
 #include <boost/filesystem/path.hpp>
 
 namespace hpc {
+   namespace fs = boost::filesystem;
+
    namespace nix {
 
-      boost::filesystem::path
+      fs::path
       executable_path();
 
+   }
+
+#ifdef DARWIN
+
+   namespace mac {
+
+      fs::path
+      executable_path();
+
+   }
+
+#endif
+
+   inline
+   fs::path
+   executable_path()
+   {
+#ifdef DARWIN
+      return mac::executable_path();
+#else
+      return nix::executable_path();
+#endif
    }
 }
 

@@ -113,7 +113,7 @@ namespace hpc {
       void
       extend( size_type size = 1 )
       {
-         ASSERT( _size + size < _buf.size() );
+         ASSERT( _size + size <= _buf.size() );
          _size += size;
       }
 
@@ -136,7 +136,7 @@ namespace hpc {
       value_type
       pop()
       {
-         ASSERT( _size );
+         ASSERT( _size, "Insufficient space in ring buffer." );
          size_type pos = norm( _start );
          consume();
          return _buf[pos];
@@ -170,6 +170,12 @@ namespace hpc {
       norm( size_t idx ) const
       {
          return idx & _mask;
+      }
+
+      bool
+      empty() const
+      {
+         return _size == 0;
       }
 
       size_t

@@ -17,8 +17,24 @@
 
 #include "application.hh"
 #include "libhpc/options/options.hh"
+#include "libhpc/debug/except.hh"
+#include "libhpc/logging/globals.hh"
 
 namespace hpc {
+
+   // Store a global reference to the application for
+   // signal handlers.
+   application* global_app = nullptr;
+
+   ///
+   /// Handle signals.
+   ///
+   void
+   hpc_signaled( int param )
+   {
+      if( global_app )
+         global_app->signaled( param );
+   }
 
    application::application( int argc,
                              char* argv[],
@@ -27,6 +43,25 @@ namespace hpc {
       : _app_name( name ),
         _app_info( info )
    {
+   }
+
+   void
+   application::handle_signal( int sig )
+   {
+      ::signal( sig, hpc_signaled );
+   }
+
+   void
+   application::ignore_signal( int sig )
+   {
+      ::signal( sig, SIG_IGN );
+   }
+
+   void
+   application::signaled( int param )
+   {
+      LOGILN( "Recieved signal: ", param );
+      EXCEPT( 0, "Recieved signal ", param, ", terminating." );
    }
 
    bool

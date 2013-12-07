@@ -105,6 +105,14 @@ namespace hpc {
 	 }
       }
 
+      h5::datatype
+      dataset::datatype() const
+      {
+	 hid_t type = H5Dget_type( _id );
+	 ASSERT( type >= 0 );
+	 return h5::datatype( type );
+      }
+
       H5T_class_t
       dataset::type_class() const
       {
@@ -158,11 +166,13 @@ namespace hpc {
 		     const mpi::comm& comm )
       {
 	 hid_t plist_id;
+#ifdef PARALLELHDF5
 	 if(comm != mpi::comm::null && comm.size() != 1) {
 	    plist_id = H5Pcreate(H5P_DATASET_XFER);
 	    H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
 	 }
 	 else
+#endif
 	    plist_id = H5P_DEFAULT;
 
 	 INSIST(H5Dread(this->_id, mem_type.id(), mem_space.id(), file_space.id(), plist_id, buf), >= 0);
@@ -182,11 +192,13 @@ namespace hpc {
 	 hssize_t file_size = H5Sget_select_npoints(file_space.id());
 
 	 hid_t plist_id;
+#ifdef PARALLELHDF5
 	 if(comm != mpi::comm::null && comm.size() != 1) {
 	    plist_id = H5Pcreate(H5P_DATASET_XFER);
 	    H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
 	 }
 	 else
+#endif
 	    plist_id = H5P_DEFAULT;
 
 	 INSIST(H5Dwrite(this->_id, mem_type.id(), mem_space.id(), file_space.id(), plist_id, buf), >= 0);

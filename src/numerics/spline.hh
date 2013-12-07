@@ -77,6 +77,7 @@ namespace hpc {
          update()
          {
             ASSERT( _pnts.size() == _vals.size(), "Mismatched points/values arrays in spline." );
+	    ASSERT( _pnts.size() > 1, "Too few knots for spline." );
             _diff.reallocate( _vals.size() - 1 );
             _ai.reallocate( _vals.size() - 1 );
             _bi.reallocate( _vals.size() - 1 );

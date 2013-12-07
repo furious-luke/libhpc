@@ -19,24 +19,85 @@
 #define libhpc_system_stream_output_hh
 
 #include <iostream>
+#include <array>
 #include <vector>
+#include <list>
+#include <set>
 
 namespace hpc {
+
+   template< class T,
+	     size_t N >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       const std::array<T,N>& obj )
+   {
+      strm << "(";
+      if( N )
+      {
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
+      }
+      strm << ")";
+      return strm;
+   }
 
    template< class T >
    std::ostream&
    operator<<( std::ostream& strm,
-               const std::vector<T>& obj )
+	       const std::vector<T>& obj )
    {
       strm << "[";
       if( !obj.empty() )
       {
-         auto it = obj.cbegin();
-         strm << *it++;
-         while( it != obj.cend() )
-         {
-            strm << ", " << *it++;
-         }
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
+      }
+      strm << "]";
+      return strm;
+   }
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       const std::set<T>& obj )
+   {
+      strm << "{";
+      if( !obj.empty() )
+      {
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
+      }
+      strm << "}";
+      return strm;
+   }
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       std::list<T> const& obj )
+   {
+      strm << "[";
+      if( !obj.empty() )
+      {
+	 auto it = obj.cbegin();
+	 strm << *it++;
+	 while( it != obj.cend() )
+	 {
+	    strm << ", " << *it++;
+	 }
       }
       strm << "]";
       return strm;

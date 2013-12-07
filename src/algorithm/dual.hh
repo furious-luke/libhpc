@@ -34,7 +34,7 @@ namespace hpc {
 	    value_type cur = *start++;
 	    while( start != finish )
 	    {
-	       *result++ = 0.5*(*start - cur);
+	       *result++ = 0.5*(*start + cur);
 	       cur = *start++;
 	    }
 	 }

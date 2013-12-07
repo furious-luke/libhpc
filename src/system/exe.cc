@@ -16,12 +16,16 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
+#ifdef DARWIN
+#include <mach-o/dyld.h>
+#endif
+#include "libhpc/debug/insist.hh"
 #include "exe.hh"
 
 namespace hpc {
    namespace nix {
 
-      boost::filesystem::path
+      fs::path
       executable_path()
       {
          // Get the path to (and including) the executable.
@@ -36,8 +40,28 @@ namespace hpc {
          while( path_size >= path.size() );
 
          // Return a boost filesystem path.
-         return boost::filesystem::path( path.begin(), path.end() );
+         return fs::path( path.begin(), path.end() );
       }
 
    }
+
+#ifdef DARWIN
+
+   namespace mac {
+
+      fs::path
+      executable_path()
+      {
+         // Get the path.
+         char path[1024];
+         uint32_t size = sizeof(path);
+         INSIST( _NSGetExecutablePath( path, &size ), == 0 );
+
+         // Return a boost filesystem path.
+         return fs::path( path ).parent_path();
+      }
+
+   }
+
+#endif
 }

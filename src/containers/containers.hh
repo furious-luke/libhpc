@@ -28,6 +28,9 @@
 #include "newton.hh"
 #include "random.hh"
 
+#include "assign.hh"
+#include "reallocate.hh"
+
 #include "optional.hh"
 #include "vector_view.hh"
 #include "std_vector.hh"

@@ -23,6 +23,7 @@
 #include <functional>
 #include <assert.h>
 #include <boost/format.hpp>
+#include "libhpc/system/anon.hh"
 
 #define TEST( expr, ... )                       \
    (::hpc::test::decompose()->*expr).set_info(  \
@@ -36,12 +37,23 @@
       #lhs, #rhs, epsilon, __FILE__, __LINE__ ).test(   \
          *::hpc::test::_cur_tc, ##__VA_ARGS__ )
 
-#define ANON2( x, y )                           \
-   x##y
-#define ANON1( x, y )                           \
-   ANON2( x, y )
-#define ANON                                    \
-   ANON1( hpc_test_case_, __COUNTER__ )
+#define THROWS( expr, ex )                              \
+   try {                                                \
+      expr;                                             \
+      throw hpc::test::test_failed();                   \
+   } catch( ex& e ) {                                   \
+      std::cout << "." << std::flush;                   \
+   } catch( ... ) {                                     \
+      throw hpc::test::test_failed();                   \
+   }
+
+#define NOTHROWS( expr )                                \
+   try {                                                \
+      expr;                                             \
+      std::cout << "." << std::flush;                   \
+   } catch( ... ) {                                     \
+      throw hpc::test::test_failed();                   \
+   }
 
 namespace hpc {
    namespace test {
@@ -107,7 +119,7 @@ namespace hpc {
       public:
 
          side( const T& val )
-            : _val( val )
+         : _val( val )
          {
          }
 
@@ -137,9 +149,25 @@ namespace hpc {
 
          template< class U >
          expression<T,U>
+         operator<=( const U& op ) const
+         {
+            bool res = _val <= op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
          operator>( const U& op ) const
          {
             bool res = _val > op;
+            return expression<T,U>( *this, side<U>( op ), res );
+         }
+
+         template< class U >
+         expression<T,U>
+         operator>=( const U& op ) const
+         {
+            bool res = _val >= op;
             return expression<T,U>( *this, side<U>( op ), res );
          }
 
@@ -390,7 +418,7 @@ namespace hpc {
             throw test_expression_failed<T,U>( tc, *this, desc );
          }
          else
-            std::cout << ".";
+            std::cout << "." << std::flush;
       }
 
    }

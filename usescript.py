@@ -13,6 +13,7 @@ args = (arguments()
 # Need to define optional packages ahead of some options
 # so we can include preprocessor definitions.
 glut = use('glut')
+hdf5 = use('hdf5')
 
 # Define some options.
 cc_opts = (
@@ -41,7 +42,8 @@ cc_opts = (
     options(args.memory_debug == False, define=['NMEMDEBUG']) +
     options(args.memory_ops == False,   define=['NMEMOPS']) +
     options(args.memory_stats == False, define=['NMEMSTATS']) +
-    options(glut.have == True, define=['HAVE_GLUT'])
+    options(glut.have == True, define=['HAVE_GLUT']) +
+    options(hdf5.has_feature('parallel') == True, define=['PARALLELHDF5'])
 )
 cp_opts = (
     options(args.debug == True,
@@ -60,7 +62,6 @@ ar  = use('ar', cc_opts, add=True)
 # Which packages will we be using?
 boost   = use('boost')
 mpi     = use('mpi')
-hdf5    = use('hdf5')
 pugixml = use('pugixml')
 cp      = files.feature('copy', cp_opts)
 hdr_inst = files.feature('copy', None, targets.contains('install'), prefix=args.prefix + '/include/libhpc')

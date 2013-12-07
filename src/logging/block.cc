@@ -15,16 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_logging_hh
-#define libhpc_logging_logging_hh
-
-#include "logger.hh"
-#include "file.hh"
-#include "stdout.hh"
-#include "omp_file.hh"
-#include "thread_file.hh"
-#include "globals.hh"
-#include "levels.hh"
 #include "block.hh"
 
-#endif
+namespace hpc {
+   namespace logging {
+
+      block::block( levels_type level )
+         : _lvl( level )
+      {
+      }
+
+      block::~block()
+      {
+         LOGLVLN( _lvl, "Done.", setindent( -1 ) );
+      }
+
+   }
+}

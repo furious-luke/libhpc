@@ -78,11 +78,15 @@ namespace hpc {
 	 INSIST( H5Pset_fapl_family( _id, size, H5P_DEFAULT ), >= 0 );
       }
 
+#ifdef PARALLELHDF5
+
       void
       property_list::set_parallel( const mpi::comm& comm )
       {
 	 INSIST( H5Pset_fapl_mpio( _id, comm.mpi_comm(), MPI_INFO_NULL ), >= 0 );
       }
+
+#endif
 
    }
 }

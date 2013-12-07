@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <thread>
+#include <mutex>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/debug/omp_help.hh"
 #include "libhpc/memory/memory.hh"
@@ -24,11 +26,8 @@
 namespace hpc {
    namespace impl {
 
-#ifdef _OPENMP
-      std::map<std::pair<std::ostream*,int>,int> curindent;
-#else
-      std::map<std::ostream*,int> curindent;
-#endif
+      std::map<std::pair<std::ostream*,std::thread::id>,int> curindent;
+      std::mutex indent_mutex;
 
    }
 
@@ -44,20 +43,16 @@ namespace hpc {
    operator<<( std::ostream& strm,
                setindent_t si )
    {
-#ifdef _OPENMP
-      int& val = impl::curindent[std::make_pair( &strm, OMP_TID )];
-#else
-      int& val = impl::curindent[&strm];
-#endif
+      impl::indent_mutex.lock();
+      int& val = impl::curindent[std::make_pair( &strm, std::this_thread::get_id() )];
+      impl::indent_mutex.unlock();
       val += si.indent;
       ASSERT( val >= 0 );
       if( val == 0 )
       {
-#ifdef _OPENMP
-         impl::curindent.erase( std::make_pair( &strm, OMP_TID ) );
-#else
-         impl::curindent.erase( &strm );
-#endif
+         impl::indent_mutex.lock();
+         impl::curindent.erase( std::make_pair( &strm, std::this_thread::get_id() ) );
+         impl::indent_mutex.unlock();
       }
       return strm;
    }
@@ -65,11 +60,9 @@ namespace hpc {
    std::ostream&
    indent( std::ostream& strm )
    {
-#ifdef _OPENMP
-      std::map<std::pair<std::ostream*,int>,int>::const_iterator it = impl::curindent.find( std::make_pair( &strm, OMP_TID ) );
-#else
-      std::map<std::ostream*,int>::const_iterator it = impl::curindent.find( &strm );
-#endif
+      impl::indent_mutex.lock();
+      std::map<std::pair<std::ostream*,std::thread::id>,int>::const_iterator it = impl::curindent.find( std::make_pair( &strm, std::this_thread::get_id() ) );
+      impl::indent_mutex.unlock();
       int val = 0;
       if( it != impl::curindent.end() )
          val = it->second;
