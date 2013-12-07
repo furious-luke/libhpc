@@ -25,7 +25,19 @@ namespace hpc {
    public:
 
       application( int argc,
-                   char* argv[] );
+                   char* argv[],
+                   std::string const& name = "",
+                   std::string const& info = "" );
+
+      bool
+      parse_options( int argc,
+                     char* argv[] );
+
+   protected:
+
+      options::dictionary _opts;
+      std::string _app_name;
+      std::string _app_info;
    };
 
 }
