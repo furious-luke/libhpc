@@ -15,23 +15,63 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_logging_thread_file_hh
+#define libhpc_logging_thread_file_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
+#if !defined(NLOG) && !defined(NTHREAD)
+
+#include <thread>
+#include <mutex>
+#include <typeinfo>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <set>
 #include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
+
+namespace hpc {
+   namespace logging {
+      namespace thread {
+
+	 ///
+	 ///
+	 ///
+	 class file
+	    : public logging::file
+	 {
+	 public:
+
+	    file( std::string const& filename,
+		  unsigned min_level = 0 );
+
+	    virtual
+	    ~file();
+
+	    virtual void
+	    open();
+
+	    virtual void
+	    write();
+
+	 protected:
+
+	    void
+	    _open_file();
+
+	    void
+	    _close_file();
+
+	 protected:
+
+            std::mutex _write;
+	    std::set<std::thread::id> _tids;
+	    std::string _base;
+	 };
+
+      }
+   }
+}
+
 #endif
 
 #endif

@@ -15,23 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#include <libhpc/debug/unit_test_main.hh>
+#include <libhpc/logging/block.hh>
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+using namespace hpc;
+using namespace hpc::test;
 
-#endif
+namespace {
+
+   // TODO: Swap to a file so there is no output to console.
+   test_case<> ANON(
+      "/libhpc/logging/block/debug",
+      "",
+      []()
+      {
+         int num = 10;
+         {
+            LOGBLOCKD( "Some block with number: ", num );
+            LOGDLN( "Blah." );
+         }
+         {
+            LOGBLOCKD( "Some other block." );
+            LOGDLN( "Another blah." );
+         }
+      }
+      );
+
+}

@@ -15,23 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_containers_reallocate_hh
+#define libhpc_containers_reallocate_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+namespace hpc {
+
+   template< class T,
+             class ...Args >
+   void
+   reallocate( std::vector<T,Args...>& obj,
+               typename std::vector<T,Args...>::size_type size )
+   {
+      std::vector<T,Args...> tmp;
+      obj.swap( tmp );
+      obj.resize( size );
+   }
+
+}
 
 #endif

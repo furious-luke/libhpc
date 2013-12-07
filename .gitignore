@@ -1,10 +1,7 @@
 **~
 **.pyc
-build-*
 config.log
-config.py
-.sconf_temp
-.sconsign.dblite
 build/*
 dist/*
 *.egg-info
+.use.db

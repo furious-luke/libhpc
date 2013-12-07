@@ -1,7 +1,0 @@
-Import('env')
-
-scripts = []
-
-env.Install('#' + env['BUILD']  + '/bin/', scripts)
-if env['PREFIX']:
-    env.Install(env['PREFIX'] + '/bin/', scripts)

@@ -15,23 +15,55 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_profile_progress_hh
+#define libhpc_profile_progress_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
 #include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+
+class progress_suite;
+
+namespace hpc {
+  namespace profile {
+
+     class progress
+     {
+	friend class ::progress_suite;
+
+     public:
+
+	progress( const mpi::comm& comm = mpi::comm::world );
+
+	void
+	set_local_size( double size );
+
+	void
+	set_complete( double size );
+
+	void
+	set_delta( double delta );
+
+	void
+	update();
+
+	double
+	complete() const;
+
+     protected:
+
+	void
+	_update_total( double delta );
+
+     protected:
+
+        shared_ptr<mpi::comm> _comm;
+	int _root;
+        int _tag;
+        double _update_fac;
+	double _lsize, _gsize;
+	double _comp, _old_comp;
+	double _gcomp, _gsize_inv;
+     };
+  }
+}
 
 #endif

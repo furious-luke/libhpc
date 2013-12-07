@@ -15,23 +15,48 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_main_main_hh
+#define libhpc_main_main_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
+#ifndef HPC_APP_CLASS
+#error libhpc: Must have an application class defined.
 #endif
+
+#include "libhpc/debug/assertions.hh"
+
+namespace hpc {
+
+   extern hpc::application* global_app;
+
+}
+
+///
+/// Entry point.
+///
+int
+main( int argc,
+      char* argv[] )
+{
+   typedef HPC_APP_CLASS application_type;
+   int ec = 0;
+   try
+   {
+      application_type app( argc, argv );
+      hpc::global_app = &app;
+      app();
+   }
+   catch( hpc::silent_terminate& ex )
+   {
+   }
+   catch( std::exception& ex )
+   {
+      std::cerr << "\nERROR: " << ex.what() << "\n\n";
+      ++ec;
+#ifndef NDEBUG
+      throw;
+#endif
+   }
+   return ec;
+}
 
 #endif

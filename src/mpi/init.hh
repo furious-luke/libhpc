@@ -15,23 +15,33 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef hpc_mpi_init_hh
+#define hpc_mpi_init_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+// #ifndef MPICH_SKIP_MPICXX
+// #define MPICH_SKIP_MPICXX
+// #endif
+//#ifndef OMPI_SKIP_MPICXX
+//#define OMPI_SKIP_MPICXX
+//#endif
+#include <mpi.h>
+
+namespace hpc {
+   namespace mpi {
+
+      void
+      initialise();
+
+      void
+      initialise( int& argc,
+                  char**& argv );
+
+      bool
+      initialised();
+
+      void
+      finalise( bool mpi=true );
+   }
+}
 
 #endif

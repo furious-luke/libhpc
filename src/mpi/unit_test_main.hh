@@ -15,23 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_mpi_unit_test_main_hh
+#define libhpc_mpi_unit_test_main_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
+#include <stdlib.h>
+#include "libhpc/debug/unit_test.hh"
+#include "libhpc/mpi/init.hh"
+#ifdef HPC_UNIT_TEST_LOG
+#include "libhpc/mpi/logger.hh"
 #endif
+
+int
+main( int argc,
+      char* argv[] )
+{
+   using namespace hpc;
+   mpi::initialise( argc, argv );
+#ifdef HPC_UNIT_TEST_LOG
+   LOG_PUSH( new mpi::logger( "hpc_unit_test.log" ) );
+#endif
+   {
+      test::runner runner;
+      runner.run_all();
+   }
+   mpi::finalise();
+   return EXIT_SUCCESS;
+}
 
 #endif

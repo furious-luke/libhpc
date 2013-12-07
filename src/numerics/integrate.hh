@@ -15,23 +15,28 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef libhpc_numerics_integrate_hh
+#define libhpc_numerics_integrate_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+namespace hpc {
+   namespace numerics {
+
+      template< class Function,
+                class PointIter,
+                class WeightIter >
+      typename Function::result_type
+      quadrature_summation( PointIter point_start,
+                            const PointIter& point_finish,
+                            WeightIter weight_start,
+                            Function func )
+      {
+         typename Function::result_type sum = 0;
+         while( point_start != point_finish )
+            sum += (*weight_start++)*func( *point_start++ );
+         return sum;
+      }
+
+   }
+}
 
 #endif

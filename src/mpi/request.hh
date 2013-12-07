@@ -15,23 +15,61 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef mpi_request_hh
+#define mpi_request_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
 #include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
-#ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
-#endif
+#include "init.hh"
+
+namespace hpc {
+   namespace mpi {
+
+      class requests;
+
+      class request {
+      public:
+
+	 request(MPI_Request req=MPI_REQUEST_NULL);
+
+	 request(const request& req);
+
+	 ~request();
+
+	 void
+	 mpi_request(MPI_Request req);
+
+	 const MPI_Request&
+	 mpi_request() const;
+
+	 MPI_Request&
+	 mod_mpi_request();
+
+	 bool
+	 test();
+
+	 void
+	 wait();
+
+	 bool
+	 operator==(const request& op) const;
+
+	 bool
+	 operator==(const MPI_Request op) const;
+
+	 bool
+	 operator!=(const request& op) const;
+
+	 bool
+	 operator!=(const MPI_Request op) const;
+
+         operator bool() const;
+
+      private:
+	 MPI_Request _req;
+
+         friend class requests;
+      };
+   }
+}
 
 #endif
