@@ -80,6 +80,13 @@ namespace hpc {
       }
 
    }
+
+   const char*
+   exception::what() const throw()
+   {
+      return this->_msg.c_str();
+   }
+
 }
 
 #endif

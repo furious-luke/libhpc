@@ -67,10 +67,10 @@ namespace hpc {
 	 // Prepare the maximum dimensions.
 	 hsize_t max_dims = unlimited ? H5S_UNLIMITED : size;
 
-         if( size )
+         // if( size )
             _id = H5Screate_simple( 1, &size, &max_dims );
-         else
-            _id = H5Screate( H5S_NULL );
+         // else
+         //    _id = H5Screate( H5S_NULL );
          ASSERT( _id >= 0 );
       }
 
@@ -174,6 +174,31 @@ namespace hpc {
 	 }
 	 else
 	    INSIST(H5Sselect_none(this->_id), >= 0);
+      }
+
+      void
+      dataspace::select_hyperslab( H5S_seloper_t op,
+                                   hsize_t count,
+                                   hsize_t start,
+				   optional<hsize_t> stride,
+				   optional<hsize_t> block )
+      {
+	 ASSERT( simple_extent_num_dims() == 1 );
+
+	 // Don't call the HDF5 routine if there is nothing to select.
+	 if( count )
+         {
+	    INSIST( H5Sselect_hyperslab(
+                       _id,
+                       op,
+                       &start,
+                       stride ? &*stride : NULL,
+                       &count,
+                       block ? &*block : NULL
+                       ), >= 0 );
+	 }
+	 else
+	    INSIST( H5Sselect_none( _id ), >= 0 );
       }
 
       void

@@ -16,9 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/debug/except.hh"
-#include "libhpc/logging/globals.hh"
+#include "libhpc/logging/logging.hh"
 
 namespace hpc {
 
@@ -38,8 +36,8 @@ namespace hpc {
 
    application::application( int argc,
                              char* argv[],
-                             std::string const& name = "",
-                             std::string const& info = "" )
+                             std::string const& name,
+                             std::string const& info )
       : _app_name( name ),
         _app_info( info )
    {
@@ -64,10 +62,13 @@ namespace hpc {
       EXCEPT( 0, "Recieved signal ", param, ", terminating." );
    }
 
-   bool
+   void
    application::parse_options( int argc,
                                char* argv[] )
    {
+      // Be sure the options dictionary is compiled.
+      _opts.compile();
+
       // Parse the command line options.
       options::parse<options::cmd_line>( _opts, argc, (const char**)argv );
       auto cfg = _opts.opt<string>( "config-file" );
@@ -77,27 +78,27 @@ namespace hpc {
       // If the user asked for help print it out.
       if( _opts.help_requested() )
       {
-         std::cout << "\n" << _app_info;
+         if( !_app_info.empty() )
+            std::cout << "\n" << _app_info << "\n";
+         std::cout << "\n";
          _opts.print_help( _app_name );
          std::cout << "\n";
-         return false;
+         throw silent_terminate();
       }
 
       // If not, then show any errors.
       else if( _opts.has_errors() )
       {
          _opts.print_errors();
-         return false;
+         throw silent_terminate();
       }
 
       // If all else is okay, check if we wanted to dump config.
       else if( _opts.config_requested() )
       {
          _opts.generate_config<options::xml>();
-         return false;
+         throw silent_terminate();
       }
-
-      return true;
    }
 
 }

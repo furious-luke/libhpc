@@ -56,7 +56,7 @@ namespace hpc {
          void
          _write_buffer( std::string& buf ) throw();
 
-      private:
+      protected:
 
          const char* _file;
          int _line;
@@ -72,6 +72,10 @@ namespace hpc {
    class exception
       : public debug::assertion
    {
+   public:
+
+      virtual const char*
+      what() const throw();
    };
 
 }

@@ -46,6 +46,16 @@ namespace hpc {
          create( loc, name, datatype, dataspace, chunk_size, deflate, props );
       }
 
+      dataset::dataset( h5::location& loc,
+                        std::string const& name,
+                        h5::datatype const& dtype,
+                        hsize_t size,
+                        optional<const property_list&> props )
+         : _id( -1 )
+      {
+         create( loc, name, dtype, size, props );
+      }
+
       dataset::~dataset()
       {
 	 close();
@@ -93,6 +103,22 @@ namespace hpc {
 
 	 // if(chunk_size)
 	 //    H5Pclose(dcpl);
+      }
+
+      void
+      dataset::create( h5::location& loc,
+                       std::string const& name,
+                       h5::datatype const& dtype,
+                       hsize_t size,
+                       optional<property_list const&> props )
+      {
+	 close();
+	 create_groups( loc, name );
+	 hid_t dcpl = props ? props->id() : H5P_DEFAULT;
+         dataspace dspace;
+         dspace.create( size );
+	 _id = H5Dcreate1( loc.id(), name.c_str(), dtype.id(), dspace.id(), dcpl );
+         ASSERT( _id >= 0, "Failed to create HDF5 dataset." );
       }
 
       void
@@ -205,6 +231,24 @@ namespace hpc {
 
 	 if(comm != mpi::comm::null && comm.size() != 1)
 	    H5Pclose(plist_id);
+      }
+
+      void
+      dataset::write( void* buf,
+                      hsize_t size,
+                      h5::datatype const& dtype,
+                      hsize_t offset,
+                      mpi::comm& comm )
+      {
+         h5::dataspace file_space;
+         space( file_space );
+         file_space.select_hyperslab( H5S_SELECT_SET, size, offset );
+
+         h5::dataspace mem_space;
+         mem_space.create( size );
+         mem_space.select_all();
+
+         write( buf, dtype, mem_space, file_space, comm );
       }
 
       void

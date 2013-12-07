@@ -48,6 +48,12 @@ namespace hpc {
                   bool deflate=false,
 		  optional<const property_list&> props = optional<const property_list&>() );
 
+	 dataset( h5::location& loc,
+                  std::string const& name,
+                  h5::datatype const& dtype,
+                  hsize_t size,
+		  optional<property_list const&> props = optional<property_list const&>() );
+
 	 ~dataset();
 
 	 void
@@ -62,6 +68,13 @@ namespace hpc {
 		 optional<const vector<hsize_t>::view&> chunk_size = optional<const vector<hsize_t>::view&>(),
 		 bool deflate=false,
 		 optional<const property_list&> props = optional<const property_list&>() );
+
+	 void
+	 create( h5::location& loc,
+		 std::string const& name,
+		 h5::datatype const& dtype,
+                 hsize_t size,
+		 optional<property_list const&> props = optional<property_list const&>() );
 
 	 void
 	 close();
@@ -124,6 +137,24 @@ namespace hpc {
 		const h5::dataspace& mem_space=h5::dataspace::all,
 		const h5::dataspace& file_space=h5::dataspace::all,
 		const mpi::comm& comm=mpi::comm::self );
+
+         void
+         write( void* buf,
+                hsize_t size,
+                h5::datatype const& dtype,
+                hsize_t offset,
+                mpi::comm& comm = mpi::comm::self );
+
+	 template< class T >
+	 void
+	 write( typename view<std::vector<T>>::type buf,
+                hsize_t offset,
+                mpi::comm& comm = mpi::comm::self )
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype dtype( mpl::at<h5::datatype::type_map,T>::type::value );
+            write( buf.data(), buf.size(), dtype, offset, comm );
+	 }
 
 	 void
 	 extend( hsize_t size );

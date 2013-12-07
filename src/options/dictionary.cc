@@ -73,10 +73,10 @@ namespace hpc {
 	 if( !binary.empty() )
 	 {
 	    std::cout << "Usage:\n\n";
-	    std::cout << "    " << binary << " []\n\n";
+	    std::cout << "    " << binary << " []";
 	 }
 
-	 std::cout << "Options:\n\n";
+	 std::cout << "\n\nOptions:\n\n";
 	 for( auto it = options_cbegin(); it != options_cend(); ++it )
 	 {
 	    if( (*it)->short_name() != "*" )
@@ -307,6 +307,7 @@ namespace hpc {
 	    add_option<boolean>( "help-values", "hv", false, _help_val_req, "Show help with current values." );
 
 	    // Add an option to automatically generate a sample config file.
+            add_option<string>( "config-file", "c", none, none, "Path of a configuration file." );
 	    add_option<string>( "gen-config", "", none, none, "Generate configuration file." );
 
             _opts_mm.compile();

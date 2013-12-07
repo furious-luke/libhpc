@@ -29,7 +29,9 @@ namespace hpc {
       public:
 
          application( int argc,
-                      char* argv[] );
+                      char* argv[],
+                      std::string const& name = "",
+                      std::string const& info = "" );
 
          virtual
          ~application();

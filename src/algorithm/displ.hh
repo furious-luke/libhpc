@@ -15,48 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_main_main_hh
-#define libhpc_main_main_hh
-
-#ifndef HPC_APP_CLASS
-#error libhpc: Must have an application class defined.
-#endif
-
-#include "libhpc/debug/assertions.hh"
+#ifndef hpc_algorithm_displ_hh
+#define hpc_algorithm_displ_hh
 
 namespace hpc {
+   namespace algorithm {
 
-   extern hpc::application* global_app;
+      template< class InputIter,
+                class OutputIter >
+      unsigned
+      displ( InputIter start,
+             InputIter const& finish,
+             OutputIter result,
+             typename OutputIter::value_type offs = 0 )
+      {
+         *result++ = offs;
+         while( start != finish )
+         {
+            typename OutputIter::value_type tmp = offs + *start++;
+            *result++ = tmp;
+            offs = tmp;
+         }
+      }
 
-}
-
-///
-/// Entry point.
-///
-int
-main( int argc,
-      char* argv[] )
-{
-   typedef HPC_APP_CLASS application_type;
-   int ec = 0;
-   try
-   {
-      application_type app( argc, argv );
-      hpc::global_app = &app;
-      app();
    }
-   catch( hpc::silent_terminate& ex )
-   {
-   }
-   catch( std::exception& ex )
-   {
-      std::cerr << "\nERROR: " << ex.what() << "\n\n";
-      ++ec;
-#ifndef NDEBUG
-      throw;
-#endif
-   }
-   return ec;
 }
 
 #endif

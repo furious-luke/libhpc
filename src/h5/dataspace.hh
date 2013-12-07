@@ -34,6 +34,7 @@ namespace hpc {
 
 	 static dataspace all;
 
+         explicit
 	 dataspace( hid_t id=-1 );
 
 	 dataspace( const dataset& dset );
@@ -83,6 +84,13 @@ namespace hpc {
 			   const vector<hsize_t>::view& start,
 			   boost::optional<const vector<hsize_t>::view&> stride=boost::optional<const vector<hsize_t>::view&>(),
 			   boost::optional<const vector<hsize_t>::view&> block=boost::optional<const vector<hsize_t>::view&>() );
+
+	 void
+	 select_hyperslab( H5S_seloper_t op,
+			   hsize_t count,
+			   hsize_t start,
+			   optional<hsize_t> stride = optional<hsize_t>(),
+                           optional<hsize_t> block = optional<hsize_t>() );
 
 	 void
 	 select_range( hsize_t start,

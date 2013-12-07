@@ -19,8 +19,16 @@
 #define libhpc_main_application_hh
 
 #include <signal.h>
+#include <string>
+#include "libhpc/options/options.hh"
+#include "libhpc/debug/debug.hh"
 
 namespace hpc {
+
+   class silent_terminate
+      : hpc::exception
+   {
+   };
 
    class application
    {
@@ -41,7 +49,7 @@ namespace hpc {
       void
       signaled( int param );
 
-      bool
+      void
       parse_options( int argc,
                      char* argv[] );
 
