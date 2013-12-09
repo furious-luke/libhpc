@@ -48,14 +48,13 @@ main( int argc,
       catch( hpc::silent_terminate& ex )
       {
       }
-      catch( std::exception& ex )
+#ifdef NDEBUG
+      catch( hpc::exception& ex )
       {
          std::cerr << "\nError: " << ex.what() << "\n\n";
-#ifndef NDEBUG
-         throw;
-#endif
 	 hpc::mpi::comm::world.abort();
       }
+#endif
       hpc::mpi::finalise();
    }
    return EXIT_SUCCESS;

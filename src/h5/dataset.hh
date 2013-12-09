@@ -101,6 +101,33 @@ namespace hpc {
 	       const h5::dataspace& file_space=h5::dataspace::all,
 	       const mpi::comm& comm=mpi::comm::self );
 
+         void
+         read( void* buf,
+               hsize_t size,
+               h5::datatype const& dtype,
+               hsize_t offset,
+               mpi::comm& comm = mpi::comm::self );
+
+	 template< class T >
+         T
+	 read( hsize_t elem )
+         {
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype dtype( mpl::at<h5::datatype::type_map,T>::type::value );
+
+	    h5::dataspace file_space;
+	    space( file_space );
+	    file_space.select_one( elem );
+
+	    h5::dataspace mem_space;
+            mem_space.create( 1 );
+	    mem_space.select_all();
+
+	    T data;
+	    read( &data, dtype, mem_space, file_space, mpi::comm::self );
+	    return data;
+         }
+
 	 template< class T >
 	 void
 	 read( typename hpc::view<std::vector<T>>::type buf,
