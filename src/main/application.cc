@@ -36,10 +36,8 @@ namespace hpc {
 
    application::application( int argc,
                              char* argv[],
-                             std::string const& name,
                              std::string const& info )
-      : _app_name( name ),
-        _app_info( info )
+      : _app_info( info )
    {
    }
 
@@ -62,42 +60,34 @@ namespace hpc {
       EXCEPT( 0, "Recieved signal ", param, ", terminating." );
    }
 
+   po::options_description&
+   application::options()
+   {
+      return _opt_desc;
+   }
+
+   po::positional_options_description&
+   application::positional_options()
+   {
+      return _pos_opt_desc;
+   }
+
    void
    application::parse_options( int argc,
                                char* argv[] )
    {
-      // Be sure the options dictionary is compiled.
-      _opts.compile();
+      _opt_desc.add_options()
+	 ("help,h", "Show this help");
 
-      // Parse the command line options.
-      options::parse<options::cmd_line>( _opts, argc, (const char**)argv );
-      auto cfg = _opts.opt<string>( "config-file" );
-      if( cfg )
-         options::parse<options::xml>( _opts, *cfg );
+      po::store( po::command_line_parser( argc, argv ).options( _opt_desc ).positional( _pos_opt_desc ).run(), _vm );
+      po::notify( _vm );
 
-      // If the user asked for help print it out.
-      if( _opts.help_requested() )
+      if( _vm.count( "help" ) )
       {
-         if( !_app_info.empty() )
-            std::cout << "\n" << _app_info << "\n";
-         std::cout << "\n";
-         _opts.print_help( _app_name );
-         std::cout << "\n";
-         throw silent_terminate();
-      }
-
-      // If not, then show any errors.
-      else if( _opts.has_errors() )
-      {
-         _opts.print_errors();
-         throw silent_terminate();
-      }
-
-      // If all else is okay, check if we wanted to dump config.
-      else if( _opts.config_requested() )
-      {
-         _opts.generate_config<options::xml>();
-         throw silent_terminate();
+	 if( !_app_info.empty() )
+	    std::cout << "\n" << _app_info << "\n\n";
+      	 std::cout << _opt_desc << "\n";
+	 throw silent_terminate();
       }
    }
 

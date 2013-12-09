@@ -27,7 +27,8 @@ namespace hpc {
            _sep( ":" ),
            _ready( false ),
 	   _help_req( false ),
-	   _help_val_req( false )
+	   _help_val_req( false ),
+	   _use_config( true )
       {
 	 std::transform( _pre.begin(), _pre.end(), _pre.begin(), ::tolower );
       }
@@ -42,6 +43,12 @@ namespace hpc {
          _dicts_mm.clear();
 	 _pos_opts.clear();
 	 _s_to_l.clear();
+      }
+
+      void
+      dictionary::set_use_config( bool state )
+      {
+	 _use_config = state;
       }
 
       void
@@ -73,10 +80,10 @@ namespace hpc {
 	 if( !binary.empty() )
 	 {
 	    std::cout << "Usage:\n\n";
-	    std::cout << "    " << binary << " []";
+	    std::cout << "    " << binary << " []\n\n";
 	 }
 
-	 std::cout << "\n\nOptions:\n\n";
+	 std::cout << "Options:\n\n";
 	 for( auto it = options_cbegin(); it != options_cend(); ++it )
 	 {
 	    if( (*it)->short_name() != "*" )
@@ -307,8 +314,11 @@ namespace hpc {
 	    add_option<boolean>( "help-values", "hv", false, _help_val_req, "Show help with current values." );
 
 	    // Add an option to automatically generate a sample config file.
-            add_option<string>( "config-file", "c", none, none, "Path of a configuration file." );
-	    add_option<string>( "gen-config", "", none, none, "Generate configuration file." );
+	    if( _use_config )
+	    {
+	       add_option<string>( "config-file", "c", none, none, "Path of a configuration file." );
+	       add_option<string>( "gen-config", "", none, none, "Generate configuration file." );
+	    }
 
             _opts_mm.compile();
             _dicts_mm.compile();

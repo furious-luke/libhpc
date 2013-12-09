@@ -24,9 +24,8 @@ namespace hpc {
 
       application::application( int argc,
                                 char* argv[],
-                                std::string const& name,
                                 std::string const& info )
-         : hpc::application( argc, argv, name, info )
+         : hpc::application( argc, argv, info )
       {
          _rank = mpi::comm::world.rank();
          _size = mpi::comm::world.size();

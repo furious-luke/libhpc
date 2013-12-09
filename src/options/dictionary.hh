@@ -51,6 +51,9 @@ namespace hpc {
          clear();
 
 	 void
+	 set_use_config( bool state );
+
+	 void
 	 reset_positionals();
 
 	 void
@@ -239,6 +242,7 @@ namespace hpc {
 	 map<hpc::string,hpc::string> _s_to_l;
 	 unsigned _cur_pos;
 	 bool _help_req, _help_val_req;
+	 bool _use_config;
       };
 
    }
