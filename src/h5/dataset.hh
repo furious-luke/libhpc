@@ -131,6 +131,30 @@ namespace hpc {
 	 template< class T >
 	 void
 	 read( typename hpc::view<std::vector<T>>::type buf,
+               mpi::comm& comm = mpi::comm::self )
+	 {
+            // Load the HDF5 datatype from the dataset.
+            h5::datatype dtype = this->datatype();
+	    ASSERT( dtype.size() == sizeof(T) );
+
+            // Get the filespace and set elements.
+	    h5::dataspace file_space;
+	    space( file_space );
+	    file_space.select_all();
+
+            // Create the memory space.
+            vector<hsize_t> dims( 1 );
+	    dims[0] = buf.size();
+	    h5::dataspace mem_space( dims );
+	    mem_space.select_all();
+
+            // Read from the dataset.
+	    read( buf.data(), dtype, mem_space, file_space, comm );
+	 }
+
+	 template< class T >
+	 void
+	 read( typename hpc::view<std::vector<T>>::type buf,
 	       hpc::view<std::vector<hsize_t>>::type const& elems,
                mpi::comm& comm = mpi::comm::self )
 	 {
