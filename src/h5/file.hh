@@ -201,6 +201,14 @@ namespace hpc {
 	 hsize_t
 	 read_local_data_size( const std::string& name );
 
+	 void
+	 read( std::string const& name,
+	 	   void* buf,
+	 	   hsize_t size,
+	 	   h5::datatype const& dtype,
+	 	   hsize_t offs,
+	 	   mpi::comm& comm = mpi::comm::self );
+
 	 template< class T >
 	 T
 	 read( const std::string& name )
