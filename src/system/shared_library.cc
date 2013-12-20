@@ -50,7 +50,7 @@ namespace hpc {
    {
       close();
       _hnd = dlopen( path.c_str(), RTLD_LAZY );
-      EXCEPT( _hnd, "Failed to load shared library: ", path );
+      EXCEPT( _hnd, "Failed to load shared library: ", path, ": ", dlerror() );
    }
 
 }

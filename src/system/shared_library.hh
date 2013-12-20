@@ -46,9 +46,9 @@ namespace hpc {
       T*
       symbol( std::string const& name )
       {
-         void* sym = (T*)dlsym( _hnd, name.c_str() );
+	 T* sym = (T*)dlsym( _hnd, name.c_str() );
          EXCEPT( sym, "Failed to load symbol from shared library: ", name );
-         return (T*)sym;
+         return sym;
       }
 
    protected:
