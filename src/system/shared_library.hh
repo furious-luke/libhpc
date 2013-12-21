@@ -34,6 +34,8 @@ namespace hpc {
 
       shared_library( fs::path const& path );
 
+      shared_library( shared_library&& src );
+
       ~shared_library();
 
       void
@@ -50,6 +52,9 @@ namespace hpc {
          EXCEPT( sym, "Failed to load symbol from shared library: ", name );
          return sym;
       }
+
+      shared_library&
+      operator=( shared_library&& src );
 
    protected:
 
