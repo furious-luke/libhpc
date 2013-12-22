@@ -15,18 +15,33 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_path_finder_hh
+#define libhpc_system_path_finder_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
-#include "shared_library.hh"
-#include "daemon.hh"
-#include "path_finder.hh"
+#include <boost/optional.hpp>
+#include <boost/filesystem.hpp>
+
+namespace hpc {
+   namespace fs = boost::filesystem;
+
+   class path_finder
+   {
+   public:
+
+      void
+      add_root( fs::path const& root );
+
+      boost::optional<fs::path>
+      find( fs::path const& path );
+
+      std::list<fs::path> const&
+      roots() const;
+
+   protected:
+
+      std::list<fs::path> _roots;
+   };
+
+}
 
 #endif
