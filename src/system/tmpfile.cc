@@ -15,19 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
-
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
-#include "shared_library.hh"
-#include "daemon.hh"
-#include "path_finder.hh"
 #include "tmpfile.hh"
 
-#endif
+namespace hpc {
+
+   tmpfile::tmpfile()
+   {
+      _gen_path();
+   }
+
+   tmpfile::tmpfile( std::ios_base::openmode mode )
+   {
+      _gen_path();
+   }
+
+   tmpfile::~tmpfile()
+   {
+      if( fs::exists( _path ) )
+         fs::remove( _path );
+   }
+
+   fs::path const&
+   tmpfile::filename() const
+   {
+      return _path;
+   }
+
+   fs::path const&
+   tmpfile::_gen_path()
+   {
+      char tmp[L_tmpnam + 1];
+      tmpnam( tmp );
+      _path = tmp;
+      return _path;
+   }
+
+}
