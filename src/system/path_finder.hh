@@ -28,6 +28,10 @@ namespace hpc {
    {
    public:
 
+      path_finder();
+
+      path_finder( std::initializer_list<fs::path> roots );
+
       void
       add_root( fs::path const& root );
 
