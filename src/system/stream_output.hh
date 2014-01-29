@@ -24,6 +24,25 @@
 #include <list>
 #include <set>
 
+template< class T >
+std::ostream&
+operator<<( std::ostream& strm,
+            const std::vector<T>& obj )
+{
+   strm << "[";
+   if( !obj.empty() )
+   {
+      auto it = obj.cbegin();
+      strm << *it++;
+      while( it != obj.cend() )
+      {
+         strm << ", " << *it++;
+      }
+   }
+   strm << "]";
+   return strm;
+}
+
 namespace hpc {
 
    template< class T,

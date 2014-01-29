@@ -47,28 +47,28 @@ namespace hpc {
 
          template< class Seq >
          void
-         set_knot_points( Seq& pnts )
+         set_knot_points( Seq&& pnts )
          {
             assign( _pnts, std::move( pnts ) );
          }
 
          template< class Seq >
          void
-         set_knot_points( const Seq& pnts )
+         set_knot_points( Seq const& pnts )
          {
             assign( _pnts, pnts );
          }
 
          template< class Seq >
          void
-         set_knot_values( Seq& vals )
+         set_knot_values( Seq&& vals )
          {
             assign( _vals, std::move( vals ) );
          }
 
          template< class Seq >
          void
-         set_knot_values( const Seq& vals )
+         set_knot_values( Seq const& vals )
          {
             assign( _vals, vals );
          }
@@ -150,8 +150,8 @@ namespace hpc {
             return _vals.cbegin();
          }
 
-         value_type
-         operator()( const value_type& crd ) const
+         unsigned
+         poly( value_type const& crd ) const
          {
             unsigned poly;
             auto it = std::lower_bound( _pnts.begin(), _pnts.end(), crd );
@@ -163,6 +163,13 @@ namespace hpc {
                if( poly > 0 )
                   --poly;
             }
+            return poly;
+         }
+
+         value_type
+         operator()( const value_type& crd ) const
+         {
+            unsigned poly = this->poly( crd );
             return _eval_poly( crd, poly );
          }
 
