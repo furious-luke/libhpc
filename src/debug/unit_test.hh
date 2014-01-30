@@ -37,7 +37,7 @@
       #lhs, #rhs, epsilon, __FILE__, __LINE__ ).test(   \
          *::hpc::test::_cur_tc, ##__VA_ARGS__ )
 
-#define THROWS( expr, ex )                              \
+#define THROWS( expr, ex, ... )                         \
    try {                                                \
       expr;                                             \
       throw hpc::test::test_failed();                   \
@@ -47,7 +47,15 @@
       throw hpc::test::test_failed();                   \
    }
 
-#define NOTHROWS( expr )                                \
+#define THROWSANY( expr, ... )                          \
+   try {                                                \
+      expr;                                             \
+      throw hpc::test::test_failed();                   \
+   } catch( ... ) {                                     \
+      std::cout << "." << std::flush;                   \
+   }
+
+#define NOTHROWS( expr, ... )                           \
    try {                                                \
       expr;                                             \
       std::cout << "." << std::flush;                   \
