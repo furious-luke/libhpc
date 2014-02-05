@@ -208,6 +208,24 @@ namespace hpc {
       }
 
       void
+      dataset::read( void* buf,
+                     hsize_t size,
+                     h5::datatype const& dtype,
+                     hsize_t offset,
+                     mpi::comm& comm )
+      {
+         h5::dataspace file_space;
+         space( file_space );
+         file_space.select_hyperslab( H5S_SELECT_SET, size, offset );
+
+         h5::dataspace mem_space;
+         mem_space.create( size );
+         mem_space.select_all();
+
+         read( buf, dtype, mem_space, file_space, comm );
+      }
+
+      void
       dataset::write( const void* buf,
 		      const h5::datatype& mem_type,
 		      const h5::dataspace& mem_space,

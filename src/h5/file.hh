@@ -114,6 +114,29 @@ namespace hpc {
 
 	 template< class T >
 	 void
+	 write_serial( std::string const& name,
+		       typename view<std::vector<T>>::type const& buf )
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype dtype( mpl::at<h5::datatype::type_map,T>::type::value );
+
+	    h5::dataspace file_space;
+            file_space.create( buf.size() );
+	    h5::dataset file_set;
+	    file_set.create( *this, name, dtype, file_space );
+            file_space.select_all();
+
+	    h5::dataspace mem_space;
+            mem_space.create( buf.size() );
+	    mem_space.select_all();
+
+	    // Only one rank writes.
+	    if( _comm->rank() == 0 )
+	       file_set.write( buf.data(), dtype, mem_space, file_space, mpi::comm::self );
+	 }
+
+	 template< class T >
+	 void
 	 write( const std::string& name,
 		const typename vector<T>::view& data,
 		boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
@@ -177,6 +200,14 @@ namespace hpc {
 
 	 hsize_t
 	 read_local_data_size( const std::string& name );
+
+	 void
+	 read( std::string const& name,
+	 	   void* buf,
+	 	   hsize_t size,
+	 	   h5::datatype const& dtype,
+	 	   hsize_t offs,
+	 	   mpi::comm& comm = mpi::comm::self );
 
 	 template< class T >
 	 T

@@ -15,32 +15,38 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_dual_hh
-#define hpc_algorithm_dual_hh
+#include <libhpc/debug/unit_test_main.hh>
+#include <libhpc/system/path_finder.hh>
 
-namespace hpc {
-   namespace algorithm {
+using namespace hpc::test;
 
-      template< class InputIterator,
-		class OutputIterator >
-      void
-      dual( InputIterator start,
-	    const InputIterator& finish,
-	    OutputIterator result )
+namespace {
+
+   test_case<> ANON(
+      "/libhpc/system/path_finder/add_root",
+      "",
+      []()
       {
-	 typedef typename InputIterator::value_type value_type;
-	 if( start != finish )
-	 {
-	    value_type cur = *start++;
-	    while( start != finish )
-	    {
-	       *result++ = 0.5*(*start - cur);
-	       cur = *start++;
-	    }
-	 }
+	 hpc::path_finder pf;
+	 pf.add_root( "." );
+	 pf.add_root( "/tmp" );
+	 TEST( pf.roots().size() == 2 );
+	 TEST( pf.roots().front() == "." );
+	 TEST( pf.roots().back() == "/tmp" );
       }
+      );
 
-   }
+   test_case<> ANON(
+      "/libhpc/system/path_finder/find",
+      "",
+      []()
+      {
+	 hpc::path_finder pf;
+	 pf.add_root( "." );
+	 pf.add_root( "/tmp" );
+	 TEST( *pf.find( "auth/login.html" ) == "./auth/login.html" );
+	 TEST( pf.find( "nothing" ) == boost::none );
+      }
+      );
+
 }
-
-#endif

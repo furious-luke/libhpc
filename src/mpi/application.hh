@@ -30,7 +30,6 @@ namespace hpc {
 
          application( int argc,
                       char* argv[],
-                      std::string const& name = "",
                       std::string const& info = "" );
 
          virtual

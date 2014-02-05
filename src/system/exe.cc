@@ -58,7 +58,7 @@ namespace hpc {
          INSIST( _NSGetExecutablePath( path, &size ), == 0 );
 
          // Return a boost filesystem path.
-         return fs::path( path ).parent_path();
+         return fs::path( path ); //.parent_path();
       }
 
    }

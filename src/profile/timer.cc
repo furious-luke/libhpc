@@ -61,6 +61,17 @@ namespace hpc {
       }
 
       void
+      timer::start2()
+      {
+         ++_stack;
+         if( !_run )
+         {
+            _run = true;
+            _start = hpc::timer();
+         }
+      }
+
+      void
       timer::stop()
       {
 	 --_stack;

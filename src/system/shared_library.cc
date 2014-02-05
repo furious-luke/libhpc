@@ -30,6 +30,12 @@ namespace hpc {
       open( path );
    }
 
+   shared_library::shared_library( shared_library&& src )
+      : _hnd( src._hnd )
+   {
+      src._hnd = nullptr;
+   }
+
    shared_library::~shared_library()
    {
       close();
@@ -46,11 +52,19 @@ namespace hpc {
    }
 
    void
-   shared_library::open( fs::path const& path )
+   shared_library::open( fs::path const& path,
+			 int flags )
    {
       close();
-      _hnd = dlopen( path.c_str(), RTLD_LAZY );
-      EXCEPT( _hnd, "Failed to load shared library: ", path );
+      _hnd = dlopen( path.c_str(), flags );
+      EXCEPT( _hnd, "Failed to load shared library: ", path, ": ", dlerror() );
+   }
+
+   shared_library&
+   shared_library::operator=( shared_library&& src )
+   {
+      _hnd = src._hnd;
+      src._hnd = nullptr;
    }
 
 }

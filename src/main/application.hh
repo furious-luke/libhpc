@@ -20,10 +20,12 @@
 
 #include <signal.h>
 #include <string>
+#include <boost/program_options.hpp>
 #include "libhpc/options/options.hh"
 #include "libhpc/debug/debug.hh"
 
 namespace hpc {
+   namespace po = boost::program_options;
 
    class silent_terminate
       : hpc::exception
@@ -36,7 +38,6 @@ namespace hpc {
 
       application( int argc,
                    char* argv[],
-                   std::string const& name = "",
                    std::string const& info = "" );
 
       void
@@ -49,14 +50,21 @@ namespace hpc {
       void
       signaled( int param );
 
+      po::options_description&
+      options();
+
+      po::positional_options_description&
+      positional_options();
+
       void
       parse_options( int argc,
                      char* argv[] );
 
    protected:
 
-      options::dictionary _opts;
-      std::string _app_name;
+      po::options_description _opt_desc;
+      po::positional_options_description _pos_opt_desc;
+      po::variables_map _vm;
       std::string _app_info;
    };
 

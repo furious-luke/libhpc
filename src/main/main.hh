@@ -48,14 +48,13 @@ main( int argc,
    catch( hpc::silent_terminate& ex )
    {
    }
-   catch( std::exception& ex )
+#ifdef NDEBUG
+   catch( hpc::exception& ex )
    {
       std::cerr << "\nERROR: " << ex.what() << "\n\n";
       ++ec;
-#ifndef NDEBUG
-      throw;
-#endif
    }
+#endif
    return ec;
 }
 

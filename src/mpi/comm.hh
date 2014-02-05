@@ -447,6 +447,23 @@ namespace hpc {
 			  ));
 	 }
 
+	 template< class T >
+	 void
+	 bcasta_root( typename hpc::view<std::vector<T>>::type& data ) const
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    int root = this->rank();
+	    typename std::vector<T>::size_type size = data.size();
+	    this->bcast( size, root );
+	    MPI_INSIST( MPI_Bcast(
+			   data.data(),
+			   data.size(),
+			   MPI_MAP_TYPE(T),
+			   root,
+			   this->_comm
+			   ) );
+	 }
+
 	 /// To be called from recievers (combined with above).
 	 template< class T >
 	 void
@@ -455,6 +472,22 @@ namespace hpc {
 	 {
 	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map, T>) );
 	    typename vector<T>::size_type size = data.size();
+	    this->bcast( size, root );
+	    data.resize( size );
+	    MPI_INSIST( MPI_Bcast( data.data(),
+                                   data.size(),
+                                   MPI_MAP_TYPE( T ),
+                                   root,
+                                   this->_comm ) );
+	 }
+
+	 template< class T >
+	 void
+	 bcasta( std::vector<T>& data,
+		 int root = 0 ) const
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    typename std::vector<T>::size_type size = data.size();
 	    this->bcast( size, root );
 	    data.resize( size );
 	    MPI_INSIST( MPI_Bcast( data.data(),
@@ -570,6 +603,25 @@ namespace hpc {
 			  op,
 			  this->_comm
 			  ) );
+	 }
+
+	 /// Reduce an array of values.
+	 template< class T >
+	 void
+	 all_reduce( typename hpc::view<std::vector<T>>::type buf,
+		     MPI_Op op = MPI_SUM ) const
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    std::vector<T> inc( buf.size() );
+	    MPI_INSIST( MPI_Allreduce(
+			  (void*)buf.data(),
+			  (void*)inc.data(),
+			  buf.size(),
+                          MPI_MAP_TYPE( T ),
+			  op,
+			  _comm
+			  ) );
+	    std::copy( inc.begin(), inc.end(), buf.begin() );
 	 }
 
          void

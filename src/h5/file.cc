@@ -462,6 +462,19 @@ namespace hpc {
 	 return ((_comm->rank() + 1)*global_size)/_comm->size() - (_comm->rank()*global_size)/_comm->size();
       }
 
+      void
+	  file::read( std::string const& name,
+  	  	    void* buf,
+  	  	    hsize_t size,
+  	  	    h5::datatype const& dtype,
+  	  	    hsize_t offs,
+  	  	    mpi::comm& comm )
+	  {
+	     h5::dataset dset;
+	     dset.open( *this, name );
+	     dset.read( buf, size, dtype, offs, comm );
+	  }
+
 // template<>
 // void file::read(const std::string& name, VectorView<int> data, const Comm& comm) {
 // #ifndef NDEBUG

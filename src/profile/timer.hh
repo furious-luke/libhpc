@@ -49,6 +49,9 @@ namespace hpc {
          handle
          start( handle::stop_type stop = handle::NORMAL );
 
+         void
+         start2();
+
 	 void
 	 stop();
 

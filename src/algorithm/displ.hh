@@ -38,6 +38,25 @@ namespace hpc {
          }
       }
 
+      template< class InputIter >
+      unsigned
+      displ_in_place( InputIter start,
+                      InputIter const& finish,
+                      typename InputIter::value_type offs = 0 )
+      {
+         if( start != finish )
+         {
+            typename InputIter::value_type prev = *start + offs;
+            *start++ = offs;
+            while( start != finish )
+            {
+               typename InputIter::value_type tmp = prev + *start;
+               *start++ = prev;
+               prev = tmp;
+            }
+         }
+      }
+
    }
 }
 

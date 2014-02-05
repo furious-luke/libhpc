@@ -15,23 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_bin_hh
-#define hpc_algorithm_bin_hh
+#ifndef libhpc_system_timer_hh
+#define libhpc_system_timer_hh
 
 namespace hpc {
-   namespace algorithm {
 
-      template< class InputIterator >
-      unsigned
-      bin( const InputIterator& start,
-	   const InputIterator& finish,
-	   typename InputIterator::value_type value )
-      {
-	 auto it = std::lower_bound( start, finish, value );
-	 return it - start;
-      }
+   void
+   daemonise();
 
-   }
 }
 
 #endif

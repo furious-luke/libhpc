@@ -28,16 +28,16 @@ namespace hpc {
              class U >
    T&
    assign( T& tgt,
-           const U& src )
+           U&& src )
    {
-      return tgt = src;
+      return tgt = std::forward<U>( src );
    }
 
    template< class T,
              class U >
    std::vector<T>&
    assign( std::vector<T>& tgt,
-           const vector_view<U>& src )
+           vector_view<U> const& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );

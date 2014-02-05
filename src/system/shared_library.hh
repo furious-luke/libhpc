@@ -34,22 +34,28 @@ namespace hpc {
 
       shared_library( fs::path const& path );
 
+      shared_library( shared_library&& src );
+
       ~shared_library();
 
       void
       close();
 
       void
-      open( fs::path const& path );
+      open( fs::path const& path,
+	    int flags = RTLD_LAZY | RTLD_GLOBAL );
 
       template< class T >
       T*
       symbol( std::string const& name )
       {
-         void* sym = (T*)dlsym( _hnd, name.c_str() );
+	 T* sym = (T*)dlsym( _hnd, name.c_str() );
          EXCEPT( sym, "Failed to load symbol from shared library: ", name );
-         return (T*)sym;
+         return sym;
       }
+
+      shared_library&
+      operator=( shared_library&& src );
 
    protected:
 

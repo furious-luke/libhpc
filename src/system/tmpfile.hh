@@ -15,19 +15,37 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef libhpc_system_tmpfile_hh
+#define libhpc_system_tmpfile_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
-#include "shared_library.hh"
-#include "daemon.hh"
-#include "path_finder.hh"
-#include "tmpfile.hh"
+#include <boost/filesystem.hpp>
+
+namespace hpc {
+   namespace fs = boost::filesystem;
+
+   class tmpfile
+   {
+   public:
+
+      tmpfile();
+
+      tmpfile( std::ios_base::openmode mode );
+
+      ~tmpfile();
+
+      fs::path const&
+      filename() const;
+
+   protected:
+
+      fs::path const&
+      _gen_path();
+
+   protected:
+
+      fs::path _path;
+   };
+
+}
 
 #endif

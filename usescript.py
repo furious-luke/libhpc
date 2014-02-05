@@ -115,3 +115,6 @@ shared_lib = rule(objs,                       sl & sl_inst,  target=platform.mak
 dummy      = rule(static_lib,                 lib_inst,      target_strip_dirs=2)
 tests      = rule(r'tests/.+\.cc$',           bin,           libraries=['hpc'], single=False, suffix='')
 dummy      = rule(tests,                      run_tests,     target=dummies.always)
+
+# Examples.
+rule(r'exs/system/daemon/.+\.cc$', bin, target='exs/daemon', libraries=['hpc'])
