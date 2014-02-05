@@ -23,6 +23,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
 
 template< class T >
 std::ostream&
