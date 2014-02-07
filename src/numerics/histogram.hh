@@ -51,15 +51,13 @@ namespace hpc {
                  std::array<value_type,2> const& rng )
          {
             _nbins = nbins;
+            _rng = rng;
             if( nbins > 0 )
                _edges.resize( nbins - 1 );
             else
                _edges.resize( 0 );
             for( unsigned ii = 0; ii < nbins - 1; ++ii )
                _edges[ii] = (double)rng[0] + ((double)(ii + 1))*((rng[1] - rng[0])/(double)nbins);
-
-            _edges.resize( nbins );
-            _rng = rng;
          }
 
          unsigned
@@ -72,12 +70,7 @@ namespace hpc {
          bin( value_type const& x ) const
          {
             auto lb = std::lower_bound( _edges.begin(), _edges.end(), x );
-            unsigned idx;
-            if( lb == _edges.end() )
-               idx = _edges.size() - 1;
-            else
-               idx = lb - _edges.begin();
-            return idx;
+            return lb - _edges.begin();
          }
 
       protected:
