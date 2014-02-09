@@ -38,7 +38,7 @@ namespace hpc {
 
       application( int argc,
                    char* argv[],
-                   std::string const& info = "" );
+                   std::string const& info = std::string() );
 
       void
       handle_signal( int sig );

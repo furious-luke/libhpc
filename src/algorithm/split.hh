@@ -15,39 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_application_hh
-#define libhpc_mpi_application_hh
-
-#include "libhpc/main/application.hh"
+#ifndef libhpc_algorithm_farmer_hh
+#define libhpc_algorithm_farmer_hh
 
 namespace hpc {
-   namespace mpi {
 
-      class application
-         : public hpc::application
-      {
-      public:
-
-         application( int argc,
-                      char* argv[],
-                      std::string const& info = std::string() );
-
-         virtual
-         ~application();
-
-         int
-         rank() const;
-
-         int
-         size() const;
-
-      public:
-
-         int _rank;
-         int _size;
-      };
-
+   template< class Iter >
+   Iter
+   split( Iter start,
+          Iter const& finish )
+   {
+      while( start != finish && *start != ',' )
+         ++start;
+      return start;
    }
+
 }
 
 #endif

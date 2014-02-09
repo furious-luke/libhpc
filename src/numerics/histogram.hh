@@ -94,6 +94,12 @@ namespace hpc {
          {
          }
 
+         histogram( unsigned nbins,
+                    std::array<value_type,2> const& rng )
+         {
+            resize( nbins, rng );
+         }
+
          histogram( std::shared_ptr<axis_type>& axis )
             : _axis( axis ),
               _bins( axis->size() )
