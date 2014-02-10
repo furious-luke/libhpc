@@ -37,6 +37,11 @@ namespace hpc {
                      mpl::pair<int,      boost::random::uniform_int_distribution<int> >,
                      mpl::pair<unsigned, boost::random::uniform_int_distribution<unsigned> > > uniform_distribution_types;
 
+   typedef mpl::map< mpl::pair<double,   boost::random::normal_distribution<double> >,
+                     mpl::pair<float,    boost::random::normal_distribution<float> >,
+                     mpl::pair<int,      boost::random::normal_distribution<int> >,
+                     mpl::pair<unsigned, boost::random::normal_distribution<unsigned> > > normal_distribution_types;
+
 typedef mpl::map< mpl::pair<double, boost::variate_generator<engine_type&, boost::random::uniform_real_distribution<double> > >,
 		  mpl::pair<float,  boost::variate_generator<engine_type&, boost::random::uniform_real_distribution<float> > >,
 		  mpl::pair<int,    boost::variate_generator<engine_type&, boost::random::uniform_int_distribution<int> > > > uniform_generator_types;
@@ -65,6 +70,15 @@ typedef mpl::map< mpl::pair<double, boost::variate_generator<engine_type&, boost
                      engine_type& engine = hpc::engine )
    {
       return typename mpl::at<uniform_distribution_types,T>::type( low, high )( engine );
+   }
+
+   template< class T >
+   T
+   generate_normal( const T& mean = 0,
+                    const T& std_dev = 1,
+                    engine_type& engine = hpc::engine )
+   {
+      return typename mpl::at<normal_distribution_types,T>::type( mean, std_dev )( engine );
    }
 
    template< class T >
@@ -114,6 +128,55 @@ typedef mpl::map< mpl::pair<double, boost::variate_generator<engine_type&, boost
 
       typename mpl::at<uniform_distribution_types, T>::type _dist;
    };
+
+   template< class T >
+   class normal_generator
+   {
+   public:
+
+      normal_generator( const T& mean = 0,
+                        const T& std_dev = 1 )
+         : _dist( mean, std_dev )
+      {
+      }
+
+      ~normal_generator()
+      {
+      }
+
+      void
+      set_range( const T& mean,
+                 const T& std_dev )
+      {
+         typename mpl::at<normal_distribution_types,T>::type::param_type params( mean, std_dev );
+         _dist.param( params );
+      }
+
+      template< class SeedType >
+      void
+      set_seed( SeedType seed )
+      {
+	 engine.seed( seed );
+	 _dist.reset();
+      }
+
+      void
+      reset()
+      {
+	 _dist.reset();
+      }
+
+      T
+      operator()()
+      {
+         return _dist( engine );
+      }
+
+   protected:
+
+      typename mpl::at<normal_distribution_types,T>::type _dist;
+   };
+
 }
 
 #endif
