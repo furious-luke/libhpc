@@ -57,6 +57,7 @@
 #define _OSTREAM9( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8 ) ((strm) << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8)
 #define _OSTREAM10( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9 ) ((strm) << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9)
 #define _OSTREAM11( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 ) ((strm) << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10)
+#define _OSTREAM12( strm, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11 ) ((strm) << p0 << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10 << p11)
 #define _OSTREAM_( strm, count, ... ) _OSTREAM##count( strm, ##__VA_ARGS__ )
 #define _OSTREAM( strm, count, ... ) _OSTREAM_( strm, count, ##__VA_ARGS__ )
 #define OSTREAM( strm, ... ) _OSTREAM( strm, PP_NARG( 0, ##__VA_ARGS__ ), ##__VA_ARGS__ )
