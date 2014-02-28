@@ -29,7 +29,7 @@ namespace {
       []()
       {
          hpc::numerics::histogram<double> hist;
-         hist.resize( 3, { 0.0, 3.0 } );
+         hist.resize( 3, std::array<double,2>{ { 0.0, 3.0 } } );
          TEST( hist.bins()[0] == 0 );
          TEST( hist.bins()[1] == 0 );
          TEST( hist.bins()[2] == 0 );
@@ -58,7 +58,7 @@ namespace {
       []()
       {
          hpc::numerics::histogram<double> hist;
-         hist.resize( 3, { 0.0, 3.0 } );
+         hist.resize( 3, std::array<double,2>{ { 0.0, 3.0 } } );
          hpc::numerics::histogram<double> dep( hist.axis() );
          TEST( hist.bins()[0] == 0 );
          TEST( hist.bins()[1] == 0 );

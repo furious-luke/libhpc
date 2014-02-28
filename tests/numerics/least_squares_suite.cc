@@ -28,6 +28,7 @@ namespace {
       "",
       []()
       {
+#ifdef HAVE_EIGEN
          hpc::numerics::least_squares<double> ls;
          ls.resize( 10 );
          for( int ii = 0; ii < 10; ++ii )
@@ -42,6 +43,7 @@ namespace {
          ls.solve();
          DELTA( ls.solution()( 0 ), -1.0, 1e-4 );
          DELTA( ls.solution()( 1 ), -1.0, 1e-4 );
+#endif
       }
       );
 
@@ -50,6 +52,7 @@ namespace {
       "",
       []()
       {
+#ifdef HAVE_EIGEN
          hpc::numerics::least_squares<double> ls;
          ls.resize( 10, 2 );
          for( int ii = 0; ii < 10; ++ii )
@@ -66,6 +69,7 @@ namespace {
          DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
          DELTA( ls.solution()( 1 ), 2.0, 1e-4 );
          DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
+#endif
       }
       );
 
@@ -74,6 +78,7 @@ namespace {
       "",
       []()
       {
+#ifdef HAVE_EIGEN
          hpc::numerics::least_squares<double> ls;
          ls.resize( 100, 1, 2 );
          for( int ii = 0; ii < 10; ++ii )
@@ -89,6 +94,7 @@ namespace {
          DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
          DELTA( ls.solution()( 2 ), 2.0, 1e-4 );
          DELTA( ls.solution()( 3 ), 1.0, 1e-4 );
+#endif
       }
       );
 
@@ -97,6 +103,7 @@ namespace {
       "",
       []()
       {
+#ifdef HAVE_EIGEN
          hpc::numerics::least_squares<double> ls;
          ls.resize( 100, 2, 2 );
          for( int ii = 0; ii < 10; ++ii )
@@ -117,6 +124,7 @@ namespace {
          DELTA( ls.solution()( 6 ), 2.0, 1e-4 );
          DELTA( ls.solution()( 7 ), 0.0, 1e-4 );
          DELTA( ls.solution()( 8 ), 1.0, 1e-4 );
+#endif
       }
       );
 
