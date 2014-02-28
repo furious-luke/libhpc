@@ -34,6 +34,28 @@
 namespace hpc {
    namespace logging {
 
+      template< class Tk,
+		class Tv >
+      std::ostream&
+      operator<<( std::ostream& strm,
+		  const std::map<Tk,Tv>& obj )
+      {
+	 strm << "{";
+	 if( !obj.empty() )
+	 {
+	    auto it = obj.cbegin();
+	    strm << it->first << ": " << it->second;
+	    ++it;
+	    while( it != obj.cend() )
+	    {
+	       strm << it->first << ": " << it->second;
+	       ++it;
+	    }
+	 }
+	 strm << "}";
+	 return strm;
+      }
+
       template< class T >
       std::ostream&
       operator<<( std::ostream& strm,

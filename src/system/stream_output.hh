@@ -23,6 +23,26 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
+
+template< class T >
+std::ostream&
+operator<<( std::ostream& strm,
+            const std::vector<T>& obj )
+{
+   strm << "[";
+   if( !obj.empty() )
+   {
+      auto it = obj.cbegin();
+      strm << *it++;
+      while( it != obj.cend() )
+      {
+         strm << ", " << *it++;
+      }
+   }
+   strm << "]";
+   return strm;
+}
 
 namespace hpc {
 
@@ -78,6 +98,28 @@ namespace hpc {
 	 while( it != obj.cend() )
 	 {
 	    strm << ", " << *it++;
+	 }
+      }
+      strm << "}";
+      return strm;
+   }
+
+   template< class Tk,
+	     class Tv >
+   std::ostream&
+   operator<<( std::ostream& strm,
+	       const std::map<Tk,Tv>& obj )
+   {
+      strm << "{";
+      if( !obj.empty() )
+      {
+	 auto it = obj.cbegin();
+	 strm << it->first << ": " << it->second;
+	 ++it;
+	 while( it != obj.cend() )
+	 {
+	    strm << it->first << ": " << it->second;
+	    ++it;
 	 }
       }
       strm << "}";

@@ -42,7 +42,8 @@ namespace hpc {
       close();
 
       void
-      open( fs::path const& path );
+      open( fs::path const& path,
+	    int flags = RTLD_LAZY | RTLD_GLOBAL );
 
       template< class T >
       T*

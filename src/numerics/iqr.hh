@@ -15,37 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_application_hh
-#define libhpc_mpi_application_hh
-
-#include "libhpc/main/application.hh"
+#ifndef libhpc_numerics_iqr_hh
+#define libhpc_numerics_iqr_hh
 
 namespace hpc {
-   namespace mpi {
+   namespace numerics {
 
-      class application
-         : public hpc::application
+      template< class Iter >
+      typename Iter::value_type
+      interquartile_range( Iter start,
+                           unsigned size )
       {
-      public:
-
-         application( int argc,
-                      char* argv[],
-                      std::string const& info = std::string() );
-
-         virtual
-         ~application();
-
-         int
-         rank() const;
-
-         int
-         size() const;
-
-      public:
-
-         int _rank;
-         int _size;
-      };
+         std::vector<typename Iter::value_type> set( size );
+         for( unsigned ii = 0; ii < size; ++start, ++ii )
+            set[ii] = *start;
+         std::sort( set.begin(), set.end() );
+         unsigned q = size/4;
+         return set[size - q] - set[q];
+      }
 
    }
 }

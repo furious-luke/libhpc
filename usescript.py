@@ -30,6 +30,7 @@ hdf5    = use('hdf5')
 boost   = use('boost')
 mpi     = use('mpi')
 pugixml = use('pugixml')
+eigen   = use('eigen')
 
 ##
 ## Declare option sets.
@@ -73,7 +74,8 @@ cc_opts = (
     # Optional packages.
     options(args.openmp                  == True, openmp=True) + 
     options(glut.have                    == True, define=['HAVE_GLUT']) +
-    options(hdf5.has_feature('parallel') == True, define=['PARALLELHDF5'])
+    options(hdf5.has_feature('parallel') == True, define=['PARALLELHDF5']) + 
+    options(eigen.have                   == True, define=['HAVE_EIGEN'])
 )
 
 # Copy/install options.
@@ -97,7 +99,7 @@ cp        = files.feature('copy',         cp_opts)
 hdr_inst  = files.feature('copy',         None,    targets.contains('install'), prefix=args.prefix + '/include/libhpc')
 lib_inst  = files.feature('copy',         None,    targets.contains('install'), prefix=args.prefix)
 run_tests = files.feature('run',          None,    targets.contains('check'))
-pkgs      = boost + mpi + hdf5 + pugixml + (glut | identity)
+pkgs      = boost + mpi + hdf5 + pugixml + (glut | identity) + (eigen | identity)
 cc        = cc  + pkgs
 sl        = sl  + pkgs
 bin       = bin + pkgs

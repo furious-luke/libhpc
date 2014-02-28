@@ -18,6 +18,9 @@
 #ifndef hpc_containers_grid_hh
 #define hpc_containers_grid_hh
 
+#include <vector>
+#include "reallocate.hh"
+
 namespace hpc {
 
    template< class T >
@@ -42,10 +45,17 @@ namespace hpc {
       }
 
       void
+      resize( unsigned dim,
+              T sides )
+      {
+         setup_block( dim, sides );
+      }
+
+      void
       setup_block( unsigned dim,
                    T sides )
       {
-         this->_sides.reallocate( dim );
+         reallocate( _sides, dim );
          std::fill( _sides.begin(), _sides.end(), sides );
          this->_setup_basis();
       }
@@ -55,7 +65,7 @@ namespace hpc {
       setup( unsigned dim,
              InputIterator first )
       {
-         this->_sides.reallocate( dim );
+         reallocate( _sides, dim );
          for( unsigned ii = 0; ii < dim; ++ii, ++first )
             this->_sides[ii] = *first;
          this->_setup_basis();
@@ -100,7 +110,7 @@ namespace hpc {
       void
       _setup_basis()
       {
-         this->_basis.reallocate( this->dimension() );
+         reallocate( _basis, dimension() );
          if( this->_basis.size() ) {
             this->_size = this->_sides[0];
             this->_basis[0] = 1;
@@ -114,8 +124,8 @@ namespace hpc {
    private:
 
       T _size;
-      vector<T> _sides;
-      vector<T> _basis;
+      std::vector<T> _sides;
+      std::vector<T> _basis;
    };
 }
 
