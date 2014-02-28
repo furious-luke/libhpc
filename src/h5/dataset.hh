@@ -199,7 +199,7 @@ namespace hpc {
 	 template< class T >
 	 void
 	 write( typename view<std::vector<T>>::type buf,
-                hsize_t offset,
+                hsize_t offset = 0,
                 mpi::comm& comm = mpi::comm::self )
 	 {
 	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
