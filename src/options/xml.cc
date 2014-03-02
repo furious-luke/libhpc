@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifdef HAVE_PUGIXML
+
 #include "xml.hh"
 
 using namespace pugi;
@@ -227,3 +229,5 @@ namespace hpc {
       }
    }
 }
+
+#endif

@@ -18,6 +18,8 @@
 #ifndef libhpc_options_xml_hh
 #define libhpc_options_xml_hh
 
+#ifdef HAVE_PUGIXML
+
 #include <iostream>
 #include <pugixml.hpp>
 #include "libhpc/containers/string.hh"
@@ -95,5 +97,7 @@ namespace hpc {
       };
    }
 }
+
+#endif
 
 #endif

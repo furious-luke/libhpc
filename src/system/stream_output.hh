@@ -24,6 +24,7 @@
 #include <list>
 #include <set>
 #include <map>
+#include <tuple>
 
 template< class T >
 std::ostream&
@@ -145,6 +146,53 @@ namespace hpc {
       return strm;
    }
 
+   template< class Type,
+             int N,
+             int Last >
+   struct tuple_output
+   {
+      static
+      void
+      write( std::ostream& strm,
+             Type const& obj )
+      {
+         strm << std::get<N>( obj ) << ",";
+         tuple_output<Type,N + 1,Last>::write( strm, obj );
+      }
+   };
+
+   template< class Type,
+             int N >
+   struct tuple_output<Type,N,N>
+   {
+      static
+      void
+      write( std::ostream& strm,
+             Type const& obj )
+      {
+         strm << std::get<N>( obj );
+      }
+   };
+
+   template< class... Args >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::tuple<Args...> const& obj )
+   {
+      strm << "(";
+      tuple_output<std::tuple<Args...>,0,sizeof...(Args) - 1>::write( strm, obj );
+      strm << ")";
+      return strm;
+   }
+
+}
+
+template< class... Args >
+std::ostream&
+operator<<( std::ostream& strm,
+            std::tuple<Args...> const& obj )
+{
+   return hpc::operator<<( strm, obj );
 }
 
 #endif

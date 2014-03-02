@@ -28,6 +28,7 @@ namespace {
       "",
       []()
       {
+#ifdef HAVE_PUGIXML
 	 string xml_str = "<parent1><parent2><hello>hello</hello><integer>10</integer></parent2></parent1>";
 	 options::xml_dict dict;
 	 {
@@ -36,6 +37,7 @@ namespace {
 	 }
 	 TEST( dict.get<string>( "hello" ) == "hello" );
 	 TEST( dict.get<int>( "integer" ) == 10 );
+#endif
       }
       );
 
@@ -44,6 +46,7 @@ namespace {
       "",
       []()
       {
+#ifdef HAVE_PUGIXML
 	 string xml_str_1 = "<hello>hello</hello><integer>10</integer>";
 	 string xml_str_2 = "<world>world</world><integer>20</integer>";
 	 options::xml_dict dict;
@@ -58,6 +61,7 @@ namespace {
 	 TEST( dict.get<string>( "hello" ) == "hello" );
 	 TEST( dict.get<string>( "world" ) == "world" );
 	 TEST( dict.get<int>( "integer" ) == 20 );
+#endif
       }
       );
 

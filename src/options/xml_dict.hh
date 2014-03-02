@@ -18,6 +18,8 @@
 #ifndef libhpc_options_xml_dict_hh
 #define libhpc_options_xml_dict_hh
 
+#ifdef HAVE_PUGIXML
+
 #include <iostream>
 #include <typeinfo>
 #include <sstream>
@@ -299,5 +301,7 @@ namespace hpc {
 
    }
 }
+
+#endif
 
 #endif
