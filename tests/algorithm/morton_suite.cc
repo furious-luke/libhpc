@@ -72,7 +72,11 @@ namespace {
                                 0b11111111111111111111111111111111, 0b00011101100100011010011100011010 };
          unsigned size = sizeof(outputs)/sizeof(outputs[0]);
          for( unsigned ii = 0; ii < size; ++ii )
+         {
             TEST( hpc::morton<2>( inputs_x[ii], inputs_y[ii] ) == outputs[ii] );
+            TEST( hpc::unmorton<2>( outputs[ii] )[0] == inputs_x[ii] );
+            TEST( hpc::unmorton<2>( outputs[ii] )[1] == inputs_y[ii] );
+         }
       }
       );
 
@@ -87,7 +91,12 @@ namespace {
          uint32_t outputs[] = { 0b00000000000000000000101010000111 };
          unsigned size = sizeof(outputs)/sizeof(outputs[0]);
          for( unsigned ii = 0; ii < size; ++ii )
+         {
             TEST( hpc::morton<3>( inputs_x[ii], inputs_y[ii], inputs_z[ii] ) == outputs[ii] );
+            TEST( hpc::unmorton<3>( outputs[ii] )[0] == inputs_x[ii] );
+            TEST( hpc::unmorton<3>( outputs[ii] )[1] == inputs_y[ii] );
+            TEST( hpc::unmorton<3>( outputs[ii] )[2] == inputs_z[ii] );
+         }
       }
       );
 

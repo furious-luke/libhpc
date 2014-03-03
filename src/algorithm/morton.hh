@@ -18,6 +18,7 @@
 #ifndef libhpc_algorithm_bin_hh
 #define libhpc_algorithm_bin_hh
 
+#include <array>
 #include <stdint.h>
 
 namespace hpc {
@@ -111,6 +112,31 @@ namespace hpc {
    {
       static_assert( sizeof...(args) == D, "Invalid number of Morton order parameters." );
       return morton_impl<D,Args...>::eval( args... );
+   }
+
+   template< int D >
+   std::array<uint16_t,D>
+   unmorton( uint32_t idx );
+
+   template<>
+   std::array<uint16_t,2>
+   unmorton<2>( uint32_t idx )
+   {
+      return std::array<uint16_t,2>{
+         undilate<2>( (idx & 0b10101010101010101010101010101010) >> 1 ),
+         undilate<2>(  idx & 0b01010101010101010101010101010101       )
+         };
+   }
+
+   template<>
+   std::array<uint16_t,3>
+   unmorton<3>( uint32_t idx )
+   {
+      return std::array<uint16_t,3>{
+         undilate<3>( (idx & 0b00100100100100100100100100100100) >> 2 ),
+         undilate<3>( (idx & 0b10010010010010010010010010010010) >> 1 ),
+         undilate<3>(  idx & 0b01001001001001001001001001001001       )
+         };
    }
 
 }

@@ -41,12 +41,12 @@ namespace {
          kde_type kde( pnts );
          kde.bandwidth().set_iqr( kde.points() );
 
-         std::cout << "\n";
-         for( unsigned ii = 0; ii < 100; ++ii )
-         {
-            double x = -5.0 + (double)ii*(10.0/99.0);
-            std::cout << x << ", " << kde.eval( x ) << "\n";
-         }
+         // std::cout << "\n";
+         // for( unsigned ii = 0; ii < 100; ++ii )
+         // {
+         //    double x = -5.0 + (double)ii*(10.0/99.0);
+         //    std::cout << x << ", " << kde.eval( x ) << "\n";
+         // }
       }
       );
 
