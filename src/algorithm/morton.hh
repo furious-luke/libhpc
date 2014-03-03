@@ -77,25 +77,28 @@ namespace hpc {
    }
 
    template< int D,
+	     int N,
              class... Args >
    struct morton_impl;
 
    template< int D,
+	     int N,
              class First,
              class... Args >
-   struct morton_impl<D,First,Args...>
+   struct morton_impl<D,N,First,Args...>
    {
       static
       uint32_t
       eval( uint32_t x,
             Args... args )
       {
-         return (dilate<D>( x ) << sizeof...(args)) + morton_impl<D,Args...>::eval( args... );
+	 return (dilate<D>( x ) << N) + morton_impl<D,N + 1,Args...>::eval( args... );
       }
    };
 
-   template< int D >
-   struct morton_impl<D>
+   template< int D,
+	     int N >
+   struct morton_impl<D,N>
    {
       static
       uint32_t
@@ -111,7 +114,7 @@ namespace hpc {
    morton( Args... args )
    {
       static_assert( sizeof...(args) == D, "Invalid number of Morton order parameters." );
-      return morton_impl<D,Args...>::eval( args... );
+      return morton_impl<D,0,Args...>::eval( args... );
    }
 
    template< int D >
@@ -123,8 +126,8 @@ namespace hpc {
    unmorton<2>( uint32_t idx )
    {
       return std::array<uint16_t,2>{
-         undilate<2>( (idx & 0b10101010101010101010101010101010) >> 1 ),
-         undilate<2>(  idx & 0b01010101010101010101010101010101       )
+         undilate<2>(  idx & 0b01010101010101010101010101010101       ),
+         undilate<2>( (idx & 0b10101010101010101010101010101010) >> 1 )
          };
    }
 
@@ -133,9 +136,9 @@ namespace hpc {
    unmorton<3>( uint32_t idx )
    {
       return std::array<uint16_t,3>{
-         undilate<3>( (idx & 0b00100100100100100100100100100100) >> 2 ),
+         undilate<3>(  idx & 0b01001001001001001001001001001001       ),
          undilate<3>( (idx & 0b10010010010010010010010010010010) >> 1 ),
-         undilate<3>(  idx & 0b01001001001001001001001001001001       )
+         undilate<3>( (idx & 0b00100100100100100100100100100100) >> 2 )
          };
    }
 
