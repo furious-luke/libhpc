@@ -21,6 +21,7 @@
 #include <vector>
 #include "vector.hh"
 #include "view.hh"
+#include "deallocate.hh"
 
 namespace hpc {
 
@@ -49,6 +50,36 @@ namespace hpc {
    std::vector<T>&
    assign( std::vector<T>& tgt,
            vector_view<U>&& src )
+   {
+      tgt.resize( src.size() );
+      std::copy( src.begin(), src.end(), tgt.begin() );
+      return tgt;
+   }
+
+   template< class T >
+   hpc::vector<T>&
+   assign( hpc::vector<T>& tgt,
+           std::vector<T>&& src )
+   {
+      ((std::vector<T>&)tgt).swap( src );
+      hpc::deallocate( src );
+      return tgt;
+   }
+
+   template< class T >
+   hpc::vector<T>&
+   assign( hpc::vector<T>& tgt,
+           std::vector<T>& src )
+   {
+      ((std::vector<T>&)tgt).swap( src );
+      hpc::deallocate( src );
+      return tgt;
+   }
+
+   template< class T >
+   hpc::vector<T>&
+   assign( hpc::vector<T>& tgt,
+           std::vector<T> const& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );
