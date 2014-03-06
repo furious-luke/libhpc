@@ -117,6 +117,18 @@ namespace hpc {
       return morton_impl<D,0,Args...>::eval( args... );
    }
 
+   uint32_t
+   morton_array( std::array<uint16_t,2> const& crd )
+   {
+      return morton_impl<2,0,uint16_t,uint16_t>::eval( crd[0], crd[1] );
+   }
+
+   uint32_t
+   morton_array( std::array<uint16_t,3> const& crd )
+   {
+      return morton_impl<3,0,uint16_t,uint16_t,uint16_t>::eval( crd[0], crd[1], crd[2] );
+   }
+
    template< int D >
    std::array<uint16_t,D>
    unmorton( uint32_t idx );
