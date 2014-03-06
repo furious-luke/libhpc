@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef NLOG
+
 #include "block.hh"
 
 namespace hpc {
@@ -32,3 +34,5 @@ namespace hpc {
 
    }
 }
+
+#endif

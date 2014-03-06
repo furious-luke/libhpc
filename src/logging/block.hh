@@ -78,6 +78,9 @@ namespace hpc {
 #else
 
 #define LOGBLOCK( ... )
+#define LOGBLOCKI( ... )
+#define LOGBLOCKD( ... )
+#define LOGBLOCKT( ... )
 
 #endif
 
