@@ -113,6 +113,26 @@ namespace hpc {
 	 return strm;
       }
 
+      template< class T,
+                size_t N >
+      std::ostream&
+      operator<<( std::ostream& strm,
+                  const std::array<T,N>& obj )
+      {
+         strm << "(";
+         if( N )
+         {
+            auto it = obj.cbegin();
+            strm << *it++;
+            while( it != obj.cend() )
+            {
+               strm << ", " << *it++;
+            }
+         }
+         strm << ")";
+         return strm;
+      }
+
       ///
       ///
       ///
