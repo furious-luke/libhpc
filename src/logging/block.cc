@@ -27,9 +27,18 @@ namespace hpc {
       {
       }
 
+      block::block( std::string const& tag,
+		    levels_type lvl )
+	 : _lvl( lvl ),
+	   _tag( tag )
+      {
+      }
+
       block::~block()
       {
          LOGLVLN( _lvl, "Done.", setindent( -1 ) );
+	 if( !_tag.empty() )
+	    LOG_POP_TAG( _tag );
       }
 
    }

@@ -109,9 +109,9 @@ namespace hpc {
       void
       logger::pop_tag( const string& tag )
       {
-	 ASSERT( current_tags().find( tag ) != current_tags().end() );
+	 ASSERT( current_tags().find( tag ) != current_tags().end(), "Unable to find tag: ", tag );
 	 int& val = current_tags()[tag];
-	 ASSERT( val > 0 );
+	 ASSERT( val > 0, "Tag has invalid count: ", tag );
 	 if( --val == 0 )
 	    current_tags().erase( tag );
       }

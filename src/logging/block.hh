@@ -28,15 +28,26 @@
    LOGLN( __VA_ARGS__, ::hpc::setindent( 1 ) ); \
    ::hpc::logging::block ANON
 
+#define LOGBLOCK_TAG( tag, ... )		\
+   LOG_PUSH_TAG( tag );                         \
+   LOGLN( __VA_ARGS__, ::hpc::setindent( 1 ) ); \
+   ::hpc::logging::block ANON( tag )
+
 #ifndef NLOGTRIVIAL
 
 #define LOGBLOCKT( ... )                                        \
    LOGTLN( __VA_ARGS__, ::hpc::setindent( 1 ) );                \
    ::hpc::logging::block ANON( ::hpc::logging::trivial )
 
+#define LOGBLOCKT_TAG( tag, ... )				\
+   LOG_PUSH_TAG( tag );                                         \
+   LOGTLN( __VA_ARGS__, ::hpc::setindent( 1 ) );                \
+   ::hpc::logging::block ANON( tag, ::hpc::logging::trivial )
+
 #else
 
 #define LOGBLOCKT( ... )
+#define LOGBLOCKT_TAG( ... )
 
 #endif
 
@@ -46,15 +57,26 @@
    LOGDLN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
    ::hpc::logging::block ANON( ::hpc::logging::debug )
 
+#define LOGBLOCKD_TAG( tag, ... )				\
+   LOG_PUSH_TAG( tag );						\
+   LOGDLN( __VA_ARGS__, ::hpc::setindent( 1 ) );		\
+   ::hpc::logging::block ANON( tag, ::hpc::logging::debug )
+
 #else
 
 #define LOGBLOCKD( ... )
+#define LOGBLOCKD_TAG( ... )
 
 #endif
 
 #define LOGBLOCKI( ... )                                \
    LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
    ::hpc::logging::block ANON( ::hpc::logging::info )
+
+#define LOGBLOCKI_TAG( tag, ... )				\
+   LOG_PUSH_TAG( tag );						\
+   LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );		\
+   ::hpc::logging::block ANON( tag, ::hpc::logging::info )
 
 namespace hpc {
    namespace logging {
@@ -65,11 +87,15 @@ namespace hpc {
 
          block( levels_type lvl = (levels_type)0 );
 
+         block( std::string const& tag,
+		levels_type lvl = (levels_type)0 );
+
          ~block();
 
       protected:
 
          unsigned _lvl;
+	 std::string _tag;
       };
 
    }
@@ -78,9 +104,13 @@ namespace hpc {
 #else
 
 #define LOGBLOCK( ... )
+#define LOGBLOCK_TAG( ... )
 #define LOGBLOCKI( ... )
+#define LOGBLOCKI_TAG( ... )
 #define LOGBLOCKD( ... )
+#define LOGBLOCKD_TAG( ... )
 #define LOGBLOCKT( ... )
+#define LOGBLOCKT_TAG( ... )
 
 #endif
 
