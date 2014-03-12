@@ -149,6 +149,118 @@ namespace hpc {
          return true;
       }
 
+      template< class Function,
+		class T >
+      T
+      newton_richardson( Function& func,
+                         T x1,
+                         T x2,
+                         T init = std::numeric_limits<T>::max(),
+                         T tol = default_newton_tolerance,
+                         unsigned max_its = default_newton_max_its,
+                         T omega = 1.0 )
+      {
+	 LOGBLOCKT_TAG( "newton", "Newton-Raphson bisect solve:" );
+
+         // Were we given an initial value? If not, set it to the midpoint.
+         T x = (init != std::numeric_limits<T>::max()) ? init : 0.5*(x2 + x1);
+	 LOGTLN( "Starting with x: ", x );
+
+         // Only loop up until or maximum.
+         T f, df, delta, old_delta = std::numeric_limits<T>::max();
+         int ii;
+         for( ii = 0; ii < max_its; ++ii )
+         {
+	    LOGBLOCKT( "Iteration: ", ii );
+
+            f = func( x );
+            df = func.derivative( x, f );
+            delta = f/df;
+	    LOGTLN( "f(", x, ") = ", f );
+	    LOGTLN( "df/dx = ", df );
+	    LOGTLN( "delta x = ", delta );
+	    LOGTLN( "old x = ", x );
+            T new_x = (1.0 - omega)*x + omega*(x - delta);
+	    LOGTLN( "new x = ", new_x );
+
+            // Values must remain bracketed.
+            ASSERT( (x1 - new_x)*(new_x - x2) >= 0.0,
+                    "Function moved outside bracketed range in Newton's method." );
+
+            // Check for convergence.
+            T mag_delta = fabs( delta );
+            if( mag_delta < tol )
+               break;
+
+            // Check for problems.
+            if( mag_delta >= old_delta )
+            {
+               // Take Richardson value.
+               new_x = func.richardson( x, f );
+               LOGDLN( "Richardson: ", new_x );
+            }
+            else
+               old_delta = mag_delta;
+
+            // Update values.
+            x = new_x;
+         }
+
+         // Break if we exceeded maximum its.
+         EXCEPT( ii < max_its );
+
+         return x;
+      }
+
+      template< class Function,
+		class T >
+      std::tuple<T,unsigned>
+      newton_its( Function& func,
+                  T x1,
+                  T x2,
+                  T init = std::numeric_limits<T>::max(),
+                  T tol = default_newton_tolerance,
+                  unsigned max_its = default_newton_max_its,
+                  T omega = 1.0 )
+      {
+	 LOGBLOCKT_TAG( "newton", "Newton-Raphson bisect solve:" );
+
+         // Were we given an initial value? If not, set it to the midpoint.
+         T x = (init != std::numeric_limits<T>::max()) ? init : 0.5*(x2 + x1);
+	 LOGTLN( "Starting with x: ", x );
+
+         // Only loop up until or maximum.
+         T f, df, delta;
+         unsigned ii;
+         for( ii = 0; ii < max_its; ++ii )
+         {
+	    LOGBLOCKT( "Iteration: ", ii );
+
+            f = func( x );
+            df = func.derivative( x, f );
+            delta = f/df;
+	    LOGTLN( "f(", x, ") = ", f );
+	    LOGTLN( "df/dx = ", df );
+	    LOGTLN( "delta x = ", delta );
+	    LOGTLN( "old x = ", x );
+            x = (1.0 - omega)*x + omega*(x - delta);
+	    LOGTLN( "new x = ", x );
+
+            // Values must remain bracketed.
+            ASSERT( (x1 - x)*(x - x2) >= 0.0,
+                    "Function moved outside bracketed range in Newton's method." );
+
+            // Check for convergence.
+            if( fabs( delta ) < tol )
+               break;
+         }
+
+         // Break if we exceeded maximum its.
+         EXCEPT( ii < max_its );
+
+         return std::make_tuple( x, ii );
+      }
+
    }
 }
 
