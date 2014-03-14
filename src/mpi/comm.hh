@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef mpi_comm_hh
-#define mpi_comm_hh
+#ifndef libhpc_mpi_comm_hh
+#define libhpc_mpi_comm_hh
 
 #include "libhpc/containers/containers.hh"
 #include "init.hh"
@@ -100,38 +100,36 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 send( const typename vector<T>::view& out,
+	 send( typename hpc::view<std::vector<T>>::type const& out,
 	       int to,
-	       int tag=0 ) const
+               unsigned block_size = 1,
+	       int tag = 0 ) const
 	 {
 	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
-	    MPI_INSIST( MPI_Send(
-                           out.data(),
-                           out.size(),
-                           MPI_MAP_TYPE(T),
-                           to,
-                           tag,
-                           this->_comm
-                           ) );
+	    MPI_INSIST( MPI_Send( out.data(),
+                                  out.size()*block_size,
+                                  MPI_MAP_TYPE( T ),
+                                  to,
+                                  tag,
+                                  _comm ) );
 	 }
 
 	 template< class T >
 	 void
-	 isend( const typename vector<T>::view& out,
+	 isend( typename hpc::view<std::vector<T>>::type const& out,
 		int to,
 		request& req,
-		int tag=0 ) const
+                unsigned block_size = 1,
+		int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<mpi::data_type::type_map, T>));
-	    MPI_INSIST(MPI_Isend(
-			  out.data(),
-			  out.size(),
-                          MPI_MAP_TYPE(T),
-			  to,
-			  tag,
-			  this->_comm,
-			  &req.mod_mpi_request()
-			  ));
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    MPI_INSIST( MPI_Isend( out.data(),
+                                   out.size()*block_size,
+                                   MPI_MAP_TYPE( T ),
+                                   to,
+                                   tag,
+                                   _comm,
+                                   &req.mod_mpi_request() ) );
 	 }
 
 	 template< class T >
@@ -296,21 +294,20 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 irecv( typename vector<T>::view inc,
+	 irecv( typename hpc::view<std::vector<T>>::type inc,
 		int from,
 		request& req,
-		int tag=0 ) const
+                unsigned block_size = 1,
+		int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<mpi::data_type::type_map, T>));
-	    MPI_INSIST(MPI_Irecv(
-			  inc.data(),
-			  inc.size(),
-                          MPI_MAP_TYPE(T),
-			  from,
-			  tag,
-			  this->_comm,
-			  &req.mod_mpi_request()
-			  ));
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+	    MPI_INSIST( MPI_Irecv( inc.data(),
+                                   inc.size(),
+                                   MPI_MAP_TYPE( T ),
+                                   from,
+                                   tag,
+                                   _comm,
+                                   &req.mod_mpi_request() ) );
 	 }
 
 	 template< class T >

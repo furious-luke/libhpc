@@ -26,6 +26,7 @@
 #include "requests.hh"
 #include "comm.hh"
 #include "helpers.hh"
+#include "vct.hh"
 #include "application.hh"
 
 #endif
