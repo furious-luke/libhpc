@@ -19,6 +19,7 @@
 #define libhpc_containers_assign_hh
 
 #include <vector>
+#include <set>
 #include "vector.hh"
 #include "view.hh"
 #include "deallocate.hh"
@@ -50,6 +51,29 @@ namespace hpc {
    std::vector<T>&
    assign( std::vector<T>& tgt,
            vector_view<U>&& src )
+   {
+      tgt.resize( src.size() );
+      std::copy( src.begin(), src.end(), tgt.begin() );
+      return tgt;
+   }
+
+   template< class T,
+             class U >
+   std::vector<T>&
+   assign( std::vector<T>& tgt,
+           std::set<U>&& src )
+   {
+      tgt.resize( src.size() );
+      std::copy( src.begin(), src.end(), tgt.begin() );
+      hpc::deallocate( src );
+      return tgt;
+   }
+
+   template< class T,
+             class U >
+   std::vector<T>&
+   assign( std::vector<T>& tgt,
+           std::set<U> const& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );

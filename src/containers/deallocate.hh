@@ -19,6 +19,7 @@
 #define libhpc_containers_deallocate_hh
 
 #include <vector>
+#include <set>
 #include "vector.hh"
 
 namespace hpc {
@@ -32,6 +33,14 @@ namespace hpc {
    deallocate( std::vector<T>& tgt )
    {
       std::vector<T> tmp;
+      tgt.swap( tmp );
+   }
+
+   template< class T >
+   void
+   deallocate( std::set<T>& tgt )
+   {
+      std::set<T> tmp;
       tgt.swap( tmp );
    }
 

@@ -20,6 +20,7 @@
 
 #include <iterator>
 #include "libhpc/system/type_traits.hh"
+#include "libhpc/containers/deallocate.hh"
 
 namespace hpc {
 
@@ -47,21 +48,22 @@ namespace hpc {
    template< class InputSeq,
 	     class OutputSeq >
    void
-   counts_to_displs_resize( const InputSeq& input,
+   counts_to_displs_resize( InputSeq const& input,
 			    OutputSeq& output )
    {
-      if(input.size()) {
-	 output.resize(input.size() + 1);
-	 counts_to_displs(input.begin(), input.end(), output.begin());
+      if( input.size() )
+      {
+	 output.resize( input.size() + 1 );
+	 counts_to_displs( input.begin(), input.end(), output.begin() );
       }
       else
-	 output.deallocate();
+         hpc::deallocate( output );
    }
 
    template<class Iter>
    Iter
    counts_to_displs(Iter first,
-		    index size)
+		    unsigned size)
    {
       typedef typename std::iterator_traits<Iter>::value_type value_type;
 
@@ -119,13 +121,13 @@ namespace hpc {
 	 displs_to_counts(input.begin(), input.end(), output.begin());
       }
       else
-	 output.deallocate();
+         hpc::deallocate( output );
    }
 
    template<class Iter>
    Iter
    displs_to_counts(Iter first,
-		    index size)
+		    unsigned size)
    {
       typedef typename std::iterator_traits<Iter>::value_type value_type;
 
