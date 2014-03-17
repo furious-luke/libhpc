@@ -20,13 +20,10 @@
 
 #include <vector>
 #include <set>
+#include <unordered_map>
 #include "vector.hh"
 
 namespace hpc {
-
-   template< class T >
-   void
-   deallocate( T tgt );
 
    template< class T >
    void
@@ -41,6 +38,15 @@ namespace hpc {
    deallocate( std::set<T>& tgt )
    {
       std::set<T> tmp;
+      tgt.swap( tmp );
+   }
+
+   template< class T,
+	     class U >
+   void
+   deallocate( std::unordered_map<T,U>& tgt )
+   {
+      std::unordered_map<T,U> tmp;
       tgt.swap( tmp );
    }
 
