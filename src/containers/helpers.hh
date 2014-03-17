@@ -33,7 +33,7 @@ namespace hpc {
          set.insert( x );
          ++cnt;
       }
-      return set.size() == cnt;
+      return set.size() != cnt;
    }
 
    template< class Seq >
