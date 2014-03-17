@@ -28,6 +28,7 @@ namespace hpc {
       }
 
       requests::~requests() {
+	 wait_all();
       }
 
       void
