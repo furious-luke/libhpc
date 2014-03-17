@@ -37,7 +37,7 @@ namespace hpc {
          template< class Seq >
 	 vct( Seq&& nbrs,
 	      mpi::comm const& comm = mpi::comm::world )
-            : _comm( (mpi::comm*)&comm )
+            : _comm( (mpi::comm const*)&comm )
          {
             set_neighbors( std::forward<Seq>( nbrs ) );
          }
@@ -171,7 +171,7 @@ namespace hpc {
                              type,
                              _nbrs[ii],
                              reqs[cur_req++],
-                             block_size,
+			     out_displs[ii + 1] - out_displs[ii],
                              tag );
             }
             for( unsigned ii = 0; ii < num_nbrs; ++ii )
@@ -180,7 +180,7 @@ namespace hpc {
                              type,
                              _nbrs[ii],
                              reqs[cur_req++],
-                             block_size,
+			     inc_displs[ii + 1] - inc_displs[ii],
                              tag );
             }
          }
@@ -221,10 +221,18 @@ namespace hpc {
                    std::vector<Index>& inc_displs,
                    int tag = 0 ) const
          {
-            inc_displs.resize( _nbrs.size() + 1 );
-            scatter_displs<Index>( out_displs, inc_displs );
-            inc.resize( inc_displs.back() );
-            scatter<T,Index>( out, out_displs, inc, inc_displs, tag );
+	    if( _nbrs.size() )
+	    {
+	       inc_displs.resize( _nbrs.size() + 1 );
+	       scatter_displs<Index>( out_displs, inc_displs );
+	       inc.resize( inc_displs.back() );
+	       scatter<T,Index>( out, out_displs, inc, inc_displs, tag );
+	    }
+	    else
+	    {
+	       hpc::deallocate( inc );
+	       hpc::deallocate( inc_displs );
+	    }
          }
 
 	 template< class DisplType >
@@ -249,7 +257,7 @@ namespace hpc {
 
          std::vector<unsigned> _nbrs;
          std::unordered_map<unsigned,unsigned> _rtn;
-	 std::shared_ptr<mpi::comm> _comm;
+	 mpi::comm const* _comm;
       };
    }
 }

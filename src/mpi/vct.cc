@@ -21,7 +21,7 @@ namespace hpc {
    namespace mpi {
 
       vct::vct( mpi::comm const& comm )
-	 : _comm( (mpi::comm*)&comm )
+	 : _comm( &comm )
       {
       }
 
@@ -40,13 +40,13 @@ namespace hpc {
       vct::set_comm( mpi::comm const& comm )
       {
 	 clear();
-	 _comm.reset( (mpi::comm*)&comm );
+	 _comm = &comm;
       }
 
       mpi::comm const&
       vct::comm() const
       {
-	 return *_comm.get();
+	 return *_comm;
       }
 
       unsigned
@@ -81,7 +81,7 @@ namespace hpc {
 	 // Check that every rank involved is sending the same number of blocks.
 	 {
             std::vector<unsigned> check_cnts( num_nbrs );
-	    bcast( block_size, check_cnts );
+	    bcast<unsigned>( block_size, check_cnts );
 	    for( unsigned ii = 0; ii < check_cnts.size(); ++ii )
 	       ASSERT( check_cnts[ii] == block_size, "VCT iscatter block sizes don't match." );
 	 }
