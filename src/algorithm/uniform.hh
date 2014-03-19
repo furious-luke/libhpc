@@ -18,7 +18,8 @@
 #ifndef libhpc_algorithm_uniform_hh
 #define libhpc_algorithm_uniform_hh
 
-#include <cstdint>
+#include <stdint.h>
+#include "libhpc/debug/assert.hh"
 #include "libhpc/containers/array.hh"
 
 namespace hpc {

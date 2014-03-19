@@ -18,12 +18,12 @@
 #ifndef libhpc_debug_assert_hh
 #define libhpc_debug_assert_hh
 
+#if !defined( NDEBUG ) || !defined( NEXCEPT ) || defined( __CUDACC__ )
+
 #include <sstream>
 #include "libhpc/system/narg.hh"
 #include "assertions.hh"
 #include "stacktrace.hh"
-
-#if !defined( NDEBUG ) || !defined( NEXCEPT )
 
 #ifndef NSTACKTRACE
 

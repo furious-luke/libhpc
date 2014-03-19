@@ -43,7 +43,7 @@ namespace {
          hpc::array<int,2> arr = { 1, 2 };
          std::stringstream ss;
          ss << arr;
-         TEST( ss.str() == "[1, 2]" );
+         TEST( ss.str() == "(1, 2)" );
       }
       );
 
