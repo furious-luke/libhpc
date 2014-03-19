@@ -18,64 +18,24 @@
 #ifndef libhpc_containers_array_hh
 #define libhpc_containers_array_hh
 
-#include "boost_array.hh"
-#include "global.hh"
+#include "libhpc/system/cc_version.hh"
+#ifdef CXX_0X
+#include <array>
+#else
+#include <boost/array.hpp>
+#endif
 
 namespace hpc {
 
+#ifdef CXX_0X
+   template< class T,
+             std::size_t N >
+   using array = ::std::array<T,N>;
+#else
    template< class T,
              std::size_t N >
    using array = ::boost::array<T,N>;
-
-   // template< class T,
-   //           int N >
-   // struct array
-   //    : public ::boost::array< T, N >
-   // {
-   // // public:
-
-   // //    typedef typename impl::boost::array<T,N>::size_type size_type;
-   // //    typedef size_t key_type;
-   // //    typedef T mapped_type;
-
-   // // public:
-
-   // //    friend std::ostream&
-   // //    operator<<( std::ostream& strm,
-   // //      	  const array& obj )
-   // //    {
-   // //       strm << "[";
-   // //       if( obj.size() )
-   // //       {
-   // //          strm << obj[0];
-   // //          for( size_t ii = 1; ii < obj.size(); ++ii )
-   // //             strm << ", " << obj[ii];
-   // //       }
-   // //       strm << "]";
-   // //       return strm;
-   // //    }
-   // };
-
-}
-
-namespace boost {
-
-   template< class T,
-             ::std::size_t N >
-   ::std::ostream&
-   operator<<( ::std::ostream& strm,
-               const ::boost::array<T,N>& obj )
-   {
-      strm << "[";
-      if( obj.size() )
-      {
-         strm << obj[0];
-         for( size_t ii = 1; ii < obj.size(); ++ii )
-            strm << ", " << obj[ii];
-      }
-      strm << "]";
-      return strm;
-   }
+#endif
 
 }
 

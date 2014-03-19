@@ -15,22 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/debug/unit_test_main.hh"
-#include "libhpc/containers/array.hh"
-#include "libhpc/containers/vector.hh"
-#include "libhpc/logging/globals.hh"
+#include <libhpc/debug/unit_test_main.hh>
+#include <libhpc/containers/array.hh>
+#include <libhpc/containers/vector.hh>
+#include <libhpc/system/stream_output.hh>
 
-using namespace hpc;
 using namespace hpc::test;
 
-namespace containers_array {
+namespace {
 
   test_case<> ANON(
       "/containers/array/static_initialisation",
       "Static initilaisers need to be able to work.",
       []()
       {
-         array<int,2> arr = { 1, 2 };
+         hpc::array<int,2> arr = { 1, 2 };
          TEST( arr[0] == 1 );
          TEST( arr[1] == 2 );
       }
@@ -41,11 +40,10 @@ namespace containers_array {
       "",
       []()
       {
-         array<int,2> arr = { 1, 2 };
+         hpc::array<int,2> arr = { 1, 2 };
          std::stringstream ss;
          ss << arr;
          TEST( ss.str() == "[1, 2]" );
-         LOGDLN( arr );
       }
       );
 
@@ -54,8 +52,8 @@ namespace containers_array {
       "",
       []()
       {
-         vector<array<int,2>> vec;
-         vec.emplace_back( array<int,2>{ { 1, 2 } } );
+         hpc::vector<hpc::array<int,2>> vec;
+         vec.emplace_back( hpc::array<int,2>{ { 1, 2 } } );
          TEST( vec.size() == 1 );
          TEST( vec[0][0] == 1 );
          TEST( vec[0][1] == 2 );

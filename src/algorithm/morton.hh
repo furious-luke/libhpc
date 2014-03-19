@@ -15,11 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_algorithm_bin_hh
-#define libhpc_algorithm_bin_hh
+#ifndef libhpc_algorithm_morton_hh
+#define libhpc_algorithm_morton_hh
 
-#include <array>
 #include <stdint.h>
+#include "libhpc/containers/array.hh"
 
 namespace hpc {
 
@@ -118,36 +118,36 @@ namespace hpc {
    }
 
    uint32_t
-   morton_array( std::array<uint16_t,2> const& crd )
+   morton_array( hpc::array<uint16_t,2> const& crd )
    {
       return morton_impl<2,0,uint16_t,uint16_t>::eval( crd[0], crd[1] );
    }
 
    uint32_t
-   morton_array( std::array<uint16_t,3> const& crd )
+   morton_array( hpc::array<uint16_t,3> const& crd )
    {
       return morton_impl<3,0,uint16_t,uint16_t,uint16_t>::eval( crd[0], crd[1], crd[2] );
    }
 
    template< int D >
-   std::array<uint16_t,D>
+   hpc::array<uint16_t,D>
    unmorton( uint32_t idx );
 
    template<>
-   std::array<uint16_t,2>
+   hpc::array<uint16_t,2>
    unmorton<2>( uint32_t idx )
    {
-      return std::array<uint16_t,2>{
+      return hpc::array<uint16_t,2>{
          undilate<2>(  idx & 0b01010101010101010101010101010101       ),
          undilate<2>( (idx & 0b10101010101010101010101010101010) >> 1 )
          };
    }
 
    template<>
-   std::array<uint16_t,3>
+   hpc::array<uint16_t,3>
    unmorton<3>( uint32_t idx )
    {
-      return std::array<uint16_t,3>{
+      return hpc::array<uint16_t,3>{
          undilate<3>(  idx & 0b01001001001001001001001001001001       ),
          undilate<3>( (idx & 0b10010010010010010010010010010010) >> 1 ),
          undilate<3>( (idx & 0b00100100100100100100100100100100) >> 2 )
