@@ -18,11 +18,9 @@
 #ifndef hpc_containers_range_map_hh
 #define hpc_containers_range_map_hh
 
+#include <map>
 #include <boost/iterator/iterator_facade.hpp>
-#include "map.hh"
-#include "set.hh"
 #include "range.hh"
-#include "list.hh"
 
 namespace hpc {
 
@@ -36,16 +34,16 @@ namespace hpc {
    template< class T,
              class Value >
    class range_map
-      : public map< range<T>,
-                    Value >
+      : public std::map< range<T>,
+			 Value >
    {
    public:
 
-      typedef map<range<T>,Value> super_type;
+      typedef std::map<range<T>,Value> super_type;
       typedef range<T> range_type;
       typedef Value mapped_type;
       typedef typename super_type::iterator iterator;
-      typedef typename super_type::cosnt_iterator const_iterator;
+      typedef typename super_type::const_iterator const_iterator;
       typedef range_map_insert_iterator<T,Value> insert_iterator;
 
       insert_iterator

@@ -22,6 +22,9 @@
 #include <set>
 #include <unordered_map>
 #include "vector.hh"
+#ifdef HAVE_THRUST
+#include <thrust/host_vector.h>
+#endif
 
 namespace hpc {
 
@@ -49,6 +52,18 @@ namespace hpc {
       std::unordered_map<T,U> tmp;
       tgt.swap( tmp );
    }
+
+#ifdef HAVE_THRUST
+
+   template< class T >
+   void
+   deallocate( thrust::host_vector<T>& tgt )
+   {
+      thrust::host_vector<T> tmp;
+      tgt.swap( tmp );
+   }
+
+#endif
 
    template< class T >
    void

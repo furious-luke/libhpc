@@ -1,8 +1,8 @@
 #ifndef libhpc_interactive_animation_hh
 #define libhpc_interactive_animation_hh
 
+#include <array>
 #include <boost/iterator/iterator_facade.hpp>
-#include "libhpc/containers/array.hh"
 #include "libhpc/logging/logging.hh"
 #include "libhpc/system/timer.hh"
 
@@ -89,8 +89,8 @@ namespace hpc {
 
       protected:
 
-         array<value_type,2> _rng;
-         array<unsigned,2> _ease;
+	 std::array<value_type,2> _rng;
+	 std::array<unsigned,2> _ease;
          double _pos;
          double _dur;
          double _inv_dur;

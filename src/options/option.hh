@@ -18,6 +18,7 @@
 #ifndef libhpc_options_option_hh
 #define libhpc_options_option_hh
 
+#include <list>
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
@@ -294,7 +295,7 @@ namespace hpc {
 
          typedef Option sub_option_type;
          typedef typename sub_option_type::value_type sub_value_type;
-         typedef hpc::list<sub_value_type> value_type;
+         typedef std::list<sub_value_type> value_type;
 
       public:
 

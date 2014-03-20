@@ -18,9 +18,9 @@
 #ifndef libhpc_logging_stack_hh
 #define libhpc_logging_stack_hh
 
+#include <list>
+#include <memory>
 #include "libhpc/memory/memory.hh"
-#include "libhpc/containers/list.hh"
-#include "libhpc/containers/scoped_ptr.hh"
 #include "logger.hh"
 
 #ifndef NLOG
@@ -35,7 +35,7 @@ namespace hpc {
       {
       public:
 
-	 typedef list<scoped_ptr<logger> >::iterator iterator;
+	typedef std::list<std::unique_ptr<logger> >::iterator iterator;
 
       public:
 
@@ -62,11 +62,9 @@ namespace hpc {
          stack&
          operator<<( const T& obj )
          {
-            for( list<scoped_ptr<logger> >::iterator it = _logs.begin();
-                 it != _logs.end();
-                 ++it )
-            {
-               scoped_ptr<logger>& log = *it;
+	    for( iterator it = _logs.begin(); it != _logs.end(); ++it )
+	    {
+	       std::unique_ptr<logger>& log = *it;
                *log << obj;
             }
             return *this;
@@ -74,7 +72,7 @@ namespace hpc {
 
       protected:
 
-         list<scoped_ptr<logger> > _logs;
+	 std::list<std::unique_ptr<logger>> _logs;
       };
    }
 }

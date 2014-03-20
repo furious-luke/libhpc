@@ -18,21 +18,21 @@
 #ifndef hpc_containers_range_set_hh
 #define hpc_containers_range_set_hh
 
-#include "set.hh"
+#include <set>
+#include <list>
 #include "range.hh"
-#include "list.hh"
 
 namespace hpc {
 
    template< class T >
    class range_set
-      : public set< range<T> >
+      : public std::set< range<T> >
    {
    public:
 
-      typedef set<range<T> > super_type;
+      typedef std::set<range<T> > super_type;
       typedef range<T> range_type;
-      typedef typename set<std::pair<T,T> >::iterator iterator;
+      typedef typename std::set<std::pair<T,T> >::iterator iterator;
 
       void
       insert( const range_type& range )
@@ -51,7 +51,7 @@ namespace hpc {
          {
             super_iterator cur = low;
             super_iterator upp = this->upper_bound( range );
-            list<range_type> new_ranges;
+	    std::list<range_type> new_ranges;
             vector<range_type> split_ranges;
             while( cur != upp )
             {

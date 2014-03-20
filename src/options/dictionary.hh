@@ -18,6 +18,7 @@
 #ifndef libhpc_options_dictionary_hh
 #define libhpc_options_dictionary_hh
 
+#include <list>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/support/detail/hold_any.hpp>
 #include "libhpc/debug/debug.hh"
@@ -124,7 +125,7 @@ namespace hpc {
          }
 
          template< class T >
-         const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>&
+         const std::list<typename boost::mpl::at<type_map,T>::type::value_type>&
          get_list( const hpc::string& name ) const
          {
             typedef typename boost::mpl::at<type_map,T>::type sub_option_type;
@@ -132,14 +133,14 @@ namespace hpc {
             typedef options::list<sub_option_type> option_type;
             const option_type& opt = (const option_type&)((*this)[name]);
             EXCEPTAS( opt.get(), no_value, "Error: No value in dictionary for option: ", name );
-            const hpc::list<value_type>& ref = *opt.get();
+            const std::list<value_type>& ref = *opt.get();
             return ref;
          }
 
          template< class T >
-         const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>&
+         const std::list<typename boost::mpl::at<type_map,T>::type::value_type>&
          get_list( const hpc::string& name,
-                   const hpc::list<typename boost::mpl::at<type_map,T>::type::value_type>& default_value ) const
+                   const std::list<typename boost::mpl::at<type_map,T>::type::value_type>& default_value ) const
          {
             typedef typename boost::mpl::at<type_map,T>::type sub_option_type;
             typedef typename sub_option_type::value_type value_type;

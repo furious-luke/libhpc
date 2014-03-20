@@ -18,7 +18,7 @@
 #ifndef libhpc_debug_assert_hh
 #define libhpc_debug_assert_hh
 
-#if !defined( NDEBUG ) || !defined( NEXCEPT ) || defined( __CUDACC__ )
+#if (!defined( NDEBUG ) || !defined( NEXCEPT )) && !defined( __CUDACC__ )
 
 #include <sstream>
 #include "libhpc/system/narg.hh"

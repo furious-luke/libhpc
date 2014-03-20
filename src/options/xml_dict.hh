@@ -20,11 +20,11 @@
 
 #ifdef HAVE_PUGIXML
 
+#include <list>
 #include <iostream>
 #include <typeinfo>
 #include <sstream>
 #include <pugixml.hpp>
-#include "libhpc/containers/list.hh"
 #include "libhpc/containers/string.hh"
 #include "libhpc/containers/optional.hh"
 #include "bad_option.hh"
@@ -174,11 +174,11 @@ namespace hpc {
          /// @returns The list of values.
          ///
          template< class T >
-         hpc::list<T>
+         std::list<T>
          get_list( const hpc::string& path ) const
          {
             xml_node node = _get_node( path );
-            hpc::list<T> val;
+            std::list<T> val;
             for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
             {
                if( it->first_child() && it->first_child().type() == node_pcdata )
@@ -198,14 +198,14 @@ namespace hpc {
          /// @returns The list of values.
          ///
          template< class T >
-         hpc::list<T>
+         std::list<T>
          get_list( const hpc::string& path,
-                   const hpc::list<T>& default_value )
+                   const std::list<T>& default_value )
          {
             xml_node node = _get_node( path, false );
             if( node )
             {
-               hpc::list<T> val;
+	       std::list<T> val;
                for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
                {
                   if( it->first_child() && it->first_child().type() == node_pcdata )
@@ -228,12 +228,12 @@ namespace hpc {
          ///          'none' entry in the list will be given.
          ///
          template< class T >
-         hpc::list<optional<T> >
+         std::list<optional<T> >
          get_list_attributes( const hpc::string& path,
                               const hpc::string& attribute ) const
          {
             xml_node node = _get_node( path );
-            hpc::list<optional<T> > val;
+            std::list<optional<T> > val;
             for( xml_node_iterator it = node.begin(); it != node.end(); ++it )
             {
                if( it->first_child() && it->first_child().type() == node_pcdata )

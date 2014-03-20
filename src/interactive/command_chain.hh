@@ -1,6 +1,7 @@
 #ifndef libhpc_interactive_command_chain_hh
 #define libhpc_interactive_command_chain_hh
 
+#include <list>
 #include "command_context.hh"
 
 namespace hpc {
@@ -18,7 +19,7 @@ namespace hpc {
 
       protected:
 
-         list<context*> _ctxs;
+	 std::list<context*> _ctxs;
       };
 
    }

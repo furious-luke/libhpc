@@ -18,9 +18,8 @@
 #ifndef libhpc_algorithm_uniform_hh
 #define libhpc_algorithm_uniform_hh
 
-#include <stdint.h>
-#include "libhpc/debug/assert.hh"
 #include "libhpc/containers/array.hh"
+#include "libhpc/debug/assert.hh"
 
 namespace hpc {
 
@@ -29,24 +28,27 @@ namespace hpc {
    ///
    template< class IndexP,
              class IndexL,
-             unsigned D >
+             unsigned D,
+	     class Grid >
    struct lift_impl;
 
    ///
    /// 2D lift implementation.
    ///
    template< class IndexP,
-             class IndexL >
-   struct lift_impl<IndexP,IndexL,2>
+             class IndexL,
+	     class Grid >
+   struct lift_impl<IndexP,IndexL,2,Grid>
    {
+      CUDA_DEVICE_HOST
       static
       hpc::array<IndexL,2>
       lift( IndexP idx,
-            hpc::array<IndexL,2> const& sides )
+            hpc::array<Grid,2> const& sides )
       {
          ASSERT( idx < sides[0]*sides[1], "Invalid grid cell index." );
          IndexL y = idx/sides[0];
-         return hpc::array<IndexL,2>{ static_cast<IndexL>( idx - y*sides[0] ), y };
+         return hpc::make_array<IndexL>( static_cast<IndexL>( idx - y*sides[0] ), y );
       }
    };
 
@@ -54,33 +56,43 @@ namespace hpc {
    /// 3D lift implementation.
    ///
    template< class IndexP,
-             class IndexL >
-   struct lift_impl<IndexP,IndexL,3>
+             class IndexL,
+	     class Grid >
+   struct lift_impl<IndexP,IndexL,3,Grid>
    {
+      CUDA_DEVICE_HOST
       static
       hpc::array<IndexL,3>
       lift( IndexP idx,
-            hpc::array<IndexL,3> const& sides )
+            hpc::array<Grid,3> const& sides )
       {
          ASSERT( idx < sides[0]*sides[1]*sides[2], "Invalid grid cell index." );
          IndexL z = static_cast<IndexL>( idx/(sides[0]*sides[1]) );
          IndexP rem = idx - z*(sides[0]*sides[1]);
          IndexL y = static_cast<IndexL>( rem/sides[0] );
-         return hpc::array<IndexL,3>{ static_cast<IndexL>( rem - y*sides[0] ), y, z };
+         return hpc::make_array<IndexL>( static_cast<IndexL>( rem - y*sides[0] ), y, z );
       }
    };
 
    ///
    /// Lift dispatch.
    ///
-   template< class IndexP,
-             class IndexL,
-             unsigned D >
+   template<
+      class IndexP,
+      class IndexL,
+      unsigned D,
+#ifndef __CUDACC__
+      class Grid = IndexL
+#else
+      class Grid
+#endif
+      >
+   CUDA_DEVICE_HOST
    hpc::array<IndexL,D>
    lift( IndexP idx,
-         hpc::array<IndexL,D> const& sides )
+         hpc::array<Grid,D> const& sides )
    {
-      return lift_impl<IndexP,IndexL,D>::lift( idx, sides );
+      return lift_impl<IndexP,IndexL,D,Grid>::lift( idx, sides );
    }
 
    ///
@@ -88,20 +100,23 @@ namespace hpc {
    ///
    template< class IndexL,
              class IndexP,
-             unsigned D >
+             unsigned D,
+	     class Grid >
    struct project_impl;
 
    ///
    /// 2D project implementation.
    ///
    template< class IndexL,
-             class IndexP >
-   struct project_impl<IndexL,IndexP,2>
+             class IndexP,
+	     class Grid >
+   struct project_impl<IndexL,IndexP,2,Grid>
    {
+      CUDA_DEVICE_HOST
       static
       IndexP
       project( hpc::array<IndexL,2> const& crd,
-               hpc::array<IndexL,2> const& sides )
+               hpc::array<Grid,2> const& sides )
       {
 #ifndef NDEBUG
          for( unsigned ii = 0; ii < 2; ++ii )
@@ -115,13 +130,15 @@ namespace hpc {
    /// 3D project implementation.
    ///
    template< class IndexL,
-             class IndexP >
-   struct project_impl<IndexL,IndexP,3>
+             class IndexP,
+	     class Grid >
+   struct project_impl<IndexL,IndexP,3,Grid>
    {
+      CUDA_DEVICE_HOST
       static
       IndexP
       project( hpc::array<IndexL,3> const& crd,
-               hpc::array<IndexL,3> const& sides )
+               hpc::array<Grid,3> const& sides )
       {
 #ifndef NDEBUG
          for( unsigned ii = 0; ii < 3; ++ii )
@@ -134,14 +151,22 @@ namespace hpc {
    ///
    /// Project dispatch.
    ///
-   template< class IndexL,
-             class IndexP,
-             unsigned D >
+   template<
+      class IndexL,
+      class IndexP,
+      unsigned D,
+#ifndef __CUDACC__
+      class Grid = IndexL
+#else
+      class Grid
+#endif
+      >
+   CUDA_DEVICE_HOST
    IndexP
    project( hpc::array<IndexL,D> const& crd,
-            hpc::array<IndexL,D> const& sides )
+            hpc::array<Grid,D> const& sides )
    {
-      project_impl<IndexL,IndexP,D>::project( crd, sides );
+      return project_impl<IndexL,IndexP,D,Grid>::project( crd, sides );
    }
 
 }

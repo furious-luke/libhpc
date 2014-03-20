@@ -18,12 +18,12 @@
 #ifndef libhpc_numerics_interp_iterator_hh
 #define libhpc_numerics_interp_iterator_hh
 
+#include <array>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include "libhpc/debug/debug.hh"
 #include "libhpc/containers/num.hh"
 #include "libhpc/containers/vector.hh"
-#include "libhpc/containers/array.hh"
 
 namespace hpc {
 
@@ -79,7 +79,7 @@ namespace hpc {
       }
 
       // TODO: Don't return a pointer!
-      const array<size_t,2>&
+      const std::array<size_t,2>&
       indices() const
       {
          return _idxs;
@@ -143,7 +143,7 @@ namespace hpc {
    protected:
 
       int _side;
-      array<size_t,2> _idxs;
+      std::array<size_t,2> _idxs;
       grid0_iterator_type _grid0_start, _grid0_finish;
       grid1_iterator_type _grid1_start, _grid1_finish;
       value_type _epsilon;

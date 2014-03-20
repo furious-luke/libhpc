@@ -18,10 +18,10 @@
 #ifndef libhpc_regexp_multimatch_hh
 #define libhpc_regexp_multimatch_hh
 
+#include <list>
 #include "libhpc/system/types.hh"
 #include "libhpc/containers/string.hh"
 #include "libhpc/containers/optional.hh"
-#include "libhpc/containers/list.hh"
 #include "libhpc/containers/map.hh"
 #include "re.hh"
 
@@ -71,7 +71,7 @@ namespace hpc {
 
    protected:
 
-      list<string> _matches;
+      std::list<string> _matches;
       re::re _re;
       bool _ready;
    };

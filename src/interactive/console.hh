@@ -3,6 +3,9 @@
 
 #ifdef HAVE_GLUT
 
+#include <string>
+#include <list>
+#include <array>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "libhpc/system/types.hh"
@@ -80,13 +83,13 @@ namespace hpc {
 
       protected:
 
-         array<uint16,2> _scr;
+	 std::array<uint16,2> _scr;
          uint16 _num_lines;
          uint16 _line_height;
          GLfloat _alpha;
          int _open;
-         list<string> _hist;
-         string _line;
+	 std::list<string> _hist;
+	 std::string _line;
          inter::animation<GLfloat> _anim;
 
          GLfloat _cur_x;

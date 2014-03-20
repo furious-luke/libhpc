@@ -18,24 +18,79 @@
 #ifndef libhpc_containers_array_hh
 #define libhpc_containers_array_hh
 
-#include "libhpc/system/cc_version.hh"
-#ifdef CXX_0X
+#include "libhpc/system/cuda.hh"
+#ifndef __CUDACC__
 #include <array>
-#else
-#include <boost/array.hpp>
 #endif
 
 namespace hpc {
 
-#ifdef CXX_0X
+#ifndef __CUDACC__
+
    template< class T,
              std::size_t N >
    using array = ::std::array<T,N>;
+
 #else
+
    template< class T,
              std::size_t N >
-   using array = ::boost::array<T,N>;
+   class array
+   {
+   public:
+
+      T elems[N];
+
+      CUDA_DEVICE_HOST
+      T&
+      operator[]( std::size_t idx )
+      {
+	 return elems[idx];
+      }
+
+      CUDA_DEVICE_HOST
+      T const&
+      operator[]( std::size_t idx ) const
+      {
+	 return elems[idx];
+      }
+   };
+
 #endif
+
+   template< class T >
+   CUDA_DEVICE_HOST
+   array<T,2>
+   make_array( T const& x,
+	       T const& y )
+   {
+#ifndef __CUDACC__
+      return array<T,2>{ x, y };
+#else
+      array<T,2> arr;
+      arr[0] = x;
+      arr[1] = y;
+      return arr;
+#endif
+   }
+
+   template< class T >
+   CUDA_DEVICE_HOST
+   array<T,3>
+   make_array( T const& x,
+	       T const& y,
+	       T const& z )
+   {
+#ifndef __CUDACC__
+      return array<T,3>{ x, y, z };
+#else
+      array<T,3> arr;
+      arr[0] = x;
+      arr[1] = y;
+      arr[2] = z;
+      return arr;
+#endif
+   }
 
 }
 
