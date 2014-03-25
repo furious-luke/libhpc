@@ -235,6 +235,35 @@ namespace hpc {
 	    }
          }
 
+	 template< class Iter >
+	 void
+	 iscatter_types( void const* out,
+			 Iter out_data_types,
+			 void* inc,
+			 Iter inc_data_types,
+			 mpi::requests& reqs ) const
+	 {
+            unsigned num_nbrs = _nbrs.size();
+            reqs.resize( 2*num_nbrs );
+	    unsigned cur_req = 0;
+	    for( unsigned ii = 0; ii < num_nbrs; ++ii )
+	    {
+	       _comm->isend( out, *out_data_types++, _nbrs[ii], reqs[cur_req++] );
+	       _comm->irecv( inc, *inc_data_types++, _nbrs[ii], reqs[cur_req++] );
+	    }
+	 }
+
+	 template< class Iter >
+	 void
+	 scatter_types( void const* out,
+			Iter out_data_types,
+			void* inc,
+			Iter inc_data_types ) const
+	 {
+	    mpi::requests reqs;
+	    iscatter_types<Iter>( out, out_data_types, inc, inc_data_types, reqs );
+	 }
+
 	 template< class DisplType >
 	 void
 	 scatter_displs( typename hpc::view<std::vector<DisplType>>::type const& out,

@@ -104,11 +104,31 @@ namespace hpc {
 		  const data_type& base,
 		  mpi::lindex block_size=1 );
 
+	 template< class DisplType,
+		   class IndexType >
 	 void
-	 indexed_csr( const vector<index>::view& displs,
-		      const vector<mpi::lindex>::view& idxs,
-		      const data_type& base,
-		      mpi::lindex block_size=1 );
+	 indexed_csr( typename hpc::view<std::vector<DisplType>>::type const& displs,
+		      typename hpc::view<std::vector<IndexType>>::type const& idxs,
+		      data_type const& base,
+		      unsigned block_size = 1 )
+	 {
+	    ASSERT( block_size >= 0, "Invalid block size." );
+	    clear();
+
+	    std::vector<int> block_displs( idxs.size() );
+	    std::vector<int> block_cnts( idxs.size() );
+
+	    for( size_t ii = 0; ii < idxs.size(); ++ii )
+	    {
+	       IndexType idx = idxs[ii];
+	       block_displs[ii] = block_size*displs[idx];
+	       block_cnts[ii] = block_size*displs[idx + 1] - block_displs[ii];
+	    }
+
+	    MPI_Type_indexed( idxs.size(), block_cnts.data(), block_displs.data(), base._type, &_type );
+	    MPI_Type_commit( &_type );
+	    calc_size();
+	 }
 
 	 mpi::lindex
 	 size() const;

@@ -128,29 +128,6 @@ namespace hpc {
 	 this->calc_size();
       }
 
-      void
-      data_type::indexed_csr(const vector<index>::view& displs,
-			     const vector<mpi::lindex>::view& idxs,
-			     const data_type& base,
-			     mpi::lindex block_size)
-      {
-	 ASSERT(block_size >= 0);
-	 this->clear();
-
-	 vector<mpi::lindex> block_displs(idxs.size());
-	 vector<mpi::lindex> block_cnts(idxs.size());
-
-	 for(index ii = 0; ii < idxs.size(); ++ii) {
-	    mpi::lindex idx = idxs[ii];
-	    block_displs[ii] = block_size*displs[idx];
-	    block_cnts[ii] = block_size*displs[idx + 1] - block_displs[ii];
-	 }
-
-	 MPI_Type_indexed(idxs.size(), (int*)block_cnts.data(), (int*)block_displs.data(), base._type, &this->_type);
-	 MPI_Type_commit(&this->_type);
-	 this->calc_size();
-      }
-
       mpi::lindex
       data_type::size() const
       {
