@@ -137,59 +137,57 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 write( const std::string& name,
-		const typename vector<T>::view& data,
-		boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-		bool deflate=false )
+	 write( std::string const& name,
+		typename hpc::view<std::vector<T>>::type const& data )
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
+	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype datatype( mpl::at<h5::datatype::type_map,T>::type::value );
 
-	    vector<hsize_t> dims(1), count(1), offset(1);
-	    dims[0] = this->_comm->all_reduce(data.size(), MPI_SUM);
+	    std::vector<hsize_t> dims( 1 ), count( 1 ), offset( 1 );
+	    dims[0] = _comm->all_reduce( data.size(), MPI_SUM );
 	    count[0] = data.size();
-	    offset[0] = this->_comm->scan(data.size(), MPI_SUM, true);
+	    offset[0] = _comm->scan( data.size(), MPI_SUM, true );
 
-	    h5::dataspace file_space(dims);
+	    h5::dataspace file_space( dims );
 	    h5::dataset file_set;
-	    file_set.create(*this, name, datatype, file_space, chunk_size, deflate);
+	    file_set.create( *this, name, datatype, file_space );
 	    file_space.select_all();
-	    file_space.select_hyperslab(H5S_SELECT_SET, count, offset);
+	    file_space.select_hyperslab( H5S_SELECT_SET, count, offset );
 
 	    dims[0] = data.size();
-	    h5::dataspace mem_space(dims);
+	    h5::dataspace mem_space( dims );
 	    mem_space.select_all();
 
-	    file_set.write(data, datatype, mem_space, file_space, *this->_comm);
+	    file_set.write( data, datatype, mem_space, file_space, *_comm );
 	 }
 
-	 template< class T >
-	 void
-	 write( const std::string& name,
-		const csr<T>& data,
-		boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-		bool deflate=false )
-	 {
-	    vector<index>::view displs = ((csr<T>&)data).mod_displs();
-	    hpc::displs_to_counts(displs.begin(), displs.size());
-	    vector<index>::view counts;
-	    if(!displs.empty())
-	       counts.assign(displs, displs.size() - 1);
-	    this->write<index>(name + "_counts", counts, chunk_size, deflate);
-	    if(!displs.empty())
-	       hpc::counts_to_displs(displs.begin(), displs.size() - 1);
+	 // template< class T >
+	 // void
+	 // write( const std::string& name,
+	 // 	const csr<T>& data,
+	 // 	boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
+	 // 	bool deflate=false )
+	 // {
+	 //    vector<index>::view displs = ((csr<T>&)data).mod_displs();
+	 //    hpc::displs_to_counts(displs.begin(), displs.size());
+	 //    vector<index>::view counts;
+	 //    if(!displs.empty())
+	 //       counts.assign(displs, displs.size() - 1);
+	 //    this->write<index>(name + "_counts", counts, chunk_size, deflate);
+	 //    if(!displs.empty())
+	 //       hpc::counts_to_displs(displs.begin(), displs.size() - 1);
 
-	    // Collect displacement offsets from all ranks involved.
-	    index rank_offs = this->_comm->scan(displs.back(), MPI_SUM, true);
-	    vector<index>::view offs_displs;
-	    if(!displs.empty())
-               offs_displs.assign(displs, displs.size() - 1);
-	    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::plus<index>(), rank_offs));
-	    this->write<index>(name + "_displs", offs_displs, chunk_size, deflate);
-	    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::minus<index>(), rank_offs));
+	 //    // Collect displacement offsets from all ranks involved.
+	 //    index rank_offs = this->_comm->scan(displs.back(), MPI_SUM, true);
+	 //    vector<index>::view offs_displs;
+	 //    if(!displs.empty())
+         //       offs_displs.assign(displs, displs.size() - 1);
+	 //    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::plus<index>(), rank_offs));
+	 //    this->write<index>(name + "_displs", offs_displs, chunk_size, deflate);
+	 //    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::minus<index>(), rank_offs));
 
-	    this->write<T>(name + "_array", data.array(), chunk_size, deflate);
-	 }
+	 //    this->write<T>(name + "_array", data.array(), chunk_size, deflate);
+	 // }
 
 	 void
 	 read_data_dims( const std::string& name,
@@ -457,12 +455,12 @@ namespace hpc {
 	 shared_ptr<mpi::comm> _comm;
       };
 
-      template<>
-      void
-      file::write<string>( const std::string& name,
-			   const vector<string>::view& data,
-			   boost::optional<const vector<hsize_t>::view&> chunk_size,
-			   bool deflate );
+      // template<>
+      // void
+      // file::write<string>( const std::string& name,
+      // 			   const vector<string>::view& data,
+      // 			   boost::optional<const vector<hsize_t>::view&> chunk_size,
+      // 			   bool deflate );
 
       template<>
       void

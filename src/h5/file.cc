@@ -81,46 +81,46 @@ namespace hpc {
 	 _comm = mpi::comm::self;
       }
 
-      template<>
-      void
-      file::write<string>( const std::string& name,
-			   const vector<string>::view& data,
-			   boost::optional<const vector<hsize_t>::view&> chunk_size,
-			   bool deflate )
-      {
-	 BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,char>) );
-	 h5::datatype datatype( mpl::at<h5::datatype::type_map,char>::type::value );
+      // template<>
+      // void
+      // file::write<string>( const std::string& name,
+      // 			   const vector<string>::view& data,
+      // 			   boost::optional<const vector<hsize_t>::view&> chunk_size,
+      // 			   bool deflate )
+      // {
+      // 	 BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,char>) );
+      // 	 h5::datatype datatype( mpl::at<h5::datatype::type_map,char>::type::value );
 
-	 // Count total size of strings.
-	 size_t size = 0;
-         for( unsigned ii = 0; ii < data.size(); ++ii )
-	    size += data[ii].size() + 1;
-	 size_t net_size = this->_comm->all_reduce( size, MPI_SUM );
+      // 	 // Count total size of strings.
+      // 	 size_t size = 0;
+      //    for( unsigned ii = 0; ii < data.size(); ++ii )
+      // 	    size += data[ii].size() + 1;
+      // 	 size_t net_size = this->_comm->all_reduce( size, MPI_SUM );
 
-	 vector<hsize_t> dims(1), count(1), offset(1);
-	 dims[0] = net_size;
-	 offset[0] = this->_comm->scan( size, MPI_SUM, true );
+      // 	 vector<hsize_t> dims(1), count(1), offset(1);
+      // 	 dims[0] = net_size;
+      // 	 offset[0] = this->_comm->scan( size, MPI_SUM, true );
 
-	 h5::dataspace file_space( dims );
-	 h5::dataset file_set;
-	 file_set.create( *this, name, datatype, file_space, chunk_size, deflate );
+      // 	 h5::dataspace file_space( dims );
+      // 	 h5::dataset file_set;
+      // 	 file_set.create( *this, name, datatype, file_space, chunk_size, deflate );
 
-	 vector<hsize_t> mem_dims( 1 ), mem_offs( 1 ), mem_count( 1 );
-	 mem_dims[0] = net_size;
-	 mem_offs[0] = 0;
-	 h5::dataspace mem_space( mem_dims );
+      // 	 vector<hsize_t> mem_dims( 1 ), mem_offs( 1 ), mem_count( 1 );
+      // 	 mem_dims[0] = net_size;
+      // 	 mem_offs[0] = 0;
+      // 	 h5::dataspace mem_space( mem_dims );
 
-         for( unsigned ii = 0; ii < data.size(); ++ii )
-	 {
-	    count[0] = data[ii].size() + 1;
-	    file_space.select_hyperslab( H5S_SELECT_SET, count, offset );
-	    offset[0] += data[ii].size() + 1;
+      //    for( unsigned ii = 0; ii < data.size(); ++ii )
+      // 	 {
+      // 	    count[0] = data[ii].size() + 1;
+      // 	    file_space.select_hyperslab( H5S_SELECT_SET, count, offset );
+      // 	    offset[0] += data[ii].size() + 1;
 
-	    mem_count[0] = data[ii].size() + 1;
-	    mem_space.select_hyperslab( H5S_SELECT_SET, mem_count, mem_offs );
-	    file_set.write( data[ii].c_str(), datatype, mem_space, file_space, *this->_comm );
-	 }
-      }
+      // 	    mem_count[0] = data[ii].size() + 1;
+      // 	    mem_space.select_hyperslab( H5S_SELECT_SET, mem_count, mem_offs );
+      // 	    file_set.write( data[ii].c_str(), datatype, mem_space, file_space, *this->_comm );
+      // 	 }
+      // }
 
       template<>
       void

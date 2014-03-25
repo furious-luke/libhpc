@@ -34,10 +34,10 @@ namespace hpc {
 	 dset.space( *this );
       }
 
-      dataspace::dataspace( const vector<hsize_t>::view& dims )
+      dataspace::dataspace( hpc::view<std::vector<hsize_t>>::type const& dims )
 	 : _id(-1)
       {
-	 this->create(dims);
+	 this->create( dims );
       }
 
       dataspace::~dataspace()
@@ -75,7 +75,7 @@ namespace hpc {
       }
 
       void
-      dataspace::create( const vector<hsize_t>::view& dims )
+      dataspace::create( hpc::view<std::vector<hsize_t>>::type const& dims )
       {
 	 this->close();
 	 if(std::accumulate(dims.begin(), dims.end(), 0))
@@ -152,8 +152,8 @@ namespace hpc {
 
       void
       dataspace::select_hyperslab( H5S_seloper_t op,
-				   const vector<hsize_t>::view& count,
-				   const vector<hsize_t>::view& start,
+				   hpc::view<std::vector<hsize_t>>::type const& count,
+				   hpc::view<std::vector<hsize_t>>::type const& start,
 				   boost::optional<const vector<hsize_t>::view&> stride,
 				   boost::optional<const vector<hsize_t>::view&> block )
       {
