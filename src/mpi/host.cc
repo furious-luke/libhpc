@@ -23,6 +23,16 @@
 namespace hpc {
    namespace mpi {
 
+      std::string
+      get_host()
+      {
+         std::vector<char> name( MPI_MAX_PROCESSOR_NAME );
+         int len;
+         MPI_Get_processor_name( name.data(), &len );
+         name.resize( len );
+	 return std::string( name.begin(), name.end() );
+      }
+
       std::set<int>
       make_host_ranks( mpi::comm const& comm )
       {

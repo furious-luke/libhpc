@@ -104,14 +104,16 @@ namespace hpc {
 		  const data_type& base,
 		  mpi::lindex block_size=1 );
 
-	 template< class DisplType,
-		   class IndexType >
+	 template< class DisplVec,
+		   class IndexVec >
 	 void
-	 indexed_csr( typename hpc::view<std::vector<DisplType>>::type const& displs,
-		      typename hpc::view<std::vector<IndexType>>::type const& idxs,
+	 indexed_csr( DisplVec const& displs,
+		      IndexVec const& idxs,
 		      data_type const& base,
 		      unsigned block_size = 1 )
 	 {
+	    typedef typename IndexVec::value_type index_type;
+
 	    ASSERT( block_size >= 0, "Invalid block size." );
 	    clear();
 
@@ -120,7 +122,7 @@ namespace hpc {
 
 	    for( size_t ii = 0; ii < idxs.size(); ++ii )
 	    {
-	       IndexType idx = idxs[ii];
+	       index_type idx = idxs[ii];
 	       block_displs[ii] = block_size*displs[idx];
 	       block_cnts[ii] = block_size*displs[idx + 1] - block_displs[ii];
 	    }

@@ -15,23 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_host_hh
-#define libhpc_mpi_host_hh
+#ifndef libhpc_mpi_cuda_hh
+#define libhpc_mpi_cuda_hh
 
-#include <string>
-#include <set>
+#ifdef HAVE_CUDA
+
 #include "comm.hh"
 
 namespace hpc {
-   namespace mpi {
+   namespace cuda {
 
-      std::string
-      get_host();
-
-      std::set<int>
-      make_host_ranks( mpi::comm const& comm = mpi::comm::world );
+      void
+      select_device( mpi::comm const& comm = mpi::comm::world );
 
    }
 }
+
+#endif
 
 #endif
