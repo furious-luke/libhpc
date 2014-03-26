@@ -406,6 +406,34 @@ namespace hpc {
 	 }
 
 	 template< class T >
+         T
+	 bcast2( T const& value,
+                 int root ) const
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+
+            if( rank() == root )
+            {
+               MPI_INSIST( MPI_Bcast( (void*)&value,
+                                      1,
+                                      MPI_MAP_TYPE( T ),
+                                      root,
+                                      _comm ) );
+               return value;
+            }
+            else
+            {
+               T res;
+               MPI_INSIST( MPI_Bcast( &res,
+                                      1,
+                                      MPI_MAP_TYPE( T ),
+                                      root,
+                                      _comm ) );
+               return res;
+            }
+	 }
+
+	 template< class T >
 	 void
 	 bcast( typename vector<T>::view data,
 		int root ) const
@@ -424,6 +452,37 @@ namespace hpc {
 			  root,
 			  this->_comm
 			  ));
+	 }
+
+	 template< class T >
+         std::vector<T>
+	 bcast2( typename hpc::view<std::vector<T>>::type const& data,
+                 int root ) const
+	 {
+	    BOOST_MPL_ASSERT( (mpl::has_key<mpi::data_type::type_map,T>) );
+
+            // Get size for resulting vector.
+            auto size = bcast2<decltype(data.size())>( data.size(), root );
+
+            if( rank() == root )
+            {
+               MPI_INSIST( MPI_Bcast( (void*)data.data(),
+                                      data.size(),
+                                      MPI_MAP_TYPE( T ),
+                                      root,
+                                      _comm ) );
+               return std::vector<T>( data.begin(), data.end() );
+            }
+            else
+            {
+               std::vector<T> res( size );
+               MPI_INSIST( MPI_Bcast( res.data(),
+                                      data.size(),
+                                      MPI_MAP_TYPE( T ),
+                                      root,
+                                      _comm ) );
+               return res;
+            }
 	 }
 
 	 /// To be called from root (combined with below).

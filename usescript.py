@@ -118,3 +118,4 @@ dummy      = rule(tests,                      run_tests,     target=dummies.alwa
 
 # Examples.
 rule(r'exs/system/daemon/.+\.cc$', bin, target='exs/daemon', libraries=['hpc'])
+rule(r'exs/mpi/host.cc$', bin, target='exs/host', libraries=['hpc'])
