@@ -38,9 +38,13 @@ namespace hpc {
 	 timer_handle( profile::timer* timer = 0,
                        stop_type stop = NORMAL );
 
+#ifndef __CUDACC__
+
          timer_handle( const timer_handle& ) = delete;
 
          timer_handle( timer_handle&& src );
+
+#endif
 
 	 ~timer_handle();
 

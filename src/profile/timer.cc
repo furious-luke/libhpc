@@ -102,11 +102,11 @@ namespace hpc {
 	 return _total;
       }
 
-      double
-      timer::total( const mpi::comm& comm ) const
-      {
-	 return comm.all_reduce( _total, MPI_MAX );
-      }
+      // double
+      // timer::total( const mpi::comm& comm ) const
+      // {
+      // 	 return comm.all_reduce( _total, MPI_MAX );
+      // }
 
       double
       timer::mean() const
@@ -115,13 +115,13 @@ namespace hpc {
 	 return _total/(double)_cnt;
       }
 
-      double
-      timer::mean( const mpi::comm& comm ) const
-      {
-	 ASSERT( _cnt );
-	 ASSERT( comm.all_reduce( _cnt, MPI_MAX ) == comm.all_reduce( _cnt, MPI_MIN ) );
-	 return total( comm )/(double)_cnt;
-      }
+      // double
+      // timer::mean( const mpi::comm& comm ) const
+      // {
+      // 	 ASSERT( _cnt );
+      // 	 ASSERT( comm.all_reduce( _cnt, MPI_MAX ) == comm.all_reduce( _cnt, MPI_MIN ) );
+      // 	 return total( comm )/(double)_cnt;
+      // }
 
    }
 }

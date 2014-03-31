@@ -28,12 +28,16 @@ namespace hpc {
       {
       }
 
+#ifndef __CUDACC__
+
       timer_handle::timer_handle( timer_handle&& src )
          : _timer( src._timer ),
            _stop( src._stop )
       {
          src._timer = 0;
       }
+
+#endif
 
       timer_handle::~timer_handle()
       {

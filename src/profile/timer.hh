@@ -19,7 +19,7 @@
 #define libhpc_profile_timer_hh
 
 #include "libhpc/system/timer.hh"
-#include "libhpc/mpi/comm.hh"
+// #include "libhpc/mpi/comm.hh"
 #include "timer_handle.hh"
 
 namespace hpc {
@@ -64,14 +64,14 @@ namespace hpc {
 	 double
 	 total() const;
 
-	 double
-	 total( const mpi::comm& comm ) const;
+	 // double
+	 // total( const mpi::comm& comm ) const;
 
 	 double
 	 mean() const;
 
-	 double
-	 mean( const mpi::comm& comm ) const;
+	 // double
+	 // mean( const mpi::comm& comm ) const;
 
       protected:
 

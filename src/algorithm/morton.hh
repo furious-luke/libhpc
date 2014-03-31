@@ -18,8 +18,12 @@
 #ifndef libhpc_algorithm_morton_hh
 #define libhpc_algorithm_morton_hh
 
+#ifndef __CUDACC__
 #include <cstdint>
-#include <array>
+#else
+#include <stdint.h>
+#endif
+#include "libhpc/containers/array.hh"
 
 namespace hpc {
 
@@ -84,26 +88,28 @@ namespace hpc {
    uint32_t
    morton( Args... args )
    {
+#ifndef __CUDACC__
       static_assert( sizeof...(args) == D, "Invalid number of Morton order parameters." );
+#endif
       return morton_impl<D,0,Args...>::eval( args... );
    }
 
    uint32_t
-   morton_array( std::array<uint16_t,2> const& crd );
+   morton_array( hpc::array<uint16_t,2> const& crd );
 
    uint32_t
-   morton_array( std::array<uint16_t,3> const& crd );
+   morton_array( hpc::array<uint16_t,3> const& crd );
 
    template< int D >
-   std::array<uint16_t,D>
+   hpc::array<uint16_t,D>
    unmorton( uint32_t idx );
 
    template<>
-   std::array<uint16_t,2>
+   hpc::array<uint16_t,2>
    unmorton<2>( uint32_t idx );
 
    template<>
-   std::array<uint16_t,3>
+   hpc::array<uint16_t,3>
    unmorton<3>( uint32_t idx );
 
 }
