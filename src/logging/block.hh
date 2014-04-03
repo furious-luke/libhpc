@@ -18,31 +18,31 @@
 #ifndef libhpc_logging_block_hh
 #define libhpc_logging_block_hh
 
-#include "libhpc/system/anon.hh"
-#include "libhpc/system/stream_indent.hh"
-#include "globals.hh"
-
 #ifndef NLOG
+
+#include "libhpc/system/anon.hh"
+#include "libhpc/system/stream.hh"
+#include "globals.hh"
 
 #define LOGBLOCK( ... )                         \
    LOGLN( __VA_ARGS__, ::hpc::setindent( 1 ) ); \
-   ::hpc::logging::block ANON
+   ::hpc::log::block ANON
 
 #define LOGBLOCK_TAG( tag, ... )		\
    LOG_PUSH_TAG( tag );                         \
    LOGLN( __VA_ARGS__, ::hpc::setindent( 1 ) ); \
-   ::hpc::logging::block ANON( tag )
+   ::hpc::log::block ANON( tag )
 
 #ifndef NLOGTRIVIAL
 
-#define LOGBLOCKT( ... )                                        \
-   LOGTLN( __VA_ARGS__, ::hpc::setindent( 1 ) );                \
-   ::hpc::logging::block ANON( ::hpc::logging::trivial )
+#define LOGBLOCKT( ... )                                \
+   LOGTLN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
+   ::hpc::log::block ANON( ::hpc::log::trivial )
 
-#define LOGBLOCKT_TAG( tag, ... )				\
-   LOG_PUSH_TAG( tag );                                         \
-   LOGTLN( __VA_ARGS__, ::hpc::setindent( 1 ) );                \
-   ::hpc::logging::block ANON( tag, ::hpc::logging::trivial )
+#define LOGBLOCKT_TAG( tag, ... )                       \
+   LOG_PUSH_TAG( tag );                                 \
+   LOGTLN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
+   ::hpc::log::block ANON( tag, ::hpc::log::trivial )
 
 #else
 
@@ -55,12 +55,12 @@
 
 #define LOGBLOCKD( ... )                                \
    LOGDLN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
-   ::hpc::logging::block ANON( ::hpc::logging::debug )
+   ::hpc::log::block ANON( ::hpc::log::debug )
 
-#define LOGBLOCKD_TAG( tag, ... )				\
-   LOG_PUSH_TAG( tag );						\
-   LOGDLN( __VA_ARGS__, ::hpc::setindent( 1 ) );		\
-   ::hpc::logging::block ANON( tag, ::hpc::logging::debug )
+#define LOGBLOCKD_TAG( tag, ... )                       \
+   LOG_PUSH_TAG( tag );                                 \
+   LOGDLN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
+   ::hpc::log::block ANON( tag, ::hpc::log::debug )
 
 #else
 
@@ -71,35 +71,35 @@
 
 #define LOGBLOCKI( ... )                                \
    LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
-   ::hpc::logging::block ANON( ::hpc::logging::info )
+   ::hpc::log::block ANON( ::hpc::log::info )
 
-#define LOGBLOCKI_TAG( tag, ... )				\
-   LOG_PUSH_TAG( tag );						\
-   LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );		\
-   ::hpc::logging::block ANON( tag, ::hpc::logging::info )
+#define LOGBLOCKI_TAG( tag, ... )                       \
+   LOG_PUSH_TAG( tag );                                 \
+   LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
+   ::hpc::log::block ANON( tag, ::hpc::log::info )
 
-namespace hpc {
-   namespace logging {
+   namespace hpc {
+namespace log {
 
-      class block
-      {
-      public:
+   class block
+   {
+   public:
 
-         block( levels_type lvl = (levels_type)0 );
+      block( levels_type lvl = (levels_type)0 );
 
-         block( std::string const& tag,
-		levels_type lvl = (levels_type)0 );
+      block( std::string const& tag,
+             levels_type lvl = (levels_type)0 );
 
-         ~block();
+      ~block();
 
-      protected:
+   protected:
 
-         unsigned _lvl;
-	 std::string _tag;
-      };
+      unsigned _lvl;
+      std::string _tag;
+   };
 
-   }
 }
+   }
 
 #else
 

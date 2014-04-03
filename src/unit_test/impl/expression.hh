@@ -15,16 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_logging_hh
-#define libhpc_logging_logging_hh
+#ifndef libhpc_unit_test_expression_hh
+#define libhpc_unit_test_expression_hh
 
-#include "logger.hh"
-#include "file.hh"
-#include "stdout.hh"
-#include "omp_file.hh"
-#include "thread_file.hh"
-#include "globals.hh"
-#include "levels.hh"
-#include "block.hh"
+#include <iostream>
+#include <string>
+
+namespace hpc {
+   namespace test {
+
+      template< class T,
+                class U >
+      void
+      expression<T,U>::test( test_case_base& tc,
+                             std::string const& desc )
+      {
+         if( !(*this) )
+         {
+            // Failed, log the failure and conclude this test.
+            throw test_expression_failed<T,U>( tc, *this, desc );
+         }
+         else
+            std::cout << "." << std::flush;
+      }
+
+   }
+}
 
 #endif

@@ -15,74 +15,67 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_profile_timer_hh
-#define libhpc_profile_timer_hh
+#ifndef libhpc_system_timer_hh
+#define libhpc_system_timer_hh
 
-#include "libhpc/system/timer.hh"
-// #include "libhpc/mpi/comm.hh"
+#include <boost/chrono.hpp>
 #include "timer_handle.hh"
 
 namespace hpc {
-   namespace profile {
 
-      ///
-      ///
-      ///
-      class timer
-      {
-      public:
+   ///
+   ///
+   ///
+   class timer
+   {
+   public:
 
-         typedef timer_handle handle;
+      typedef boost::chrono::process_cpu_clock clock_type;
+      typedef boost::chrono::duration<double>  time_type;
+      typedef timer_handle                     handle_type;
 
-      public:
+   public:
 
-	 timer();
+      timer();
 
-	 ~timer();
+      ~timer();
 
-	 void
-	 reset();
+      void
+      reset();
 
-	 bool
-	 running() const;
+      bool
+      running() const;
 
-         handle
-         start( handle::stop_type stop = handle::NORMAL );
+      handle_type
+      start( handle_type::stop_type stop = handle_type::NORMAL );
 
-         void
-         start2();
+      void
+      start_explicit();
 
-	 void
-	 stop();
+      void
+      stop();
 
-	 void
-	 stop_tally();
+      void
+      stop_tally();
 
-	 unsigned long
-	 count() const;
+      unsigned long
+      count() const;
 
-	 double
-	 total() const;
+      time_type
+      total() const;
 
-	 // double
-	 // total( const mpi::comm& comm ) const;
+      time_type
+      mean() const;
 
-	 double
-	 mean() const;
+   protected:
 
-	 // double
-	 // mean( const mpi::comm& comm ) const;
+      clock_type::time_point _start;
+      time_type _total;
+      unsigned long _cnt;
+      bool _run;
+      unsigned _stack;
+   };
 
-      protected:
-
-	 time_type _start;
-	 double _total;
-	 unsigned long _cnt;
-	 bool _run;
-	 unsigned _stack;
-      };
-
-   }
 }
 
 #endif

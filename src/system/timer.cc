@@ -19,109 +19,93 @@
 #include "timer.hh"
 
 namespace hpc {
-   namespace profile {
 
-      timer::timer()
-	 : _total( 0.0 ),
-	   _cnt( 0 ),
-	   _run( false ),
-	   _stack( 0 )
-      {
-      }
-
-      timer::~timer()
-      {
-	 ASSERT( !_stack );
-	 ASSERT( !_run );
-      }
-
-      void
-      timer::reset()
-      {
-	 _total = 0;
-	 _cnt = 0;
-      }
-
-      bool
-      timer::running() const
-      {
-	 return _run;
-      }
-
-      timer::handle
-      timer::start( handle::stop_type stop )
-      {
-	 ++_stack;
-	 if( !_run )
-	 {
-	    _run = true;
-	    _start = hpc::timer();
-	 }
-         return handle( this, stop );
-      }
-
-      void
-      timer::start2()
-      {
-         ++_stack;
-         if( !_run )
-         {
-            _run = true;
-            _start = hpc::timer();
-         }
-      }
-
-      void
-      timer::stop()
-      {
-	 --_stack;
-	 if( !_stack )
-	 {
-	    _run = false;
-	    _total += seconds( hpc::timer() - _start );
-	 }
-      }
-
-      void
-      timer::stop_tally()
-      {
-	 stop();
-	 if( !_stack )
-	    ++_cnt;
-      }
-
-      unsigned long
-      timer::count() const
-      {
-	 return _cnt;
-      }
-
-      double
-      timer::total() const
-      {
-	 return _total;
-      }
-
-      // double
-      // timer::total( const mpi::comm& comm ) const
-      // {
-      // 	 return comm.all_reduce( _total, MPI_MAX );
-      // }
-
-      double
-      timer::mean() const
-      {
-	 ASSERT( _cnt );
-	 return _total/(double)_cnt;
-      }
-
-      // double
-      // timer::mean( const mpi::comm& comm ) const
-      // {
-      // 	 ASSERT( _cnt );
-      // 	 ASSERT( comm.all_reduce( _cnt, MPI_MAX ) == comm.all_reduce( _cnt, MPI_MIN ) );
-      // 	 return total( comm )/(double)_cnt;
-      // }
-
+   timer::timer()
+      : _total( 0 ),
+        _cnt( 0 ),
+        _run( false ),
+        _stack( 0 )
+   {
    }
+
+   timer::~timer()
+   {
+      ASSERT( !_stack );
+      ASSERT( !_run );
+   }
+
+   void
+   timer::reset()
+   {
+      _total = time_type::zero();
+      _cnt = 0;
+   }
+
+   bool
+   timer::running() const
+   {
+      return _run;
+   }
+
+   timer::handle_type
+   timer::start( handle_type::stop_type stop )
+   {
+      ++_stack;
+      if( !_run )
+      {
+         _run = true;
+         _start = clock_type::now();
+      }
+      return handle_type( this, stop );
+   }
+
+   void
+   timer::start_explicit()
+   {
+      ++_stack;
+      if( !_run )
+      {
+         _run = true;
+         _start = clock_type::now();
+      }
+   }
+
+   void
+   timer::stop()
+   {
+      --_stack;
+      if( !_stack )
+      {
+         _run = false;
+         _total += (clock_type::now() - _start);
+      }
+   }
+
+   void
+   timer::stop_tally()
+   {
+      stop();
+      if( !_stack )
+         ++_cnt;
+   }
+
+   unsigned long
+   timer::count() const
+   {
+      return _cnt;
+   }
+
+   timer::time_type
+   timer::total() const
+   {
+      return _total;
+   }
+
+   timer::time_type
+   timer::mean() const
+   {
+      ASSERT( _cnt );
+      return _total/(double)_cnt;
+   }
+
 }

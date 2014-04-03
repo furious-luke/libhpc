@@ -21,78 +21,79 @@
 namespace hpc {
    namespace mpi {
 
-      requests::requests( index size )
+      requests::requests( size_t size )
 	 : _reqs( size )
       {
-         boost::fill( this->_reqs, MPI_REQUEST_NULL );
+         boost::fill( _reqs, MPI_REQUEST_NULL );
       }
 
-      requests::~requests() {
+      requests::~requests()
+      {
 	 wait_all();
       }
 
       void
       requests::clear()
       {
-	 this->_reqs.clear();
+	 _reqs.clear();
       }
 
       bool
       requests::empty() const
       {
-	 this->_reqs.empty();
+	 _reqs.empty();
       }
 
       void
-      requests::reserve( index size )
+      requests::reserve( size_t size )
       {
-	 this->_reqs.reserve(size);
+	 _reqs.reserve(size);
       }
 
       void
-      requests::resize( index size )
+      requests::resize( size_t size )
       {
-	 this->_reqs.resize(size);
+	 _reqs.resize(size);
       }
 
       vector<request>::size_type
       requests::size() const
       {
-	 this->_reqs.size();
+	 _reqs.size();
       }
 
       request&
       requests::append()
       {
-	 this->_reqs.resize(this->_reqs.size() + 1);
-	 return this->_reqs.back();
+	 _reqs.resize(_reqs.size() + 1);
+	 return _reqs.back();
       }
 
       void
       requests::wait_all()
       {
-	 if(this->_reqs.size())
-	    MPI_INSIST(MPI_Waitall(this->_reqs.size(), (MPI_Request*)this->_reqs.data(), MPI_STATUSES_IGNORE));
+	 if(_reqs.size())
+	    MPI_INSIST(MPI_Waitall(_reqs.size(), (MPI_Request*)_reqs.data(), MPI_STATUSES_IGNORE));
       }
 
       bool
       requests::test_all()
       {
-	 if(this->_reqs.size()) {
+	 if(_reqs.size()) {
             int flag;
-	    MPI_INSIST( MPI_Testall( this->_reqs.size(), (MPI_Request*)this->_reqs.data(), &flag, MPI_STATUSES_IGNORE ) );
+	    MPI_INSIST( MPI_Testall( _reqs.size(), (MPI_Request*)_reqs.data(), &flag, MPI_STATUSES_IGNORE ) );
             return flag;
          }
          return true;
 
-	 // for(int ii = 0; ii < this->_reqs.size(); ++ii) {
+	 // for(int ii = 0; ii < _reqs.size(); ++ii) {
 	 //    int flag;
 
          //    // Note that we cannot use mod_mpi_request here, because it requires that
          //    // the communication be complete.
-	 //    MPI_INSIST(MPI_Test(&this->_reqs[ii]._req, &flag, MPI_STATUS_IGNORE));
+	 //    MPI_INSIST(MPI_Test(&_reqs[ii]._req, &flag, MPI_STATUS_IGNORE));
 	 //    if(flag) {
-	 //       this->_reqs.erase(this->_reqs.begin() + ii);
+	 //       _reqs.erase(_reqs.begin() + ii);
 	 //       --ii;
 	 //    }
 	 // }
@@ -101,7 +102,8 @@ namespace hpc {
       request&
       requests::operator[](int idx)
       {
-	 return this->_reqs[idx];
+	 return _reqs[idx];
       }
+
    }
 }

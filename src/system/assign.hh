@@ -15,12 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_assign_hh
-#define libhpc_containers_assign_hh
+#ifndef libhpc_system_assign_hh
+#define libhpc_system_assign_hh
 
 #include <vector>
 #include <set>
-#include "vector.hh"
 #include "view.hh"
 #include "deallocate.hh"
 
@@ -39,7 +38,7 @@ namespace hpc {
              class U >
    std::vector<T>&
    assign( std::vector<T>& tgt,
-           vector_view<U> const& src )
+           view<std::vector<U>> const& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );
@@ -50,7 +49,7 @@ namespace hpc {
              class U >
    std::vector<T>&
    assign( std::vector<T>& tgt,
-           vector_view<U>&& src )
+           view<std::vector<U>>&& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );
@@ -79,83 +78,6 @@ namespace hpc {
       std::copy( src.begin(), src.end(), tgt.begin() );
       return tgt;
    }
-
-   template< class T >
-   hpc::vector<T>&
-   assign( hpc::vector<T>& tgt,
-           std::vector<T>&& src )
-   {
-      ((std::vector<T>&)tgt).swap( src );
-      hpc::deallocate( src );
-      return tgt;
-   }
-
-   template< class T >
-   hpc::vector<T>&
-   assign( hpc::vector<T>& tgt,
-           std::vector<T>& src )
-   {
-      ((std::vector<T>&)tgt).swap( src );
-      hpc::deallocate( src );
-      return tgt;
-   }
-
-   template< class T >
-   hpc::vector<T>&
-   assign( hpc::vector<T>& tgt,
-           std::vector<T> const& src )
-   {
-      tgt.resize( src.size() );
-      std::copy( src.begin(), src.end(), tgt.begin() );
-      return tgt;
-   }
-
-   // template< class Target,
-   //           class Source >
-   // struct assign
-   // {
-   //    static
-   //    Target&
-   //    _( Target& tgt,
-   //       const Source& src )
-   //    {
-   //       return tgt = src;
-   //    }
-
-   //    static
-   //    Target&
-   //    _( Target& tgt,
-   //       Source&& src )
-   //    {
-   //       return tgt = src;
-   //    }
-   // };
-
-   // template< class T,
-   //           class U >
-   // struct assign< std::vector<T>,
-   //                vector_view<U> >
-   // {
-   //    static
-   //    std::vector<T>&
-   //    _( std::vector<T>& tgt,
-   //       const vector_view<U>& src )
-   //    {
-   //       tgt.resize( src.size() );
-   //       std::copy( src.begin(), src.end(), tgt.begin() );
-   //       return tgt;
-   //    }
-
-   //    static
-   //    std::vector<T>&
-   //    _( std::vector<T>& tgt,
-   //       vector_view<U>&& src )
-   //    {
-   //       tgt.resize( src.size() );
-   //       std::copy( src.begin(), src.end(), tgt.begin() );
-   //       return tgt;
-   //    }
-   // };
 
 }
 

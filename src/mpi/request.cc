@@ -37,6 +37,7 @@ namespace hpc {
 
       request::~request()
       {
+         wait();
       }
 
       void

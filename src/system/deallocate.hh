@@ -15,13 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_deallocate_hh
-#define libhpc_containers_deallocate_hh
+#ifndef libhpc_system_deallocate_hh
+#define libhpc_system_deallocate_hh
 
 #include <vector>
 #include <set>
 #include <unordered_map>
-#include "vector.hh"
 #ifdef HAVE_THRUST
 #include <thrust/host_vector.h>
 #endif
@@ -64,13 +63,6 @@ namespace hpc {
    }
 
 #endif
-
-   template< class T >
-   void
-   deallocate( hpc::vector<T>& tgt )
-   {
-      tgt.deallocate();
-   }
 
 }
 

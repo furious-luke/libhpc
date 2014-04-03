@@ -15,22 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_debug_hh
-#define hpc_debug_hh
+namespace hpc {
+   namespace test {
 
-#include "omp_help.hh"
-#include "omp_lock.hh"
-#include "omp_nest_lock.hh"
-#include "assert.hh"
-#include "insist.hh"
-#include "assertions.hh"
-#include "catch.hh"
-#include "group.hh"
-#include "group_context.hh"
-#include "globals.hh"
-#include "checks.hh"
-#include "error.hh"
-#include "codes.hh"
-#include "except.hh"
+      void
+      runner::run( test_case_base& tc )
+      {
+         std::cout << tc.name() << " " << std::flush;
+         try
+         {
+            tc.run();
+            std::cout << " ok\n";
+         }
+         catch( test_failed& ex )
+         {
+            std::cout << ex.what();
+         }
+      }
 
-#endif
+      void
+      runner::run_all()
+      {
+         test_case_node_t* node = head;
+         while( node )
+         {
+            run( *node->tc );
+            node = node->next;
+         }
+      }
+
+   }
+}

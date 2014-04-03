@@ -27,17 +27,17 @@
 #include <sstream>
 #include <iomanip>
 #include <set>
-#include "libhpc/logging/logging.hh"
+#include "libhpc/logging/file.hh"
 
 namespace hpc {
-   namespace logging {
+   namespace log {
       namespace thread {
 
 	 ///
 	 ///
 	 ///
 	 class file
-	    : public logging::file
+	    : public log::file
 	 {
 	 public:
 

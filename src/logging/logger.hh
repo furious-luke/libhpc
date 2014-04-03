@@ -26,13 +26,12 @@
 #include <list>
 #include <map>
 #include <set>
-#include "libhpc/system/stream_indent.hh"
-#include "libhpc/system/stream_output.hh"
+#include "libhpc/system/stream.hh"
 
 #ifndef NLOG
 
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       template< class Tk,
 		class Tv >

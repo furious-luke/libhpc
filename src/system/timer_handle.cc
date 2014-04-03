@@ -19,41 +19,39 @@
 #include "timer_handle.hh"
 
 namespace hpc {
-   namespace profile {
 
-      timer_handle::timer_handle( profile::timer* timer,
-                                  stop_type stop )
-	 : _timer( timer ),
-           _stop( stop )
-      {
-      }
+   timer_handle::timer_handle( hpc::timer* timer,
+                               stop_type stop )
+      : _timer( timer ),
+        _stop( stop )
+   {
+   }
 
-#ifndef __CUDACC__
+#ifndef __CUDA_ARCH__
 
-      timer_handle::timer_handle( timer_handle&& src )
-         : _timer( src._timer ),
-           _stop( src._stop )
-      {
-         src._timer = 0;
-      }
+   timer_handle::timer_handle( timer_handle&& src )
+      : _timer( src._timer ),
+        _stop( src._stop )
+   {
+      src._timer = 0;
+   }
 
 #endif
 
-      timer_handle::~timer_handle()
+   timer_handle::~timer_handle()
+   {
+      if( _timer )
       {
-         if( _timer )
+         switch( _stop )
          {
-            switch( _stop )
-            {
-               case NORMAL:
-                  _timer->stop();
-                  break;
-               case TALLY:
-                  _timer->stop_tally();
-                  break;
-            };
-         }
+            case NORMAL:
+               _timer->stop();
+               break;
+            case TALLY:
+               _timer->stop_tally();
+               break;
+         };
       }
-
    }
+
 }

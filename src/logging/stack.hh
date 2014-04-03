@@ -20,13 +20,12 @@
 
 #include <list>
 #include <memory>
-#include "libhpc/memory/memory.hh"
 #include "logger.hh"
 
 #ifndef NLOG
 
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       ///
       ///

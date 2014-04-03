@@ -26,7 +26,6 @@
 #include <set>
 #include <map>
 #include <tuple>
-#include "types.hh"
 
 namespace hpc {
 
@@ -49,7 +48,7 @@ namespace hpc {
 template< class T >
 std::ostream&
 operator<<( std::ostream& strm,
-            const std::vector<T>& obj )
+            std::vector<T> const& obj )
 {
    strm << "[";
    if( !obj.empty() )
@@ -86,65 +85,7 @@ operator<<( std::ostream& strm,
 template< class T >
 std::ostream&
 operator<<( std::ostream& strm,
-            const std::set<T>& obj )
-{
-   strm << "{";
-   if( !obj.empty() )
-   {
-      auto it = obj.cbegin();
-      strm << *it++;
-      while( it != obj.cend() )
-      {
-         strm << ", " << *it++;
-      }
-   }
-   strm << "}";
-   return strm;
-}
-
-template< class T,
-          size_t N >
-std::ostream&
-operator<<( std::ostream& strm,
-            const std::array<T,N>& obj )
-{
-   strm << "(";
-   if( N )
-   {
-      auto it = obj.cbegin();
-      strm << *it++;
-      while( it != obj.cend() )
-      {
-         strm << ", " << *it++;
-      }
-   }
-   strm << ")";
-   return strm;
-}
-
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            const std::vector<T>& obj )
-{
-   strm << "[";
-   if( !obj.empty() )
-   {
-      auto it = obj.cbegin();
-      strm << *it++;
-      while( it != obj.cend() )
-      {
-         strm << ", " << *it++;
-      }
-   }
-   strm << "]";
-   return strm;
-}
-
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            const std::set<T>& obj )
+            std::set<T> const& obj )
 {
    strm << "{";
    if( !obj.empty() )
@@ -164,7 +105,7 @@ template< class Tk,
           class Tv >
 std::ostream&
 operator<<( std::ostream& strm,
-            const std::map<Tk,Tv>& obj )
+            std::map<Tk,Tv> const& obj )
 {
    strm << "{";
    if( !obj.empty() )
@@ -238,14 +179,6 @@ operator<<( std::ostream& strm,
    tuple_output<std::tuple<Args...>,0,sizeof...(Args) - 1>::write( strm, obj );
    strm << ")";
    return strm;
-}
-
-template< class... Args >
-std::ostream&
-operator<<( std::ostream& strm,
-            std::tuple<Args...> const& obj )
-{
-   return hpc::operator<<( strm, obj );
 }
 
 #endif

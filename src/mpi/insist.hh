@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef mpi_insist_hh
-#define mpi_insist_hh
+#ifndef libhpc_mpi_insist_hh
+#define libhpc_mpi_insist_hh
 
-#include "libhpc/debug/debug.hh"
+#include "libhpc/debug/insist.hh"
 
-#define MPI_INSIST(call, ...)			\
-  INSIST(call, == MPI_SUCCESS, ##__VA_ARGS__)
+#define MPI_INSIST( call, ... )                         \
+   INSIST( call, == MPI_SUCCESS, ##__VA_ARGS__ )
 
 #endif

@@ -18,13 +18,13 @@
 #ifndef libhpc_logging_stdout_hh
 #define libhpc_logging_stdout_hh
 
+#ifndef NLOG
+
 #include "logger.hh"
 #include "levels.hh"
 
-#ifndef NLOG
-
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       ///
       ///

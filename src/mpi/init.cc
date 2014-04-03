@@ -38,6 +38,9 @@ namespace hpc {
       initialise( int& argc,
                   char**& argv )
       {
+         static std::shared_ptr<mpi::comm> static_comms[3];
+         static std::shared_ptr<mpi::data_type> static_types[3];
+
 	 int flag;
 	 MPI_Initialized( &flag );
 	 if( !flag )
@@ -47,7 +50,7 @@ namespace hpc {
          {
 	    // Need to initialise data types here because we calculate sizes during construction, which
 	    // needs MPI to be initialized. Note that NULL is already done.
-	    mpi::data_type::byte.mpi_data_type(MPI_BYTE);
+	    mpi::data_type::byte.mpi_data_type( MPI_BYTE );
 #if defined( MPICH ) || defined( MPICH2 )
 	    mpi::data_type::boolean.mpi_data_type( MPIR_CXX_BOOL );
 #elif OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
@@ -55,32 +58,32 @@ namespace hpc {
 #else
 	    mpi::data_type::boolean.mpi_data_type( MPI_C_BOOL );
 #endif
-	    mpi::data_type::character.mpi_data_type(MPI_CHAR);
-	    mpi::data_type::integer.mpi_data_type(MPI_INT);
-	    mpi::data_type::unsigned_integer.mpi_data_type(MPI_UNSIGNED);
-	    mpi::data_type::long_integer.mpi_data_type(MPI_LONG);
-	    mpi::data_type::unsigned_long.mpi_data_type(MPI_UNSIGNED_LONG);
-	    mpi::data_type::long_long.mpi_data_type(MPI_LONG_LONG);
-	    mpi::data_type::unsigned_long_long.mpi_data_type(MPI_UNSIGNED_LONG_LONG);
-	    mpi::data_type::floating.mpi_data_type(MPI_FLOAT);
-	    mpi::data_type::double_floating.mpi_data_type(MPI_DOUBLE);
+	    mpi::data_type::character.mpi_data_type( MPI_CHAR );
+	    mpi::data_type::integer.mpi_data_type( MPI_INT );
+	    mpi::data_type::unsigned_integer.mpi_data_type( MPI_UNSIGNED );
+	    mpi::data_type::long_integer.mpi_data_type( MPI_LONG );
+	    mpi::data_type::unsigned_long.mpi_data_type( MPI_UNSIGNED_LONG );
+	    mpi::data_type::long_long.mpi_data_type( MPI_LONG_LONG );
+	    mpi::data_type::unsigned_long_long.mpi_data_type( MPI_UNSIGNED_LONG_LONG );
+	    mpi::data_type::floating.mpi_data_type( MPI_FLOAT );
+	    mpi::data_type::double_floating.mpi_data_type( MPI_DOUBLE );
 
-	    // Advance shared pointer counts.
-	    ++_shared_ptr_cnts.set_default(&mpi::comm::null, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::comm::self, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::comm::world, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::null, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::byte, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::boolean, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::character, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::integer, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_integer, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::long_integer, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_long, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::long_long, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::unsigned_long_long, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::floating, 0)->second;
-	    ++_shared_ptr_cnts.set_default(&mpi::data_type::double_floating, 0)->second;
+            // Prepare static types.
+            static_comms[0].reset( &mpi::comm::null );
+            static_comms[1].reset( &mpi::comm::self );
+            static_comms[2].reset( &mpi::comm::world );
+            static_types[0].reset( &mpi::data_type::null );
+            static_types[1].reset( &mpi::data_type::byte );
+            static_types[2].reset( &mpi::data_type::boolean );
+            static_types[3].reset( &mpi::data_type::character );
+            static_types[4].reset( &mpi::data_type::integer );
+            static_types[5].reset( &mpi::data_type::unsigned_integer );
+            static_types[6].reset( &mpi::data_type::long_integer );
+            static_types[7].reset( &mpi::data_type::unsigned_long );
+            static_types[8].reset( &mpi::data_type::long_long );
+            static_types[9].reset( &mpi::data_type::unsigned_long_long );
+            static_types[10].reset( &mpi::data_type::floating );
+            static_types[11].reset( &mpi::data_type::double_floating );
 
             // If we are not using MPICH2 (i.e. OpenMPI) update the
             // data type mapping.
@@ -125,22 +128,22 @@ namespace hpc {
       {
 	 if( !_init )
          {
-	    // Eliminate shared pointer counts.
-	    _shared_ptr_cnts.erase(&mpi::comm::null);
-	    _shared_ptr_cnts.erase(&mpi::comm::self);
-	    _shared_ptr_cnts.erase(&mpi::comm::world);
-	    _shared_ptr_cnts.erase(&mpi::data_type::null);
-	    _shared_ptr_cnts.erase(&mpi::data_type::byte);
-	    _shared_ptr_cnts.erase(&mpi::data_type::boolean);
-	    _shared_ptr_cnts.erase(&mpi::data_type::character);
-	    _shared_ptr_cnts.erase(&mpi::data_type::integer);
-	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_integer);
-	    _shared_ptr_cnts.erase(&mpi::data_type::long_integer);
-	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_long);
-	    _shared_ptr_cnts.erase(&mpi::data_type::long_long);
-	    _shared_ptr_cnts.erase(&mpi::data_type::unsigned_long_long);
-	    _shared_ptr_cnts.erase(&mpi::data_type::floating);
-	    _shared_ptr_cnts.erase(&mpi::data_type::double_floating);
+	    // // Eliminate shared pointer counts.
+	    // _shared_ptr_cnts.erase(&mpi::comm::null);
+	    // _shared_ptr_cnts.erase(&mpi::comm::self);
+	    // _shared_ptr_cnts.erase(&mpi::comm::world);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::null);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::byte);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::boolean);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::character);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::integer);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::unsigned_integer);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::long_integer);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::unsigned_long);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::long_long);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::unsigned_long_long);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::floating);
+	    // _shared_ptr_cnts.erase(&mpi::data_type::double_floating);
 
 	    _init = false;
 	 }

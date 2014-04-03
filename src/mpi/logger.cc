@@ -15,13 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef NLOG
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
-#include "libhpc/containers/containers.hh"
 #include "logger.hh"
-
-#ifndef NLOG
 
 namespace hpc {
    namespace mpi {
@@ -30,7 +29,7 @@ namespace hpc {
 
       logger::logger( const std::string& filename,
 		      unsigned level )
-         : logging::file( filename, level ),
+         : log::file( filename, level ),
            _base( filename )
       {
       }

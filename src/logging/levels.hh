@@ -19,14 +19,15 @@
 #define libhpc_logging_levels_hh
 
 namespace hpc {
-   namespace logging {
+   namespace log {
 
-      enum levels_type {
-         trivial = 10,
-         debug = 20,
-         info = 30,
-         warning = 40,
-         error = 50,
+      enum levels_type
+      {
+         trivial  = 10,
+         debug    = 20,
+         info     = 30,
+         warning  = 40,
+         error    = 50,
          critical = 60
       };
    }

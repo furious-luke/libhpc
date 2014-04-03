@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef containers_scan_hh
-#define containers_scan_hh
+#ifndef libhpc_algorithm_counts_hh
+#define libhpc_algorithm_counts_hh
 
 #include <iterator>
 #include "libhpc/system/type_traits.hh"
-#include "libhpc/containers/deallocate.hh"
+#include "libhpc/system/deallocate.hh"
 
 namespace hpc {
 
@@ -148,6 +148,7 @@ namespace hpc {
    {
       displs_to_counts(seq.begin(), seq.size());
    }
+
 }
 
 #endif

@@ -19,9 +19,7 @@
 #include <thread>
 #include <mutex>
 #include "libhpc/debug/assert.hh"
-#include "libhpc/debug/omp_help.hh"
-#include "libhpc/memory/memory.hh"
-#include "stream_indent.hh"
+#include "stream.hh"
 
 namespace hpc {
 

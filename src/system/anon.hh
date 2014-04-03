@@ -23,6 +23,13 @@
 #define ANON1( x, y )                           \
    ANON2( x, y )
 #define ANON                                    \
-   ANON1( hpc_test_case_, __COUNTER__ )
+   ANON1( __hpc__, __COUNTER__ )
+
+#define UNIQUE_LINE2( x, y )                    \
+   x##y
+#define UNIQUE_LINE1( x, y )                    \
+   UNIQUE_LINE2( x, y )
+#define UNIQUE_LINE( x )                        \
+   UNIQUE_LINE1( x, __LINE__ )
 
 #endif

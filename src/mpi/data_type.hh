@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef mpi_data_type_hh
-#define mpi_data_type_hh
+#ifndef libhpc_mpi_data_type_hh
+#define libhpc_mpi_data_type_hh
 
+#include <vector>
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
-#include "libhpc/containers/containers.hh"
+#include "libhpc/debug/assert.hh"
 #include "init.hh"
-#include "types.hh"
 
 #if defined( MPICH ) || defined( MPICH2 )
 #define MPI_MAP_TYPE( T )                                       \
@@ -37,7 +37,8 @@
 namespace hpc {
    namespace mpi {
 
-      class data_type {
+      class data_type
+      {
       public:
 
 	 static mpi::data_type null;
@@ -54,7 +55,7 @@ namespace hpc {
 	 static mpi::data_type double_floating;
 
 #if defined( MPICH ) || defined( MPICH2 )
-	 typedef boost::mpl::map< boost::mpl::pair<byte_t,             boost::mpl::int_<MPI_BYTE> >,
+	 typedef boost::mpl::map< boost::mpl::pair<unsigned char,      boost::mpl::int_<MPI_BYTE> >,
                                   boost::mpl::pair<bool,               boost::mpl::int_<MPIR_CXX_BOOL> >,
                                   boost::mpl::pair<char,               boost::mpl::int_<MPI_CHAR> >,
                                   boost::mpl::pair<int,                boost::mpl::int_<MPI_INT> >,
@@ -66,7 +67,7 @@ namespace hpc {
                                   boost::mpl::pair<float,              boost::mpl::int_<MPI_FLOAT> >,
                                   boost::mpl::pair<double,             boost::mpl::int_<MPI_DOUBLE> > > type_map;
 #else
-	 typedef boost::mpl::map< boost::mpl::pair<byte_t,             boost::mpl::int_<0> >,
+	 typedef boost::mpl::map< boost::mpl::pair<unsigned char,      boost::mpl::int_<0> >,
                                   boost::mpl::pair<bool,               boost::mpl::int_<1> >,
                                   boost::mpl::pair<char,               boost::mpl::int_<2> >,
                                   boost::mpl::pair<int,                boost::mpl::int_<3> >,
@@ -80,7 +81,7 @@ namespace hpc {
          static MPI_Datatype _type_map[11];
 #endif
 
-	 data_type( MPI_Datatype type=MPI_DATATYPE_NULL );
+	 data_type( MPI_Datatype type = MPI_DATATYPE_NULL );
 
 	 ~data_type();
 
@@ -94,15 +95,15 @@ namespace hpc {
 	 mpi_data_type() const;
 
 	 void
-	 contiguous( mpi::lindex size,
+	 contiguous( size_t size,
 		     const data_type& base,
-		     mpi::lindex block_size=1,
-		     mpi::lindex offs=0 );
+		     size_t block_size=1,
+		     size_t offs=0 );
 
-	 void
-	 indexed( const vector<mpi::lindex>::view& idxs,
-		  const data_type& base,
-		  mpi::lindex block_size=1 );
+	 // void
+	 // indexed( const vector<mpi::lindex>::view& idxs,
+	 //          const data_type& base,
+	 //          mpi::lindex block_size=1 );
 
 	 template< class DisplVec,
 		   class IndexVec >
@@ -132,7 +133,7 @@ namespace hpc {
 	    calc_size();
 	 }
 
-	 mpi::lindex
+	 size_t
 	 size() const;
 
 	 bool
@@ -157,7 +158,7 @@ namespace hpc {
 	 calc_size();
 
 	 MPI_Datatype _type;
-	 mpi::lindex _size;
+	 size_t _size;
       };
    }
 }

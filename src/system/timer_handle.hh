@@ -15,46 +15,44 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_profile_timer_handle_hh
-#define libhpc_profile_timer_handle_hh
+#ifndef libhpc_system_timer_handle_hh
+#define libhpc_system_timer_handle_hh
 
 namespace hpc {
-   namespace profile {
 
-      class timer;
+   class timer;
 
-      class timer_handle
+   class timer_handle
+   {
+   public:
+
+      enum stop_type
       {
-      public:
+         NORMAL,
+         TALLY
+      };
 
-         enum stop_type
-         {
-            NORMAL,
-            TALLY
-         };
+   public:
 
-      public:
+      timer_handle( hpc::timer* timer = 0,
+                    stop_type stop = NORMAL );
 
-	 timer_handle( profile::timer* timer = 0,
-                       stop_type stop = NORMAL );
+#ifndef __CUDA_ARCH__
 
-#ifndef __CUDACC__
+      timer_handle( timer_handle const& ) = delete;
 
-         timer_handle( const timer_handle& ) = delete;
-
-         timer_handle( timer_handle&& src );
+      timer_handle( timer_handle&& src );
 
 #endif
 
-	 ~timer_handle();
+      ~timer_handle();
 
-      protected:
+   protected:
 
-         profile::timer* _timer;
-         stop_type _stop;
-      };
+      hpc::timer* _timer;
+      stop_type _stop;
+   };
 
-   }
 }
 
 #endif

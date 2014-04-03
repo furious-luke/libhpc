@@ -16,8 +16,8 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <mpi.h>
-#include "libhpc/logging/logging.hh"
-#include "libhpc/system/stream_output.hh"
+#include "libhpc/logging.hh"
+#include "libhpc/system/stream.hh"
 #include "host.hh"
 
 namespace hpc {

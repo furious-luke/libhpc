@@ -18,16 +18,17 @@
 #ifndef libhpc_logging_globals_hh
 #define libhpc_logging_globals_hh
 
-#include "libhpc/system/stream_indent.hh"
+#ifndef NLOG
+
+#include "libhpc/system/stream.hh"
 #include "libhpc/system/narg.hh"
 #include "logger.hh"
 #include "stack.hh"
 #include "stdout.hh"
+#include "levels.hh"
 
-#ifndef NLOG
-
-#define _LOG_( count, ... )                                     \
-   _OSTREAM##count( ::hpc::logging::_stack, __VA_ARGS__ )
+#define _LOG_( count, ... )                             \
+   _OSTREAM##count( ::hpc::log::_stack, __VA_ARGS__ )
 
 #define _LOG( count, ... )                      \
    _LOG_( count, __VA_ARGS__ )
@@ -36,49 +37,49 @@
    _LOG( PP_NARG( 0, ##__VA_ARGS__ ), ##__VA_ARGS__ )
 
 #define LOGLN( ... )                            \
-   LOG( __VA_ARGS__, ::hpc::logging::endl )
+   LOG( __VA_ARGS__, ::hpc::log::endl )
 
-#define LOGLV( level, ... )                                     \
-   LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
-        ::hpc::logging::poplevel )
+#define LOGLV( level, ... )                             \
+   LOG( ::hpc::log::pushlevel( level ), __VA_ARGS__,    \
+        ::hpc::log::poplevel )
 
-#define LOGLVLN( level, ... )                                   \
-   LOG( ::hpc::logging::pushlevel( level ), __VA_ARGS__,        \
-        ::hpc::logging::endl, ::hpc::logging::poplevel )
+#define LOGLVLN( level, ... )                           \
+   LOG( ::hpc::log::pushlevel( level ), __VA_ARGS__,    \
+        ::hpc::log::endl, ::hpc::log::poplevel )
 
 #ifndef NLOGTRIVIAL
-#define LOGT( ... )                                     \
-   LOGLV( ::hpc::logging::trivial, __VA_ARGS__ )
+#define LOGT( ... )                             \
+   LOGLV( ::hpc::log::trivial, __VA_ARGS__ )
 #else
 #define LOGT( ... )
 #endif
 
 #ifndef NLOGDEBUG
 #define LOGD( ... )                             \
-   LOGLV( ::hpc::logging::debug, __VA_ARGS__ )
+   LOGLV( ::hpc::log::debug, __VA_ARGS__ )
 #else
 #define LOGD( ... )
 #endif
 
 #define LOGI( ... )                             \
-   LOGLV( ::hpc::logging::info, __VA_ARGS__ )
+   LOGLV( ::hpc::log::info, __VA_ARGS__ )
 
-#define LOGW( ... )                                     \
-   LOGLV( ::hpc::logging::warning, __VA_ARGS__ )
+#define LOGW( ... )                             \
+   LOGLV( ::hpc::log::warning, __VA_ARGS__ )
 
 #define LOGE( ... )                             \
-   LOGLV( ::hpc::logging::error, __VA_ARGS__ )
+   LOGLV( ::hpc::log::error, __VA_ARGS__ )
 
 #ifndef NLOGTRIVIAL
-#define LOGTLN( ... )                                   \
-   LOGLVLN( ::hpc::logging::trivial, __VA_ARGS__ )
+#define LOGTLN( ... )                           \
+   LOGLVLN( ::hpc::log::trivial, __VA_ARGS__ )
 #else
 #define LOGTLN( ... )
 #endif
 
 #ifndef NLOGDEBUG
-#define LOGDLN( ... )                                   \
-   LOGLVLN( ::hpc::logging::debug, __VA_ARGS__ )
+#define LOGDLN( ... )                           \
+   LOGLVLN( ::hpc::log::debug, __VA_ARGS__ )
 #define LOGDLN_TAG( tag, ... )                                          \
    (LOG_PUSH_TAG( tag ), LOGDLN( __VA_ARGS__ ), LOG_POP_TAG( tag ))
 #else
@@ -87,13 +88,13 @@
 #endif
 
 #define LOGILN( ... )                           \
-   LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
+   LOGLVLN( ::hpc::log::info, __VA_ARGS__ )
 
-#define LOGWLN( ... )                                   \
-   LOGLVLN( ::hpc::logging::warning, __VA_ARGS__ )
+#define LOGWLN( ... )                           \
+   LOGLVLN( ::hpc::log::warning, __VA_ARGS__ )
 
 #define LOGELN( ... )                           \
-   LOGLVLN( ::hpc::logging::info, __VA_ARGS__ )
+   LOGLVLN( ::hpc::log::info, __VA_ARGS__ )
 
 #define LOG_ENTER()							\
    LOGTLN( "Entering: ", __PRETTY_FUNCTION__, ::hpc::setindent( 2 ) )
@@ -102,30 +103,30 @@
    LOGTLN( "Exiting: ", __PRETTY_FUNCTION__, ::hpc::setindent( -2 ) );
 
 #define LOG_PUSH( logger )                      \
-   ::hpc::logging::push( logger )
+      ::hpc::log::push( logger )
 
 #define LOG_FILE( filename )                    \
-   ::hpc::logging::push(                        \
-      new ::hpc::logging::file( filename ) )
+   ::hpc::log::push(                            \
+      new ::hpc::log::file( filename ) )
 
 #define LOG_CONSOLE()                           \
-      ::hpc::logging::push(                     \
-         new ::hpc::logging::stdout() )
+   ::hpc::log::push(                            \
+                    new ::hpc::log::stdout() )
 
 #define LOG_POP()                               \
-   ::hpc::logging::pop()
+   ::hpc::log::pop()
 
 #define LOG_PUSH_TAG( tag )                     \
-   ::hpc::logging::push_tag( tag )
+   ::hpc::log::push_tag( tag )
 
 #define LOG_POP_TAG( tag )                      \
-   ::hpc::logging::pop_tag( tag )
+   ::hpc::log::pop_tag( tag )
 
 #define WARN( expr, ... )                               \
    ((expr) ? LOGWLN( "WARNING: ", __VA_ARGS__ ) : 0)
 
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       extern stack _stack;
 

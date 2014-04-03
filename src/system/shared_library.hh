@@ -21,10 +21,10 @@
 #include <string>
 #include <boost/filesystem.hpp>
 #include <dlfcn.h>
-#include "libhpc/debug/debug.hh"
+#include "libhpc/debug.hh"
+#include "filesystem.hh"
 
 namespace hpc {
-   namespace fs = boost::filesystem;
 
    class shared_library
    {

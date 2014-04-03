@@ -18,7 +18,7 @@
 #ifndef libhpc_mpi_application_hh
 #define libhpc_mpi_application_hh
 
-#include "libhpc/main/application.hh"
+#include "libhpc/system/application.hh"
 
 namespace hpc {
    namespace mpi {
@@ -41,7 +41,7 @@ namespace hpc {
          int
          size() const;
 
-      public:
+      protected:
 
          int _rank;
          int _size;

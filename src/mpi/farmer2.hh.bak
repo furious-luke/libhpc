@@ -15,15 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_farmer2_hh
-#define hpc_algorithm_farmer2_hh
+#ifndef libhpc_algorithm_farmer2_hh
+#define libhpc_algorithm_farmer2_hh
 
 #include "libhpc/debug/assert.hh"
-#include "libhpc/logging/logging.hh"
+#include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
 
 namespace hpc {
-   namespace algorithm {
+   namespace mpi {
 
       class farm_object
       {
@@ -212,7 +212,7 @@ namespace hpc {
                   _comm->recv<int>( flag, stat.MPI_SOURCE, _tag );
 
                   // Do we have anything remaining?
-                  vector<unsigned long long> rng( 2 );
+                  std::vector<unsigned long long> rng( 2 );
                   if( _first != _last )
                   {
                      // Send out new batch.
@@ -270,7 +270,7 @@ namespace hpc {
                _comm->send<int>( flag, 0, _tag );
 
                // Receive new task range.
-               vector<unsigned long long> rng( 2 );
+               std::vector<unsigned long long> rng( 2 );
                _comm->recv<unsigned long long>( rng, 0, _tag );
                LOGDLN( "Received task range: [", rng[0], "-", rng[1], ")" );
 
@@ -294,7 +294,7 @@ namespace hpc {
          unsigned _rem;
          unsigned _max_its;
          int _tag;
-         const mpi::comm* _comm;
+         mpi::comm const* _comm;
       };
 
    }

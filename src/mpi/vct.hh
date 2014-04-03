@@ -20,8 +20,9 @@
 
 #include <unordered_map>
 #include "libhpc/debug/assert.hh"
-#include "libhpc/containers/helpers.hh"
-#include "libhpc/containers/counts.hh"
+#include "libhpc/system/assign.hh"
+#include "libhpc/algorithm/sequence_checks.hh"
+#include "libhpc/algorithm/counts.hh"
 #include "comm.hh"
 #include "requests.hh"
 
@@ -78,7 +79,7 @@ namespace hpc {
 	 template< class T >
 	 void
 	 ibcast( T const& out,
-		 typename hpc::view<std::vector<T>>::type inc,
+		 view<std::vector<T>> inc,
                  mpi::requests& reqs,
 		 int tag = 0 ) const
          {
@@ -94,7 +95,7 @@ namespace hpc {
          template< class T >
          void
          bcast( T const& out,
-                typename hpc::view<std::vector<T>>::type inc,
+                view<std::vector<T>> inc,
                 int tag = 0 ) const
          {
             mpi::requests reqs;
@@ -111,8 +112,8 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 iscatter( typename hpc::view<std::vector<T>>::type const& out,
-		   typename hpc::view<std::vector<T>>::type inc,
+	 iscatter( view<std::vector<T>> const& out,
+		   view<std::vector<T>> inc,
 		   mpi::requests& reqs,
 		   int tag = 0 ) const
          {
@@ -124,8 +125,8 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 scatter( typename hpc::view<std::vector<T>>::type const& out,
-                  typename hpc::view<std::vector<T>>::type inc,
+	 scatter( view<std::vector<T>> const& out,
+                  view<std::vector<T>> inc,
                   int tag = 0 ) const
          {
             mpi::requests reqs;
@@ -135,9 +136,9 @@ namespace hpc {
          template< class Index >
 	 void
 	 iscatter( void* out,
-                   typename hpc::view<std::vector<Index>>::type const& out_displs,
+                   view<std::vector<Index>> const& out_displs,
                    void* inc,
-                   typename hpc::view<std::vector<Index>>::type inc_displs,
+                   view<std::vector<Index>> inc_displs,
                    mpi::data_type const& type,
                    mpi::requests& reqs,
                    unsigned block_size = 1,
@@ -188,10 +189,10 @@ namespace hpc {
          template< class T,
                    class Index >
 	 void
-	 iscatter( typename hpc::view<std::vector<T>>::type const& out,
-                   typename hpc::view<std::vector<Index>>::type const& out_displs,
-                   typename hpc::view<std::vector<T>>::type inc,
-                   typename hpc::view<std::vector<Index>>::type inc_displs,
+	 iscatter( view<std::vector<T>> const& out,
+                   view<std::vector<Index>> const& out_displs,
+                   view<std::vector<T>> inc,
+                   view<std::vector<Index>> inc_displs,
                    mpi::requests& reqs,
                    int tag = 0 ) const
          {
@@ -202,10 +203,10 @@ namespace hpc {
          template< class T,
                    class Index >
 	 void
-	 scatter( typename hpc::view<std::vector<T>>::type const& out,
-                  typename hpc::view<std::vector<Index>>::type const& out_displs,
-                  typename hpc::view<std::vector<T>>::type inc,
-                  typename hpc::view<std::vector<Index>>::type inc_displs,
+	 scatter( view<std::vector<T>> const& out,
+                  view<std::vector<Index>> const& out_displs,
+                  view<std::vector<T>> inc,
+                  view<std::vector<Index>> inc_displs,
                   int tag = 0 ) const
          {
             mpi::requests reqs;
@@ -215,8 +216,8 @@ namespace hpc {
          template< class T,
                    class Index >
          void
-         scattera( typename hpc::view<std::vector<T>>::type const& out,
-                   typename hpc::view<std::vector<Index>>::type const& out_displs,
+         scattera( view<std::vector<T>> const& out,
+                   view<std::vector<Index>> const& out_displs,
                    std::vector<T>& inc,
                    std::vector<Index>& inc_displs,
                    int tag = 0 ) const
@@ -266,11 +267,11 @@ namespace hpc {
 
 	 template< class DisplType >
 	 void
-	 scatter_displs( typename hpc::view<std::vector<DisplType>>::type const& out,
-			 typename hpc::view<std::vector<DisplType>>::type inc,
+	 scatter_displs( view<std::vector<DisplType>> const& out,
+			 view<std::vector<DisplType>> inc,
 			 int tag = 0 ) const
 	 {
-            typedef typename hpc::view<std::vector<DisplType>>::type view_type;
+            typedef view<std::vector<DisplType>> view_type;
 
 	    ASSERT( out.size() == inc.size() );
 	    if( out.size() > 1 )

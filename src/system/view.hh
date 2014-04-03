@@ -54,6 +54,12 @@ namespace hpc {
       {
       }
 
+      view( vector_type const& vec )
+         : _ptr( (pointer)vec.data() ),
+           _size( vec.size() )
+      {
+      }
+
       template< class Other >
       view( Other const& vec )
          : _ptr( (pointer)vec.data() ),

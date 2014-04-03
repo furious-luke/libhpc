@@ -15,14 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_main_application_hh
-#define libhpc_main_application_hh
+#ifndef libhpc_system_application_hh
+#define libhpc_system_application_hh
 
 #include <signal.h>
 #include <string>
 #include <boost/program_options.hpp>
-#include "libhpc/options/options.hh"
-#include "libhpc/debug/debug.hh"
+#include "libhpc/debug.hh"
 
 namespace hpc {
    namespace po = boost::program_options;

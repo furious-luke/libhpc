@@ -93,10 +93,10 @@ namespace hpc {
       }
 
       void
-      data_type::contiguous(mpi::lindex size,
+      data_type::contiguous(size_t size,
 			    const data_type& base,
-			    mpi::lindex block_size,
-			    mpi::lindex offs)
+			    size_t block_size,
+			    size_t offs)
       {
 	 ASSERT(size >= 0);
 	 ASSERT(block_size >= 0);
@@ -109,29 +109,29 @@ namespace hpc {
 	 this->calc_size();
       }
 
-      void
-      data_type::indexed( const vector<mpi::lindex>::view& idxs,
-			  const data_type& base,
-			  mpi::lindex block_size )
-      {
-	 this->clear();
+      // void
+      // data_type::indexed( const vector<mpi::lindex>::view& idxs,
+      //   		  const data_type& base,
+      //   		  mpi::lindex block_size )
+      // {
+      //    this->clear();
 
-	 // If we have block_size > 1, we need to multiply the indices.
-	 if(block_size > 1) {
-	    boost::transform(idxs, ((vector<mpi::lindex>::view&)idxs).begin(), std::bind1st(std::multiplies<mpi::lindex>(), block_size));
-	    MPI_Type_create_indexed_block(idxs.size(), block_size, (int*)idxs.data(), base._type, &this->_type);
-	    boost::transform(idxs, ((vector<mpi::lindex>::view&)idxs).begin(), std::bind2nd(std::divides<mpi::lindex>(), block_size));
-	 }
-	 else
-	    MPI_Type_create_indexed_block(idxs.size(), block_size, (int*)idxs.data(), base._type, &this->_type);
-	 MPI_Type_commit(&this->_type);
-	 this->calc_size();
-      }
+      //    // If we have block_size > 1, we need to multiply the indices.
+      //    if(block_size > 1) {
+      //       boost::transform(idxs, ((vector<mpi::lindex>::view&)idxs).begin(), std::bind1st(std::multiplies<mpi::lindex>(), block_size));
+      //       MPI_Type_create_indexed_block(idxs.size(), block_size, (int*)idxs.data(), base._type, &this->_type);
+      //       boost::transform(idxs, ((vector<mpi::lindex>::view&)idxs).begin(), std::bind2nd(std::divides<mpi::lindex>(), block_size));
+      //    }
+      //    else
+      //       MPI_Type_create_indexed_block(idxs.size(), block_size, (int*)idxs.data(), base._type, &this->_type);
+      //    MPI_Type_commit(&this->_type);
+      //    this->calc_size();
+      // }
 
-      mpi::lindex
+      size_t
       data_type::size() const
       {
-	 return this->_size;
+	 return _size;
       }
 
       bool

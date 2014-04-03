@@ -15,10 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef mpi_request_hh
-#define mpi_request_hh
+#ifndef libhpc_mpi_request_hh
+#define libhpc_mpi_request_hh
 
-#include "libhpc/containers/containers.hh"
 #include "init.hh"
 
 namespace hpc {
@@ -26,19 +25,22 @@ namespace hpc {
 
       class requests;
 
-      class request {
+      class request
+      {
+         friend class requests;
+
       public:
 
-	 request(MPI_Request req=MPI_REQUEST_NULL);
+	 request( MPI_Request req = MPI_REQUEST_NULL );
 
-	 request(const request& req);
+	 request( request const& src );
 
 	 ~request();
 
 	 void
-	 mpi_request(MPI_Request req);
+	 mpi_request( MPI_Request req );
 
-	 const MPI_Request&
+	 MPI_Request const&
 	 mpi_request() const;
 
 	 MPI_Request&
@@ -64,10 +66,9 @@ namespace hpc {
 
          operator bool() const;
 
-      private:
-	 MPI_Request _req;
+      protected:
 
-         friend class requests;
+	 MPI_Request _req;
       };
    }
 }

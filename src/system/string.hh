@@ -20,7 +20,7 @@
 
 #include <iomanip>
 #include <sstream>
-#incldue "cc_version.hh"
+#include "cc_version.hh"
 
 namespace hpc {
 

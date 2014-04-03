@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi_init_hh
-#define hpc_mpi_init_hh
+#ifndef libhpc_mpi_init_hh
+#define libhpc_mpi_init_hh
 
 // #ifndef MPICH_SKIP_MPICXX
 // #define MPICH_SKIP_MPICXX
@@ -40,7 +40,7 @@ namespace hpc {
       initialised();
 
       void
-      finalise( bool mpi=true );
+      finalise( bool mpi = true );
    }
 }
 

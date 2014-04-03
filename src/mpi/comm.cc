@@ -22,16 +22,16 @@
 namespace hpc {
    namespace mpi {
 
-      mpi::comm comm::null(MPI_COMM_NULL);
-      mpi::comm comm::self(MPI_COMM_SELF);
-      mpi::comm comm::world(MPI_COMM_WORLD);
+      mpi::comm comm::null( MPI_COMM_NULL );
+      mpi::comm comm::self( MPI_COMM_SELF );
+      mpi::comm comm::world( MPI_COMM_WORLD );
 
-      comm::comm(MPI_Comm comm)
-	 : _comm(comm)
+      comm::comm( MPI_Comm comm )
+	 : _comm( comm )
       {
       }
 
-      comm::comm(const comm& comm)
+      comm::comm( mpi::comm const& comm )
       {
 	 if(comm._comm != MPI_COMM_NULL)
 	    MPI_INSIST(MPI_Comm_dup(comm._comm, &this->_comm));
@@ -229,22 +229,22 @@ namespace hpc {
 	 MPI_INSIST(MPI_Barrier(this->_comm));
       }
 
-      template<>
-      void
-      comm::reduce<int>(vector<int>::view data,
-			MPI_Op op,
-			int root) const
-      {
-	 if(this->rank() == root) {
-	    // MPICH2 won't allow the use of aliased buffers.
-	    vector<int> inc_data(data.size());
-	    MPI_INSIST(MPI_Reduce(data.data(), inc_data.data(), data.size(), MPI_INT, op, root, this->_comm));
-	    boost::copy(inc_data, data.begin());
-	 }
-	 else {
-	    MPI_INSIST(MPI_Reduce(data.data(), NULL, data.size(), MPI_INT, op, root, this->_comm));
-	 }
-      }
+      // template<>
+      // void
+      // comm::reduce<int>(vector<int>::view data,
+      //   		MPI_Op op,
+      //   		int root) const
+      // {
+      //    if(this->rank() == root) {
+      //       // MPICH2 won't allow the use of aliased buffers.
+      //       vector<int> inc_data(data.size());
+      //       MPI_INSIST(MPI_Reduce(data.data(), inc_data.data(), data.size(), MPI_INT, op, root, this->_comm));
+      //       boost::copy(inc_data, data.begin());
+      //    }
+      //    else {
+      //       MPI_INSIST(MPI_Reduce(data.data(), NULL, data.size(), MPI_INT, op, root, this->_comm));
+      //    }
+      // }
 
       void
       comm::probe( MPI_Status& stat,

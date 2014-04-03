@@ -15,17 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_types_hh
-#define libhpc_mpi_types_hh
+#ifndef libhpc_unit_test_main_mpi_hh
+#define libhpc_unit_test_main_mpi_hh
 
-#include "libhpc/system/types.hh"
-
-namespace hpc {
-   namespace mpi {
-
-      typedef hpc::index gindex;
-      typedef unsigned int lindex; // TODO: how to decide this?
-   }
-}
+#define HPC_UT_MPI
+#include "main.hh"
 
 #endif

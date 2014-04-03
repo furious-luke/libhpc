@@ -15,26 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_unit_test_main_hh
-#define libhpc_debug_unit_test_main_hh
+#ifndef libhpc_debug_hh
+#define libhpc_debug_hh
 
-#include <stdlib.h>
-#include "unit_test.hh"
-#ifdef HPC_UNIT_TEST_LOG
-#include "libhpc/logging/logging.hh"
-#endif
-
-int
-main( int argc,
-      char* argv[] )
-{
-   using namespace hpc;
-#ifdef HPC_UNIT_TEST_LOG
-   LOG_PUSH( new logging::stdout );
-#endif
-   test::runner runner;
-   runner.run_all();
-   return EXIT_SUCCESS;
-}
+#include "debug/assert.hh"
+#include "debug/insist.hh"
+#include "debug/except.hh"
+#include "debug/assertions.hh"
 
 #endif

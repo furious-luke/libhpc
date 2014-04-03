@@ -15,20 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef mpi_requests_hh
-#define mpi_requests_hh
+#ifndef libhpc_mpi_requests_hh
+#define libhpc_mpi_requests_hh
 
-#include "libhpc/containers/containers.hh"
+#include <vector>
 #include "init.hh"
 #include "request.hh"
 
 namespace hpc {
    namespace mpi {
 
-      class requests {
+      class requests
+      {
       public:
 
-	 requests( index size = 0 );
+         typedef typename std::vector<request>::size_type size_type;
+
+      public:
+
+	 requests( size_type size = 0 );
 
 	 ~requests();
 
@@ -39,12 +44,12 @@ namespace hpc {
 	 empty() const;
 
          void
-         reserve( index size );
+         reserve( size_type size );
 
 	 void
-	 resize( index size );
+	 resize( size_type size );
 
-         vector<request>::size_type
+         size_type
          size() const;
 
 	 request&
@@ -57,11 +62,13 @@ namespace hpc {
 	 test_all();
 
 	 request&
-	 operator[](int idx);
+	 operator[]( size_t idx );
 
-      private:
-	 vector<request> _reqs;
+      protected:
+
+         std::vector<request> _reqs;
       };
+
    }
 }
 

@@ -15,51 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_logger_hh
-#define libhpc_mpi_logger_hh
+#ifndef libhpc_unit_test_main_hh
+#define libhpc_unit_test_main_hh
 
-#ifndef NLOG
-
-#include <typeinfo>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <mpi.h>
-#include "libhpc/logging.hh"
-
-namespace hpc {
-   namespace mpi {
-
-      extern double log_base_time;
-
-      ///
-      ///
-      ///
-      class logger
-         : public log::file
-      {
-      public:
-
-         logger( const std::string& filename,
-		 unsigned level = 0 );
-
-         virtual
-         ~logger();
-
-         virtual void
-         open();
-
-         virtual void
-         prefix();
-
-      protected:
-
-         int _my_rank;
-         std::string _base;
-      };
-   }
-}
-
+#include <stdlib.h>
+#include "unit_test.hh"
+#ifdef HPC_UT_LOG
+#include <libhpc/logging.hh>
 #endif
+#ifdef HPC_UT_MPI
+#include <libhpc/mpi.hh>
+#endif
+
+int
+main( int argc,
+      char* argv[] )
+{
+#ifdef HPC_UT_MPI
+   hpc::mpi::initialise( argc, argv );
+#endif
+#ifdef HPC_UT_LOG
+   LOG_PUSH( new hpc::log::stdout );
+#endif
+   hpc::test::runner runner;
+   runner.run_all();
+#ifdef HPC_UT_MPI
+   hpc::mpi::finalise();
+#endif
+   return EXIT_SUCCESS;
+}
 
 #endif

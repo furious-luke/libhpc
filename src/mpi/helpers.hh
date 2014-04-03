@@ -15,17 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/containers/string.hh"
-#include "comm.hh"
+#ifndef libhpc_mpi_helpers_hh
+#define libhpc_mpi_helpers_hh
 
-#ifndef hpc_mpi_helpers_hh
-#define hpc_mpi_helpers_hh
+#include <string>
+#include "comm.hh"
 
 namespace hpc {
    namespace mpi {
 
-      string
-      rank_string( const mpi::comm& comm = mpi::comm::world,
+      std::string
+      rank_string( mpi::comm const& comm = mpi::comm::world,
 		   unsigned width = 5 );
 
    }

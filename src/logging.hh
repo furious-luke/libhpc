@@ -15,51 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_logger_hh
-#define libhpc_mpi_logger_hh
+#ifndef libhpc_logging_logging_hh
+#define libhpc_logging_logging_hh
 
-#ifndef NLOG
-
-#include <typeinfo>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <mpi.h>
-#include "libhpc/logging.hh"
-
-namespace hpc {
-   namespace mpi {
-
-      extern double log_base_time;
-
-      ///
-      ///
-      ///
-      class logger
-         : public log::file
-      {
-      public:
-
-         logger( const std::string& filename,
-		 unsigned level = 0 );
-
-         virtual
-         ~logger();
-
-         virtual void
-         open();
-
-         virtual void
-         prefix();
-
-      protected:
-
-         int _my_rank;
-         std::string _base;
-      };
-   }
-}
-
-#endif
+#include "logging/logger.hh"
+#include "logging/file.hh"
+#include "logging/stdout.hh"
+#include "logging/omp_file.hh"
+#include "logging/thread_file.hh"
+#include "logging/globals.hh"
+#include "logging/levels.hh"
+#include "logging/block.hh"
 
 #endif

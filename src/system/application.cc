@@ -16,13 +16,13 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hh"
-#include "libhpc/logging/logging.hh"
+#include "libhpc/logging.hh"
 
 namespace hpc {
 
    // Store a global reference to the application for
    // signal handlers.
-   application* global_app = nullptr;
+   application* global_app = 0;
 
    ///
    /// Handle signals.

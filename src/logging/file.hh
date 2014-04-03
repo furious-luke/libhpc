@@ -18,12 +18,12 @@
 #ifndef libhpc_logging_file_hh
 #define libhpc_logging_file_hh
 
-#include "logger.hh"
-
 #ifndef NLOG
 
+#include "logger.hh"
+
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       ///
       ///
