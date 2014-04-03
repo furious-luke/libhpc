@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <execinfo.h>
 #include "stacktrace.hh"
-#include "func.hh"
+#include "function.hh"
 
 namespace hpc {
    namespace debug {

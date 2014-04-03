@@ -15,15 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <map>
 #include <thread>
 #include <mutex>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/debug/omp_help.hh"
 #include "libhpc/memory/memory.hh"
 #include "stream_indent.hh"
-#include <map>
 
 namespace hpc {
+
    namespace impl {
 
       std::map<std::pair<std::ostream*,std::thread::id>,int> curindent;
@@ -61,7 +62,9 @@ namespace hpc {
    indent( std::ostream& strm )
    {
       impl::indent_mutex.lock();
-      std::map<std::pair<std::ostream*,std::thread::id>,int>::const_iterator it = impl::curindent.find( std::make_pair( &strm, std::this_thread::get_id() ) );
+      std::map<std::pair<std::ostream*,std::thread::id>,int>::const_iterator it = impl::curindent.find(
+         std::make_pair( &strm, std::this_thread::get_id() )
+         );
       impl::indent_mutex.unlock();
       int val = 0;
       if( it != impl::curindent.end() )

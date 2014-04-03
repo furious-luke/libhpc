@@ -20,12 +20,11 @@
 #include "id.hh"
 
 namespace hpc {
-   namespace os {
 
-      long
-      get_process_id()
-      {
-	 return getpid();
-      }
+   long
+   get_process_id()
+   {
+      return getpid();
    }
+
 }

@@ -18,11 +18,11 @@
 #ifndef libhpc_debug_except_hh
 #define libhpc_debug_except_hh
 
-#include "assert.hh"
-
 #ifndef NEXCEPT
 
-#define EXCEPT( expr, ... )                                     \
+#include "assert.hh"
+
+#define EXCEPT( expr, ... )                             \
   _ASSERT( expr, ::hpc::exception, ##__VA_ARGS__ )
 
 #define EXCEPTAS( expr, type, ... )             \

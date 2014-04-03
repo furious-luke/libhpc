@@ -15,31 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef debug_catch_hh
-#define debug_catch_hh
+#ifndef libhpc_system_filesystem_hh
+#define libhpc_system_filesystem_hh
 
-#include "globals.hh"
+#include <boost/filesystem/path.hpp>
 
-#ifndef NDEBUG
+namespace hpc {
 
-#define CATCH(stmnt)				\
-    try { stmnt; }				\
-    catch(debug::assertion a) {			\
-	std::cout << a.what() << std::endl;	\
-    }
+   namespace fs = boost::filesystem;
 
-#define CATCH_ABORT(stmnt)			\
-    do {					\
-	set_abort(true);			\
-	stmnt;					\
-	set_abort(false);			\
-    } while(0);
+   fs::path
+   executable_path();
 
-#else
-
-#define CATCH(stmnt) stmnt
-#define CATCH_ABORT(stmnt) stmnt
-
-#endif
+}
 
 #endif

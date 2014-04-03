@@ -15,15 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_debug_os_hh
-#define hpc_debug_os_hh
+#ifndef libhpc_system_id_hh
+#define libhpc_system_id_hh
 
 namespace hpc {
-   namespace os {
 
-      long
-      get_process_id();
-   }
+   long
+   get_process_id();
+
 }
 
 #endif

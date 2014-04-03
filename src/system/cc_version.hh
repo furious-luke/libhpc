@@ -4,7 +4,7 @@
 #ifdef CXX_0X
 #undef CXX_0X
 #endif
-#if (__cplusplus >= 199711L) && !defined(__CUDACC__)
+#if (__cplusplus >= 199711L) && !defined(__NVCC__)
 #define CXX_0X 1
 #endif
 

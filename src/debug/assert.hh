@@ -18,14 +18,17 @@
 #ifndef libhpc_debug_assert_hh
 #define libhpc_debug_assert_hh
 
-#if (!defined( NDEBUG ) || !defined( NEXCEPT )) && !defined( __CUDACC__ )
+#if (!defined( NDEBUG ) || !defined( NEXCEPT ))
+
+#ifndef __CUDA_ARCH__
 
 #include <sstream>
 #include "libhpc/system/narg.hh"
 #include "assertions.hh"
-#include "stacktrace.hh"
 
 #ifndef NSTACKTRACE
+
+#include "stacktrace.hh"
 
 #define _ASSERT( expr, type, ... )                              \
    ((expr) ? (void)0 : (                                        \
@@ -36,7 +39,7 @@
             ::std::stringstream(), ##__VA_ARGS__ )).str()       \
          )))
 
-#else
+#else // NSTACKTRACE
 
 #define _ASSERT( expr, type, ... )                              \
    ((expr) ? (void)0 : (                                        \
@@ -46,13 +49,20 @@
             ::std::stringstream(), ##__VA_ARGS__ )).str()       \
          )))
 
-#endif
+#endif // NSTACKTRACE
 
-#else
+#else // __CUDAARCH__
+
+#define _ASSERT( expr, id )                                     \
+   ((expr) ? (void)0 : (::hpc::debug::cuda_error = id, abort())
+
+#endif // __CUDAARCH__
+
+#else // (!defined( NDEBUG ) || !defined( NEXCEPT ))
 
 #define _ASSERT( expr, ... )
 
-#endif
+#endif // (!defined( NDEBUG ) || !defined( NEXCEPT ))
 
 #ifndef NDEBUG
 

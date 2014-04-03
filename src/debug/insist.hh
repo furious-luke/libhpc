@@ -18,17 +18,16 @@
 #ifndef libhpc_debug_insist_hh
 #define libhpc_debug_insist_hh
 
-#include "assert.hh"
-
 #ifndef NDEBUG
+
+#include "assert.hh"
 
 #define INSIST( stmnt, cond, ... )              \
    ASSERT( stmnt cond, ##__VA_ARGS__ )
 
 #else
 
-#define INSIST( stmnt, cond, ... )              \
-   stmnt
+#define INSIST( stmnt, cond, ... ) stmnt
 
 #endif
 

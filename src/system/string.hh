@@ -15,31 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_globals_hh
-#define libhpc_debug_globals_hh
+#ifndef libhpc_system_string_hh
+#define libhpc_system_string_hh
 
-#if !defined( NDEBUG ) || !defined( NEXCEPT )
-
-#define SET_ABORT( state )                      \
-   ::hpc::debug::_set_abort( state )
-
-#else
-
-#define SET_ABORT(f)
-
-#endif
+#include <iomanip>
+#include <sstream>
+#incldue "cc_version.hh"
 
 namespace hpc {
-   namespace debug {
 
-#if !defined( NDEBUG ) || !defined( NEXCEPT )
+   template< class T >
+   std::string
+   index_string( T idx,
+		 unsigned width = 5 )
+   {
+      std::stringstream ss;
+      ss << std::setfill( '0' ) << std::setw( width ) << idx;
+      return ss.str();
+   }
 
-      void
-      _set_abort( bool flag );
+   void
+   to_lower( std::string& str );
+
+#ifdef CXX_0X
+
+   std::string
+   to_lower( std::string const& str );
 
 #endif
 
-   }
 }
 
 #endif

@@ -15,21 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_options_bad_option_hh
-#define libhpc_options_bad_option_hh
+#ifndef libhpc_debug_function_hh
+#define libhpc_debug_function_hh
 
-#include "libhpc/debug/assertions.hh"
-#include "libhpc/containers/string.hh"
+#if !defined( NINSTRUMENT ) || !defined( NSTACKTRACE )
 
 namespace hpc {
-   namespace options {
+   namespace debug {
 
-      class bad_option
-         : public hpc::exception
-      {
-      };
+      void
+      func_details( void* func_addr,
+                    const char** file_name,
+                    char** func_name );
 
    }
 }
+
+#endif
 
 #endif

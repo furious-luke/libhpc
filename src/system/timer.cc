@@ -15,109 +15,113 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "libhpc/debug/assert.hh"
 #include "timer.hh"
 
 namespace hpc {
+   namespace profile {
 
-#if defined( DARWIN )
+      timer::timer()
+	 : _total( 0.0 ),
+	   _cnt( 0 ),
+	   _run( false ),
+	   _stack( 0 )
+      {
+      }
 
-   time_type
-   timer()
-   {
-      time_type time;
-      time.time = mach_absolute_time();
-      return time;
+      timer::~timer()
+      {
+	 ASSERT( !_stack );
+	 ASSERT( !_run );
+      }
+
+      void
+      timer::reset()
+      {
+	 _total = 0;
+	 _cnt = 0;
+      }
+
+      bool
+      timer::running() const
+      {
+	 return _run;
+      }
+
+      timer::handle
+      timer::start( handle::stop_type stop )
+      {
+	 ++_stack;
+	 if( !_run )
+	 {
+	    _run = true;
+	    _start = hpc::timer();
+	 }
+         return handle( this, stop );
+      }
+
+      void
+      timer::start2()
+      {
+         ++_stack;
+         if( !_run )
+         {
+            _run = true;
+            _start = hpc::timer();
+         }
+      }
+
+      void
+      timer::stop()
+      {
+	 --_stack;
+	 if( !_stack )
+	 {
+	    _run = false;
+	    _total += seconds( hpc::timer() - _start );
+	 }
+      }
+
+      void
+      timer::stop_tally()
+      {
+	 stop();
+	 if( !_stack )
+	    ++_cnt;
+      }
+
+      unsigned long
+      timer::count() const
+      {
+	 return _cnt;
+      }
+
+      double
+      timer::total() const
+      {
+	 return _total;
+      }
+
+      // double
+      // timer::total( const mpi::comm& comm ) const
+      // {
+      // 	 return comm.all_reduce( _total, MPI_MAX );
+      // }
+
+      double
+      timer::mean() const
+      {
+	 ASSERT( _cnt );
+	 return _total/(double)_cnt;
+      }
+
+      // double
+      // timer::mean( const mpi::comm& comm ) const
+      // {
+      // 	 ASSERT( _cnt );
+      // 	 ASSERT( comm.all_reduce( _cnt, MPI_MAX ) == comm.all_reduce( _cnt, MPI_MIN ) );
+      // 	 return total( comm )/(double)_cnt;
+      // }
+
    }
-
-   double
-   seconds( const time_type& time )
-   {
-      mach_timebase_info_data_t info;
-      mach_timebase_info( &info );
-      return (double)time.time*((double)info.numer/(double)info.denom)*1e-9;
-   }
-
-#else
-
-   time_type
-   timer()
-   {
-      time_type ts;
-      clock_gettime( CLOCK_MONOTONIC, &ts );
-      return ts;
-   }
-
-   unsigned long
-   nsecs( const time_type& time )
-   {
-      return time.tv_sec*1000000000 + time.tv_nsec;
-   }
-
-   unsigned long
-   usecs( const time_type& time )
-   {
-      return time.tv_sec*1000000 + time.tv_nsec/1000;
-   }
-
-   unsigned long
-   msecs( const time_type& time )
-   {
-      return time.tv_sec*1000 + time.tv_nsec/1000000;
-   }
-
-   double
-   seconds( const time_type& time )
-   {
-      return (double)time.tv_sec + ((double)time.tv_nsec)*1e-9;
-   }
-
-#endif
-
 }
-
-#if defined( DARWIN )
-
-::hpc::time_type
-operator-( const ::hpc::time_type& op0,
-           const ::hpc::time_type& op1 )
-{
-   return { op0.time - op1.time };
-}
-
-std::ostream&
-operator<<( std::ostream& strm,
-            const ::hpc::time_type& obj )
-{
-   strm << (double)obj.time;
-   return strm;
-}
-
-#else
-
-::hpc::time_type
-operator-( const ::hpc::time_type& op0,
-           const ::hpc::time_type& op1 )
-{
-   hpc::time_type tmp;
-   if( op0.tv_nsec < op1.tv_nsec )
-   {
-      tmp.tv_sec = op0.tv_sec - op1.tv_sec - 1;
-      tmp.tv_nsec = 1000000000 + op0.tv_nsec - op1.tv_nsec;
-   }
-   else
-   {
-      tmp.tv_sec = op0.tv_sec - op1.tv_sec;
-      tmp.tv_nsec = op0.tv_nsec - op1.tv_nsec;
-   }
-   return tmp;
-}
-
-std::ostream&
-operator<<( std::ostream& strm,
-            const ::hpc::time_type& obj )
-{
-   strm << obj.tv_sec << "(s) + " << obj.tv_nsec << "(ns)";
-   return strm;
-}
-
-#endif

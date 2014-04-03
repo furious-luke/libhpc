@@ -15,51 +15,56 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_vector_view_hh
-#define libhpc_containers_vector_view_hh
+#ifndef libhpc_containers_view_hh
+#define libhpc_containers_view_hh
 
 #include <vector>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/assert.hh"
-#include "libhpc/system/types.hh"
 #include "libhpc/system/type_traits.hh"
 
 namespace hpc {
 
-   template< class > class vector_view_iterator;
+   template< class > class view_iterator;
 
    template< class Vector >
-   class vector_view 
+   class view
    {
    public:
 
       typedef Vector vector_type;
       typedef size_t size_type;
       typedef size_t key_type;
-      typedef typename Vector::value_type mapped_type;
-      typedef typename Vector::value_type value_type;
-      typedef typename Vector::const_pointer const_pointer;
-      typedef typename Vector::pointer pointer;
-      typedef typename Vector::const_reference const_element_reference;
-      typedef typename Vector::reference element_reference;
-      typedef vector_view_iterator<value_type> iterator;
-      typedef vector_view_iterator<const value_type> const_iterator;
 
-      vector_view()
+      typedef typename Vector::value_type      mapped_type;
+      typedef typename Vector::value_type      value_type;
+      typedef typename Vector::const_pointer   const_pointer;
+      typedef typename Vector::pointer         pointer;
+      typedef typename Vector::const_reference const_element_reference;
+      typedef typename Vector::reference       element_reference;
+
+      typedef view_iterator<value_type>       iterator;
+      typedef view_iterator<value_type const> const_iterator;
+
+   public:
+
+      view()
          : _ptr( 0 ),
            _size( 0 )
       {
       }
 
-      vector_view( const vector_type& vec )
+      template< class Other >
+      view( Other const& vec )
          : _ptr( (pointer)vec.data() ),
            _size( vec.size() )
       {
       }
 
-      vector_view( const Vector& vec,
-                   size_t size,
-                   size_t offs = 0 )
+      template< class Other >
+      view( Other const& vec,
+            size_t size,
+            size_t offs = 0 )
          : _ptr( (pointer)vec.data() + offs ),
            _size( size )
       {
@@ -68,33 +73,16 @@ namespace hpc {
          ASSERT( offs + size <= vec.size() );
       }
 
-      vector_view( const vector_view& src )
-         : _ptr( (pointer)src.data() ),
-           _size( src.size() )
-      {
-      }
-
-      vector_view( const vector_view& view,
-		   size_t size,
-		   size_t offs = 0 )
-         : _ptr( (pointer)view.data() + offs ),
+      view( const_pointer ptr,
+            size_t size,
+            size_t offs = 0 )
+         : _ptr( (pointer)ptr + offs ),
            _size( size )
       {
-	 ASSERT( size >= 0 );
-	 ASSERT( offs >= 0 );
-	 ASSERT( offs + size <= view.size() );
-      }
-
-      vector_view( const_pointer ptr,
-                   size_t size,
-                   size_t offs = 0 )
-      {
-         _ptr = (pointer)ptr + offs;
-         _size = size;
       }
 
       void
-      assign( const vector_view& op,
+      assign( view const& op,
               size_t size,
               size_t offs = 0 )
       {
@@ -109,7 +97,7 @@ namespace hpc {
       shrink( size_t size,
               size_t offs = 0 )
       {
-         ASSERT( size + offs <= this->_size );
+         ASSERT( size + offs <= _size );
          _ptr += offs;
          _size = size;
       }
@@ -126,7 +114,7 @@ namespace hpc {
          return _size == 0;
       }
 
-      const pointer
+      pointer const
       data() const
       {
          return _ptr;
@@ -159,13 +147,15 @@ namespace hpc {
       const_element_reference
       front() const
       {
-	 return *this->begin();
+         ASSERT( _size );
+	 return *begin();
       }
 
       const_element_reference
       back() const
       {
-	 return *(this->end() - 1);
+         ASSERT( _size );
+	 return *(end() - 1);
       }
 
       const_element_reference
@@ -182,21 +172,24 @@ namespace hpc {
          return _ptr[idx];
       }
 
-      vector_view&
-      operator=( const vector_view& op )
+      template< class Other >
+      view&
+      operator=( Other const& op )
       {
-         _ptr = op._ptr;
-         _size = op._size;
+         ASSERT( op.size() == _size );
+         std::copy( op.begin(), op.end(), begin() );
       }
 
+      template< class Other >
       bool
-      operator==( const vector_view& op ) const
+      operator==( Other const& op ) const
       {
          if( _size != op._size )
             return false;
-         for( size_t ii = 0; ii < _size; ++ii )
+         typename Other::const_iterator op_it = op.begin();
+         for( const_iterator it = begin(); it != end(); ++it, ++op_it )
          {
-            if( _ptr[ii] != op._ptr[ii] )
+            if( *it != *op_it )
                return false;
          }
          return true;
@@ -214,7 +207,7 @@ namespace hpc {
 
       friend std::ostream&
       operator<<( std::ostream& strm,
-		  const vector_view<Vector>& obj )
+		  const view<Vector>& obj )
       {
 	 strm << "[";
 	 if( obj.size() )
@@ -234,23 +227,23 @@ namespace hpc {
    };
 
    template< class T >
-   class vector_view_iterator
-      : public boost::iterator_facade< vector_view_iterator<T>,
+   class view_iterator
+      : public boost::iterator_facade< view_iterator<T>,
                                        T,
 				       std::random_access_iterator_tag >
    {
       friend class boost::iterator_core_access;
-      // template< class > friend class vector_view_iterator;
+      // template< class > friend class view_iterator;
 
    public:
 
-      explicit vector_view_iterator( T* ptr = 0 )
+      explicit view_iterator( T* ptr = 0 )
          : _ptr( ptr )
       {
       }
 
       template< class U >
-      vector_view_iterator( const vector_view_iterator<U>& src )
+      view_iterator( const view_iterator<U>& src )
          : _ptr( src._ptr )
       {
       }
@@ -271,7 +264,7 @@ namespace hpc {
 
       template< class U >
       bool
-      equal( const vector_view_iterator<U>& op ) const
+      equal( const view_iterator<U>& op ) const
       {
          return _ptr == op._ptr;
       }
@@ -284,7 +277,7 @@ namespace hpc {
 
       template< class U >
       size_t
-      distance_to( const vector_view_iterator<U>& op ) const
+      distance_to( const view_iterator<U>& op ) const
       {
          return op._ptr - _ptr;
       }
@@ -301,12 +294,12 @@ namespace hpc {
    };
 
    template< class Vector >
-   struct type_traits< vector_view<Vector> >
+   struct type_traits< view<Vector> >
    {
-      typedef       vector_view<Vector> value;
-      typedef const vector_view<Vector> const_value;
-      typedef       vector_view<Vector> reference;
-      typedef const vector_view<Vector> const_reference;
+      typedef       view<Vector> value;
+      typedef const view<Vector> const_value;
+      typedef       view<Vector> reference;
+      typedef const view<Vector> const_reference;
    };
 
 }

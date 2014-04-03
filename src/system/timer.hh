@@ -15,61 +15,74 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_timer_hh
-#define libhpc_system_timer_hh
+#ifndef libhpc_profile_timer_hh
+#define libhpc_profile_timer_hh
 
-#include <ostream>
-#if defined( DARWIN )
-#include <mach/mach_time.h>
-#else
-#include <time.h>
-#endif
-#include "gcc_4.6_fix.hh"
+#include "libhpc/system/timer.hh"
+// #include "libhpc/mpi/comm.hh"
+#include "timer_handle.hh"
 
 namespace hpc {
+   namespace profile {
 
-#if defined( DARWIN )
+      ///
+      ///
+      ///
+      class timer
+      {
+      public:
 
-   struct time_type
-   {
-      uint64_t time;
-   };
+         typedef timer_handle handle;
 
-   time_type
-   timer();
+      public:
 
-   double
-   seconds( const time_type& time );
+	 timer();
 
-#else
+	 ~timer();
 
-   typedef struct timespec time_type;
+	 void
+	 reset();
 
-   time_type
-   timer();
+	 bool
+	 running() const;
 
-   unsigned long
-   nsecs( const time_type& time );
+         handle
+         start( handle::stop_type stop = handle::NORMAL );
 
-   unsigned long
-   usecs( const time_type& time );
+         void
+         start2();
 
-   unsigned long
-   msecs( const time_type& time );
+	 void
+	 stop();
 
-   double
-   seconds( const time_type& time );
+	 void
+	 stop_tally();
 
-#endif
+	 unsigned long
+	 count() const;
 
+	 double
+	 total() const;
+
+	 // double
+	 // total( const mpi::comm& comm ) const;
+
+	 double
+	 mean() const;
+
+	 // double
+	 // mean( const mpi::comm& comm ) const;
+
+      protected:
+
+	 time_type _start;
+	 double _total;
+	 unsigned long _cnt;
+	 bool _run;
+	 unsigned _stack;
+      };
+
+   }
 }
-
-::hpc::time_type
-operator-( const ::hpc::time_type& op0,
-           const ::hpc::time_type& op1 );
-
-std::ostream&
-operator<<( std::ostream& strm,
-            const ::hpc::time_type& time );
 
 #endif
