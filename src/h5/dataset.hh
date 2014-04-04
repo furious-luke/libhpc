@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_dataset_hh
-#define hpc_h5_dataset_hh
+#ifndef libhpc_h5_dataset_hh
+#define libhpc_h5_dataset_hh
 
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
@@ -35,46 +35,47 @@ namespace hpc {
       {
       public:
 
-	 dataset( hid_t id = -1 );
+         dataset();
 
-	 dataset( h5::location& loc,
-		  const std::string& name );
+	 dataset( hid_t id,
+                  bool dummy );
 
-	 dataset( h5::location& loc,
-                  const std::string& name,
-                  const h5::datatype& datatype,
-                  const h5::dataspace& dataspace,
-                  optional<const vector<hsize_t>::view&> chunk_size = optional<const vector<hsize_t>::view&>(),
-                  bool deflate=false,
-		  optional<const property_list&> props = optional<const property_list&>() );
+         dataset( dataset&& src );
+
+	 dataset( h5::location const& loc,
+		  std::string const& name );
 
 	 dataset( h5::location& loc,
                   std::string const& name,
-                  h5::datatype const& dtype,
+                  h5::datatype const& type,
+                  h5::dataspace const& space,
+		  property_list const& props = property_list() );
+
+	 dataset( h5::location& loc,
+                  std::string const& name,
+                  h5::datatype const& type,
                   hsize_t size,
-		  optional<property_list const&> props = optional<property_list const&>() );
+		  property_list const& props = property_list() );
 
 	 ~dataset();
 
 	 void
-	 open( const h5::location& loc,
-	       const std::string& name );
-
-	 void
-	 create( h5::location& loc,
-		 const std::string& name,
-		 const h5::datatype& datatype,
-		 const h5::dataspace& dataspace,
-		 optional<const vector<hsize_t>::view&> chunk_size = optional<const vector<hsize_t>::view&>(),
-		 bool deflate=false,
-		 optional<const property_list&> props = optional<const property_list&>() );
+	 open( h5::location const& loc,
+	       std::string const& name );
 
 	 void
 	 create( h5::location& loc,
 		 std::string const& name,
-		 h5::datatype const& dtype,
+                 h5::datatype const& type,
+                 h5::dataspace const& space,
+                 property_list const& props = property_list() );
+
+	 void
+	 create( h5::location& loc,
+		 std::string const& name,
+		 h5::datatype const& type,
                  hsize_t size,
-		 optional<property_list const&> props = optional<property_list const&>() );
+                 property_list const& props = property_list() );
 
 	 void
 	 close();
@@ -85,136 +86,132 @@ namespace hpc {
 	 H5T_class_t
 	 type_class() const;
 
+         h5::dataspace
+	 dataspace() const;
+
 	 void
-	 space( h5::dataspace& space ) const;
+	 set_extent( hsize_t size );
 
 	 hsize_t
 	 extent() const;
 
 	 void
-	 set_extent( hsize_t size );
-
-	 void
 	 read( void* buf,
-	       const h5::datatype& mem_type,
-	       const h5::dataspace& mem_space=h5::dataspace::all,
-	       const h5::dataspace& file_space=h5::dataspace::all,
-	       const mpi::comm& comm=mpi::comm::self );
+	       h5::datatype const& mem_type,
+	       h5::dataspace const& mem_space = h5::dataspace::all,
+	       h5::dataspace const& file_space = h5::dataspace::all,
+	       mpi::comm const& comm = mpi::comm::self );
 
          void
          read( void* buf,
+               h5::datatype const& type,
                hsize_t size,
-               h5::datatype const& dtype,
                hsize_t offset,
-               mpi::comm& comm = mpi::comm::self );
+               mpi::comm const& comm = mpi::comm::self );
 
 	 template< class T >
          T
 	 read( hsize_t elem )
          {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    h5::datatype dtype( mpl::at<h5::datatype::type_map,T>::type::value );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,T>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,T>::type::value );
+	    ASSERT( type.size() == sizeof(T) );
 
-	    h5::dataspace file_space;
-	    space( file_space );
+	    h5::dataspace file_space( dataspace() );
 	    file_space.select_one( elem );
 
-	    h5::dataspace mem_space;
-            mem_space.create( 1 );
+	    h5::dataspace mem_space( 1 );
 	    mem_space.select_all();
 
 	    T data;
-	    read( &data, dtype, mem_space, file_space, mpi::comm::self );
+	    read( &data, type, mem_space, file_space );
 	    return data;
          }
 
-	 template< class T >
+	 template< class Buffer >
 	 void
-	 read( typename hpc::view<std::vector<T>>::type buf,
-               mpi::comm& comm = mpi::comm::self )
+	 read( typename type_traits<Buffer>::reference buf,
+               hsize_t offs = 0,
+               mpi::comm const& comm = mpi::comm::self )
 	 {
-            // Load the HDF5 datatype from the dataset.
-            h5::datatype dtype = this->datatype();
-	    ASSERT( dtype.size() == sizeof(T) );
+            typedef typename Buffer::value_type value_type;
+
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
 
             // Get the filespace and set elements.
-	    h5::dataspace file_space;
-	    space( file_space );
-	    file_space.select_all();
+	    h5::dataspace file_space( dataspace() );
+            if( offs )
+               file_space.select_range( offs, offs + buf.size() );
+            else
+               file_space.select_all();
 
             // Create the memory space.
-            vector<hsize_t> dims( 1 );
-	    dims[0] = buf.size();
-	    h5::dataspace mem_space( dims );
+	    h5::dataspace mem_space( buf.size() );
 	    mem_space.select_all();
 
             // Read from the dataset.
-	    read( buf.data(), dtype, mem_space, file_space, comm );
+	    read( buf.data(), type, mem_space, file_space, comm );
 	 }
 
-	 template< class T >
+	 template< class Buffer,
+                   class Elements >
 	 void
-	 read( typename hpc::view<std::vector<T>>::type buf,
-	       hpc::view<std::vector<hsize_t>>::type const& elems,
+	 read( typename type_traits<Buffer>::reference buf,
+	       typename type_traits<Elements>::const_reference elems,
                mpi::comm& comm = mpi::comm::self )
 	 {
+            typedef typename Buffer::value_type value_type;
+
             ASSERT( buf.size() == elems.size(), "Buffer size mismatch." );
 
-            // // Map to a HDF5 datatype.
-	    // BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    // h5::datatype dtype( mpl::at<h5::datatype::type_map, T>::type::value );
-
-            // Load the HDF5 datatype from the dataset.
-            h5::datatype dtype = this->datatype();
+            // Map to a HDF5 datatype.
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
 
             // Get the filespace and set elements.
-	    h5::dataspace file_space;
-	    space( file_space );
-	    file_space.select_elements2( elems );
+	    h5::dataspace file_space( dataspace() );
+	    file_space.select_elements( elems );
 
             // Create the memory space.
-            vector<hsize_t> dims( 1 );
-	    dims[0] = buf.size();
-	    h5::dataspace mem_space( dims );
+	    h5::dataspace mem_space( buf.size() );
 	    mem_space.select_all();
 
             // Read from the dataset.
-	    read( buf.data(), dtype, mem_space, file_space, comm );
+	    read( buf.data(), type, mem_space, file_space, comm );
 	 }
 
 	 void
-	 write( const void* buf,
-		const h5::datatype& mem_type,
-		const h5::dataspace& mem_space=h5::dataspace::all,
-		const h5::dataspace& file_space=h5::dataspace::all,
-		const mpi::comm& comm=mpi::comm::self );
+	 write( void const* buf,
+		h5::datatype const& mem_type,
+		h5::dataspace const& mem_space = h5::dataspace::all,
+		h5::dataspace const& file_space = h5::dataspace::all,
+		mpi::comm const& comm = mpi::comm::self );
 
          void
          write( void* buf,
+                h5::datatype const& type,
                 hsize_t size,
-                h5::datatype const& dtype,
                 hsize_t offset,
-                mpi::comm& comm = mpi::comm::self );
+                mpi::comm const& comm = mpi::comm::self );
 
-	 template< class T >
+	 template< class Buffer >
 	 void
-	 write( typename view<std::vector<T>>::type buf,
+	 write( typename type_traits<Buffer>::const_reference buf,
                 hsize_t offset = 0,
-                mpi::comm& comm = mpi::comm::self )
+                mpi::comm const& comm = mpi::comm::self )
 	 {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    h5::datatype dtype( mpl::at<h5::datatype::type_map,T>::type::value );
-            write( buf.data(), buf.size(), dtype, offset, comm );
+            typedef typename Buffer::value_type value_type;
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
+            write( buf.data(), buf.size(), type, offset, comm );
 	 }
-
-	 void
-	 extend( hsize_t size );
 
       protected:
 
 	 void
-	 create_groups( h5::location& loc,
-			const std::string& name ) const;
+	 _create_groups( h5::location& loc,
+                         std::string const& name ) const;
 
 	 hid_t _id;
       };
@@ -224,57 +221,48 @@ namespace hpc {
       ///
       template< class T >
       void
-      location::write( const std::string& name,
-                       const T& value,
-                       const mpi::comm& comm )
+      location::write( std::string const& name,
+                       T const& value )
       {
-         BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map, T>) );
-         h5::datatype datatype( boost::mpl::at<h5::datatype::type_map, T>::type::value );
+         BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,T>) );
+         h5::datatype type( boost::mpl::at<h5::datatype::type_map,T>::type::value );
 
-         vector<hsize_t> dims( 1 );
-         dims[0] = 1;
-
-         h5::dataspace file_space( dims );
-         h5::dataset file_set;
-         file_set.create( *this, name, datatype, file_space );
+         h5::dataspace file_space( 1 );
+         h5::dataset file_set( *this, name, type, file_space );
          file_space.select_all();
 
-         h5::dataspace mem_space( dims );
+         h5::dataspace mem_space( 1 );
          mem_space.select_all();
 
-         file_set.write( &value, datatype, mem_space, file_space, comm );
+         file_set.write( &value, type, mem_space, file_space );
       }
 
       ///
       ///
       ///
-      template< class T >
+      template< class Buffer >
       void
-      location::write( const std::string& name,
-                       const typename vector<T>::view& data,
-                       const mpi::comm& comm,
-                       boost::optional<const vector<hsize_t>::view&> chunk_size,
-                       bool deflate )
+      location::write( std::string const& name,
+                       typename type_traits<Buffer>::const_reference buf,
+                       mpi::comm const& comm )
       {
-         BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map, T>) );
-         h5::datatype datatype( boost::mpl::at<h5::datatype::type_map, T>::type::value );
+         typedef typename Buffer::value_type value_type;
 
-         vector<hsize_t> dims(1), count(1), offset(1);
-         dims[0] = comm.all_reduce(data.size(), MPI_SUM);
-         count[0] = data.size();
-         offset[0] = comm.scan(data.size(), MPI_SUM, true);
+         BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+         h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
 
-         h5::dataspace file_space(dims);
-         h5::dataset file_set;
-         file_set.create(*this, name, datatype, file_space, chunk_size, deflate);
-         file_space.select_all();
-         file_space.select_hyperslab(H5S_SELECT_SET, count, offset);
+         hsize_t size = comm.all_reduce( buf.size(), MPI_SUM );
+         hsize_t cnt = buf.size();
+         hsize_t offs = comm.scan( cnt, MPI_SUM, true );
 
-         dims[0] = data.size();
-         h5::dataspace mem_space(dims);
+         h5::dataspace file_space( size );
+         h5::dataset file_set( *this, name, type, file_space );
+         file_space.select_hyperslab( H5S_SELECT_SET, cnt, offs );
+
+         h5::dataspace mem_space( cnt );
          mem_space.select_all();
 
-         file_set.write(data, datatype, mem_space, file_space, comm);
+         file_set.write( buf, type, mem_space, file_space, comm );
       }
    }
 }

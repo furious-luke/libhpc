@@ -20,10 +20,15 @@
 namespace hpc {
    namespace h5 {
 
-      property_list::property_list( hid_t id )
-	 : _id( -1 )
+      propertY_list::property_list()
+         : _id( H5P_DEFAULT )
       {
-	 create( id );
+      }
+
+      property_list::property_list( hid_t class_id )
+	 : _id( H5P_DEFAULT )
+      {
+	 create( class_id );
       }
 
       property_list::~property_list()
@@ -48,12 +53,15 @@ namespace hpc {
       void
       property_list::close()
       {
-	 if( _id >= 0 )
+	 if( _id >= 0 && _id != H5P_DEFAULT )
+         {
 	    INSIST( H5Pclose( _id ), >= 0 );
+            _id = H5P_DEFAULT;
+         }
       }
 
       void
-      property_list::set_external( const string& name,
+      property_list::set_external( const std::string& name,
 				   hsize_t size,
 				   hsize_t offset )
       {

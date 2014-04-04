@@ -16,58 +16,55 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "file.hh"
-//#include "Proxy.hh"
 
 namespace hpc {
    namespace h5 {
 
       file::file()
 	 : location(),
-	   _comm(mpi::comm::self)
+	   _comm( &mpi::comm::self )
       {
       }
 
-      file::file( const std::string& filename,
-		  unsigned int flags,
-		  const mpi::comm& comm )
+      file::file( std::string const& filename,
+                  unsigned flags,
+                  mpi::comm const& comm,
+                  property_list const& props )
 	 : location(),
-	   _comm(mpi::comm::self)
+	   _comm( &mpi::comm::self )
       {
-	 this->open(filename, flags, comm);
+	 open( filename, flags, comm, props );
       }
 
       file::~file()
       {
-	 this->close();
+	 close();
       }
 
       void
-      file::open( const std::string& filename,
-		  unsigned int flags,
-		  const mpi::comm& comm,
-		  optional<property_list&> props )
+      file::open( std::string const& filename,
+                  unsigned flags,
+                  mpi::comm const& comm = mpi::comm::self,
+                  property_list const& props );
       {
-	 this->_comm = &comm;
+	 _comm = &comm;
 
-#ifdef PARALLELHDF5
-	 h5::property_list local_props( H5P_FILE_ACCESS );
-	 if(*this->_comm != mpi::comm::null && this->_comm->size() != 1) {
-	    if( !props )
-	       props = local_props;
-	    (*props).set_parallel( comm );
+#ifdef HAVE_HDF5_PARALLEL
+	 h5::property_list local_props;
+	 if( *_comm != mpi::comm::null && _comm->size() != 1 )
+         {
+	    if( props )
+	       local_props = props;
+            else
+               local_props.create( H5P_FILE_ACCESS );
+	    local_props.set_parallel( *_comm );
 	 }
 #endif
 
-	 hid_t props_id;
-	 if( props )
-	    props_id = (*props).id();
+	 if( flags == H5F_ACC_TRUNC || flags == H5F_ACC_EXCL )
+	    _id = H5Fcreate( filename.c_str(), flags, H5P_DEFAULT, props.id() );
 	 else
-	    props_id = H5P_DEFAULT;
-
-	 if(flags == H5F_ACC_TRUNC || flags == H5F_ACC_EXCL)
-	    this->_id = H5Fcreate(filename.c_str(), flags, H5P_DEFAULT, props_id);
-	 else
-	    this->_id = H5Fopen(filename.c_str(), flags, props_id);
+	    _id = H5Fopen( filename.c_str(), flags, props.id() );
       }
 
       void
@@ -436,15 +433,13 @@ namespace hpc {
 // }
 
       void
-      file::read_data_dims( const std::string& name,
+      file::read_data_dims( std::string const& name,
 			    vector<hsize_t>& dims )
       {
-	 h5::dataset file_set;
-	 file_set.open(*this, name);
-	 h5::dataspace file_space;
-	 file_set.space(file_space);
-	 dims.resize(file_space.simple_extent_num_dims());
-	 file_space.simple_extent_dims(dims);
+	 h5::dataset file_set( *this, name );
+	 h5::dataspace file_space( file_set );
+	 dims.resize( file_space.simple_extent_num_dims() );
+	 file_space.simple_extent_dims( dims );
       }
 
       hsize_t

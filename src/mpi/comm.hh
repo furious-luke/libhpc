@@ -20,7 +20,7 @@
 
 #include "libhpc/system/view.hh"
 #include "init.hh"
-#include "data_type.hh"
+#include "datatype.hh"
 #include "request.hh"
 #include "insist.hh"
 
@@ -75,14 +75,14 @@ namespace hpc {
 
 	 void
 	 send( const void* out,
-	       const data_type& type,
+	       const datatype& type,
 	       int to,
 	       int count=1,
 	       int tag=0 ) const;
 
 	 void
 	 isend( const void* out,
-		const data_type& type,
+		const datatype& type,
 		int to,
 		request& req,
 		int count=1,
@@ -90,7 +90,7 @@ namespace hpc {
 
 	 void
 	 issend(const void* out,
-		const data_type& type,
+		const datatype& type,
 		int to,
 		request& req,
 		int count=1,
@@ -103,7 +103,7 @@ namespace hpc {
                unsigned block_size = 1,
 	       int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    MPI_INSIST( MPI_Send( out.data(),
                                   out.size()*block_size,
                                   MPI_MAP_TYPE( T ),
@@ -120,7 +120,7 @@ namespace hpc {
                 unsigned block_size = 1,
 		int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    MPI_INSIST( MPI_Isend( out.data(),
                                    out.size()*block_size,
                                    MPI_MAP_TYPE( T ),
@@ -137,7 +137,7 @@ namespace hpc {
 	 //         request& req,
 	 //         int tag=0 ) const
 	 // {
-	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	 //    MPI_INSIST(MPI_Issend(
 	 //        	  out.data(),
 	 //        	  out.size(),
@@ -155,7 +155,7 @@ namespace hpc {
 	       int to,
 	       int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    MPI_INSIST( MPI_Send( (void*)&out,
                                   1,
                                   MPI_MAP_TYPE( T ),
@@ -171,7 +171,7 @@ namespace hpc {
 		request& req,
 		int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Isend(
 			  (void*)&out,
 			  1,
@@ -190,7 +190,7 @@ namespace hpc {
 		 request& req,
 		 int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Issend(
 			  (void*)&out,
 			  1,
@@ -208,7 +208,7 @@ namespace hpc {
 	       int to,
 	       int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Send(
 			  (void*)&out,
 			  2,
@@ -226,7 +226,7 @@ namespace hpc {
 		request& req,
 		int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Isend(
 			  (void*)&out,
                           2,
@@ -245,7 +245,7 @@ namespace hpc {
                  request& req,
                  int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	    MPI_INSIST( MPI_Issend(
                            (void*)&out,
                            2,
@@ -259,14 +259,14 @@ namespace hpc {
 
 	 void
 	 recv(void* inc,
-	      const data_type& type,
+	      const datatype& type,
 	      int from,
 	      int count=1,
 	      int tag=0) const;
 
 	 void
 	 irecv(void* inc,
-	       const data_type& type,
+	       const datatype& type,
 	       int from,
 	       request& req,
 	       int count=1,
@@ -278,7 +278,7 @@ namespace hpc {
 	 //       int from,
 	 //       int tag=0 ) const
 	 // {
-	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	 //    MPI_INSIST(MPI_Recv(
 	 //        	  inc.data(),
 	 //        	  inc.size(),
@@ -298,7 +298,7 @@ namespace hpc {
                 unsigned block_size = 1,
 		int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    MPI_INSIST( MPI_Irecv( inc.data(),
                                    inc.size(),
                                    MPI_MAP_TYPE( T ),
@@ -314,7 +314,7 @@ namespace hpc {
 	       int from,
 	       int tag = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Recv(
 			  (void*)&value,
 			  1,
@@ -333,7 +333,7 @@ namespace hpc {
 		request& req,
 		int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Irecv(
 			  (void*)&value,
 			  1,
@@ -351,7 +351,7 @@ namespace hpc {
 	       int from,
 	       int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	    MPI_INSIST( MPI_Recv(
 			  (void*)&value,
 			  2,
@@ -370,7 +370,7 @@ namespace hpc {
 		request& req,
 		int tag=0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	    MPI_INSIST( MPI_Irecv(
 			  (void*)&value,
                           2,
@@ -384,7 +384,7 @@ namespace hpc {
 
 	 void
 	 bcast(void* data,
-	       const data_type& type,
+	       const datatype& type,
 	       int root,
 	       int count=1) const;
 
@@ -393,7 +393,7 @@ namespace hpc {
 	 bcast( T& value,
 		int root ) const
 	 {
-	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	    MPI_INSIST(MPI_Bcast(
 			  &value,
 			  1,
@@ -408,7 +408,7 @@ namespace hpc {
 	 bcast2( T const& value,
                  int root ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 
             if( rank() == root )
             {
@@ -436,7 +436,7 @@ namespace hpc {
 // 	 bcast( typename vector<T>::view data,
 // 		int root ) const
 // 	 {
-// 	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+// 	    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 // #ifndef NDEBUG
 // 	    // Must have enougn space to recieve.
 // 	    typename vector<T>::size_type size = data.size();
@@ -457,7 +457,7 @@ namespace hpc {
 	 bcast2( view<std::vector<T>> const& data,
                  int root ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 
             // Get size for resulting vector.
             auto size = bcast2<decltype(data.size())>( data.size(), root );
@@ -488,7 +488,7 @@ namespace hpc {
 	 // void
 	 // bcasta( const typename vector<T>::view& data ) const
 	 // {
-	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	 //    int root = this->rank();
 	 //    typename vector<T>::size_type size = data.size();
 	 //    this->bcast(size, root);
@@ -505,7 +505,7 @@ namespace hpc {
 	 void
 	 bcasta_root( view<std::vector<T>> data ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    int root = this->rank();
 	    typename std::vector<T>::size_type size = data.size();
 	    this->bcast( size, root );
@@ -524,7 +524,7 @@ namespace hpc {
 	 // bcasta( vector<T>& data,
 	 //         int root = 0 ) const
 	 // {
-	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	 //    typename vector<T>::size_type size = data.size();
 	 //    this->bcast( size, root );
 	 //    data.resize( size );
@@ -540,7 +540,7 @@ namespace hpc {
 	 bcasta( std::vector<T>& data,
 		 int root = 0 ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    typename std::vector<T>::size_type size = data.size();
 	    this->bcast( size, root );
 	    data.resize( size );
@@ -563,7 +563,7 @@ namespace hpc {
 	 // all_gather( const T& value,
 	 //             typename vector<T>::view inc ) const
 	 // {
-	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::data_type::type_map, T>));
+	 //    BOOST_MPL_ASSERT((boost::mpl::has_key<mpi::datatype::type_map, T>));
 	 //    ASSERT(inc.size() == this->size());
 	 //    MPI_INSIST(MPI_Allgather(
 	 //        	  (void*)&value,
@@ -581,7 +581,7 @@ namespace hpc {
 	 // all_gather( const typename vector<T>::view& out,
          //             fibre<T>& inc ) const
 	 // {
-	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
          //    ASSERT( out.size() == inc.fibre_size() );
 	 //    ASSERT( inc.size() == this->size() );
 	 //    MPI_INSIST( MPI_Allgather(
@@ -600,7 +600,7 @@ namespace hpc {
 	 // all_to_all( const typename vector<T>::view& out,
          //             typename vector<T>::view inc ) const
 	 // {
-	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	 //    ASSERT( out.size() == this->size() );
 	 //    ASSERT( inc.size() == this->size() );
 	 //    MPI_INSIST( MPI_Alltoall(
@@ -627,7 +627,7 @@ namespace hpc {
 	 all_reduce( T const& out,
 		     MPI_Op op = MPI_SUM ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    T inc;
 	    MPI_INSIST( MPI_Allreduce( (void*)&out,
                                        &inc,
@@ -646,7 +646,7 @@ namespace hpc {
 	 //             MPI_Op op=MPI_SUM ) const
 	 // {
 	 //    ASSERT( out.size() == inc.size() );
-	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	 //    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	 //    MPI_INSIST( MPI_Allreduce(
 	 //        	  (void*)out.data(),
 	 //        	  (void*)inc.data(),
@@ -663,7 +663,7 @@ namespace hpc {
 	 all_reduce( view<std::vector<T>> buf,
 		     MPI_Op op = MPI_SUM ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map,T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    std::vector<T> inc( buf.size() );
 	    MPI_INSIST( MPI_Allreduce( (void*)buf.data(),
                                        (void*)inc.data(),
@@ -694,7 +694,7 @@ namespace hpc {
 	       MPI_Op op = MPI_SUM,
 	       bool exclusive = true ) const
 	 {
-	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::data_type::type_map, T>) );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map, T>) );
 	    T inc;
 	    MPI_INSIST( MPI_Scan( (void*)&out,
                                   &inc,

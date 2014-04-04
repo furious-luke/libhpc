@@ -15,18 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_file_hh
-#define hpc_h5_file_hh
+#ifndef libhpc_h5_file_hh
+#define libhpc_h5_file_hh
 
-#include "libhpc/containers/containers.hh"
-#include "libhpc/mpi/mpi.hh"
+#include "libhpc/mpi/comm.hh"
 #include "location.hh"
 #include "datatype.hh"
 #include "dataspace.hh"
 #include "dataset.hh"
 #include "group.hh"
-
-namespace mpl = boost::mpl;
 
 namespace hpc {
    namespace h5 {
@@ -36,162 +33,101 @@ namespace hpc {
       {
       public:
 
+	 file();
+
          ///
          /// @param flags  Can be H5F_ACC_EXCL, H5F_ACC_TRUNC, H5F_ACC_RDONLY
          ///               or H5F_ACC_RDWR.
          ///
-	 file();
-
-	 file( const std::string& filename,
-	       unsigned int flags,
-	       const mpi::comm& comm=mpi::comm::self );
+	 file( std::string const& filename,
+	       unsigned flags,
+	       mpi::comm const& comm = mpi::comm::self,
+	       property_list const& props = property_list() );
 
 	 ~file();
 
 	 void
-	 open( const std::string& filename,
-	       unsigned int flags,
-	       const mpi::comm& comm = mpi::comm::self,
-	       optional<property_list&> props = optional<property_list&>() );
+	 open( std::string const& filename,
+	       unsigned flags,
+	       mpi::comm const& comm = mpi::comm::self,
+	       property_list const& props = property_list() );
 
 	 void
 	 close();
 
-	 template< class T >
-	 void
-	 write( const std::string& name,
-		const T& value )
+	 template< class Buffer >
+         typename boost::disable_if<random_access_trait<Buffer>>::type
+	 write( std::string const& name,
+		typename Buffer::value_type const& value )
 	 {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map, T>) );
-	    h5::datatype datatype( mpl::at<h5::datatype::type_map, T>::type::value );
+            typedef typename Buffer::value_type value_type;
 
-	    vector<hsize_t> dims( 1 );
-	    dims[0] = 1;
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
 
-	    h5::dataspace file_space( dims );
-	    h5::dataset file_set;
-	    file_set.create( *this, name, datatype, file_space );
+	    h5::dataspace file_space( 1 );
+	    h5::dataset file_set( *this, name, type, file_space );
 	    file_space.select_all();
 
-	    h5::dataspace mem_space( dims );
+	    h5::dataspace mem_space( 1 );
 	    mem_space.select_all();
 
 	    // What to do when calling to write a single element from
 	    // many ranks? I'll just take one of them for now.
 	    if( _comm->rank() == 0 )
-	       file_set.write( &value, datatype, mem_space, file_space, mpi::comm::self );
+	       file_set.write( &value, type, mem_space, file_space );
 	 }
 
-	 template< class T >
-	 void
-	 write_serial( const std::string& name,
-		       const typename vector<T>::view& data,
-		       boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-		       bool deflate=false )
-	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
-
-	    vector<hsize_t> dims(1), count(1), offset(1);
-	    dims[0] = data.size();
-	    count[0] = data.size();
-	    offset[0] = 0;
-
-	    h5::dataspace file_space(dims);
-	    h5::dataset file_set;
-	    file_set.create(*this, name, datatype, file_space, chunk_size, deflate);
-	    file_space.select_all();
-	    file_space.select_hyperslab(H5S_SELECT_SET, count, offset);
-
-	    dims[0] = data.size();
-	    h5::dataspace mem_space(dims);
-	    mem_space.select_all();
-
-	    // Only one rank writes.
-	    if( _comm->rank() == 0 )
-	       file_set.write(data, datatype, mem_space, file_space, mpi::comm::self);
-	 }
-
-	 template< class T >
-	 void
+	 template< class Buffer >
+         typename boost::enable_if<random_access_trait<Buffer>>::type
 	 write_serial( std::string const& name,
-		       typename view<std::vector<T>>::type const& buf )
+                       typename type_traits<Buffer>::const_reference buf )
 	 {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    h5::datatype dtype( mpl::at<h5::datatype::type_map,T>::type::value );
+            typedef typename Buffer::value_type value_type;
 
-	    h5::dataspace file_space;
-            file_space.create( buf.size() );
-	    h5::dataset file_set;
-	    file_set.create( *this, name, dtype, file_space );
-            file_space.select_all();
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
 
-	    h5::dataspace mem_space;
-            mem_space.create( buf.size() );
+	    h5::dataspace file_space( buf.size() );
+	    h5::dataset file_set( *this, name, type, file_space );
+	    file_space.select_all();
+	    file_space.select_hyperslab( H5S_SELECT_SET, buf.size(), 0 );
+
+	    h5::dataspace mem_space( buf.size() );
 	    mem_space.select_all();
 
 	    // Only one rank writes.
 	    if( _comm->rank() == 0 )
-	       file_set.write( buf.data(), dtype, mem_space, file_space, mpi::comm::self );
+	       file_set.write( buf.data(), type, mem_space, file_space );
 	 }
 
-	 template< class T >
-	 void
+	 template< class Buffer >
+         typename boost::enable_if<random_access_trait<Buffer>>::type
 	 write( std::string const& name,
-		typename hpc::view<std::vector<T>>::type const& data )
+                typename type_traits<Buffer>::const_reference buf )
 	 {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    h5::datatype datatype( mpl::at<h5::datatype::type_map,T>::type::value );
+            typedef typename Buffer::value_type value_type;
 
-	    std::vector<hsize_t> dims( 1 ), count( 1 ), offset( 1 );
-	    dims[0] = _comm->all_reduce( data.size(), MPI_SUM );
-	    count[0] = data.size();
-	    offset[0] = _comm->scan( data.size(), MPI_SUM, true );
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
 
-	    h5::dataspace file_space( dims );
-	    h5::dataset file_set;
-	    file_set.create( *this, name, datatype, file_space );
-	    file_space.select_all();
-	    file_space.select_hyperslab( H5S_SELECT_SET, count, offset );
+            hsize_t size = _comm->all_reduce( buf.size(), MPI_SUM );
+            hsize_t cnt = buf.size();
+            hsize_t offs = _comm->scan( cnt, MPI_SUM, true );
 
-	    dims[0] = data.size();
-	    h5::dataspace mem_space( dims );
+	    h5::dataspace file_space( size );
+	    h5::dataset file_set( *this, name, type, file_space );
+	    file_space.select_hyperslab( H5S_SELECT_SET, cnt, offs );
+
+	    h5::dataspace mem_space( cnt );
 	    mem_space.select_all();
 
-	    file_set.write( data, datatype, mem_space, file_space, *_comm );
+	    file_set.write( buf.data(), type, mem_space, file_space, *_comm );
 	 }
-
-	 // template< class T >
-	 // void
-	 // write( const std::string& name,
-	 // 	const csr<T>& data,
-	 // 	boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-	 // 	bool deflate=false )
-	 // {
-	 //    vector<index>::view displs = ((csr<T>&)data).mod_displs();
-	 //    hpc::displs_to_counts(displs.begin(), displs.size());
-	 //    vector<index>::view counts;
-	 //    if(!displs.empty())
-	 //       counts.assign(displs, displs.size() - 1);
-	 //    this->write<index>(name + "_counts", counts, chunk_size, deflate);
-	 //    if(!displs.empty())
-	 //       hpc::counts_to_displs(displs.begin(), displs.size() - 1);
-
-	 //    // Collect displacement offsets from all ranks involved.
-	 //    index rank_offs = this->_comm->scan(displs.back(), MPI_SUM, true);
-	 //    vector<index>::view offs_displs;
-	 //    if(!displs.empty())
-         //       offs_displs.assign(displs, displs.size() - 1);
-	 //    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::plus<index>(), rank_offs));
-	 //    this->write<index>(name + "_displs", offs_displs, chunk_size, deflate);
-	 //    std::transform(offs_displs.begin(), offs_displs.end(), offs_displs.begin(), std::bind1st(std::minus<index>(), rank_offs));
-
-	 //    this->write<T>(name + "_array", data.array(), chunk_size, deflate);
-	 // }
 
 	 void
 	 read_data_dims( const std::string& name,
-			 vector<hsize_t>& dims );
+                         std::vector<hsize_t>& dims );
 
 	 hsize_t
 	 read_data_size( const std::string& name );
@@ -201,156 +137,53 @@ namespace hpc {
 
 	 void
 	 read( std::string const& name,
-	 	   void* buf,
-	 	   hsize_t size,
-	 	   h5::datatype const& dtype,
-	 	   hsize_t offs,
-	 	   mpi::comm& comm = mpi::comm::self );
+               void* buf,
+               h5::datatype const& type,
+               hsize_t size,
+               hsize_t offs,
+               mpi::comm& comm = mpi::comm::self );
 
 	 template< class T >
-	 T
-	 read( const std::string& name )
+         typename boost::disable_if<random_access_trait<T>>::type
+	 read( std::string const& name,
+	       hsize_t elem = 0 )
 	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
-
-	    vector<hsize_t> dims(1);
-	    dims[0] = 1;
-
-	    h5::dataset file_set(*this, name);
-	    h5::dataspace file_space;
-	    file_set.space(file_space);
-	    file_space.select_all();
-
-	    h5::dataspace mem_space(dims);
-	    mem_space.select_all();
-
-	    T value;
-	    file_set.read(&value, datatype, mem_space, file_space, *this->_comm);
-	    return value;
+	    h5::dataset file_set( *this, name );
+            return file_set.read<T>( elem );
 	 }
 
-	 // template< class T >
-	 // T
-	 // read_element( const std::string& name,
-	 // 	       int elem,
-	 // 	       const mpi::comm& comm=mpi::comm::self );
+	 template< class Buffer >
+         typename boost::enable_if<random_access_trait<Buffer>>::type
+	 read( const std::string& name,
+	       typename type_traits<Buffer>::reference buf,
+               hsize_t offs = 0 )
+	 {
+            h5::dataset file_set( *this, name );
+            file_set.read<Buffer>( buf, offs, *_comm );
+	 }
 
-	 template< class T >
+	 template< class Buffer,
+                   class Elements >
 	 void
 	 read( const std::string& name,
-	       typename vector<T>::view data )
+	       typename type_traits<Buffer>::reference buf,
+	       typename type_traits<Buffer>::const_reference elems )
 	 {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    h5::datatype datatype( mpl::at<h5::datatype::type_map,T>::type::value );
-
-	    vector<hsize_t> dims(1), count(1), offset(1);
-	    dims[0] = this->_comm->all_reduce(data.size(), MPI_SUM);
-	    count[0] = data.size();
-	    offset[0] = this->_comm->scan(data.size(), MPI_SUM, true);
-
-	    h5::dataset file_set;
-	    file_set.open(*this, name);
-	    h5::dataspace file_space;
-	    file_set.space(file_space);
-	    file_space.select_all();
-	    file_space.select_hyperslab(H5S_SELECT_SET, count, offset);
-
-	    dims[0] = data.size();
-	    h5::dataspace mem_space(dims);
-	    mem_space.select_all();
-
-	    file_set.read(data, datatype, mem_space, file_space, *this->_comm);
+	    h5::dataset file_set( *this, name );
+            file_set.read<Buffer>( buf, elems, *_comm );
 	 }
 
-	 template< class T >
-	 void
-	 read( const std::string& name,
-	       typename vector<T>::view data,
-	       const vector<hsize_t>::view& elements )
-	 {
-	    ASSERT(data.size() == elements.size());
-
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
-
-	    h5::dataset file_set;
-	    file_set.open(*this, name);
-	    h5::dataspace file_space;
-	    file_set.space(file_space);
-	    file_space.select_elements(elements);
-
-	    vector<hsize_t> dims(1);
-	    dims[0] = data.size();
-	    h5::dataspace mem_space(dims);
-	    mem_space.select_all();
-
-	    file_set.read(data, datatype, mem_space, file_space, *this->_comm);
-	 }
-
-	 template< class T >
-	 T
-	 read( const std::string& name,
-	       hsize_t element )
-	 {
-	    BOOST_MPL_ASSERT( (mpl::has_key<h5::datatype::type_map,T>) );
-	    h5::datatype datatype( mpl::at<h5::datatype::type_map,T>::type::value );
-
-	    h5::dataset file_set;
-	    file_set.open( *this, name );
-	    h5::dataspace file_space;
-	    file_set.space( file_space );
-	    file_space.select_one( element );
-
-	    vector<hsize_t> dims( 1 );
-	    dims[0] = 1;
-	    h5::dataspace mem_space( dims );
-	    mem_space.select_all();
-
-	    T data;
-	    file_set.read( &data, datatype, mem_space, file_space, mpi::comm::self );
-	    return data;
-	 }
-
-	 template< class T >
-	 void
-	 read( const std::string& name,
-	       typename vector<T>::view data,
-	       hsize_t offset )
-	 {
-	    BOOST_MPL_ASSERT((mpl::has_key<h5::datatype::type_map, T>));
-	    h5::datatype datatype(mpl::at<h5::datatype::type_map, T>::type::value);
-
-	    vector<hsize_t> dims(1), count(1), _offset(1);
-	    dims[0] = this->_comm->all_reduce(data.size(), MPI_SUM);
-	    count[0] = data.size();
-	    _offset[0] = offset;
-
-	    h5::dataset file_set;
-	    file_set.open(*this, name);
-	    h5::dataspace file_space;
-	    file_set.space(file_space);
-	    file_space.select_all();
-	    file_space.select_hyperslab(H5S_SELECT_SET, count, _offset);
-
-	    dims[0] = data.size();
-	    h5::dataspace mem_space(dims);
-	    mem_space.select_all();
-
-	    file_set.read(data, datatype, mem_space, file_space, *this->_comm);
-	 }
-
-	 template< class T >
-	 void
-	 reada( const std::string& name,
-	 	vector<T>& data,
-	 	const mpi::comm& comm = mpi::comm::self )
-	 {
-	    // TODO: Needs to be parallel.
-	    hsize_t size = read_local_data_size( name );
-	    data.resize( size );
-	    this->read<T>( name, data );
-	 }
+	 // template< class Buffer >
+	 // void
+	 // reada( const std::string& name,
+         //        typename type_traits<Buffer>::reference buf,
+	 // 	mpi::comm const& comm = mpi::comm::self )
+	 // {
+	 //    // TODO: Needs to be parallel.
+	 //    hsize_t size = read_local_data_size( name );
+	 //    buf.resize( size );
+	 //    this->read<T>( name, data );
+	 // }
 
 	 // template< class T >
 	 // void
@@ -388,71 +221,71 @@ namespace hpc {
 	 //    const MPI::Comm& comm=MPI::Comm::SELF
 	 //    );
 
-	 template< class T >
-	 void
-	 read( const std::string& name,
-	       csr<T>& data )
-	 {
-	    this->read<index>(name + "_counts", data.counts());
-	    data.setup_array(true);
+	 // template< class T >
+	 // void
+	 // read( const std::string& name,
+	 //       csr<T>& data )
+	 // {
+	 //    this->read<index>(name + "_counts", data.counts());
+	 //    data.setup_array(true);
 
-	    this->read<T>(name + "_array", data.mod_array());
-	 }
+	 //    this->read<T>(name + "_array", data.mod_array());
+	 // }
 
-	 /// Number of rows must be set to indicate which chunks to read.
-	 template< class T >
-	 void
-	 read( const std::string& name,
-	       csr<T>& data,
-	       const vector<hsize_t>::view& elements )
-	 {
-	    this->read<index>(name + "_counts", data.counts(), elements);
-	    data.setup_array(true);
+	 // /// Number of rows must be set to indicate which chunks to read.
+	 // template< class T >
+	 // void
+	 // read( const std::string& name,
+	 //       csr<T>& data,
+	 //       const vector<hsize_t>::view& elements )
+	 // {
+	 //    this->read<index>(name + "_counts", data.counts(), elements);
+	 //    data.setup_array(true);
 
-	    vector<index> displs(data.num_rows());
-	    this->read<index>(name + "_displs", displs, elements);
+	 //    vector<index> displs(data.num_rows());
+	 //    this->read<index>(name + "_displs", displs, elements);
 
-	    // TODO: Try and handle the CSR one row at a time. Not sure if this is a very good idea or not.
-	    // I may need to set this up to handle a bunch of rows at a time.
-	    std::string displs_name = name + "_displs";
-	    for(hpc::index ii = 0; ii < data.num_rows(); ++ii)
-	       this->read<T>(name + "_array", data[ii], displs[ii]);
-	 }
+	 //    // TODO: Try and handle the CSR one row at a time. Not sure if this is a very good idea or not.
+	 //    // I may need to set this up to handle a bunch of rows at a time.
+	 //    std::string displs_name = name + "_displs";
+	 //    for(hpc::index ii = 0; ii < data.num_rows(); ++ii)
+	 //       this->read<T>(name + "_array", data[ii], displs[ii]);
+	 // }
 
-         template< class T >
-         void
-         read( const string& name,
-               const datatype& type,
-               typename vector<T>::view data,
-               hsize_t offset=0,
-               const mpi::comm& comm=mpi::comm::self )
-         {
-            h5::dataset dset( *this, name );
-            h5::dataspace mem_space, file_space;
-            mem_space.create( data.size() );
-            dset.space( file_space );
-            vector<hsize_t> count( 1 ), start( 1 );
-            count[0] = data.size();
-            start[0] = offset;
-            file_space.select_hyperslab( H5S_SELECT_SET, count, start );
-            dset.read( data, type, mem_space, file_space, comm );
-         }
+         // template< class T >
+         // void
+         // read( const string& name,
+         //       const datatype& type,
+         //       typename vector<T>::view data,
+         //       hsize_t offset=0,
+         //       const mpi::comm& comm=mpi::comm::self )
+         // {
+         //    h5::dataset dset( *this, name );
+         //    h5::dataspace mem_space, file_space;
+         //    mem_space.create( data.size() );
+         //    dset.space( file_space );
+         //    vector<hsize_t> count( 1 ), start( 1 );
+         //    count[0] = data.size();
+         //    start[0] = offset;
+         //    file_space.select_hyperslab( H5S_SELECT_SET, count, start );
+         //    dset.read( data, type, mem_space, file_space, comm );
+         // }
 
-	 template< class T >
-	 void
-	 reada( const std::string& name,
-	 	csr<T>& data,
-	 	const mpi::comm& comm=mpi::comm::self )
-	 {
-	    // TODO: Needs to be parallel.
-	    size_t num_rows = read_data_size( name + "_counts" );
-	    data.num_rows( num_rows );
-	    this->read<T>( name, data );
-	 }
+	 // template< class T >
+	 // void
+	 // reada( const std::string& name,
+	 // 	csr<T>& data,
+	 // 	const mpi::comm& comm=mpi::comm::self )
+	 // {
+	 //    // TODO: Needs to be parallel.
+	 //    size_t num_rows = read_data_size( name + "_counts" );
+	 //    data.num_rows( num_rows );
+	 //    this->read<T>( name, data );
+	 // }
 
       protected:
 
-	 shared_ptr<mpi::comm> _comm;
+         mpi::comm const* _comm;
       };
 
       // template<>
@@ -462,11 +295,11 @@ namespace hpc {
       // 			   boost::optional<const vector<hsize_t>::view&> chunk_size,
       // 			   bool deflate );
 
-      template<>
-      void
-      file::reada<string>( const std::string& name,
-			   vector<string>& data,
-			   const mpi::comm& comm );
+      // template<>
+      // void
+      // file::reada<string>( const std::string& name,
+      //   		   vector<string>& data,
+      //   		   const mpi::comm& comm );
    }
 }
 

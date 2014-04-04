@@ -15,10 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_group_hh
-#define hpc_h5_group_hh
+#ifndef libhpc_h5_group_hh
+#define libhpc_h5_group_hh
 
-#include "libhpc/containers/containers.hh"
 #include "location.hh"
 
 namespace hpc {
@@ -31,7 +30,7 @@ namespace hpc {
 
 	 static void
 	 split_groups( const std::string& name,
-		       vector<std::string>& groups );
+		       std::vector<std::string>& groups );
 
 	 static void
 	 split_groups( const std::string& name,

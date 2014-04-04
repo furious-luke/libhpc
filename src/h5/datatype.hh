@@ -18,14 +18,13 @@
 #ifndef libhpc_h5_datatype_hh
 #define libhpc_h5_datatype_hh
 
+#include <string>
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
 #include "libhpc/mpi/mpi.hh"
 #include <hdf5.h>
-
-namespace mpl = boost::mpl;
 
 namespace hpc {
    namespace h5 {
@@ -51,16 +50,16 @@ namespace hpc {
          static datatype ieee_f32be;
          static datatype ieee_f64be;
 
-	 typedef mpl::map< mpl::pair<int,                mpl::int_<-2> >,
-			   mpl::pair<unsigned,           mpl::int_<-3> >,
-			   mpl::pair<long,               mpl::int_<-4> >,
-			   mpl::pair<unsigned long,      mpl::int_<-5> >,
-			   mpl::pair<long long,          mpl::int_<-6> >,
-			   mpl::pair<unsigned long long, mpl::int_<-7> >,
-			   mpl::pair<float,              mpl::int_<-8> >,
-			   mpl::pair<double,             mpl::int_<-9> >,
-			   mpl::pair<char,               mpl::int_<-10> >,
-			   mpl::pair<std::string,        mpl::int_<-11> > > type_map;
+	 typedef boost::mpl::map< boost::mpl::pair<int,                boost::mpl::int_<-2> >,
+                                  boost::mpl::pair<unsigned,           boost::mpl::int_<-3> >,
+                                  boost::mpl::pair<long,               boost::mpl::int_<-4> >,
+                                  boost::mpl::pair<unsigned long,      boost::mpl::int_<-5> >,
+                                  boost::mpl::pair<long long,          boost::mpl::int_<-6> >,
+                                  boost::mpl::pair<unsigned long long, boost::mpl::int_<-7> >,
+                                  boost::mpl::pair<float,              boost::mpl::int_<-8> >,
+                                  boost::mpl::pair<double,             boost::mpl::int_<-9> >,
+                                  boost::mpl::pair<char,               boost::mpl::int_<-10> >,
+                                  boost::mpl::pair<std::string,        boost::mpl::int_<-11> > > type_map;
 
 	 datatype( hid_t id = -1 );
 
@@ -80,9 +79,9 @@ namespace hpc {
          size() const;
 
          void
-         insert( const datatype& type,
-                 const hpc::string& description,
-                 size_t offset );
+         insert( datatype const& type,
+                 std::string const& desc,
+                 size_t offs );
 
 	 hid_t
 	 id() const;

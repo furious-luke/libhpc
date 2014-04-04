@@ -15,13 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_dataspace_hh
-#define hpc_h5_dataspace_hh
+#ifndef libhpc_h5_dataspace_hh
+#define libhpc_h5_dataspace_hh
 
-#include <boost/optional/optional.hpp>
+#include <boost/optional.hpp>
 #include "libhpc/mpi/mpi.hh"
 #include <hdf5.h>
-#include "libhpc/containers/containers.hh"
+#include "libhpc/system/view.hh"
 
 namespace hpc {
    namespace h5 {
@@ -34,12 +34,20 @@ namespace hpc {
 
 	 static dataspace all;
 
-         explicit
-	 dataspace( hid_t id=-1 );
+	 dataspace();
 
-	 dataspace( const dataset& dset );
+	 dataspace( hid_t id,
+                    bool dummy );
 
-	 dataspace( hpc::view<std::vector<hsize_t>>::type const& dims );
+         dataspace( hsize_t size,
+                    bool unlimited = false );
+
+	 dataspace( h5::dataset const& dset );
+
+         template< class Dims >
+	 dataspace( typename type_traits<Dims>::const_reference dims );
+
+	 dataspace( dataset&& src );
 
 	 ~dataspace();
 
@@ -53,8 +61,9 @@ namespace hpc {
          create( hsize_t size,
 		 bool unlimited = false );
 
+         template< class Dims >
 	 void
-	 create( hpc::view<std::vector<hsize_t>>::type const& dims );
+	 create( typename type_traits<Dims>::const_reference dims );
 
 	 void
 	 close();
@@ -66,7 +75,7 @@ namespace hpc {
 	 simple_extent_num_dims() const;
 
 	 hsize_t
-	 simple_extent_dims( vector<hsize_t>::view dims ) const;
+	 simple_extent_dims( view<std::vector<hsize_t>> dims ) const;
 
 	 void
 	 select_all();
@@ -80,33 +89,33 @@ namespace hpc {
 
 	 void
 	 select_hyperslab( H5S_seloper_t op,
-			   hpc::view<std::vector<hsize_t>>::type const& count,
-			   hpc::view<std::vector<hsize_t>>::type const& start,
-			   boost::optional<const vector<hsize_t>::view&> stride=boost::optional<const vector<hsize_t>::view&>(),
-			   boost::optional<const vector<hsize_t>::view&> block=boost::optional<const vector<hsize_t>::view&>() );
+			   view<std::vector<hsize_t>> const& count,
+			   view<std::vector<hsize_t>> const& start,
+			   boost::optional<view<std::vector<hsize_t>> const&> stride = boost::optional<view<std::vector<hsize_t>> const&>(),
+			   boost::optional<view<std::vector<hsize_t>> const&> block=boost::optional<view<std::vector<hsize_t>> const&>() );
 
 	 void
 	 select_hyperslab( H5S_seloper_t op,
 			   hsize_t count,
 			   hsize_t start,
-			   optional<hsize_t> stride = optional<hsize_t>(),
-                           optional<hsize_t> block = optional<hsize_t>() );
+			   boost::optional<hsize_t> stride = boost::optional<hsize_t>(),
+                           boost::optional<hsize_t> block = boost::optional<hsize_t>() );
 
 	 void
 	 select_range( hsize_t start,
 		       hsize_t finish );
 
 	 void
-	 select_elements( const vector<hsize_t>::view& elements,
+	 select_elements( view<std::vector<hsize_t>> const& elements,
 			  H5S_seloper_t op=H5S_SELECT_SET );
 
 	 void
-	 select_elements2( hpc::view<std::vector<hsize_t>>::type const& elems,
+	 select_elements2( view<std::vector<hsize_t>> const& elems,
                            H5S_seloper_t op = H5S_SELECT_SET );
 
 	 void
 	 select_slices( int slice_dim,
-			const vector<hsize_t>::view& idxs,
+			view<std::vector<hsize_t>> const& idxs,
 			H5S_seloper_t op=H5S_SELECT_SET );
 
       protected:

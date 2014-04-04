@@ -18,16 +18,49 @@
 #ifndef libhpc_system_type_traits_hh
 #define libhpc_system_type_traits_hh
 
+#include <vector>
+#ifdef HAVE_THRUST
+#include <thrust/host_vector.h>
+#endif
+
 namespace hpc {
 
    template< class T >
    struct type_traits
    {
-      typedef T value;
-      typedef const T const_value;
-      typedef T& reference;
+      typedef       T  value;
+      typedef const T  const_value;
+      typedef       T& reference;
       typedef const T& const_reference;
    };
+
+   template< class T >
+   struct random_access_trait
+      : std::false_type {};
+
+   template< class T,
+             class Alloc >
+   struct random_access_trait< std::vector<T,Alloc> >
+      : std::true_type {};
+
+#ifdef HAVE_THRUST
+
+   template< class T,
+             class Alloc >
+   struct random_access_trait< thrust::host_vector<T,Alloc> >
+      : std::true_type {};
+
+#endif
+
+   // {
+   //    template< class U >
+   //    struct enabler {};
+
+   //    template< class U >
+   //    static char
+   //    test( enabler<U,
+   // };
+
 }
 
 #endif

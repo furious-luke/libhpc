@@ -105,7 +105,7 @@ namespace hpc {
 	 void
 	 iscatter( void const* out,
                    void* inc,
-                   mpi::data_type const& type,
+                   mpi::datatype const& type,
                    mpi::requests& reqs,
                    unsigned block_size = 1,
                    int tag = 0 ) const;
@@ -119,7 +119,7 @@ namespace hpc {
          {
             ASSERT( out.size() == _nbrs.size() );
             ASSERT( inc.size() == _nbrs.size() );
-	    mpi::data_type type( MPI_MAP_TYPE( T ) );
+	    mpi::datatype type( MPI_MAP_TYPE( T ) );
             iscatter( out.data(), inc.data(), type, reqs, 1, tag );
          }
 
@@ -139,7 +139,7 @@ namespace hpc {
                    view<std::vector<Index>> const& out_displs,
                    void* inc,
                    view<std::vector<Index>> inc_displs,
-                   mpi::data_type const& type,
+                   mpi::datatype const& type,
                    mpi::requests& reqs,
                    unsigned block_size = 1,
                    int tag = 0 ) const
@@ -156,7 +156,7 @@ namespace hpc {
             // Check that the number of blocks involved is constant.
             {
                std::vector<unsigned> check_blocks( _nbrs.size() );
-               bcast( block_size, check_blocks );
+               bcast<unsigned>( block_size, check_blocks );
                for( unsigned ii = 0; ii < check_blocks.size(); ++ii )
                   ASSERT( check_blocks[ii] == block_size, "VCT scatter block sizes don't match." );
             }
@@ -196,7 +196,7 @@ namespace hpc {
                    mpi::requests& reqs,
                    int tag = 0 ) const
          {
-	    mpi::data_type type( MPI_MAP_TYPE( T ) );
+	    mpi::datatype type( MPI_MAP_TYPE( T ) );
             iscatter<Index>( out.data(), out_displs, inc.data(), inc_displs, type, reqs, 1, tag );
          }
 
@@ -239,9 +239,9 @@ namespace hpc {
 	 template< class Iter >
 	 void
 	 iscatter_types( void const* out,
-			 Iter out_data_types,
+			 Iter out_datatypes,
 			 void* inc,
-			 Iter inc_data_types,
+			 Iter inc_datatypes,
 			 mpi::requests& reqs ) const
 	 {
             unsigned num_nbrs = _nbrs.size();
@@ -249,20 +249,20 @@ namespace hpc {
 	    unsigned cur_req = 0;
 	    for( unsigned ii = 0; ii < num_nbrs; ++ii )
 	    {
-	       _comm->isend( out, *out_data_types++, _nbrs[ii], reqs[cur_req++] );
-	       _comm->irecv( inc, *inc_data_types++, _nbrs[ii], reqs[cur_req++] );
+	       _comm->isend( out, *out_datatypes++, _nbrs[ii], reqs[cur_req++] );
+	       _comm->irecv( inc, *inc_datatypes++, _nbrs[ii], reqs[cur_req++] );
 	    }
 	 }
 
 	 template< class Iter >
 	 void
 	 scatter_types( void const* out,
-			Iter out_data_types,
+			Iter out_datatypes,
 			void* inc,
-			Iter inc_data_types ) const
+			Iter inc_datatypes ) const
 	 {
 	    mpi::requests reqs;
-	    iscatter_types<Iter>( out, out_data_types, inc, inc_data_types, reqs );
+	    iscatter_types<Iter>( out, out_datatypes, inc, inc_datatypes, reqs );
 	 }
 
 	 template< class DisplType >

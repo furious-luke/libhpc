@@ -15,18 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi
-#define hpc_mpi
+#ifndef libhpc_mpi_hh
+#define libhpc_mpi_hh
 
-#include "init.hh"
-#include "assert.hh"
-#include "logger.hh"
-#include "data_type.hh"
-#include "request.hh"
-#include "requests.hh"
-#include "comm.hh"
-#include "helpers.hh"
-#include "vct.hh"
-#include "application.hh"
+#include "mpi/init.hh"
+#include "mpi/assert.hh"
+#include "mpi/logger.hh"
+#include "mpi/datatype.hh"
+#include "mpi/request.hh"
+#include "mpi/requests.hh"
+#include "mpi/comm.hh"
+#include "mpi/helpers.hh"
+#include "mpi/vct.hh"
+#include "mpi/application.hh"
 
 #endif

@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_data_type_hh
-#define libhpc_mpi_data_type_hh
+#ifndef libhpc_mpi_datatype_hh
+#define libhpc_mpi_datatype_hh
 
 #include <vector>
 #include <boost/mpl/map.hpp>
@@ -28,31 +28,31 @@
 
 #if defined( MPICH ) || defined( MPICH2 )
 #define MPI_MAP_TYPE( T )                                       \
-   boost::mpl::at<hpc::mpi::data_type::type_map,T>::type::value
+   boost::mpl::at<hpc::mpi::datatype::type_map,T>::type::value
 #else
 #define MPI_MAP_TYPE( T )                                               \
-   hpc::mpi::data_type::_type_map[boost::mpl::at<hpc::mpi::data_type::type_map,T>::type::value]
+   hpc::mpi::datatype::_type_map[boost::mpl::at<hpc::mpi::datatype::type_map,T>::type::value]
 #endif
 
 namespace hpc {
    namespace mpi {
 
-      class data_type
+      class datatype
       {
       public:
 
-	 static mpi::data_type null;
-	 static mpi::data_type boolean;
-	 static mpi::data_type byte;
-	 static mpi::data_type character;
-	 static mpi::data_type integer;
-	 static mpi::data_type unsigned_integer;
-	 static mpi::data_type long_integer;
-	 static mpi::data_type unsigned_long;
-	 static mpi::data_type long_long;
-	 static mpi::data_type unsigned_long_long;
-	 static mpi::data_type floating;
-	 static mpi::data_type double_floating;
+	 static mpi::datatype null;
+	 static mpi::datatype boolean;
+	 static mpi::datatype byte;
+	 static mpi::datatype character;
+	 static mpi::datatype integer;
+	 static mpi::datatype unsigned_integer;
+	 static mpi::datatype long_integer;
+	 static mpi::datatype unsigned_long;
+	 static mpi::datatype long_long;
+	 static mpi::datatype unsigned_long_long;
+	 static mpi::datatype floating;
+	 static mpi::datatype double_floating;
 
 #if defined( MPICH ) || defined( MPICH2 )
 	 typedef boost::mpl::map< boost::mpl::pair<unsigned char,      boost::mpl::int_<MPI_BYTE> >,
@@ -81,28 +81,28 @@ namespace hpc {
          static MPI_Datatype _type_map[11];
 #endif
 
-	 data_type( MPI_Datatype type = MPI_DATATYPE_NULL );
+	 datatype( MPI_Datatype type = MPI_DATATYPE_NULL );
 
-	 ~data_type();
+	 ~datatype();
 
 	 void
 	 clear();
 
 	 void
-	 mpi_data_type( MPI_Datatype type );
+	 mpi_datatype( MPI_Datatype type );
 
 	 const MPI_Datatype&
-	 mpi_data_type() const;
+	 mpi_datatype() const;
 
 	 void
 	 contiguous( size_t size,
-		     const data_type& base,
+		     const datatype& base,
 		     size_t block_size=1,
 		     size_t offs=0 );
 
 	 // void
 	 // indexed( const vector<mpi::lindex>::view& idxs,
-	 //          const data_type& base,
+	 //          const datatype& base,
 	 //          mpi::lindex block_size=1 );
 
 	 template< class DisplVec,
@@ -110,7 +110,7 @@ namespace hpc {
 	 void
 	 indexed_csr( DisplVec const& displs,
 		      IndexVec const& idxs,
-		      data_type const& base,
+		      datatype const& base,
 		      unsigned block_size = 1 )
 	 {
 	    typedef typename IndexVec::value_type index_type;
@@ -137,20 +137,20 @@ namespace hpc {
 	 size() const;
 
 	 bool
-	 operator==( const data_type& op ) const;
+	 operator==( const datatype& op ) const;
 
 	 bool
 	 operator==( const MPI_Datatype& op ) const;
 
 	 bool
-	 operator!=( const data_type& op ) const;
+	 operator!=( const datatype& op ) const;
 
 	 bool
 	 operator!=( const MPI_Datatype& op ) const;
 
 	 friend std::ostream&
 	 operator<<( std::ostream& strm,
-		     const data_type& obj );
+		     const datatype& obj );
 
       private:
 
@@ -160,6 +160,7 @@ namespace hpc {
 	 MPI_Datatype _type;
 	 size_t _size;
       };
+
    }
 }
 

@@ -16,42 +16,42 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/range/algorithm.hpp>
-#include "data_type.hh"
+#include "datatype.hh"
 #include "insist.hh"
 
 namespace hpc {
    namespace mpi {
 
-      mpi::data_type data_type::null( MPI_DATATYPE_NULL );
-      mpi::data_type data_type::boolean;
-      mpi::data_type data_type::byte;
-      mpi::data_type data_type::character;
-      mpi::data_type data_type::integer;
-      mpi::data_type data_type::unsigned_integer;
-      mpi::data_type data_type::long_integer;
-      mpi::data_type data_type::unsigned_long;
-      mpi::data_type data_type::long_long;
-      mpi::data_type data_type::unsigned_long_long;
-      mpi::data_type data_type::floating;
-      mpi::data_type data_type::double_floating;
+      mpi::datatype datatype::null( MPI_DATATYPE_NULL );
+      mpi::datatype datatype::boolean;
+      mpi::datatype datatype::byte;
+      mpi::datatype datatype::character;
+      mpi::datatype datatype::integer;
+      mpi::datatype datatype::unsigned_integer;
+      mpi::datatype datatype::long_integer;
+      mpi::datatype datatype::unsigned_long;
+      mpi::datatype datatype::long_long;
+      mpi::datatype datatype::unsigned_long_long;
+      mpi::datatype datatype::floating;
+      mpi::datatype datatype::double_floating;
 
 #if !( defined( MPICH ) || defined( MPICH2 ) )
-      MPI_Datatype data_type::_type_map[11];
+      MPI_Datatype datatype::_type_map[11];
 #endif
 
-      data_type::data_type( MPI_Datatype type )
+      datatype::datatype( MPI_Datatype type )
 	 : _type(type)
       {
 	 this->calc_size();
       }
 
-      data_type::~data_type()
+      datatype::~datatype()
       {
 	 this->clear();
       }
 
       void
-      data_type::clear()
+      datatype::clear()
       {
 	 if(this->_type != MPI_DATATYPE_NULL &&
 #if defined( MPICH ) || defined( MPICH2 )
@@ -79,7 +79,7 @@ namespace hpc {
       }
 
       void
-      data_type::mpi_data_type( MPI_Datatype type )
+      datatype::mpi_datatype( MPI_Datatype type )
       {
 	 this->clear();
 	 this->_type = type;
@@ -87,14 +87,14 @@ namespace hpc {
       }
 
       const MPI_Datatype&
-      data_type::mpi_data_type() const
+      datatype::mpi_datatype() const
       {
 	 return this->_type;
       }
 
       void
-      data_type::contiguous(size_t size,
-			    const data_type& base,
+      datatype::contiguous(size_t size,
+			    const datatype& base,
 			    size_t block_size,
 			    size_t offs)
       {
@@ -110,8 +110,8 @@ namespace hpc {
       }
 
       // void
-      // data_type::indexed( const vector<mpi::lindex>::view& idxs,
-      //   		  const data_type& base,
+      // datatype::indexed( const vector<mpi::lindex>::view& idxs,
+      //   		  const datatype& base,
       //   		  mpi::lindex block_size )
       // {
       //    this->clear();
@@ -129,38 +129,38 @@ namespace hpc {
       // }
 
       size_t
-      data_type::size() const
+      datatype::size() const
       {
 	 return _size;
       }
 
       bool
-      data_type::operator==(const data_type& op) const
+      datatype::operator==(const datatype& op) const
       {
 	 return this->_type == op._type;
       }
 
       bool
-      data_type::operator==(const MPI_Datatype& op) const
+      datatype::operator==(const MPI_Datatype& op) const
       {
 	 return this->_type == op;
       }
 
       bool
-      data_type::operator!=(const data_type& op) const
+      datatype::operator!=(const datatype& op) const
       {
 	 return this->_type != op._type;
       }
 
       bool
-      data_type::operator!=(const MPI_Datatype& op) const
+      datatype::operator!=(const MPI_Datatype& op) const
       {
 	 return this->_type != op;
       }
 
       std::ostream&
       operator<<( std::ostream& strm,
-                  const data_type& obj )
+                  const datatype& obj )
       {
 	 if(obj._type == MPI_DATATYPE_NULL)
 	    strm << "NULL";
@@ -187,7 +187,7 @@ namespace hpc {
 	 return strm;
       }
 
-      void data_type::calc_size() {
+      void datatype::calc_size() {
 	 if(this->_type != MPI_DATATYPE_NULL)
 	    MPI_INSIST(MPI_Type_size(this->_type, (int*)&this->_size));
 	 else

@@ -62,7 +62,7 @@ namespace hpc {
 	 test_all();
 
 	 request&
-	 operator[]( size_t idx );
+	 operator[]( size_type idx );
 
       protected:
 

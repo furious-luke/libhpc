@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_property_list_hh
-#define hpc_h5_property_list_hh
+#ifndef libhpc_h5_property_list_hh
+#define libhpc_h5_property_list_hh
 
-#include "libhpc/mpi/mpi.hh"
+#include "libhpc/mpi.hh"
 #include "dataspace.hh"
 
 namespace hpc {
@@ -28,10 +28,12 @@ namespace hpc {
       {
       public:
 
+         property_list();
+
 	 ///
 	 /// @param[in] id One of H5P_FILE_ACCESS, H5P_DATASET_CREATE
 	 ///
-	 property_list( hid_t id );
+	 property_list( hid_t class_id );
 
 	 ~property_list();
 
@@ -45,7 +47,7 @@ namespace hpc {
 	 close();
 
 	 void
-	 set_external( const string& name,
+	 set_external( std::string const& name,
 		       hsize_t size = (hsize_t)1 << 31,
 		       hsize_t offset = 0 );
 

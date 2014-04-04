@@ -62,11 +62,9 @@ namespace hpc {
       }
 
       hsize_t
-      location::extent( const string& name ) const
+      location::extent( const std::string& name ) const
       {
-	 h5::dataset dset;
-	 dset.open( *this, name );
-	 return dset.extent();
+	 return h5::dataset( *this, name ).extent();
       }
 
    }

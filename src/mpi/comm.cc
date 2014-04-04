@@ -146,70 +146,70 @@ namespace hpc {
 
       void
       comm::send(const void* out,
-		 const data_type& type,
+		 const datatype& type,
 		 int to,
 		 int count,
 		 int tag) const
       {
 	 ASSERT(count >= 0);
-	 MPI_INSIST(MPI_Send((void*)out, count, type.mpi_data_type(), to, tag, this->_comm));
+	 MPI_INSIST(MPI_Send((void*)out, count, type.mpi_datatype(), to, tag, this->_comm));
       }
 
       void
       comm::isend(const void* out,
-		  const data_type& type,
+		  const datatype& type,
 		  int to,
 		  request& req,
 		  int count,
 		  int tag) const
       {
 	 ASSERT(count >= 0);
-	 MPI_INSIST(MPI_Isend((void*)out, count, type.mpi_data_type(), to, tag, this->_comm, &req.mod_mpi_request()));
+	 MPI_INSIST(MPI_Isend((void*)out, count, type.mpi_datatype(), to, tag, this->_comm, &req.mod_mpi_request()));
       }
 
       void
       comm::issend(const void* out,
-		   const data_type& type,
+		   const datatype& type,
 		   int to,
 		   request& req,
 		   int count,
 		   int tag) const
       {
 	 ASSERT(count >= 0);
-	 MPI_INSIST(MPI_Issend((void*)out, count, type.mpi_data_type(), to, tag, this->_comm, &req.mod_mpi_request()));
+	 MPI_INSIST(MPI_Issend((void*)out, count, type.mpi_datatype(), to, tag, this->_comm, &req.mod_mpi_request()));
       }
 
       void
       comm::recv(void* inc,
-		 const data_type& type,
+		 const datatype& type,
 		 int from,
 		 int count,
 		 int tag) const
       {
 	 ASSERT(count >= 0);
-	 MPI_INSIST(MPI_Recv(inc, count, type.mpi_data_type(), from, tag, this->_comm, MPI_STATUS_IGNORE));
+	 MPI_INSIST(MPI_Recv(inc, count, type.mpi_datatype(), from, tag, this->_comm, MPI_STATUS_IGNORE));
       }
 
       void
       comm::irecv(void* inc,
-		  const data_type& type,
+		  const datatype& type,
 		  int from,
 		  request& req,
 		  int count,
 		  int tag) const
       {
 	 ASSERT(count >= 0);
-	 MPI_INSIST(MPI_Irecv(inc, count, type.mpi_data_type(), from, tag, this->_comm, &req.mod_mpi_request()));
+	 MPI_INSIST(MPI_Irecv(inc, count, type.mpi_datatype(), from, tag, this->_comm, &req.mod_mpi_request()));
       }
 
       void
       comm::bcast(void* data,
-		  const data_type& type,
+		  const datatype& type,
 		  int root,
 		  int count) const
       {
 	 ASSERT(count >= 0);
-	 MPI_INSIST(MPI_Bcast(data, count, type.mpi_data_type(), root, this->_comm));
+	 MPI_INSIST(MPI_Bcast(data, count, type.mpi_datatype(), root, this->_comm));
       }
 
       void

@@ -22,38 +22,42 @@
 namespace hpc {
    namespace h5 {
 
-      dataset::dataset( hid_t id )
-	 : _id(id)
-      {
-      }
-
-      dataset::dataset( h5::location& loc,
-			const std::string& name )
-	 : _id(-1)
-      {
-	 this->open(loc, name);
-      }
-
-      dataset::dataset( h5::location& loc,
-                        const std::string& name,
-                        const h5::datatype& datatype,
-                        const h5::dataspace& dataspace,
-                        boost::optional<const vector<hsize_t>::view&> chunk_size,
-                        bool deflate,
-			optional<const property_list&> props )
+      dataset::dataset()
          : _id( -1 )
       {
-         create( loc, name, datatype, dataspace, chunk_size, deflate, props );
+      }
+
+      dataset::dataset( hid_t id,
+                        bool dummy )
+	 : _id( id )
+      {
+      }
+
+      dataset::dataset( h5::location const& loc,
+			std::string const& name )
+	 : _id( -1 )
+      {
+	 open( loc, name );
       }
 
       dataset::dataset( h5::location& loc,
                         std::string const& name,
-                        h5::datatype const& dtype,
-                        hsize_t size,
-                        optional<const property_list&> props )
+                        h5::datatype const& type,
+                        h5::dataspace const& space,
+                        property_list const& props )
          : _id( -1 )
       {
-         create( loc, name, dtype, size, props );
+         create( loc, name, type, space, props );
+      }
+
+      dataset::dataset( h5::location& loc,
+                        std::string const& name,
+                        h5::datatype const& type,
+                        hsize_t size,
+                        property_list const& props )
+         : _id( -1 )
+      {
+         create( loc, name, type, size, props );
       }
 
       dataset::~dataset()
@@ -72,61 +76,37 @@ namespace hpc {
 
       void
       dataset::create( h5::location& loc,
-		       const std::string& name,
-		       const h5::datatype& datatype,
-		       const h5::dataspace& dataspace,
-		       boost::optional<const vector<hsize_t>::view&> chunk_size,
-		       bool deflate,
-		       optional<const property_list&> props )
+                       std::string const& name,
+                       h5::datatype const& type,
+                       h5::dataspace const& space,
+                       property_list const& props )
       {
-	 this->close();
-
-	 // Need to create any groups specified in name if they do not exist.
-	 this->create_groups(loc, name);
-
-	 // hid_t dcpl;
-	 // if(chunk_size) {
-	 //    dcpl = H5Pcreate(H5P_DATASET_CREATE);
-	 //    ASSERT(dcpl >= 0);
-	 //    H5Pset_chunk(dcpl, dataspace.simple_extent_num_dims(), *chunk_size);
-	 // }
-	 // else
-	 //    dcpl = H5P_DEFAULT;
-
-	 // if(deflate)
-	 //    H5Pset_deflate(dcpl, 9);
-
-	 // this->_id = H5Dcreate1(loc.id(), name.c_str(), datatype.id(), dataspace.id(), dcpl);
-	 hid_t dcpl = props ? props->id() : H5P_DEFAULT;
-	 _id = H5Dcreate1( loc.id(), name.c_str(), datatype.id(), dataspace.id(), dcpl );
-	 ASSERT( _id >= 0 );
-
-	 // if(chunk_size)
-	 //    H5Pclose(dcpl);
+	 close();
+	 _create_groups( loc, name );
+	 _id = H5Dcreate1( loc.id(), name.c_str(), type.id(), space.id(), props.id() );
+         ASSERT( _id >= 0, "Failed to create HDF5 dataset." );
       }
 
       void
       dataset::create( h5::location& loc,
                        std::string const& name,
-                       h5::datatype const& dtype,
+                       h5::datatype const& type,
                        hsize_t size,
-                       optional<property_list const&> props )
+                       property_list const& props )
       {
 	 close();
-	 create_groups( loc, name );
-	 hid_t dcpl = props ? props->id() : H5P_DEFAULT;
-         dataspace dspace;
-         dspace.create( size );
-	 _id = H5Dcreate1( loc.id(), name.c_str(), dtype.id(), dspace.id(), dcpl );
+	 _create_groups( loc, name );
+         h5::dataspace space( size );
+	 _id = H5Dcreate1( loc.id(), name.c_str(), type.id(), space.id(), props.id() );
          ASSERT( _id >= 0, "Failed to create HDF5 dataset." );
       }
 
       void
       dataset::close()
       {
-	 if(this->_id != -1)
+	 if( _id != -1 )
 	 {
-	    INSIST(H5Dclose(this->_id), >= 0);
+	    INSIST( H5Dclose(this->_id), >= 0 );
 	    _id = -1;
 	 }
       }
@@ -149,36 +129,24 @@ namespace hpc {
 	 return type_class;
       }
 
-      void
-      dataset::space( h5::dataspace& space ) const
+      h5::dataspace
+      dataset::dataspace() const
       {
-#ifndef NDEBUG
-	 hid_t id = H5Dget_space(this->_id);
+	 hid_t id = H5Dget_space( _id );
 	 ASSERT( id >= 0, "Failed to retrieve HDF5 dataspace." );
-	 space.set_id(id);
-#else
-	 space.set_id(H5Dget_space(this->_id));
-#endif
+         return h5::dataspace( id, true );
       }
 
       hsize_t
       dataset::extent() const
       {
-	 h5::dataspace space;
-	 this->space( space );
-	 return space.size();
+         return this->dataspace().size();
       }
 
       void
       dataset::set_extent( hsize_t size )
       {
-#ifndef NDEBUG
-	 {
-	    h5::dataspace dspace( *this );
-	    ASSERT( dspace.simple_extent_num_dims() == 1 );
-	 }
-#endif
-
+         ASSERT( this->dataspace().simple_extent_num_dims() == 1 );
 	 hsize_t size_vec[1];
 	 size_vec[0] = size;
 	 INSIST( H5Dset_extent( _id, size_vec ), >= 0 );
@@ -209,17 +177,15 @@ namespace hpc {
 
       void
       dataset::read( void* buf,
-                     hsize_t size,
                      h5::datatype const& dtype,
+                     hsize_t size,
                      hsize_t offset,
-                     mpi::comm& comm )
+                     mpi::comm const& comm )
       {
-         h5::dataspace file_space;
-         space( file_space );
+         h5::dataspace file_space( this->dataspace() );
          file_space.select_hyperslab( H5S_SELECT_SET, size, offset );
 
-         h5::dataspace mem_space;
-         mem_space.create( size );
+         h5::dataspace mem_space( size );
          mem_space.select_all();
 
          read( buf, dtype, mem_space, file_space, comm );
@@ -253,43 +219,26 @@ namespace hpc {
 
       void
       dataset::write( void* buf,
-                      hsize_t size,
                       h5::datatype const& dtype,
+                      hsize_t size,
                       hsize_t offset,
-                      mpi::comm& comm )
+                      mpi::comm const& comm )
       {
-         h5::dataspace file_space;
-         space( file_space );
+         h5::dataspace file_space( this->dataspace() );
          file_space.select_hyperslab( H5S_SELECT_SET, size, offset );
 
-         h5::dataspace mem_space;
-         mem_space.create( size );
+         h5::dataspace mem_space( size );
          mem_space.select_all();
 
          write( buf, dtype, mem_space, file_space, comm );
       }
 
       void
-      dataset::extend( hsize_t size )
+      dataset::_create_groups( h5::location& loc,
+                               std::string const& name ) const
       {
-#ifndef NDEBUG
-	 {
-	    h5::dataspace dspace( *this );
-	    ASSERT( dspace.simple_extent_num_dims() == 1 );
-	 }
-#endif
-
-	 hsize_t size_vec[1];
-	 size_vec[0] = size;
-	 INSIST( H5Dextend( _id, size_vec ), >= 0 );
-      }
-
-      void
-      dataset::create_groups( h5::location& loc,
-			      const std::string& name ) const
-      {
-	 vector<std::string> grp_names;
-	 boost::split(grp_names, name, boost::is_any_of("/"));
+         std::vector<std::string> grp_names;
+	 boost::split( grp_names, name, boost::is_any_of( "/" ) );
 
 	 // The final name in the list will be the name of the dataset, so don't
 	 // try and make a group out of it.

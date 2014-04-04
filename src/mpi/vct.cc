@@ -70,7 +70,7 @@ namespace hpc {
       void
       vct::iscatter( void const* out,
 		     void* inc,
-		     mpi::data_type const& type,
+		     mpi::datatype const& type,
 		     mpi::requests& reqs,
                      unsigned block_size,
 		     int tag ) const

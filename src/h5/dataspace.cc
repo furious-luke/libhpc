@@ -23,26 +23,46 @@ namespace hpc {
 
       dataspace dataspace::all( H5S_ALL );
 
-      dataspace::dataspace( hid_t id )
+      dataspace::dataspace()
+         : _id( -1 )
+      {
+      }
+
+      dataspace::dataspace( hid_t id,
+                            bool dummy )
 	 : _id( id )
       {
       }
 
-      dataspace::dataspace( const dataset& dset )
+      dataspace::dataspace( hsize_t size,
+                            bool unlimited )
+         : _id( -1 )
+      {
+         create( size );
+      }
+
+      dataspace::dataspace( dataset const& dset )
 	 : _id( -1 )
       {
 	 dset.space( *this );
       }
 
-      dataspace::dataspace( hpc::view<std::vector<hsize_t>>::type const& dims )
-	 : _id(-1)
+      template< class Dims >
+      dataspace::dataspace( typename type_traits<Dims>::const_reference dims )
+	 : _id( -1 )
       {
-	 this->create( dims );
+	 create( dims );
+      }
+
+      dataspace::dataspace( dataset&& src )
+         : _id( src._id )
+      {
+         src._id = -1;
       }
 
       dataspace::~dataspace()
       {
-	 this->close();
+	 close();
       }
 
       void
@@ -74,15 +94,21 @@ namespace hpc {
          ASSERT( _id >= 0 );
       }
 
+      template< class Dims >
       void
-      dataspace::create( hpc::view<std::vector<hsize_t>>::type const& dims )
+      dataspace::create( typename type_traits<Dims>::const_reference dims );
       {
-	 this->close();
-	 if(std::accumulate(dims.begin(), dims.end(), 0))
-	    this->_id = H5Screate_simple(dims.size(), dims, NULL);
+         static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t),
+                        "Incompatible hsize_t type." );
+
+	 close();
+
+	 if( std::accumulate( dims.begin(), dims.end(), 0 ) )
+	    _id = H5Screate_simple( dims.size(), dims.data(), 0 );
 	 else
-	    this->_id = H5Screate(H5S_NULL);
-	 ASSERT(this->_id >= 0);
+	    _id = H5Screate( H5S_NULL );
+
+	 ASSERT( _id >= 0 );
       }
 
       void

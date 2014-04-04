@@ -23,26 +23,28 @@ namespace hpc {
 
       void
       group::split_groups( const std::string& name,
-			   vector<std::string>& groups )
+			   std::vector<std::string>& groups )
       {
 	 groups.clear();
-	 if(!name.empty()) {
-	    vector<std::string> group_names;
-	    boost::split(group_names, name, boost::is_any_of("/"));
-	    if(group_names.size()) {
-	       vector<std::string> tmp(group_names);
-	       group_names.duplicate(vector<std::string>::view(tmp, tmp.size() - 1));
+	 if( !name.empty() )
+         {
+            std::vector<std::string> group_names;
+	    boost::split( group_names, name, boost::is_any_of( "/" ) );
+	    if( group_names.size() )
+            {
+               std::vector<std::string> tmp( group_names );
+	       assign( group_names, view<std::vector<std::string>>( tmp, tmp.size() - 1 ) );
 	    }
 	 }
       }
 
       void
-      group::split_groups( const std::string& name,
+      group::split_groups( std::string const& name,
 			   std::string& groups )
       {
-	 vector<std::string> group_names;
-	 group::split_groups(name, group_names);
-	 boost::join(group_names, "/");
+         std::vector<std::string> group_names;
+	 group::split_groups( name, group_names );
+	 boost::join( group_names, "/" );
       }
 
       group::group()

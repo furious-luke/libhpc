@@ -121,11 +121,11 @@ namespace hpc {
       }
 
       void
-      datatype::insert( const datatype& type,
-                        const hpc::string& description,
-                        size_t offset )
+      datatype::insert( datatype const& type,
+                         std::string const& desc,
+                         size_t offs )
       {
-         INSIST( H5Tinsert( _id, description.c_str(), offset, type.id() ), >= 0 );
+         INSIST( H5Tinsert( _id, desc.c_str(), offs, type.id() ), >= 0 );
       }
 
       hid_t
@@ -133,5 +133,6 @@ namespace hpc {
       {
 	 return _id;
       }
+
    }
 }

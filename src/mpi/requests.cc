@@ -15,13 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/range/algorithm/fill.hpp>
 #include "requests.hh"
 #include "insist.hh"
 
 namespace hpc {
    namespace mpi {
 
-      requests::requests( size_t size )
+      requests::requests( size_type size )
 	 : _reqs( size )
       {
          boost::fill( _reqs, MPI_REQUEST_NULL );
@@ -45,18 +46,18 @@ namespace hpc {
       }
 
       void
-      requests::reserve( size_t size )
+      requests::reserve( size_type size )
       {
 	 _reqs.reserve(size);
       }
 
       void
-      requests::resize( size_t size )
+      requests::resize( size_type size )
       {
 	 _reqs.resize(size);
       }
 
-      vector<request>::size_type
+      requests::size_type
       requests::size() const
       {
 	 _reqs.size();
@@ -100,7 +101,7 @@ namespace hpc {
       }
 
       request&
-      requests::operator[](int idx)
+      requests::operator[]( size_type idx )
       {
 	 return _reqs[idx];
       }

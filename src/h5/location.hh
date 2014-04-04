@@ -15,12 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_location_hh
-#define hpc_h5_location_hh
+#ifndef libhpc_h5_location_hh
+#define libhpc_h5_location_hh
 
-#include "libhpc/mpi/mpi.hh"
+#include <vector>
+#include <boost/optional.hpp>
+#include "libhpc/mpi.hh"
 #include <hdf5.h>
-#include "libhpc/containers/containers.hh"
 #include "types.hh"
 
 namespace hpc {
@@ -48,21 +49,18 @@ namespace hpc {
 	 create_group( const std::string& name );
 
 	 hsize_t
-	 extent( const string& name ) const;
+	 extent( const std::string& name ) const;
 
 	 template< class T >
 	 void
-	 write( const std::string& name,
-		const T& value,
-                const mpi::comm& comm=mpi::comm::self );
+	 write( std::string const& name,
+		T const& value );
 
-	 template< class T >
+	 template< class Buffer >
 	 void
-	 write( const std::string& name,
-		const typename vector<T>::view& data,
-                const mpi::comm& comm=mpi::comm::self,
-		boost::optional<const vector<hsize_t>::view&> chunk_size=boost::optional<const vector<hsize_t>::view&>(),
-		bool deflate=false );
+         write( std::string const& name,
+                typename type_traits<Buffer>::const_reference buf,
+                mpi::comm const& comm = mpi::comm::self );
 
       protected:
 

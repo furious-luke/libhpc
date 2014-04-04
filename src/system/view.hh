@@ -54,12 +54,6 @@ namespace hpc {
       {
       }
 
-      view( vector_type const& vec )
-         : _ptr( (pointer)vec.data() ),
-           _size( vec.size() )
-      {
-      }
-
       template< class Other >
       view( Other const& vec )
          : _ptr( (pointer)vec.data() ),
@@ -302,11 +296,15 @@ namespace hpc {
    template< class Vector >
    struct type_traits< view<Vector> >
    {
-      typedef       view<Vector> value;
-      typedef const view<Vector> const_value;
-      typedef       view<Vector> reference;
-      typedef const view<Vector> const_reference;
+      typedef       view<Vector>  value;
+      typedef const view<Vector>  const_value;
+      typedef       view<Vector>  reference;
+      typedef const view<Vector>& const_reference;
    };
+
+   template< class Vector >
+   struct random_access_trait< view<Vector> >
+      : std::true_type {};
 
 }
 
