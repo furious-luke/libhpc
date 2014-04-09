@@ -78,28 +78,28 @@
    LOGILN( __VA_ARGS__, ::hpc::setindent( 1 ) );        \
    ::hpc::log::block ANON( tag, ::hpc::log::info )
 
-   namespace hpc {
-namespace log {
+namespace hpc {
+   namespace log {
 
-   class block
-   {
-   public:
+      class block
+      {
+      public:
 
-      block( levels_type lvl = (levels_type)0 );
+         block( levels_type lvl = (levels_type)0 );
 
-      block( std::string const& tag,
-             levels_type lvl = (levels_type)0 );
+         block( std::string const& tag,
+                levels_type lvl = (levels_type)0 );
 
-      ~block();
+         ~block();
 
-   protected:
+      protected:
 
-      unsigned _lvl;
-      std::string _tag;
-   };
+         unsigned _lvl;
+         std::string _tag;
+      };
 
-}
    }
+}
 
 #else
 

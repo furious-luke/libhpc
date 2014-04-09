@@ -1,7 +1,7 @@
 #ifndef libhpc_interactive_command_hh
 #define libhpc_interactive_command_hh
 
-#include "libhpc/regexp/re.hh"
+#include <boost/regex.hpp>
 
 namespace hpc {
    namespace command {
@@ -10,28 +10,28 @@ namespace hpc {
       {
       public:
 
-         typedef std::function<void(const re::match&)> function_type;
+         typedef std::function<void(const boost::smatch&)> function_type;
 
       public:
 
          command();
 
-         command( const string& re_str,
+         command( std::string const& expr,
                   function_type action );
 
-         const string&
-         re_string() const;
+         std::string const&
+         expression() const;
 
-         const re::re&
+         boost::regex const&
          re() const;
 
          void
-         operator()( const re::match& match ) const;
+         operator()( const boost::smatch& match ) const;
 
       protected:
 
-         string _re_str;
-         hpc::re::re _re;
+         std::string _re_str;
+         boost::regex _re;
          function_type _act;
       };
 

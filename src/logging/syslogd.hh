@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "logger.hh"
-
 #ifndef NLOG
 
+#include "logger.hh"
+
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       ///
       ///
@@ -41,6 +41,7 @@ namespace hpc {
 
          std::string _name;
       };
+
    }
 }
 

@@ -1,23 +1,24 @@
-#include "libhpc/logging/logging.hh"
+#include <boost/regex.hpp>
+#include "libhpc/logging.hh"
 #include "command_context.hh"
 
 namespace hpc {
    namespace command {
 
       void
-      context::add( const string& re,
+      context::add( std::string const& expr,
                     command::function_type action )
       {
-         _cmds.emplace_back( re, action );
+         _cmds.emplace_back( expr, action );
       }
 
       bool
-      context::operator()( const string& line )
+      context::operator()( std::string const& line )
       {
-         re::match match;
-         for( const auto& cmd : _cmds )
+         boost::smatch match;
+         for( auto const& cmd : _cmds )
          {
-            if( cmd.re().match( line, match ) )
+            if( boost::regex_match( line, match, cmd.re() ) )
             {
                cmd( match );
                return true;

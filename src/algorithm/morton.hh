@@ -18,12 +18,8 @@
 #ifndef libhpc_algorithm_morton_hh
 #define libhpc_algorithm_morton_hh
 
-#ifndef __CUDACC__
-#include <cstdint>
-#else
 #include <stdint.h>
-#endif
-#include "libhpc/containers/array.hh"
+#include <boost/array.hpp>
 
 namespace hpc {
 
@@ -95,21 +91,21 @@ namespace hpc {
    }
 
    uint32_t
-   morton_array( hpc::array<uint16_t,2> const& crd );
+   morton_array( boost::array<uint16_t,2> const& crd );
 
    uint32_t
-   morton_array( hpc::array<uint16_t,3> const& crd );
+   morton_array( boost::array<uint16_t,3> const& crd );
 
    template< int D >
-   hpc::array<uint16_t,D>
+   boost::array<uint16_t,D>
    unmorton( uint32_t idx );
 
    template<>
-   hpc::array<uint16_t,2>
+   boost::array<uint16_t,2>
    unmorton<2>( uint32_t idx );
 
    template<>
-   hpc::array<uint16_t,3>
+   boost::array<uint16_t,3>
    unmorton<3>( uint32_t idx );
 
 }

@@ -23,7 +23,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
-#include "libhpc/mpi/mpi.hh"
+#include "libhpc/mpi.hh"
 #include <hdf5.h>
 
 namespace hpc {

@@ -19,7 +19,9 @@
 
 #include <sstream>
 #include "assertions.hh"
-#include "omp_help.hh"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 namespace hpc {
    namespace debug {
@@ -68,7 +70,7 @@ namespace hpc {
          ss << "Line:  " << _line << "\n";
          ss << "Expr:  " << _expr << "\n";
 #ifdef _OPENMP
-         ss << "Thread ID: " << OMP_TID << "\n";
+         ss << "Thread ID: " << omp_get_thread_num() << "\n";
 #endif
 #ifndef NSTACKTRACE
          ss << "Stack trace:\n";

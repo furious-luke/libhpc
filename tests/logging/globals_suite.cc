@@ -15,32 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <libhpc/debug/unit_test_main.hh>
-#include "libhpc/logging/globals.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/logging/globals.hh>
 
-using namespace hpc;
-using namespace hpc::test;
+TEST_CASE( "/libhpc/logging/logiln/std/vector" )
+{
+   std::vector<int> vals;
+   LOGILN( vals );
+   // TODO: Log to file and check results.
+}
 
-namespace {
-
-   test_case<> ANON(
-      "/libhpc/logging/logiln/std/vector",
-      "",
-      []()
-      {
-	 std::vector<int> vals;
-	 LOGILN( vals );
-      }
-      );
-
-   test_case<> ANON(
-      "/libhpc/logging/logiln/std/list",
-      "",
-      []()
-      {
-	 std::list<int> vals;
-	 LOGILN( vals );
-      }
-      );
-
+TEST_CASE( "/libhpc/logging/logiln/std/list" )
+{
+   std::list<int> vals;
+   LOGILN( vals );
+   // TODO: Log to file and check results.
 }

@@ -125,15 +125,15 @@ namespace hpc {
 	    file_set.write( buf.data(), type, mem_space, file_space, *_comm );
 	 }
 
-	 void
-	 read_data_dims( const std::string& name,
-                         std::vector<hsize_t>& dims );
+	 // void
+	 // read_data_dims( const std::string& name,
+         //                 std::vector<hsize_t>& dims );
 
-	 hsize_t
-	 read_data_size( const std::string& name );
+	 // hsize_t
+	 // read_data_size( const std::string& name );
 
-	 hsize_t
-	 read_local_data_size( const std::string& name );
+	 // hsize_t
+	 // read_local_data_size( const std::string& name );
 
 	 void
 	 read( std::string const& name,

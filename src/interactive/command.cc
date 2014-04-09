@@ -7,28 +7,28 @@ namespace hpc {
       {
       }
 
-      command::command( const string& re_str,
+      command::command( std::string const& expr,
                         function_type action )
-         : _re_str( re_str ),
-           _re( re_str ),
+         : _re_str( expr ),
+           _re( expr ),
            _act( action )
       {
       }
 
-      const string&
-      command::re_string() const
+      std::string const&
+      command::expression() const
       {
          return _re_str;
       }
 
-      const re::re&
+      boost::regex const&
       command::re() const
       {
          return _re;
       }
 
       void
-      command::operator()( const re::match& match ) const
+      command::operator()( boost::smatch const& match ) const
       {
          _act( match );
       }

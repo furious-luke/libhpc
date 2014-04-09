@@ -44,8 +44,8 @@ namespace hpc {
       void
       file::open( std::string const& filename,
                   unsigned flags,
-                  mpi::comm const& comm = mpi::comm::self,
-                  property_list const& props );
+                  mpi::comm const& comm,
+                  property_list const& props )
       {
 	 _comm = &comm;
 
@@ -74,8 +74,8 @@ namespace hpc {
 	 {
 	    INSIST( H5Fclose( _id ), >= 0 );  // is collective
             _id = -1;
+            _comm = &mpi::comm::self;
          }
-	 _comm = mpi::comm::self;
       }
 
       // template<>
@@ -119,34 +119,34 @@ namespace hpc {
       // 	 }
       // }
 
-      template<>
-      void
-      file::reada<string>( const std::string& name,
-			   vector<string>& data,
-			   const mpi::comm& comm )
-      {
-	 // Read in the full vector of bytes.
-	 vector<char> full_str;
-	 this->reada<char>( name, full_str );
+      // template<>
+      // void
+      // file::reada<string>( const std::string& name,
+      //   		   vector<string>& data,
+      //   		   const mpi::comm& comm )
+      // {
+      //    // Read in the full vector of bytes.
+      //    vector<char> full_str;
+      //    this->reada<char>( name, full_str );
 
-	 // Count how many strings there are and allocate.
-	 unsigned num_strs = std::count( full_str.begin(), full_str.end(), 0 );
-	 data.reallocate( num_strs );
+      //    // Count how many strings there are and allocate.
+      //    unsigned num_strs = std::count( full_str.begin(), full_str.end(), 0 );
+      //    data.reallocate( num_strs );
 
-	 // Insert each string.
-	 const char* first = full_str.data(), *last = full_str.data() + full_str.size();
-	 const char* mark = first;
-	 unsigned idx = 0;
-	 while( first != last )
-	 {
-	    if( *first == 0 )
-	    {
-	       data[idx++] = mark;
-	       mark = first + 1;
-	    }
-	    ++first;
-	 }
-      }
+      //    // Insert each string.
+      //    const char* first = full_str.data(), *last = full_str.data() + full_str.size();
+      //    const char* mark = first;
+      //    unsigned idx = 0;
+      //    while( first != last )
+      //    {
+      //       if( *first == 0 )
+      //       {
+      //          data[idx++] = mark;
+      //          mark = first + 1;
+      //       }
+      //       ++first;
+      //    }
+      // }
 
 // template<>
 // void file::writeItem(const std::string& name, const int& itm, const MPI::Comm& comm) {
@@ -432,43 +432,43 @@ namespace hpc {
 //     fileSet.write(data, dataType, memSpace, fileSpace, comm);
 // }
 
-      void
-      file::read_data_dims( std::string const& name,
-			    vector<hsize_t>& dims )
-      {
-	 h5::dataset file_set( *this, name );
-	 h5::dataspace file_space( file_set );
-	 dims.resize( file_space.simple_extent_num_dims() );
-	 file_space.simple_extent_dims( dims );
-      }
+      // void
+      // file::read_data_dims( std::string const& name,
+      //   		    vector<hsize_t>& dims )
+      // {
+      //    h5::dataset file_set( *this, name );
+      //    h5::dataspace file_space( file_set );
+      //    dims.resize( file_space.simple_extent_num_dims() );
+      //    file_space.simple_extent_dims( dims );
+      // }
 
-      hsize_t
-      file::read_data_size( const std::string& name )
-      {
-	 vector<hsize_t> dims;
-	 this->read_data_dims(name, dims);
-	 return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<hsize_t>());
-      }
+      // hsize_t
+      // file::read_data_size( const std::string& name )
+      // {
+      //    vector<hsize_t> dims;
+      //    this->read_data_dims(name, dims);
+      //    return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<hsize_t>());
+      // }
 
-      hsize_t
-      file::read_local_data_size( const std::string& name )
-      {
-	 hsize_t global_size = read_data_size( name );
-	 return ((_comm->rank() + 1)*global_size)/_comm->size() - (_comm->rank()*global_size)/_comm->size();
-      }
+      // hsize_t
+      // file::read_local_data_size( const std::string& name )
+      // {
+      //    hsize_t global_size = read_data_size( name );
+      //    return ((_comm->rank() + 1)*global_size)/_comm->size() - (_comm->rank()*global_size)/_comm->size();
+      // }
 
-      void
-	  file::read( std::string const& name,
-  	  	    void* buf,
-  	  	    hsize_t size,
-  	  	    h5::datatype const& dtype,
-  	  	    hsize_t offs,
-  	  	    mpi::comm& comm )
-	  {
-	     h5::dataset dset;
-	     dset.open( *this, name );
-	     dset.read( buf, size, dtype, offs, comm );
-	  }
+      // void
+      //     file::read( std::string const& name,
+      //     	    void* buf,
+      //     	    hsize_t size,
+      //     	    h5::datatype const& dtype,
+      //     	    hsize_t offs,
+      //     	    mpi::comm& comm )
+      //     {
+      //        h5::dataset dset;
+      //        dset.open( *this, name );
+      //        dset.read( buf, size, dtype, offs, comm );
+      //     }
 
 // template<>
 // void file::read(const std::string& name, VectorView<int> data, const Comm& comm) {

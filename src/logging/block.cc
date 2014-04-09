@@ -20,7 +20,7 @@
 #include "block.hh"
 
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       block::block( levels_type level )
          : _lvl( level )

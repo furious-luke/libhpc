@@ -15,15 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_regexp_multimatch_hh
-#define libhpc_regexp_multimatch_hh
+#ifndef libhpc_algorithm_multimatch_hh
+#define libhpc_algorithm_multimatch_hh
 
 #include <list>
-#include "libhpc/system/types.hh"
-#include "libhpc/containers/string.hh"
-#include "libhpc/containers/optional.hh"
-#include "libhpc/containers/map.hh"
-#include "re.hh"
+#include <string>
+#include <boost/optional.hpp>
+#include <boost/regex.hpp>
 
 namespace hpc {
 
@@ -37,7 +35,7 @@ namespace hpc {
       clear();
 
       void
-      add_match( const string& str );
+      add_match( std::string const& str );
 
       ///
       /// Note: Expecting matches to be in descending order of
@@ -55,24 +53,29 @@ namespace hpc {
       void
       compile();
 
-      optional<index>
-      match( const string& str,
-             re::match& match ) const;
+      boost::optional<size_t>
+      match( std::string const& str,
+             boost::smatch& match ) const;
 
-      optional<index>
-      match( const string& str ) const;
+      boost::optional<size_t>
+      match( std::string const& str ) const;
 
-      optional<index>
-      search( const string& str,
-              re::match& match ) const;
+      boost::optional<size_t>
+      search( std::string const& str,
+              boost::smatch& match ) const;
 
-      optional<index>
-      search( const string& str ) const;
+      boost::optional<size_t>
+      search( std::string const& str ) const;
 
    protected:
 
-      std::list<string> _matches;
-      re::re _re;
+      size_t
+      _last_capture( boost::smatch& match ) const;
+
+   protected:
+
+      std::list<std::string> _matches;
+      boost::regex _re;
       bool _ready;
    };
 };

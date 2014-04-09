@@ -15,15 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/debug/debug.hh"
+#ifndef NLOG
+
+#include "libhpc/debug.hh"
 #include "file.hh"
 
 namespace hpc {
-   namespace logging {
+   namespace log {
 
-#ifndef NLOG
-
-      file::file( const std::string& filename,
+      file::file( std::string const& filename,
                   unsigned min_level )
          : logger( min_level ),
            _filename( filename )
@@ -61,6 +61,8 @@ namespace hpc {
          _file << buffer().str();
 	 _file.flush();
       }
-#endif
+
    }
 }
+
+#endif

@@ -15,19 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <math.h>
-#include "constants.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/algorithm/sort_permute_iter.hh>
 
-namespace hpc {
-   namespace constant {
-
-      const double c = 2.99792458e8; // m/s
-      const double c_km_s = 299792.458; // m/s
-      const double c_mpc_gyr = 3.06391536e2; // Mpc/Gyr
-      const double parsec = 3.08567758e16; // m
-      const double mpc = 3.08567758e22; // m
-      const double gravitation = 6.672e-8; // ?
-
-      const double pi = M_PI;
+TEST_CASE( "/libhpc/algorithm/sort_permute_iter" )
+{
+   std::vector<int> order( 10 );
+   std::vector<float> data( 10 );
+   for( unsigned ii = 0; ii < 10; ++ii )
+      order[ii] = (ii + 4)%10;
+   std::iota( data.begin(), data.end(), 0.0 );
+   std::sort(
+      hpc::make_sort_permute_iter( order.begin(), data.begin() ),
+      hpc::make_sort_permute_iter( order.end(), data.end() ),
+      hpc::sort_permute_iter_compare<std::vector<int>::iterator,std::vector<float>::iterator>()
+      );
+   for( unsigned ii = 0; ii < 10; ++ii )
+   {
+      TEST( order[ii] == ii );
+      TEST( data[ii] == (float)((ii + 6)%10) );
    }
 }

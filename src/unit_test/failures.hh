@@ -18,6 +18,8 @@
 #ifndef libhpc_unit_test_failures_hh
 #define libhpc_unit_test_failures_hh
 
+#include "expression.hh"
+
 namespace hpc {
    namespace test {
 
@@ -35,7 +37,12 @@ namespace hpc {
 
          test_expression_failed( test_case_base const& tc,
                                  expression<T,U> const& expr,
-                                 std::string const& desc );
+                                 std::string const& desc )
+            : _tc( tc ),
+              _expr( expr ),
+              _desc( desc )
+         {
+         }
 
          virtual
          char const*
@@ -51,6 +58,21 @@ namespace hpc {
          std::string const& _desc;
          std::string _msg;
       };
+
+      template< class T,
+                class U >
+      void
+      expression<T,U>::test( test_case_base& tc,
+                             const std::string& desc )
+      {
+         if( !(*this) )
+         {
+            // Failed, log the failure and conclude this test.
+            throw test_expression_failed<T,U>( tc, *this, desc );
+         }
+         else
+            std::cout << "." << std::flush;
+      }
 
    }
 }

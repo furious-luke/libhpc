@@ -15,35 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <libhpc/mpi/unit_test_main.hh>
-#include "libhpc/algorithm/reorder.hh"
-#include "libhpc/containers/random.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/algorithm/reorder.hh>
+#include <libhpc/system/random.hh>
 
-using namespace hpc::test;
-
-namespace {
-
-   test_case<> ANON(
-      "/libhpc/algorithm/reorder",
-      "",
-      []()
+TEST_CASE( "/libhpc/algorithm/reorder" )
+{
+   std::vector<int> data( 10 ), order( 10 );
+   for( unsigned jj = 0; jj < 10; ++jj )
+   {
+      std::iota( data.begin(), data.end(), 0 );
+      std::iota( order.begin(), order.end(), 0 );
+      for( unsigned ii = 0; ii < 100; ++ii )
       {
-	 std::vector<int> data( 10 ), order( 10 );
-	 for( unsigned jj = 0; jj < 10; ++jj )
-	 {
-	    std::iota( data.begin(), data.end(), 0 );
-	    std::iota( order.begin(), order.end(), 0 );
-	    for( unsigned ii = 0; ii < 100; ++ii )
-	    {
-	       int a = hpc::generate_uniform<int>( 0, 9 );
-	       int b = hpc::generate_uniform<int>( 0, 9 );
-	       std::swap( order[a], order[b] );
-	    }
-	    hpc::reorder( data.begin(), data.end(), order.begin() );
-	    for( unsigned ii = 0; ii < order.size(); ++ii )
-	       TEST( data[order[ii]] == ii );
-	 }
+         int a = hpc::generate_uniform<int>( 0, 9 );
+         int b = hpc::generate_uniform<int>( 0, 9 );
+         std::swap( order[a], order[b] );
       }
-      );
-
+      hpc::reorder( data.begin(), data.end(), order.begin() );
+      for( unsigned ii = 0; ii < order.size(); ++ii )
+         TEST( data[order[ii]] == ii );
+   }
 }

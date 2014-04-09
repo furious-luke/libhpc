@@ -42,9 +42,8 @@ namespace hpc {
       }
 
       dataspace::dataspace( dataset const& dset )
-	 : _id( -1 )
+	 : _id( dset.dataspace().id() )
       {
-	 dset.space( *this );
       }
 
       template< class Dims >
@@ -54,7 +53,7 @@ namespace hpc {
 	 create( dims );
       }
 
-      dataspace::dataspace( dataset&& src )
+      dataspace::dataspace( dataspace&& src )
          : _id( src._id )
       {
          src._id = -1;
@@ -94,23 +93,6 @@ namespace hpc {
          ASSERT( _id >= 0 );
       }
 
-      template< class Dims >
-      void
-      dataspace::create( typename type_traits<Dims>::const_reference dims );
-      {
-         static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t),
-                        "Incompatible hsize_t type." );
-
-	 close();
-
-	 if( std::accumulate( dims.begin(), dims.end(), 0 ) )
-	    _id = H5Screate_simple( dims.size(), dims.data(), 0 );
-	 else
-	    _id = H5Screate( H5S_NULL );
-
-	 ASSERT( _id >= 0 );
-      }
-
       void
       dataspace::close()
       {
@@ -145,18 +127,6 @@ namespace hpc {
 #endif
       }
 
-      hsize_t
-      dataspace::simple_extent_dims( vector<hsize_t>::view dims ) const
-      {
-#ifndef NDEBUG
-	 hsize_t num_dims = H5Sget_simple_extent_dims(this->_id, dims, NULL);
-	 ASSERT(num_dims >= 0);
-	 return num_dims;
-#else
-	 return H5Sget_simple_extent_dims(this->_id, dims, NULL);
-#endif
-}
-
       void
       dataspace::select_all()
       {
@@ -178,36 +148,10 @@ namespace hpc {
 
       void
       dataspace::select_hyperslab( H5S_seloper_t op,
-				   hpc::view<std::vector<hsize_t>>::type const& count,
-				   hpc::view<std::vector<hsize_t>>::type const& start,
-				   boost::optional<const vector<hsize_t>::view&> stride,
-				   boost::optional<const vector<hsize_t>::view&> block )
-      {
-	 ASSERT(this->simple_extent_num_dims() == count.size() && count.size() == start.size());
-	 ASSERT(!stride || stride->size() == count.size());
-	 ASSERT(!block || block->size() == count.size());
-
-	 // Don't call the HDF5 routine if there is nothing to select.
-	 if(std::accumulate(count.begin(), count.end(), 0)) {
-	    INSIST(H5Sselect_hyperslab(
-		      this->_id,
-		      op,
-		      start,
-		      stride ? (const hsize_t*)*stride : NULL,
-		      count,
-		      block ? (const hsize_t*)*block : NULL
-		      ), >= 0);
-	 }
-	 else
-	    INSIST(H5Sselect_none(this->_id), >= 0);
-      }
-
-      void
-      dataspace::select_hyperslab( H5S_seloper_t op,
                                    hsize_t count,
                                    hsize_t start,
-				   optional<hsize_t> stride,
-				   optional<hsize_t> block )
+				   boost::optional<hsize_t> stride,
+				   boost::optional<hsize_t> block )
       {
 	 ASSERT( simple_extent_num_dims() == 1 );
 
@@ -235,60 +179,5 @@ namespace hpc {
 	 INSIST( H5Sselect_hyperslab( _id, H5S_SELECT_SET, &start, NULL, &cnt, NULL ), >= 0 );
       }
 
-      void
-      dataspace::select_elements( const vector<hsize_t>::view& elements,
-				  H5S_seloper_t op )
-      {
-	 if(elements.size()) {
-	    vector<hsize_t> dims(this->simple_extent_num_dims());
-	    this->simple_extent_dims(dims);
-	    ASSERT(elements.size()%dims.size() == 0,
-		   "Flattened element selection array does not divide evenly between the "
-		   "number of dimensions in the dataset.");
-	    INSIST(H5Sselect_elements(this->_id, op, elements.size()/dims.size(), elements), >= 0);
-	 }
-	 else if(op == H5S_SELECT_SET)
-	    this->select_none();
-      }
-
-      void
-      dataspace::select_elements2( hpc::view<std::vector<hsize_t>>::type const& elems,
-                                   H5S_seloper_t op )
-      {
-	 if( elems.size() )
-         {
-	    vector<hsize_t> dims( simple_extent_num_dims() );
-	    simple_extent_dims( dims );
-	    ASSERT( elems.size()%dims.size() == 0,
-                    "Flattened element selection array does not divide evenly between the "
-                    "number of dimensions in the dataset.");
-	    INSIST( H5Sselect_elements( _id, op, elems.size()/dims.size(), elems.data() ), >= 0 );
-	 }
-	 else if( op == H5S_SELECT_SET )
-	    select_none();
-      }
-
-      void
-      dataspace::select_slices( int slice_dim,
-				const vector<hsize_t>::view& idxs,
-				H5S_seloper_t op )
-      {
-	 ASSERT(slice_dim >= 0 && slice_dim < this->simple_extent_num_dims(),
-		"Slice dimension out of data space dimension range.");
-
-	 vector<hsize_t> dims, elems;
-	 this->simple_extent_dims(dims);
-	 int slice_size = 1;
-	 for(int ii = 0; ii < dims.size(); ++ii) {
-	    if(ii != slice_dim)
-	       slice_size *= dims[ii];
-	 }
-	 elems.resize(idxs.size()*slice_size);
-	 for(int ii = 0; ii < dims[slice_dim]; ++ii) {
-	    for(int jj = 0; jj < slice_size; ++jj)
-	       elems[ii*slice_size + jj] = idxs[ii]*slice_size + jj;
-	 }
-	 this->select_elements(elems, op);
-      }
    }
 }

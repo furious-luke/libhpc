@@ -15,8 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "runner.hh"
+#include "failures.hh"
+
 namespace hpc {
    namespace test {
+
+      extern test_case_node_t* head;
 
       void
       runner::run( test_case_base& tc )

@@ -21,12 +21,6 @@
 namespace hpc {
    namespace test {
 
-      struct test_case_node_t
-      {
-         test_case_base* tc;
-         test_case_node_t* next;
-      };
-
       test_case_node_t* head = NULL;
       test_case_base* _cur_tc;
 
@@ -66,5 +60,3 @@ namespace hpc {
 
    }
 }
-
-#endif

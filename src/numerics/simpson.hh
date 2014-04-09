@@ -19,7 +19,7 @@
 #define libhpc_numerics_simpson_hh
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       template< class Function >
       typename Function::value_type
@@ -51,6 +51,7 @@ namespace hpc {
 
          return sum;
       }
+
    }
 }
 

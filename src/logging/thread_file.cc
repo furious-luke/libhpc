@@ -19,16 +19,15 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "libhpc/containers/containers.hh"
 #include "thread_file.hh"
 
 namespace hpc {
-   namespace logging {
+   namespace log {
       namespace thread {
 
 	 file::file( std::string const& filename,
 		     unsigned min_level )
-	    : logging::file( filename, min_level ),
+	    : log::file( filename, min_level ),
 	      _base( filename )
 	 {
 	 }
@@ -72,6 +71,7 @@ namespace hpc {
 	 {
 	    _file.close();
 	 }
+
       }
    }
 }

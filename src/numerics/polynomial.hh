@@ -19,8 +19,9 @@
 #define libhpc_numerics_polynomial_hh
 
 #include <math.h>
-#include "libhpc/containers/vector.hh"
+#include <vector>
 #include "libhpc/containers/grid.hh"
+#include "libhpc/system/view.hh"
 
 namespace hpc {
    namespace polynomial {
@@ -315,7 +316,7 @@ namespace hpc {
 
          value_type
          operator()( unsigned mode,
-                     const typename vector<value_type>::view& x )
+                     view<std::vector<value_type>> const& x )
          {
             ASSERT( this->_dim > 0 );
             ASSERT( x.size() == this->_dim );
@@ -332,7 +333,7 @@ namespace hpc {
          unsigned _dim;
          Polynomial1D _poly;
          grid<unsigned> _grid;
-         vector<unsigned> _idxs;
+         std::vector<unsigned> _idxs;
       };
 
       template< class Polynomial1D,
@@ -356,7 +357,7 @@ namespace hpc {
          value_type
          operator()( unsigned mode,
                      unsigned deriv_dim,
-                     const typename vector<value_type>::view& x )
+                     view<std::vector<value_type>> const& x )
          {
             ASSERT( this->_dim > 0 );
             ASSERT( x.size() == this->_dim );
@@ -377,6 +378,7 @@ namespace hpc {
 
          PolynomialDeriv1D _poly_deriv;
       };
+
    }
 }
 

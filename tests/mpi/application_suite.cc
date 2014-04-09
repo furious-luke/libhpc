@@ -15,42 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <string.h>
-#include "libhpc/debug/unit_test_main.hh"
-#include "libhpc/mpi/application.hh"
-#include "libhpc/mpi/init.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/mpi/application.hh>
+#include <libhpc/mpi/init.hh>
 
-using namespace hpc;
-using namespace hpc::test;
+TEST_CASE( "/libhpc/mpi/application" )
+{
+   int argc = 0;
+   char** argv = new char*[1];
+   argv[0] = strdup( "test" );
 
-namespace mpi_application {
+   // Wrap in block to make sure it is destroyed afterwards.
+   {
+      hpc::mpi::initialise( argc, argv );
+      hpc::mpi::application app( argc, argv );
+      TEST( app.size() == 1, "Must have communicator size of 1." );
+      TEST( app.rank() == 0, "Must be master rank." );
+      hpc::mpi::finalise();
+   }
+   TEST( hpc::mpi::initialised() == true, "Must not have been finalised." );
 
-   ///
-   ///
-   ///
-   test_case<> ANON(
-      "/mpi/application",
-      "",
-      []()
-      {
-         int argc = 0;
-         char** argv = new char*[1];
-         argv[0] = strdup( "test" );
-
-         // Wrap in block to make sure it is destroyed afterwards.
-         {
-	    mpi::initialise( argc, argv );
-            mpi::application app( argc, argv );
-            TEST( app.size() == 1, "Must have communicator size of 1." );
-            TEST( app.rank() == 0, "Must be master rank." );
-	    mpi::finalise();
-         }
-         TEST( mpi::initialised() == true, "Must not have been finalised." );
-
-         // Free memory.
-         free( argv[0] );
-         delete argv;
-      }
-      );
-
+   // Free memory.
+   free( argv[0] );
+   delete argv;
 }

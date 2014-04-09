@@ -18,6 +18,9 @@
 #ifndef libhpc_unit_test_test_case_hh
 #define libhpc_unit_test_test_case_hh
 
+#include <string>
+#include <boost/function.hpp>
+
 #define TEST_CASE( name )                               \
    void UNIQUE_LINE( __hpc_test_case__ )();             \
    ::hpc::test::test_case<> ANON(                       \
@@ -26,6 +29,16 @@
 
 namespace hpc {
    namespace test {
+
+      class test_case_base;
+
+      struct test_case_node_t
+      {
+         test_case_base* tc;
+         test_case_node_t* next;
+      };
+
+      extern test_case_base* _cur_tc;
 
       class test_case_base
       {
@@ -55,7 +68,7 @@ namespace hpc {
          std::string _desc;
       };
 
-      template< class Fixture >
+      template< class Fixture = void >
       class test_case
          : public test_case_base
       {

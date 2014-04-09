@@ -1,8 +1,6 @@
 #ifndef libhpc_interactive_command_context_hh
 #define libhpc_interactive_command_context_hh
 
-#include "libhpc/containers/vector.hh"
-#include "libhpc/regexp/multimatch.hh"
 #include "command.hh"
 
 namespace hpc {
@@ -13,15 +11,15 @@ namespace hpc {
       public:
 
          void
-         add( const string& re,
+         add( std::string const& re,
               command::function_type action );
 
          bool
-         operator()( const string& line );
+         operator()( std::string const& line );
 
       protected:
 
-         vector<command> _cmds;
+         std::vector<command> _cmds;
       };
 
    }

@@ -21,8 +21,7 @@
 #include <boost/optional/optional.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/debug/except.hh"
-#include "libhpc/logging/logging.hh"
-#include "num.hh"
+#include "libhpc/logging.hh"
 
 using boost::optional;
 

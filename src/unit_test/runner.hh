@@ -18,6 +18,8 @@
 #ifndef libhpc_unit_test_runner_hh
 #define libhpc_unit_test_runner_hh
 
+#include "test_case.hh"
+
 namespace hpc {
    namespace test {
 

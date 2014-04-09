@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/algorithm/string/join.hpp>
+#include "libhpc/debug/assert.hh"
 #include "multimatch.hh"
 
 namespace hpc {
@@ -32,7 +33,7 @@ namespace hpc {
    }
 
    void
-   multimatch::add_match( const string& str )
+   multimatch::add_match( std::string const& str )
    {
       _matches.push_back( str );
       _ready = false;
@@ -43,47 +44,60 @@ namespace hpc {
    {
       if( !_ready )
       {
-         string pattern = boost::algorithm::join( _matches, ")|(" );
+         std::string pattern = boost::algorithm::join( _matches, ")|(" );
          if( !pattern.empty() )
             pattern = "(" + pattern + ")";
-         _re.construct( pattern );
+         _re = pattern;
          _ready = true;
       }
    }
 
-   optional<index>
-   multimatch::match( const string& str,
-                      re::match& match ) const
+   boost::optional<size_t>
+   multimatch::match( std::string const& str,
+                      boost::smatch& match ) const
    {
       ASSERT( _ready, "Multimatch not compiled." );
-      if( _re.match( str, match ) )
-         return (index)match.last_capture();
+      if( boost::regex_match( str, match, _re ) )
+         return _last_capture( match );
       else
-         return none;
+         return boost::none;
    }
 
-   optional<index>
-   multimatch::match( const string& str ) const
+   boost::optional<size_t>
+   multimatch::match( std::string const& str ) const
    {
-      re::match match;
+      boost::smatch match;
       return this->match( str, match );
    }
 
-   optional<index>
-   multimatch::search( const string& str,
-                       re::match& match ) const
+   boost::optional<size_t>
+   multimatch::search( std::string const& str,
+                       boost::smatch& match ) const
    {
       ASSERT( _ready, "Multimatch not compiled." );
-      if( _re.search( str, match ) )
-         return (index)match.last_capture();
+      if( boost::regex_search( str, match, _re ) )
+         return _last_capture( match );
       else
-         return none;
+         return boost::none;
    }
 
-   optional<index>
-   multimatch::search( const string& str ) const
+   boost::optional<size_t>
+   multimatch::search( std::string const& str ) const
    {
-      re::match match;
+      boost::smatch match;
       return search( str, match );
    }
+
+   size_t
+   multimatch::_last_capture( boost::smatch& match ) const
+   {
+      size_t last = std::numeric_limits<size_t>::max();
+      for( size_t ii = 1; ii < match.size(); ++ii )
+      {
+         if( match[ii].matched )
+            last = ii - 1;
+      }
+      return last;
+   }
+
 };

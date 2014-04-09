@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "stack.hh"
-
 #ifndef NLOG
 
+#include "stack.hh"
+
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       stack::stack()
       {

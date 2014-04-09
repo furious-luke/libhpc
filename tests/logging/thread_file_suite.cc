@@ -15,41 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <libhpc/debug/unit_test_main.hh>
+#include <libhpc/unit_test/main.hh>
 #include <libhpc/logging/thread_file.hh>
 
-using namespace hpc::test;
+void
+do_something( hpc::log::thread::file& log )
+{
+   log << "no indent" << hpc::setindent( 2 ) << hpc::log::endl;
+   log << "indent" << hpc::setindent( -2 ) << hpc::log::endl;
+   log << "no indent again" << hpc::log::endl;
+}
 
-namespace {
+TEST_CASE( "/libhpc/logging/thread_file/serial" )
+{
+   // hpc::logging::thread::file log( "test.log." );
+   // do_something( log );
+}
 
-   void
-   do_something( hpc::logging::thread::file& log )
-   {
-      log << "no indent" << hpc::setindent( 2 ) << hpc::logging::endl;
-      log << "indent" << hpc::setindent( -2 ) << hpc::logging::endl;
-      log << "no indent again" << hpc::logging::endl;
-   }
-
-   test_case<> ANON(
-      "/serial",
-      "",
-      []()
-      {
-         // hpc::logging::thread::file log( "test.log." );
-         // do_something( log );
-      }
-      );
-
-   test_case<> ANON(
-      "/multithread",
-      "",
-      []()
-      {
-         // hpc::logging::thread::file log( "test.log." );
-         // std::thread thread( std::bind( do_something, std::ref( log ) ) );
-         // do_something( log );
-         // thread.join();
-      }
-      );
-
+TEST_CASE( "/libhpc/logging/thread_file/multithreaded" )
+{
+   // hpc::logging::thread::file log( "test.log." );
+   // std::thread thread( std::bind( do_something, std::ref( log ) ) );
+   // do_something( log );
+   // thread.join();
 }

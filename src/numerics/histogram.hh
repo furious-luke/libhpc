@@ -19,9 +19,8 @@
 #define libhpc_numerics_histogram_hh
 
 #include <vector>
-#include <array>
 #include <memory>
-#include "libhpc/containers/view.hh"
+#include <boost/array.hpp>
 
 namespace hpc {
    namespace numerics {
@@ -41,14 +40,14 @@ namespace hpc {
          }
 
          histogram_axis( unsigned nbins,
-                         std::array<value_type,2> const& rng )
+                         boost::array<value_type,2> const& rng )
          {
             resize( nbins, rng );
          }
 
          void
          resize( unsigned nbins,
-                 std::array<value_type,2> const& rng )
+                 boost::array<value_type,2> const& rng )
          {
             _nbins = nbins;
             _rng = rng;
@@ -76,7 +75,7 @@ namespace hpc {
       protected:
 
          unsigned _nbins;
-         std::array<value_type,2> _rng;
+         boost::array<value_type,2> _rng;
          std::vector<value_type> _edges;
       };
 
@@ -95,7 +94,7 @@ namespace hpc {
          }
 
          histogram( unsigned nbins,
-                    std::array<value_type,2> const& rng )
+                    boost::array<value_type,2> const& rng )
          {
             resize( nbins, rng );
          }
@@ -114,7 +113,7 @@ namespace hpc {
 
          void
          resize( unsigned nbins,
-                 std::array<value_type,2> const& rng )
+                 boost::array<value_type,2> const& rng )
          {
             _axis.reset( new axis_type( nbins, rng ) );
             _bins.resize( nbins );
@@ -133,7 +132,7 @@ namespace hpc {
             ++_bins[_axis->bin( x )];
          }
 
-         hpc::view<std::vector<unsigned>>::type const
+         std::vector<unsigned> const&
          bins() const
          {
             return _bins;

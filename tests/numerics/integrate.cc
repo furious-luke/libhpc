@@ -15,112 +15,101 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "libhpc/debug/unit_test_main.hh"
-#include "libhpc/numerics/integrate.hh"
-#include "libhpc/numerics/quadrature.hh"
-#include "libhpc/containers/vector.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/numerics/integrate.hh>
+#include <libhpc/numerics/quadrature.hh>
 
-using namespace hpc;
-using namespace hpc::test;
-using namespace hpc::numerics;
+using namespace hpc::num;
 
-namespace {
+template< class T >
+struct constant
+{
+   typedef T result_type;
 
-   template< class T >
-   struct constant
+   constant( T val )
+   : value( val )
    {
-      typedef T result_type;
+   }
 
-      constant( T val )
-      : value( val )
-      {
-      }
-
-      template< class Point >
-      result_type
-      operator()( const Point& pnt ) const
-      {
-         return value;
-      }
-
-      T value;
-   };
-
-   template< class T >
-   struct linear
+   template< class Point >
+   result_type
+   operator()( const Point& pnt ) const
    {
-      typedef T result_type;
+      return value;
+   }
 
-      linear( T grad,
-              T cut )
-         : gradient( grad ),
-           cut( cut )
-      {
-      }
+   T value;
+};
 
-      template< class Point >
-      result_type
-      operator()( const Point& pnt ) const
-      {
-         return pnt*gradient + cut;
-      }
+template< class T >
+struct linear
+{
+   typedef T result_type;
 
-      T gradient;
-      T cut;
-   };
-
-   template< class T >
-   struct quadratic
+   linear( T grad,
+           T cut )
+      : gradient( grad ),
+        cut( cut )
    {
-      typedef T result_type;
+   }
 
-      template< class Point >
-      result_type
-      operator()( const Point& pnt ) const
-      {
-         return pnt*pnt;
-      }
+   template< class Point >
+   result_type
+   operator()( const Point& pnt ) const
+   {
+      return pnt*gradient + cut;
+   }
 
-      T value;
-   };
+   T gradient;
+   T cut;
+};
 
-   test_case<> ANON(
-      "/numerics/integrate/quadrature_summation/1d",
-      "",
-      []()
-      {
-         // Constant integration of 1 over interval of 2.
-         {
-            unsigned order = 0;
-            unsigned size = order + 1;
-            vector<double> points( size ), weights( size );
-            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
-            double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), constant<double>( 1.0 ) );
-            DELTA( sum, 2.0, 1e-6 );
-         }
+template< class T >
+struct quadratic
+{
+   typedef T result_type;
 
-         // Linear over interval of 2.
-         {
-            unsigned order = 1;
-            unsigned size = order + 1;
-            vector<double> points( size ), weights( size );
-            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
-            double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), linear<double>( 1.0, 0.0 ) );
-            DELTA( sum, 0.0, 1e-6 );
-            sum = quadrature_summation( points.begin(), points.end(), weights.begin(), linear<double>( 1.0, 1.0 ) );
-            DELTA( sum, 2.0, 1e-6 );
-         }
+   template< class Point >
+   result_type
+   operator()( const Point& pnt ) const
+   {
+      return pnt*pnt;
+   }
 
-         // Quadratic over interval of 2.
-         {
-            unsigned order = 2;
-            unsigned size = order + 1;
-            vector<double> points( size ), weights( size );
-            make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
-            double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), quadratic<double>() );
-            DELTA( sum, 2.0/3.0, 1e-6 );
-         }
-      }
-      );
+   T value;
+};
 
+TEST_CASE( "/libhpc/numerics/integrate/quadrature_summation/1d" )
+{
+   // Constant integration of 1 over interval of 2.
+   {
+      unsigned order = 0;
+      unsigned size = order + 1;
+      std::vector<double> points( size ), weights( size );
+      make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
+      double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), constant<double>( 1.0 ) );
+      DELTA( sum, 2.0, 1e-6 );
+   }
+
+   // Linear over interval of 2.
+   {
+      unsigned order = 1;
+      unsigned size = order + 1;
+      std::vector<double> points( size ), weights( size );
+      make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
+      double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), linear<double>( 1.0, 0.0 ) );
+      DELTA( sum, 0.0, 1e-6 );
+      sum = quadrature_summation( points.begin(), points.end(), weights.begin(), linear<double>( 1.0, 1.0 ) );
+      DELTA( sum, 2.0, 1e-6 );
+   }
+
+   // Quadratic over interval of 2.
+   {
+      unsigned order = 2;
+      unsigned size = order + 1;
+      std::vector<double> points( size ), weights( size );
+      make_quadrature( gauss_legendre_generator<double>( -1.0, 1.0 ), order, points.begin(), weights.begin() );
+      double sum = quadrature_summation( points.begin(), points.end(), weights.begin(), quadratic<double>() );
+      DELTA( sum, 2.0/3.0, 1e-6 );
+   }
 }

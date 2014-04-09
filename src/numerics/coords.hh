@@ -19,14 +19,14 @@
 #define libhpc_numerics_coords_hh
 
 #include <math.h>
-#include "libhpc/debug/debug.hh"
-#include "libhpc/containers/num.hh"
-#include "libhpc/containers/optional.hh"
+#include <boost/optional.hpp>
+#include "libhpc/debug/assert.hh"
+#include "libhpc/system/math.hh"
 #include "constants.hh"
 #include "simpson.hh"
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       ///
       /// Spherical coordinates in common physics interpretation, theta being
@@ -43,7 +43,7 @@ namespace hpc {
       {
          r = sqrt( x*x + y*y + z*z );
          phi = atan2( y, x );
-         if( !num::approx( r, 0.0 ) )
+         if( !approx( r, 0.0 ) )
             theta = acos( z/r );
          else
             theta = 0.0;
@@ -77,7 +77,7 @@ namespace hpc {
       void
       cartesian_to_ecs( T x, T y, T z,
                         T& ra, T& dec,
-                        optional<T&> r = optional<T&>() )
+                        boost::optional<T&> r = boost::optional<T&>() )
       {
          T _r;
          cartesian_to_spherical( x, y, z, _r, dec, ra );
@@ -98,7 +98,7 @@ namespace hpc {
       void
       ecs_to_cartesian( T ra, T dec,
                         T& x, T& y, T& z,
-                        optional<T> rad = optional<T>() )
+                        boost::optional<T> rad = boost::optional<T>() )
                         
       {
          dec = 0.5*M_PI - dec;
@@ -268,6 +268,7 @@ namespace hpc {
       {
 	 return redshift_to_transverse_distance( z, points, hubble, omega_v, omega_m )/(1.0 + z);
       }
+
    }
 }
 

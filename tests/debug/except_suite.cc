@@ -15,29 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_regexp_re_hh
-#define libhpc_regexp_re_hh
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/debug/except.hh>
 
-#include "boost_re.hh"
-#include "match.hh"
-
-namespace hpc {
-   namespace re {
-
-      class re
-         : public impl::boost::re
-      {
-      public:
-
-         typedef impl::boost::re super_type;
-
-      public:
-
-         re();
-
-         re( const string& expression );
-      };
+TEST_CASE( "/debug/except/basic" )
+{
+   bool inside = false;
+   try
+   {
+      EXCEPT( 0 );
    }
+   catch( hpc::exception& ex )
+   {
+      inside = true;
+   }
+   TEST( inside == true, "Must have caught exception." );
 }
-
-#endif

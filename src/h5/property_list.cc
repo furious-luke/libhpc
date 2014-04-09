@@ -20,7 +20,7 @@
 namespace hpc {
    namespace h5 {
 
-      propertY_list::property_list()
+      property_list::property_list()
          : _id( H5P_DEFAULT )
       {
       }

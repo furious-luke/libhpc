@@ -15,13 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef NLOG
+
 #include "globals.hh"
 #include "instrument.hh"
 
-#ifndef NLOG
-
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       stack _stack;
 

@@ -10,7 +10,7 @@ namespace hpc {
       }
 
       bool
-      chain::operator()( const string& line )
+      chain::operator()( std::string const& line )
       {
          for( auto& ctx : _ctxs )
          {

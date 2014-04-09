@@ -15,22 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_indexer_hh
-#define hpc_algorithm_indexer_hh
+#ifndef libhpc_algorithm_indexer_hh
+#define libhpc_algorithm_indexer_hh
 
 #include "libhpc/debug/assert.hh"
-#include "libhpc/logging/logging.hh"
+#include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
-
-class indexer_suite;
 
 namespace hpc {
    namespace algorithm {
 
       class indexer
       {
-         friend class ::indexer_suite;
-
       public:
 
          indexer( int tag,
@@ -57,7 +53,7 @@ namespace hpc {
          unsigned long long _base;
          unsigned _max_its;
          int _tag;
-         const mpi::comm* _comm;
+         mpi::comm const* _comm;
       };
 
    }

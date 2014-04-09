@@ -15,11 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_containers_grid_hh
-#define hpc_containers_grid_hh
+#ifndef libhpc_containers_grid_hh
+#define libhpc_containers_grid_hh
 
 #include <vector>
-#include "reallocate.hh"
+#include "libhpc/system/reallocate.hh"
 
 namespace hpc {
 

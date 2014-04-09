@@ -19,14 +19,16 @@
 #define libhpc_numerics_quadrature_hh
 
 #include <math.h>
+#include <vector>
 #include <boost/math/special_functions.hpp>
-#include "libhpc/containers/containers.hh"
+#include "libhpc/system/math.hh"
+#include "libhpc/algorithm/newton.hh"
 #include "polynomial.hh"
 
 using boost::math::lgamma;
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       ///
       /// Calculate the Gauss-Legendre quadrature.
@@ -55,7 +57,7 @@ namespace hpc {
          unsigned half = (np + 1)/2;
 
          // Need to cache the first half of the points.
-         vector<T> cache( 2*half );
+         std::vector<T> cache( 2*half );
 
          // Construct the bracket for the half range.
          T xl = 0.5*(x2 - x1);
@@ -319,7 +321,7 @@ namespace hpc {
          grid<unsigned> grid;
          grid.setup_block( dim, size_1d );
 
-         vector<unsigned> indices( dim );
+         std::vector<unsigned> indices( dim );
          for( unsigned ii = 0; ii < grid.size(); ++ii )
          {
             grid.lift( ii, indices.begin() );
@@ -344,8 +346,8 @@ namespace hpc {
                        unsigned dim = 1,
                        typename PointIter::value_type tolerance = 1e-8 )
       {
-         vector<double> points_1d( order + 1 );
-         vector<double> weights_1d( order + 1 );
+         std::vector<double> points_1d( order + 1 );
+         std::vector<double> weights_1d( order + 1 );
          gen( order + 1, points_1d.begin(), weights_1d.begin(), tolerance );
          outer_product( order + 1, dim, points_1d.begin(), weights_1d.begin(), points, weights );
       }
@@ -393,13 +395,13 @@ namespace hpc {
             return _wgts.size();
          }
 
-         const vector<value_type>&
+         const std::vector<value_type>&
          points() const
          {
             return _pnts;
          }
 
-         const vector<value_type>&
+         const std::vector<value_type>&
          weights() const
          {
             return _wgts;
@@ -407,8 +409,8 @@ namespace hpc {
 
       protected:
 
-         vector<value_type> _pnts;
-         vector<value_type> _wgts;
+         std::vector<value_type> _pnts;
+         std::vector<value_type> _wgts;
       };
 
       template< class Generator,
@@ -420,8 +422,8 @@ namespace hpc {
                        unsigned dim = 1 )
       {
          unsigned size = powi( order + 1, dim );
-         vector<double> points( size );
-         vector<double> weights( size );
+         std::vector<double> points( size );
+         std::vector<double> weights( size );
          make_quadrature( gen, order, points.begin(), weights.begin(), dim );
          quad.set_points( points );
          quad.set_weights( weights );

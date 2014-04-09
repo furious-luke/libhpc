@@ -19,7 +19,7 @@
 #define containers_mymath_hh
 
 #include <math.h>
-#include "libhpc/debug/debug.hh"
+#include "libhpc/debug/assert.hh"
 
 namespace hpc {
 

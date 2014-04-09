@@ -2,6 +2,7 @@
 #define libhpc_interactive_command_chain_hh
 
 #include <list>
+#include <string>
 #include "command_context.hh"
 
 namespace hpc {
@@ -15,7 +16,7 @@ namespace hpc {
          add( context& ctx );
 
          bool
-         operator()( const string& line );
+         operator()( std::string const& line );
 
       protected:
 

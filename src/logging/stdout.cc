@@ -15,13 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef NLOG
+
 #include <iostream>
 #include "stdout.hh"
 
 namespace hpc {
-   namespace logging {
-
-#ifndef NLOG
+   namespace log {
 
       stdout::stdout( unsigned min_level,
 		      const std::string& tag )
@@ -40,6 +40,7 @@ namespace hpc {
 	 std::cout.flush();
       }
 
-#endif
    }
 }
+
+#endif

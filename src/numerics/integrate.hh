@@ -19,7 +19,7 @@
 #define libhpc_numerics_integrate_hh
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       template< class Function,
                 class PointIter,

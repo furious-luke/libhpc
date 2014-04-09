@@ -19,7 +19,7 @@
 #define libhpc_h5_dataspace_hh
 
 #include <boost/optional.hpp>
-#include "libhpc/mpi/mpi.hh"
+#include "libhpc/mpi.hh"
 #include <hdf5.h>
 #include "libhpc/system/view.hh"
 
@@ -47,7 +47,7 @@ namespace hpc {
          template< class Dims >
 	 dataspace( typename type_traits<Dims>::const_reference dims );
 
-	 dataspace( dataset&& src );
+	 dataspace( dataspace&& src );
 
 	 ~dataspace();
 
@@ -63,7 +63,21 @@ namespace hpc {
 
          template< class Dims >
 	 void
-	 create( typename type_traits<Dims>::const_reference dims );
+	 create( typename type_traits<Dims>::const_reference dims )
+         {
+            static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t),
+                           "Incompatible hsize_t type." );
+
+            close();
+
+            if( std::accumulate( dims.begin(), dims.end(), 0 ) )
+               _id = H5Screate_simple( dims.size(), dims.data(), 0 );
+            else
+               _id = H5Screate( H5S_NULL );
+
+            ASSERT( _id >= 0 );
+         }
+
 
 	 void
 	 close();
@@ -74,8 +88,13 @@ namespace hpc {
 	 hsize_t
 	 simple_extent_num_dims() const;
 
-	 hsize_t
-	 simple_extent_dims( view<std::vector<hsize_t>> dims ) const;
+         template< class Dims >
+         void
+	 simple_extent_dims( typename type_traits<Dims>::reference dims ) const
+         {
+            static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
+            INSIST( H5Sget_simple_extent_dims( _id, dims.data(), 0 ), >= 0 );
+         }
 
 	 void
 	 select_all();
@@ -85,14 +104,34 @@ namespace hpc {
 
 	 void
 	 select_one( hsize_t element,
-                     H5S_seloper_t op=H5S_SELECT_SET );
+                     H5S_seloper_t op = H5S_SELECT_SET );
 
-	 void
+         template< class Buffer >
+         typename boost::enable_if<random_access_trait<Buffer>>::type
 	 select_hyperslab( H5S_seloper_t op,
-			   view<std::vector<hsize_t>> const& count,
-			   view<std::vector<hsize_t>> const& start,
-			   boost::optional<view<std::vector<hsize_t>> const&> stride = boost::optional<view<std::vector<hsize_t>> const&>(),
-			   boost::optional<view<std::vector<hsize_t>> const&> block=boost::optional<view<std::vector<hsize_t>> const&>() );
+			   typename type_traits<Buffer>::const_reference count,
+			   typename type_traits<Buffer>::const_reference start,
+                           typename type_traits<Buffer>::const_reference stride = typename type_traits<Buffer>::const_reference(),
+			   typename type_traits<Buffer>::const_reference block = typename type_traits<Buffer>::const_reference() )
+         {
+            static_assert( sizeof(typename Buffer::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
+            ASSERT( simple_extent_num_dims() == count.size() && count.size() == start.size() );
+            ASSERT( stride.size() == 0 || stride.size() == count.size() );
+            ASSERT( block.size() == 0 || block.size() == count.size() );
+
+            // Don't call the HDF5 routine if there is nothing to select.
+            if( std::accumulate( count.begin(), count.end(), 0 ) )
+            {
+               INSIST( H5Sselect_hyperslab( _id,
+                                            op,
+                                            start.data(),
+                                            stride.empty() ? 0 : stride.data(),
+                                            count.data(),
+                                            block.empty() ? 0 : block.data() ), >= 0 );
+            }
+            else
+               INSIST( H5Sselect_none( _id ), >= 0 );
+         }
 
 	 void
 	 select_hyperslab( H5S_seloper_t op,
@@ -105,18 +144,25 @@ namespace hpc {
 	 select_range( hsize_t start,
 		       hsize_t finish );
 
+         template< class Buffer >
 	 void
-	 select_elements( view<std::vector<hsize_t>> const& elements,
-			  H5S_seloper_t op=H5S_SELECT_SET );
+	 select_elements( typename type_traits<Buffer>::const_reference elems,
+                          H5S_seloper_t op = H5S_SELECT_SET )
+         {
+            static_assert( sizeof(typename Buffer::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
 
-	 void
-	 select_elements2( view<std::vector<hsize_t>> const& elems,
-                           H5S_seloper_t op = H5S_SELECT_SET );
-
-	 void
-	 select_slices( int slice_dim,
-			view<std::vector<hsize_t>> const& idxs,
-			H5S_seloper_t op=H5S_SELECT_SET );
+            if( !elems.empty() )
+            {
+               std::vector<hsize_t> dims( simple_extent_num_dims() );
+               simple_extent_dims<std::vector<hsize_t>>( dims );
+               ASSERT( elems.size()%dims.size() == 0,
+                      "Flattened element selection array does not divide evenly between the "
+                      "number of dimensions in the dataset.");
+               INSIST( H5Sselect_elements( _id, op, elems.size()/dims.size(), elems ), >= 0 );
+            }
+            else if( op == H5S_SELECT_SET )
+               select_none();
+         }
 
       protected:
 

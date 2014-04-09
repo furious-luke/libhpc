@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include "unit_test.hh"
+#include "runner.hh"
 #ifdef HPC_UT_LOG
 #include <libhpc/logging.hh>
 #endif

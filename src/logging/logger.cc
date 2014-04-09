@@ -15,22 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef NLOG
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
-#include "libhpc/system/stream_indent.hh"
-#include "libhpc/system/stream_output.hh"
-#include "libhpc/containers/containers.hh"
+#include "libhpc/debug/assert.hh"
+#include "libhpc/system/stream.hh"
 #include "logger.hh"
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#ifndef NLOG
-
 namespace hpc {
-   namespace logging {
+   namespace log {
 
       double log_base_time;
 
@@ -107,7 +106,7 @@ namespace hpc {
       }
 
       void
-      logger::pop_tag( const string& tag )
+      logger::pop_tag( const std::string& tag )
       {
 	 ASSERT( current_tags().find( tag ) != current_tags().end(), "Unable to find tag: ", tag );
 	 int& val = current_tags()[tag];
