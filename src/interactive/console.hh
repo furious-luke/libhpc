@@ -1,15 +1,16 @@
+#if 0
+
 #ifndef libhpc_interactive_console_hh
 #define libhpc_interactive_console_hh
 
 #ifdef HAVE_GLUT
 
+#include <stdint.h>
 #include <string>
 #include <list>
 #include <array>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "libhpc/system/types.hh"
-#include "libhpc/containers/containers.hh"
 #include "animation.hh"
 
 namespace hpc {
@@ -31,8 +32,8 @@ namespace hpc {
          console();
 
          void
-         reshape( uint16 width,
-                  uint16 height );
+         reshape( uint16_t width,
+                  uint16_t height );
 
          void
          toggle();
@@ -56,9 +57,9 @@ namespace hpc {
          draw();
 
          void
-         write( const string& str );
+         write( const std::string& str );
 
-         const string&
+         const std::string&
          line() const;
 
       protected:
@@ -83,12 +84,12 @@ namespace hpc {
 
       protected:
 
-	 std::array<uint16,2> _scr;
-         uint16 _num_lines;
-         uint16 _line_height;
+	 std::array<uint16_t,2> _scr;
+         uint16_t _num_lines;
+         uint16_t _line_height;
          GLfloat _alpha;
          int _open;
-	 std::list<string> _hist;
+	 std::list<std::string> _hist;
 	 std::string _line;
          inter::animation<GLfloat> _anim;
 
@@ -101,6 +102,8 @@ namespace hpc {
 
    }
 }
+
+#endif
 
 #endif
 

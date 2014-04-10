@@ -15,38 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <libhpc/debug/unit_test_main.hh>
+#include <libhpc/unit_test/main.hh>
 #include <libhpc/system/path_finder.hh>
 
-using namespace hpc::test;
+TEST_CASE( "/libhpc/system/path_finder/add_root" )
+{
+   hpc::path_finder pf;
+   pf.add_root( "." );
+   pf.add_root( "/tmp" );
+   TEST( pf.roots().size() == 2 );
+   TEST( pf.roots().front() == "." );
+   TEST( pf.roots().back() == "/tmp" );
+}
 
-namespace {
-
-   test_case<> ANON(
-      "/libhpc/system/path_finder/add_root",
-      "",
-      []()
-      {
-	 hpc::path_finder pf;
-	 pf.add_root( "." );
-	 pf.add_root( "/tmp" );
-	 TEST( pf.roots().size() == 2 );
-	 TEST( pf.roots().front() == "." );
-	 TEST( pf.roots().back() == "/tmp" );
-      }
-      );
-
-   test_case<> ANON(
-      "/libhpc/system/path_finder/find",
-      "",
-      []()
-      {
-	 hpc::path_finder pf;
-	 pf.add_root( "." );
-	 pf.add_root( "/tmp" );
-	 // TEST( *pf.find( "auth/login.html" ) == "./auth/login.html" );
-	 TEST( pf.find( "nothing" ) == boost::none );
-      }
-      );
-
+TEST_CASE( "/libhpc/system/path_finder/find" )
+{
+   hpc::path_finder pf;
+   pf.add_root( "." );
+   pf.add_root( "/tmp" );
+   // TEST( *pf.find( "auth/login.html" ) == "./auth/login.html" );
+   TEST( pf.find( "nothing" ) == boost::none );
 }

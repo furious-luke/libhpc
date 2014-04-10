@@ -15,39 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <array>
-#include "libhpc/debug/unit_test_main.hh"
-#include "libhpc/numerics/kde.hh"
-#include "libhpc/containers/random.hh"
-#include "libhpc/system/stream_output.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/system/random.hh>
+#include <libhpc/numerics/kde.hh>
 
-using namespace hpc::test;
+TEST_CASE( "/libhpc/numerics/kde/constant" )
+{
+   typedef hpc::numerics::kde<
+      double,
+      hpc::numerics::bandwidths::constant<double>,
+      hpc::numerics::kernels::epanechnikov<double>
+      > kde_type;
 
-namespace {
-
-   test_case<> ANON(
-      "/libhpc/numerics/kde/constant",
-      "",
-      []()
-      {
-         typedef hpc::numerics::kde<
-            double,
-            hpc::numerics::bandwidths::constant<double>,
-            hpc::numerics::kernels::epanechnikov<double>
-            > kde_type;
-
-         std::vector<double> pnts( 1000 );
-         std::generate( pnts.begin(), pnts.end(), hpc::normal_generator<double>() );
-         kde_type kde( pnts );
-         kde.bandwidth().set_iqr( kde.points() );
-
-         // std::cout << "\n";
-         // for( unsigned ii = 0; ii < 100; ++ii )
-         // {
-         //    double x = -5.0 + (double)ii*(10.0/99.0);
-         //    std::cout << x << ", " << kde.eval( x ) << "\n";
-         // }
-      }
-      );
-
+   std::vector<double> pnts( 1000 );
+   std::generate( pnts.begin(), pnts.end(), hpc::normal_generator<double>() );
+   kde_type kde( pnts );
+   kde.bandwidth().set_iqr( kde.points() );
 }

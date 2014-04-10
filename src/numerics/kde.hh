@@ -19,12 +19,11 @@
 #define libhpc_numerics_kde_hh
 
 #include <vector>
-#include <array>
 #include <memory>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
-#include "libhpc/containers/view.hh"
-#include "libhpc/containers/assign.hh"
+#include "libhpc/system/view.hh"
+#include "libhpc/system/assign.hh"
 #include "iqr.hh"
 
 namespace hpc {
@@ -140,7 +139,7 @@ namespace hpc {
             return y;
          }
 
-         typename hpc::view<std::vector<value_type>>::type const
+         typename hpc::view<std::vector<value_type>> const
          points() const
          {
             return _pnts;

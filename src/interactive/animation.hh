@@ -1,10 +1,11 @@
+#if 0
+
 #ifndef libhpc_interactive_animation_hh
 #define libhpc_interactive_animation_hh
 
 #include <array>
 #include <boost/iterator/iterator_facade.hpp>
-#include "libhpc/logging/logging.hh"
-#include "libhpc/system/timer.hh"
+#include "libhpc/logging.hh"
 
 namespace hpc {
    namespace inter {
@@ -101,5 +102,7 @@ namespace hpc {
 
    }
 }
+
+#endif
 
 #endif

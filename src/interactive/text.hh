@@ -3,14 +3,14 @@
 
 #ifdef HAVE_GLUT
 
+#include <string>
 #include <GL/glut.h>
-#include "libhpc/containers/string.hh"
 
 namespace hpc {
    namespace gl {
 
       void
-      draw_text( const string& text,
+      draw_text( const std::string& text,
                  GLfloat x,
                  GLfloat y,
                  void* font = GLUT_BITMAP_9_BY_15 );

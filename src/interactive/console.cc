@@ -1,7 +1,10 @@
-#include "console.hh"
-#include "text.hh"
+#if 0
 
 #ifdef HAVE_GLUT
+
+#include "libhpc/debug/assert.hh"
+#include "console.hh"
+#include "text.hh"
 
 namespace hpc {
    namespace gl {
@@ -21,8 +24,8 @@ namespace hpc {
       }
 
       void
-      console::reshape( uint16 width,
-                        uint16 height )
+      console::reshape( uint16_t width,
+                        uint16_t height )
       {
          _scr[0] = width;
          _scr[1] = height;
@@ -124,12 +127,12 @@ namespace hpc {
       }
 
       void
-      console::write( const string& str )
+      console::write( const std::string& str )
       {
          _hist.push_back( str );
       }
 
-      const string&
+      const std::string&
       console::line() const
       {
          ASSERT( !_hist.empty(), "No lines in empty history." );
@@ -227,5 +230,7 @@ namespace hpc {
 
    }
 }
+
+#endif
 
 #endif

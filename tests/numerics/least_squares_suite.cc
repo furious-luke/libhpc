@@ -15,117 +15,95 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <array>
-#include "libhpc/debug/unit_test_main.hh"
-#include "libhpc/numerics/least_squares.hh"
+#include <boost/array.hpp>
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/numerics/least_squares.hh>
 
-using namespace hpc::test;
-
-namespace {
-
-   test_case<> ANON(
-      "/libhpc/numerics/least_squares/1d/linear",
-      "",
-      []()
-      {
+TEST_CASE( "/libhpc/numerics/least_squares/1d/linear" )
+{
 #ifdef HAVE_EIGEN
-         hpc::numerics::least_squares<double> ls;
-         ls.resize( 10 );
-         for( int ii = 0; ii < 10; ++ii )
-            ls.add_sample( (double)ii, (double)(ii + 1) );
-         ls.solve();
-         DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
+   hpc::numerics::least_squares<double> ls;
+   ls.resize( 10 );
+   for( int ii = 0; ii < 10; ++ii )
+      ls.add_sample( (double)ii, (double)(ii + 1) );
+   ls.solve();
+   DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
 
-         ls.reset();
-         for( int ii = 0; ii < 10; ++ii )
-            ls.add_sample( (double)ii, (double)(-ii - 1) );
-         ls.solve();
-         DELTA( ls.solution()( 0 ), -1.0, 1e-4 );
-         DELTA( ls.solution()( 1 ), -1.0, 1e-4 );
+   ls.reset();
+   for( int ii = 0; ii < 10; ++ii )
+      ls.add_sample( (double)ii, (double)(-ii - 1) );
+   ls.solve();
+   DELTA( ls.solution()( 0 ), -1.0, 1e-4 );
+   DELTA( ls.solution()( 1 ), -1.0, 1e-4 );
 #endif
-      }
-      );
+}
 
-   test_case<> ANON(
-      "/libhpc/numerics/least_squares/1d/quadratic",
-      "",
-      []()
-      {
+TEST_CASE( "/libhpc/numerics/least_squares/1d/quadratic" )
+{
 #ifdef HAVE_EIGEN
-         hpc::numerics::least_squares<double> ls;
-         ls.resize( 10, 2 );
-         for( int ii = 0; ii < 10; ++ii )
-            ls.add_sample( (double)ii, (double)(ii*ii) );
-         ls.solve();
-         DELTA( ls.solution()( 0 ), 0.0, 1e-4 );
-         DELTA( ls.solution()( 1 ), 0.0, 1e-4 );
-         DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
+   hpc::numerics::least_squares<double> ls;
+   ls.resize( 10, 2 );
+   for( int ii = 0; ii < 10; ++ii )
+      ls.add_sample( (double)ii, (double)(ii*ii) );
+   ls.solve();
+   DELTA( ls.solution()( 0 ), 0.0, 1e-4 );
+   DELTA( ls.solution()( 1 ), 0.0, 1e-4 );
+   DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
 
-         ls.reset();
-         for( int ii = 0; ii < 10; ++ii )
-            ls.add_sample( (double)ii, (double)(ii + 1)*(ii + 1) );
-         ls.solve();
-         DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 1 ), 2.0, 1e-4 );
-         DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
+   ls.reset();
+   for( int ii = 0; ii < 10; ++ii )
+      ls.add_sample( (double)ii, (double)(ii + 1)*(ii + 1) );
+   ls.solve();
+   DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 1 ), 2.0, 1e-4 );
+   DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
 #endif
-      }
-      );
+}
 
-   test_case<> ANON(
-      "/libhpc/numerics/least_squares/2d/linear",
-      "",
-      []()
-      {
+TEST_CASE( "/libhpc/numerics/least_squares/2d/linear" )
+{
 #ifdef HAVE_EIGEN
-         hpc::numerics::least_squares<double> ls;
-         ls.resize( 100, 1, 2 );
-         for( int ii = 0; ii < 10; ++ii )
-         {
-            for( int jj = 0; jj < 10; ++jj )
-            {
-               std::array<double,2> crd{ { (double)ii, (double)jj } };
-               ls.add_sample( crd.begin(), (double)(1 + ii + 2*jj + ii*jj) );
-            }
-         }
-         ls.solve();
-         DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 2 ), 2.0, 1e-4 );
-         DELTA( ls.solution()( 3 ), 1.0, 1e-4 );
-#endif
-      }
-      );
-
-   test_case<> ANON(
-      "/libhpc/numerics/least_squares/2d/quadratic",
-      "",
-      []()
+   hpc::numerics::least_squares<double> ls;
+   ls.resize( 100, 1, 2 );
+   for( int ii = 0; ii < 10; ++ii )
+   {
+      for( int jj = 0; jj < 10; ++jj )
       {
-#ifdef HAVE_EIGEN
-         hpc::numerics::least_squares<double> ls;
-         ls.resize( 100, 2, 2 );
-         for( int ii = 0; ii < 10; ++ii )
-         {
-            for( int jj = 0; jj < 10; ++jj )
-            {
-               std::array<double,2> crd{ { (double)ii, (double)jj } };
-               ls.add_sample( crd.begin(), (double)(1 + ii + 2*jj + ii*jj + ii*ii + 2*jj*jj + ii*ii*jj*jj) );
-            }
-         }
-         ls.solve();
-         DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 3 ), 2.0, 1e-4 );
-         DELTA( ls.solution()( 4 ), 1.0, 1e-4 );
-         DELTA( ls.solution()( 5 ), 0.0, 1e-4 );
-         DELTA( ls.solution()( 6 ), 2.0, 1e-4 );
-         DELTA( ls.solution()( 7 ), 0.0, 1e-4 );
-         DELTA( ls.solution()( 8 ), 1.0, 1e-4 );
-#endif
+         std::array<double,2> crd{ { (double)ii, (double)jj } };
+         ls.add_sample( crd.begin(), (double)(1 + ii + 2*jj + ii*jj) );
       }
-      );
+   }
+   ls.solve();
+   DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 2 ), 2.0, 1e-4 );
+   DELTA( ls.solution()( 3 ), 1.0, 1e-4 );
+#endif
+}
 
+TEST_CASE( "/libhpc/numerics/least_squares/2d/quadratic" )
+{
+#ifdef HAVE_EIGEN
+   hpc::numerics::least_squares<double> ls;
+   ls.resize( 100, 2, 2 );
+   for( int ii = 0; ii < 10; ++ii )
+   {
+      for( int jj = 0; jj < 10; ++jj )
+      {
+         std::array<double,2> crd{ { (double)ii, (double)jj } };
+         ls.add_sample( crd.begin(), (double)(1 + ii + 2*jj + ii*jj + ii*ii + 2*jj*jj + ii*ii*jj*jj) );
+      }
+   }
+   ls.solve();
+   DELTA( ls.solution()( 0 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 1 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 2 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 3 ), 2.0, 1e-4 );
+   DELTA( ls.solution()( 4 ), 1.0, 1e-4 );
+   DELTA( ls.solution()( 5 ), 0.0, 1e-4 );
+   DELTA( ls.solution()( 6 ), 2.0, 1e-4 );
+   DELTA( ls.solution()( 7 ), 0.0, 1e-4 );
+   DELTA( ls.solution()( 8 ), 1.0, 1e-4 );
+#endif
 }

@@ -18,16 +18,13 @@
 #ifndef libhpc_numerics_interp_iterator_hh
 #define libhpc_numerics_interp_iterator_hh
 
-#include <array>
+#include <boost/array.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/preprocessor/stringize.hpp>
-#include "libhpc/debug/debug.hh"
-#include "libhpc/containers/num.hh"
-#include "libhpc/containers/vector.hh"
+#include "libhpc/debug/assert.hh"
+#include "libhpc/system/math.hh"
 
 namespace hpc {
-
-#if CXX_0X
 
    template< class Grid0Iterator,
              class Grid1Iterator = Grid0Iterator,
@@ -79,7 +76,7 @@ namespace hpc {
       }
 
       // TODO: Don't return a pointer!
-      const std::array<size_t,2>&
+      const boost::array<size_t,2>&
       indices() const
       {
          return _idxs;
@@ -132,7 +129,7 @@ namespace hpc {
             _side = 1;
          else if( _grid1_start == _grid1_finish )
             _side = 0;
-         else if( num::approx<value_type>( *_grid0_start, *_grid1_start, _epsilon ) )
+         else if( approx<value_type>( *_grid0_start, *_grid1_start, _epsilon ) )
             _side = 2;
          else if( *_grid0_start < *_grid1_start )
             _side = 0;
@@ -143,7 +140,7 @@ namespace hpc {
    protected:
 
       int _side;
-      std::array<size_t,2> _idxs;
+      boost::array<size_t,2> _idxs;
       grid0_iterator_type _grid0_start, _grid0_finish;
       grid1_iterator_type _grid1_start, _grid1_finish;
       value_type _epsilon;
@@ -165,8 +162,6 @@ namespace hpc {
          epsilon
          );
    }
-
-#endif
 
 }
 

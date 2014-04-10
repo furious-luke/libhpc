@@ -22,7 +22,7 @@
 #include "interp_iterator.hh"
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       template< class T >
       class spline_integrator
@@ -160,12 +160,12 @@ namespace hpc {
                );
 
             // Skip anything outside of the overlap range.
-            while( !num::approx( *it, low, 1e-7 ) )
+            while( !approx( *it, low, 1e-7 ) )
                ++it;
 
             // Sum until we hit the upper limit.
             value_type sum = 0.0;
-            while( !num::approx( *it++, upp, 1e-7 ) )
+            while( !approx( *it++, upp, 1e-7 ) )
             {
                value_type w = *it - low;
                value_type jac_det = 0.5*w;

@@ -15,100 +15,75 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <libhpc/debug/unit_test_main.hh>
-#include "libhpc/numerics/spline.hh"
-#include "libhpc/containers/view.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/numerics/spline.hh>
 
-using namespace hpc;
-using namespace hpc::test;
-using namespace hpc::numerics;
+TEST_CASE( "/numerics/spline/move_knots" )
+{
+   std::vector<double> pnts( 3 ), vals( 3 );
+   pnts[0] = -1.0; vals[0] = 0.5;
+   pnts[1] =  0.0; vals[1] = 0.0;
+   pnts[2] =  3.0; vals[2] = 3.0;
 
-namespace {
+   hpc::num::spline<double,std::vector<double>,std::vector<double>> spl;
+   spl.set_knot_points( pnts );
+   spl.set_knot_values( vals );
 
-   test_case<> ANON(
-      "/numerics/spline/move_knots",
-      "Knot values must be moved correctly.",
-      []()
-      {
-         std::vector<double> pnts( 3 ), vals( 3 );
-         pnts[0] = -1.0; vals[0] = 0.5;
-         pnts[1] =  0.0; vals[1] = 0.0;
-         pnts[2] =  3.0; vals[2] = 3.0;
+   TEST( pnts.empty() == true );
+   TEST( vals.empty() == true );
+   TEST( spl.knot_points()[0] == -1.0 );
+   TEST( spl.knot_values()[0] == 0.5 );
+}
 
-         spline<double, std::vector<double>, std::vector<double>> spl;
-         spl.set_knot_points( pnts );
-         spl.set_knot_values( vals );
+TEST_CASE( "/numerics/spline/three_point_solve" )
+{
+   std::vector<double> pnts( 3 ), vals( 3 );
+   pnts[0] = -1.0; vals[0] = 0.5;
+   pnts[1] =  0.0; vals[1] = 0.0;
+   pnts[2] =  3.0; vals[2] = 3.0;
 
-         TEST( pnts.empty() == true );
-         TEST( vals.empty() == true );
-         TEST( spl.knot_points()[0] == -1.0 );
-         TEST( spl.knot_values()[0] == 0.5 );
-      }
-      );
+   hpc::num::spline<double> spl;
+   spl.set_knot_points( pnts );
+   spl.set_knot_values( vals );
+   spl.update();
 
-   test_case<> ANON(
-      "/numerics/spline/three_point_solve",
-      "",
-      []()
-      {
-         vector<double> pnts( 3 ), vals( 3 );
-         pnts[0] = -1.0; vals[0] = 0.5;
-         pnts[1] =  0.0; vals[1] = 0.0;
-         pnts[2] =  3.0; vals[2] = 3.0;
+   DELTA( spl.ai()[0], -0.1875, 0.00001 );
+   DELTA( spl.ai()[1], -3.3750, 0.00001 );
+   DELTA( spl.bi()[0], -0.3750, 0.00001 );
+   DELTA( spl.bi()[1], -1.6875, 0.00001 );
+}
 
-         spline<double> spl;
-         spl.set_knot_points( pnts );
-         spl.set_knot_values( vals );
-         spl.update();
+TEST_CASE( "/numerics/spline/interpolate" )
+{
+   std::vector<double> pnts( 3 ), vals( 3 );
+   pnts[0] = -1.0; vals[0] = 0.5;
+   pnts[1] =  0.0; vals[1] = 0.0;
+   pnts[2] =  3.0; vals[2] = 3.0;
 
-         DELTA( spl.ai()[0], -0.1875, 0.00001 );
-         DELTA( spl.ai()[1], -3.3750, 0.00001 );
-         DELTA( spl.bi()[0], -0.3750, 0.00001 );
-         DELTA( spl.bi()[1], -1.6875, 0.00001 );
-      }
-      );
+   hpc::num::spline<double> spl;
+   spl.set_knot_points( pnts );
+   spl.set_knot_values( vals );
+   spl.update();
 
-   test_case<> ANON(
-      "/numerics/spline/interpolate",
-      "",
-      []()
-      {
-         vector<double> pnts( 3 ), vals( 3 );
-         pnts[0] = -1.0; vals[0] = 0.5;
-         pnts[1] =  0.0; vals[1] = 0.0;
-         pnts[2] =  3.0; vals[2] = 3.0;
+   for( unsigned ii = 0; ii <= 100; ++ii )
+   {
+      double x = -1.0 + 6.0*((double)ii)/100.0;
+      spl( x );
+   }
+}
 
-         spline<double> spl;
-         spl.set_knot_points( pnts );
-         spl.set_knot_values( vals );
-         spl.update();
+TEST_CASE( "/numerics/spline/shared_points" )
+{
+   std::vector<double> pnts( 3 ), vals( 3 );
+   pnts[0] = -1.0; vals[0] = 0.5;
+   pnts[1] =  0.0; vals[1] = 0.0;
+   pnts[2] =  3.0; vals[2] = 3.0;
 
-         for( unsigned ii = 0; ii <= 100; ++ii )
-         {
-            double x = -1.0 + 6.0*((double)ii)/100.0;
-            spl( x );
-         }
-      }
-      );
+   hpc::num::spline<double,hpc::view<std::vector<double>>> spl;
+   spl.set_knot_points( pnts );
+   spl.set_knot_values( vals );
 
-   test_case<> ANON(
-      "/numerics/spline/shared_points",
-      "",
-      []()
-      {
-         vector<double> pnts( 3 ), vals( 3 );
-         pnts[0] = -1.0; vals[0] = 0.5;
-         pnts[1] =  0.0; vals[1] = 0.0;
-         pnts[2] =  3.0; vals[2] = 3.0;
-
-         spline<double, view<std::vector<double>>::type> spl;
-         spl.set_knot_points( pnts );
-         spl.set_knot_values( vals );
-
-         TEST( pnts.size() == 3 );
-         TEST( spl.knot_points().size() == 3 );
-         TEST( spl.knot_points().data() == pnts.data() );
-      }
-      );
-
+   TEST( pnts.size() == 3 );
+   TEST( spl.knot_points().size() == 3 );
+   TEST( spl.knot_points().data() == pnts.data() );
 }

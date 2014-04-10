@@ -18,16 +18,15 @@
 #ifndef libhpc_numerics_spline_hh
 #define libhpc_numerics_spline_hh
 
+#include <vector>
 #include <boost/iterator/iterator_facade.hpp>
-#include "libhpc/debug/debug.hh"
-#include "libhpc/containers/vector.hh"
-#include "libhpc/containers/fibre.hh"
-#include "libhpc/containers/functors.hh"
-#include "libhpc/containers/assign.hh"
+#include "libhpc/debug/assert.hh"
+#include "libhpc/system/assign.hh"
+#include "libhpc/system/view.hh"
 #include "tridiag.hh"
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       ///
       ///
@@ -78,9 +77,9 @@ namespace hpc {
          {
             ASSERT( _pnts.size() == _vals.size(), "Mismatched points/values arrays in spline." );
 	    ASSERT( _pnts.size() > 1, "Too few knots for spline." );
-            _diff.reallocate( _vals.size() - 1 );
-            _ai.reallocate( _vals.size() - 1 );
-            _bi.reallocate( _vals.size() - 1 );
+            _diff.resize( _vals.size() - 1 );
+            _ai.resize( _vals.size() - 1 );
+            _bi.resize( _vals.size() - 1 );
             _solve();
          }
 
@@ -180,13 +179,13 @@ namespace hpc {
             return _eval_poly( crd, poly );
          }
 
-         const typename vector<value_type>::view
+         typename hpc::view<std::vector<value_type>> const
          ai() const
          {
             return _ai;
          }
 
-         const typename vector<value_type>::view
+         typename hpc::view<std::vector<value_type>> const
          bi() const
          {
             return _bi;
@@ -206,12 +205,12 @@ namespace hpc {
          void
          _solve()
          {
-            hpc::vector<value_type> diag( _pnts.size() ), off_diag( _pnts.size() - 1 );
-            hpc::vector<value_type> rhs( _pnts.size() ), work( _pnts.size() - 1 );
-            hpc::vector<value_type> sol( _pnts.size() );
+            std::vector<value_type> diag( _pnts.size() ), off_diag( _pnts.size() - 1 );
+            std::vector<value_type> rhs( _pnts.size() ), work( _pnts.size() - 1 );
+            std::vector<value_type> sol( _pnts.size() );
 
             _assemble( diag, off_diag, rhs );
-            tridiag_symm_solve<value_type>( diag, off_diag, rhs, sol, work );
+            tridiag_symm_solve<std::vector<value_type>>( diag, off_diag, rhs, sol, work );
 
             for( unsigned ii = 0; ii < _ai.size(); ++ii )
             {
@@ -227,9 +226,9 @@ namespace hpc {
          }
 
          void
-         _assemble( hpc::vector<value_type>& diag,
-                    hpc::vector<value_type>& off_diag,
-                    hpc::vector<value_type>& rhs )
+         _assemble( std::vector<value_type>& diag,
+                    std::vector<value_type>& off_diag,
+                    std::vector<value_type>& rhs )
          {
             // Calculate differences first.
             for( unsigned ii = 0; ii < _diff.size(); ++ii )
@@ -261,8 +260,8 @@ namespace hpc {
 
          knot_values_type _vals;
          knot_points_type _pnts;
-         hpc::vector<value_type> _diff;
-         hpc::vector<value_type> _ai, _bi;
+         std::vector<value_type> _diff;
+         std::vector<value_type> _ai, _bi;
       };
 
    }

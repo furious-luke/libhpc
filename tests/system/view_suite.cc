@@ -17,11 +17,8 @@
 
 #include <vector>
 #include <numeric>
-#include <libhpc/debug/unit_test_main.hh>
-#include "libhpc/containers/view.hh"
-
-using namespace hpc;
-using namespace hpc::test;
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/system/view.hh>
 
 namespace {
 
@@ -37,7 +34,7 @@ namespace {
    };
 
    void
-   check_contents( vector_view<std::vector<int>>& view,
+   check_contents( hpc::view<std::vector<int>>& view,
                    size_t size = 10,
                    size_t offs = 0 )
    {
@@ -46,163 +43,41 @@ namespace {
          TEST( view[ii] == offs + ii );
    }
 
-   test_case<fixture> ANON(
-      "/containers/vector_view/constructor/one_to_one",
-      "",
-      []( fixture& fix )
-      {
-         view<std::vector<int>>::type view( fix.vec );
-         check_contents( view );
-      }
-      );
+   TEST_CASE( "/libhpc/system/view/constructor/one_to_one" )
+   {
+      fixture fix;
+      hpc::view<std::vector<int>> view( fix.vec );
+      check_contents( view );
+   }
 
-   test_case<fixture> ANON(
-      "/containers/vector_view/constructor/resize",
-      "",
-      []( fixture& fix )
-      {
-         view<std::vector<int>>::type view( fix.vec, 5 );
-         check_contents( view, 5 );
-      }
-      );
+   TEST_CASE( "/libhpc/system/view/constructor/resize" )
+   {
+      fixture fix;
+      hpc::view<std::vector<int>> view( fix.vec, 5 );
+      check_contents( view, 5 );
+   }
 
-   test_case<fixture> ANON(
-      "/containers/vector_view/constructor/offset",
-      "",
-      []( fixture& fix )
-      {
-         view<std::vector<int>>::type view( fix.vec, 7, 3 );
-         check_contents( view, 7, 3 );
-      }
-      );
+   TEST_CASE( "/libhpc/system/view/constructor/offset" )
+   {
+      fixture fix;
+      hpc::view<std::vector<int>> view( fix.vec, 7, 3 );
+      check_contents( view, 7, 3 );
+   }
 
-   test_case<fixture> ANON(
-      "/containers/vector_view/constructor/copy",
-      "",
-      []( fixture& fix )
-      {
-         view<std::vector<int>>::type view( fix.vec );
-         hpc::view<std::vector<int>>::type copy( view );
-         check_contents( view );
-         check_contents( copy );
-      }
-      );
+   TEST_CASE( "/libhpc/system/view/constructor/copy" )
+   {
+      fixture fix;
+      hpc::view<std::vector<int>> view( fix.vec );
+      hpc::view<std::vector<int>> copy( view );
+      check_contents( view );
+      check_contents( copy );
+   }
 
-   test_case<fixture> ANON(
-      "/containers/vector_view/size",
-      "",
-      []( fixture& fix )
-      {
-         view<std::vector<int>>::type view( fix.vec );
-         TEST( view.size() == fix.vec.size() );
-      }
-      );
-
-   // TODO: Finish these
-
-//    void test_empty()
-//    {
-//       {
-//          vector<int>::view view;
-//          TS_ASSERT(view.empty());
-//       }
-//       {
-//          vector<int>::view view(this->vec);
-//          TS_ASSERT(!view.empty());
-//       }
-//    }
-
-//    void test_data()
-//    {
-//       vector<int>::view view(this->vec);
-//       TS_ASSERT_EQUALS(view.data(), this->vec.data());
-//    }
-
-//    void test_const_dereference()
-//    {
-//       vector<int>::view view(this->vec);
-//       TS_ASSERT_THROWS_NOTHING(((const vector<int>::view&)view)[0]);
-// #ifndef NDEBUG
-//       TS_ASSERT_THROWS_ANYTHING(((const vector<int>::view&)view)[-1]);
-//       TS_ASSERT_THROWS_ANYTHING(((const vector<int>::view&)view)[11]);
-// #else
-//       TS_ASSERT_THROWS_NOTHING(((const vector<int>::view&)view)[11]);
-// #endif
-//    }
-
-//    void test_dereference()
-//    {
-//       vector<int>::view view(this->vec);
-//       TS_ASSERT_THROWS_NOTHING(((vector<int>::view&)view)[0]);
-// #ifndef NDEBUG
-//       TS_ASSERT_THROWS_ANYTHING(((vector<int>::view&)view)[-1]);
-//       TS_ASSERT_THROWS_ANYTHING(((vector<int>::view&)view)[11]);
-// #else
-//       TS_ASSERT_THROWS_NOTHING(((vector<int>::view&)view)[11]);
-// #endif
-//    }
-
-//    void test_assignment()
-//    {
-//       vector<int> tmp(10);
-//       vector<int>::view view(tmp);
-//       vector<int>::view src(this->vec);
-//       view = src;
-//       for(int ii = 0; ii < view.size(); ++ii)
-// 	 TS_ASSERT_EQUALS(view[ii], src[ii]);
-//    }
-
-//    void test_const_begin()
-//    {
-//       const vector<int>::view view(this->vec);
-//       TS_ASSERT_EQUALS(*view.begin(), 0);
-//       TS_ASSERT_EQUALS(*++view.begin(), 1);
-//    }
-
-//    void test_begin()
-//    {
-//       vector<int>::view view(this->vec);
-//       TS_ASSERT_EQUALS(*view.begin(), 0);
-//       TS_ASSERT_EQUALS(*++view.begin(), 1);
-//    }
-
-//    void test_const_end()
-//    {
-//       const vector<int>::view view(this->vec);
-//       TS_ASSERT_EQUALS(*--view.end(), 9);
-//       TS_ASSERT_EQUALS(*----view.end(), 8);
-//    }
-
-//    void test_end()
-//    {
-//       vector<int>::view view(this->vec);
-//       TS_ASSERT_EQUALS(*--view.end(), 9);
-//       TS_ASSERT_EQUALS(*----view.end(), 8);
-//    }
-
-//    void test_equality()
-//    {
-//       vector<int>::view view(this->vec);
-//       vector<int>::view copy(view);
-//       vector<int>::view offs(this->vec, 7, 3);
-//       vector<int> diff(10);
-//       hpc::iota(diff.begin(), diff.end(), 3);
-//       TS_ASSERT(view == copy);
-//       TS_ASSERT(!(view == offs));
-//       TS_ASSERT(!(view == diff));
-//    }
-
-
-
-//    void setUp()
-//    {
-//       this->vec.resize(10);
-//       hpc::iota(vec.begin(), vec.end(), 0);
-//    }
-
-// private:
-
-//    vector<int> vec;
-// };
+   TEST_CASE( "/libhpc/system/view/size" )
+   {
+      fixture fix;
+      hpc::view<std::vector<int>> view( fix.vec );
+      TEST( view.size() == fix.vec.size() );
+   }
 
 }

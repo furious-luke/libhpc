@@ -24,7 +24,7 @@
 #include <Eigen/Dense>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/containers/grid.hh"
-#include "libhpc/containers/mymath.hh"
+#include "libhpc/system/math.hh"
 
 namespace hpc {
    namespace numerics {

@@ -1,12 +1,12 @@
-#include "text.hh"
-
 #ifdef HAVE_GLUT
+
+#include "text.hh"
 
 namespace hpc {
    namespace gl {
 
       void
-      draw_text( const string& text,
+      draw_text( const std::string& text,
                  GLfloat x,
                  GLfloat y,
                  void* font )

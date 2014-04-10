@@ -18,23 +18,28 @@
 #ifndef libhpc_numerics_tridiag_hh
 #define libhpc_numerics_tridiag_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/containers/vector.hh"
+#include "libhpc/debug/assert.hh"
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       ///
       ///
       ///
-      template< class T >
+      template< class DiagVec,
+                class OffDiagVec = DiagVec,
+                class RHSVec = DiagVec,
+                class SolVec = DiagVec,
+                class WorkVec = DiagVec >
       void
-      tridiag_symm_solve( const typename hpc::vector<T>::view& diag,
-                          const typename hpc::vector<T>::view& off_diag,
-                          const typename hpc::vector<T>::view& rhs,
-                          typename hpc::vector<T>::view sol,
-                          typename hpc::vector<T>::view work )
+      tridiag_symm_solve( typename type_traits<DiagVec>::const_reference diag,
+                          typename type_traits<OffDiagVec>::const_reference off_diag,
+                          typename type_traits<RHSVec>::const_reference rhs,
+                          typename type_traits<SolVec>::reference sol,
+                          typename type_traits<WorkVec>::reference work )
       {
+         typedef typename SolVec::value_type value_type;
+
          ASSERT( diag.size() > 1 );
          ASSERT( diag.size() == off_diag.size() + 1 );
          ASSERT( diag.size() == rhs.size() );
@@ -49,7 +54,7 @@ namespace hpc {
          unsigned ii = 1;
          for( ; ii < off_diag.size(); ++ii )
          {
-            T tmp = 1.0/(diag[ii] - work[ii - 1]*off_diag[ii - 1]);
+            value_type tmp = 1.0/(diag[ii] - work[ii - 1]*off_diag[ii - 1]);
             sol[ii] = (rhs[ii] - sol[ii - 1]*off_diag[ii - 1])*tmp;
             work[ii] = off_diag[ii]*tmp;
          }
@@ -59,6 +64,7 @@ namespace hpc {
          for( ; ii > 0; --ii )
             sol[ii - 1] -= work[ii - 1]*sol[ii];
       }
+
    }
 }
 
