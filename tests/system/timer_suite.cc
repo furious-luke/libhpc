@@ -17,39 +17,31 @@
 
 #include <string.h>
 #include <unistd.h>
-#include <libhpc/debug/unit_test_main.hh>
-#include "libhpc/profile/timer.hh"
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/system/timer.hh>
 
 using namespace hpc;
 using namespace hpc::test;
 
-test_case<> ANON(
-   "/profile/timer/stop",
-   "",
-   []()
+TEST_CASE( "/libhpc/profile/timer/stop" )
+{
+   hpc::timer timer;
+   for( unsigned ii = 0; ii < 10; ++ii )
    {
-      profile::timer timer;
-      for( unsigned ii = 0; ii < 10; ++ii )
-      {
-         auto hnd = timer.start();
-	 usleep( 100000 ); // sleep for 1/10 second
-      }
-      DELTA( timer.total(), 1.0, 1e-2 );
+      auto hnd = timer.start();
+      usleep( 100000 ); // sleep for 1/10 second
    }
-   );
+   DELTA( timer.total().count(), 1.0, 1e-2 );
+}
 
-test_case<> ANON(
-   "/profile/timer/tally",
-   "",
-   []()
+TEST_CASE( "/libhpc/profile/timer/tally" )
+{
+   hpc::timer timer;
+   for( unsigned ii = 0; ii < 10; ++ii )
    {
-      profile::timer timer;
-      for( unsigned ii = 0; ii < 10; ++ii )
-      {
-	 auto hnd = timer.start( profile::timer::handle::TALLY );
-	 usleep( 100000 ); // sleep for 1/10 second
-      }
-      DELTA( timer.total(), 1.0, 1e-2 );
-      DELTA( timer.mean(), 0.1, 1e-2 );
+      auto hnd = timer.start( hpc::timer_handle::TALLY );
+      usleep( 100000 ); // sleep for 1/10 second
    }
-   );
+   DELTA( timer.total().count(), 1.0, 1e-2 );
+   DELTA( timer.mean().count(), 0.1, 1e-2 );
+}

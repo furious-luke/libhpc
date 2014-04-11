@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-class mpi_fixture : public CxxTest::GlobalFixture {
-public:
-  bool setUpWorld() {
-    hpc::mpi::initialise();
-    return true;
-  }
-  bool tearDownWorld() {
-    hpc::mpi::finalise(false);
-    return true;
-  }
-};
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/numerics/polynomial.hh>
 
-static mpi_fixture mpi_fix;
+TEST_CASE( "/libhpc/numerics/polynomial/jacobi" )
+{
+   hpc::polynomial::jacobi<double> jacobi( 16, 1.0, 1.0 );
+   for( unsigned ii = 0; ii < 100; ++ii )
+   {
+      double x = -1.0 + ((double)ii)*(2.0/99.0);
+      double f, df;
+      f = jacobi.derivative( x, df );
+   }
+}

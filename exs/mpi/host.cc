@@ -1,7 +1,7 @@
 #include <iostream>
 #include <libhpc/mpi/application.hh>
 #include <libhpc/mpi/host.hh>
-#include <libhpc/system/stream_output.hh>
+#include <libhpc/system/stream.hh>
 
 class application
    : public hpc::mpi::application
@@ -22,5 +22,4 @@ public:
    }
 };
 
-#define HPC_APP_CLASS application
 #include <libhpc/mpi/main.hh>

@@ -15,18 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_main_main_hh
-#define libhpc_main_main_hh
+#ifndef libhpc_system_main_hh
+#define libhpc_system_main_hh
 
 #ifndef HPC_APP_CLASS
-#error libhpc: Must have an application class defined.
+#define HPC_APP_CLASS application
 #endif
 
 #include "libhpc/debug/assertions.hh"
+#include "application.hh"
 
 namespace hpc {
 
-   extern hpc::application* global_app;
+    extern hpc::application* global_app;
 
 }
 
@@ -38,6 +39,7 @@ main( int argc,
       char* argv[] )
 {
    typedef HPC_APP_CLASS application_type;
+
    int ec = 0;
    try
    {
