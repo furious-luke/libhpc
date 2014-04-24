@@ -81,16 +81,17 @@ namespace hpc {
       {
       }
 
+      template< class Other >
       void
-      assign( view const& op,
-              size_t size,
+      assign( Other const& op,
+              size_t size = 0,
               size_t offs = 0 )
       {
 	 ASSERT( size >= 0 );
 	 ASSERT( offs >= 0 );
 	 ASSERT( offs + size <= op.size() );
 	 _ptr = (pointer)op.data() + offs;
-	 _size = size;
+	 _size = size ? size : op.size();
       }
 
       void

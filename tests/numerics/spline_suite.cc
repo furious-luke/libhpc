@@ -18,7 +18,7 @@
 #include <libhpc/unit_test/main.hh>
 #include <libhpc/numerics/spline.hh>
 
-TEST_CASE( "/numerics/spline/move_knots" )
+TEST_CASE( "/libhpc/numerics/spline/move_knots" )
 {
    std::vector<double> pnts( 3 ), vals( 3 );
    pnts[0] = -1.0; vals[0] = 0.5;
@@ -35,7 +35,7 @@ TEST_CASE( "/numerics/spline/move_knots" )
    TEST( spl.knot_values()[0] == 0.5 );
 }
 
-TEST_CASE( "/numerics/spline/three_point_solve" )
+TEST_CASE( "/libhpc/numerics/spline/three_point_solve" )
 {
    std::vector<double> pnts( 3 ), vals( 3 );
    pnts[0] = -1.0; vals[0] = 0.5;
@@ -53,7 +53,7 @@ TEST_CASE( "/numerics/spline/three_point_solve" )
    DELTA( spl.bi()[1], -1.6875, 0.00001 );
 }
 
-TEST_CASE( "/numerics/spline/interpolate" )
+TEST_CASE( "/libhpc/numerics/spline/interpolate" )
 {
    std::vector<double> pnts( 3 ), vals( 3 );
    pnts[0] = -1.0; vals[0] = 0.5;
@@ -72,7 +72,7 @@ TEST_CASE( "/numerics/spline/interpolate" )
    }
 }
 
-TEST_CASE( "/numerics/spline/shared_points" )
+TEST_CASE( "/libhpc/numerics/spline/shared_points" )
 {
    std::vector<double> pnts( 3 ), vals( 3 );
    pnts[0] = -1.0; vals[0] = 0.5;

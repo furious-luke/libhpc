@@ -50,7 +50,7 @@ TEST_CASE( "/libhpc/numerics/coords/cartesian_to_ecs" )
    DELTA( dec, 0.5*M_PI - acos( 1.0/sqrt( 3.0 ) ), 1e-8 );
 }
 
-TEST_CASE( "/numerics/coords/gnomonic_projection" )
+TEST_CASE( "/libhpc/numerics/coords/gnomonic_projection" )
 {
    double x, y;
    hpc::num::gnomonic_projection<double>( 0.0, 0.0, 0.0, 0.0, x, y );
@@ -117,7 +117,7 @@ TEST_CASE( "/libhpc/numerics/coords/redshift_to_light_travel_distance" )
    DELTA( age, 0.272, 1e-2 );
 }
 
-TEST_CASE( "/numerics/coords/redshift_to_light_luminosity_distance" )
+TEST_CASE( "/libhpc/numerics/coords/redshift_to_light_luminosity_distance" )
 {
    double dist = hpc::num::redshift_to_luminosity_distance<double>( 3, 1000, 73, 0.75, 0.25 );
    DELTA( dist, 25694.0, 10 );

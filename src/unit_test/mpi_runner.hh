@@ -15,28 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_runner_hh
-#define libhpc_unit_test_runner_hh
+#ifndef libhpc_unit_test_mpi_runner_hh
+#define libhpc_unit_test_mpi_runner_hh
 
+#include "runner.hh"
 #include "test_case.hh"
 
 namespace hpc {
    namespace test {
 
-      class runner
+      class mpi_runner
+         : public runner
       {
       public:
 
-         virtual
-         void
+         virtual void
          run( test_case_base& tc );
 
          virtual
          void
          dot() const;
-
-         void
-         run_all();
       };
 
    }

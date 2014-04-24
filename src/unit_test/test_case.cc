@@ -39,6 +39,18 @@ namespace hpc {
       }
 
       void
+      test_case_base::set_runner( test::runner const* runner )
+      {
+         _runner = runner;
+      }
+
+      test::runner const*
+      test_case_base::runner() const
+      {
+         return _runner;
+      }
+
+      void
       test_case_base::_add_test_case()
       {
          if( head )

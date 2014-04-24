@@ -15,7 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "runner.hh"
+#include <libhpc/mpi/comm.hh>
+#include "mpi_runner.hh"
 #include "failures.hh"
 
 namespace hpc {
@@ -24,36 +25,33 @@ namespace hpc {
       extern test_case_node_t* head;
 
       void
-      runner::run( test_case_base& tc )
+      mpi_runner::run( test_case_base& tc )
       {
-         std::cout << tc.name() << " " << std::flush;
+         if( mpi::comm::world.rank() == 0 )
+         {
+            std::cout << tc.name();
+            if( mpi::comm::world.size() > 1 )
+               std::cout << "[" << mpi::comm::world.size() << "]";
+            std::cout << " " << std::flush;
+         }
          try
          {
             tc.run();
-            std::cout << " ok\n";
+            if( mpi::comm::world.rank() == 0 )
+               std::cout << " ok\n";
          }
          catch( test_failed& ex )
          {
-            std::cout << ex.what();
+            if( mpi::comm::world.rank() == 0 )
+               std::cout << ex.what();
          }
       }
 
       void
-      runner::dot() const
+      mpi_runner::dot() const
       {
-         std::cout << "." << std::flush;
-      }
-
-      void
-      runner::run_all()
-      {
-         test_case_node_t* node = head;
-         while( node )
-         {
-            node->tc->set_runner( this );
-            run( *node->tc );
-            node = node->next;
-         }
+         if( mpi::comm::world.rank() == 0 )
+            runner::dot();
       }
 
    }

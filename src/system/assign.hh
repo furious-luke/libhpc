@@ -56,6 +56,55 @@ namespace hpc {
       return tgt;
    }
 
+   ///
+   /// Adopt source view. When moving a source view to a target view
+   /// I can copy the pointer and size.
+   ///
+   /// @param tgt Target view to adopt values.
+   /// @param src Source view to provide values.
+   /// @return Reference to target view.
+   ///
+   template< class T >
+   view<std::vector<T>>&
+   assign( view<std::vector<T>>& tgt,
+           view<std::vector<T>>&& src )
+   {
+      tgt.assign( src );
+      return tgt;
+   }
+
+   ///
+   /// Adopt source vector.
+   ///
+   /// @param tgt Target view to adopt values.
+   /// @param src Source vector to provide values.
+   /// @return Reference to target view.
+   ///
+   template< class T >
+   view<std::vector<T>>&
+   assign( view<std::vector<T>>& tgt,
+           std::vector<T> const& src )
+   {
+      tgt.assign( src );
+      return tgt;
+   }
+
+   ///
+   /// Adopt source vector.
+   ///
+   /// @param tgt Target view to adopt values.
+   /// @param src Source vector to provide values.
+   /// @return Reference to target view.
+   ///
+   template< class T >
+   view<std::vector<T>>&
+   assign( view<std::vector<T>>& tgt,
+           std::vector<T>& src )
+   {
+      tgt.assign( src );
+      return tgt;
+   }
+
    template< class T,
              class U >
    std::vector<T>&

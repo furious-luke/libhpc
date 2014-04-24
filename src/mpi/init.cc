@@ -38,8 +38,8 @@ namespace hpc {
       initialise( int& argc,
                   char**& argv )
       {
-         static std::shared_ptr<mpi::comm> static_comms[3];
-         static std::shared_ptr<mpi::datatype> static_types[3];
+         // static std::shared_ptr<mpi::comm> static_comms[3];
+         // static std::shared_ptr<mpi::datatype> static_types[3];
 
 	 int flag;
 	 MPI_Initialized( &flag );
@@ -68,22 +68,22 @@ namespace hpc {
 	    mpi::datatype::floating.mpi_datatype( MPI_FLOAT );
 	    mpi::datatype::double_floating.mpi_datatype( MPI_DOUBLE );
 
-            // Prepare static types.
-            static_comms[0].reset( &mpi::comm::null );
-            static_comms[1].reset( &mpi::comm::self );
-            static_comms[2].reset( &mpi::comm::world );
-            static_types[0].reset( &mpi::datatype::null );
-            static_types[1].reset( &mpi::datatype::byte );
-            static_types[2].reset( &mpi::datatype::boolean );
-            static_types[3].reset( &mpi::datatype::character );
-            static_types[4].reset( &mpi::datatype::integer );
-            static_types[5].reset( &mpi::datatype::unsigned_integer );
-            static_types[6].reset( &mpi::datatype::long_integer );
-            static_types[7].reset( &mpi::datatype::unsigned_long );
-            static_types[8].reset( &mpi::datatype::long_long );
-            static_types[9].reset( &mpi::datatype::unsigned_long_long );
-            static_types[10].reset( &mpi::datatype::floating );
-            static_types[11].reset( &mpi::datatype::double_floating );
+            // // Prepare static types.
+            // static_comms[0].reset( &mpi::comm::null );
+            // static_comms[1].reset( &mpi::comm::self );
+            // static_comms[2].reset( &mpi::comm::world );
+            // static_types[0].reset( &mpi::datatype::null );
+            // static_types[1].reset( &mpi::datatype::byte );
+            // static_types[2].reset( &mpi::datatype::boolean );
+            // static_types[3].reset( &mpi::datatype::character );
+            // static_types[4].reset( &mpi::datatype::integer );
+            // static_types[5].reset( &mpi::datatype::unsigned_integer );
+            // static_types[6].reset( &mpi::datatype::long_integer );
+            // static_types[7].reset( &mpi::datatype::unsigned_long );
+            // static_types[8].reset( &mpi::datatype::long_long );
+            // static_types[9].reset( &mpi::datatype::unsigned_long_long );
+            // static_types[10].reset( &mpi::datatype::floating );
+            // static_types[11].reset( &mpi::datatype::double_floating );
 
             // If we are not using MPICH2 (i.e. OpenMPI) update the
             // data type mapping.

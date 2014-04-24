@@ -26,6 +26,7 @@
 #endif
 #ifdef HPC_UT_MPI
 #include <libhpc/mpi.hh>
+#include "mpi_runner.hh"
 #endif
 
 int
@@ -38,7 +39,11 @@ main( int argc,
 #ifdef HPC_UT_LOG
    LOG_PUSH( new hpc::log::stdout );
 #endif
+#ifdef HPC_UT_MPI
+   hpc::test::mpi_runner runner;
+#else
    hpc::test::runner runner;
+#endif
    runner.run_all();
 #ifdef HPC_UT_MPI
    hpc::mpi::finalise();

@@ -20,6 +20,7 @@
 
 #include <string>
 #include <boost/function.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #define TEST_CASE( name )                               \
    void UNIQUE_LINE( __hpc_test_case__ )();             \
@@ -29,6 +30,8 @@
 
 namespace hpc {
    namespace test {
+
+      class runner;
 
       class test_case_base;
 
@@ -57,6 +60,12 @@ namespace hpc {
          std::string const&
          description() const;
 
+         void
+         set_runner( test::runner const* runner );
+
+         test::runner const*
+         runner() const;
+
       protected:
 
          void
@@ -66,6 +75,7 @@ namespace hpc {
 
          std::string _name;
          std::string _desc;
+         test::runner const* _runner;
       };
 
       template< class Fixture = void >
@@ -78,19 +88,13 @@ namespace hpc {
                     const std::string& desc,
                     boost::function<void(Fixture&)> func )
             : test_case_base( name, desc ),
-              _func( func ),
-              _fix( 0 )
+              _func( func )
          {
          }
 
          virtual
          ~test_case()
          {
-            if( _fix )
-            {
-               delete _fix;
-               _fix = 0;
-            }
          }
 
          virtual
@@ -98,16 +102,13 @@ namespace hpc {
          run()
          {
             _cur_tc = this;
-            _fix = new Fixture;
-            _func( *_fix );
-            delete _fix;
-            _fix = 0;
+            boost::scoped_ptr<Fixture> fix( new Fixture );
+            _func( *fix.get() );
          }
 
       protected:
 
          std::function<void(Fixture&)> _func;
-         Fixture* _fix;
       };
 
       template<>

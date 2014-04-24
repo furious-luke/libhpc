@@ -36,7 +36,7 @@ namespace hpc {
             throw test_expression_failed<T,U>( tc, *this, desc );
          }
          else
-            std::cout << "." << std::flush;
+            tc.runner().dot();
       }
 
    }

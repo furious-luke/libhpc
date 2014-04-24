@@ -19,6 +19,7 @@
 #define libhpc_unit_test_failures_hh
 
 #include "expression.hh"
+#include "runner.hh"
 
 namespace hpc {
    namespace test {
@@ -71,7 +72,7 @@ namespace hpc {
             throw test_expression_failed<T,U>( tc, *this, desc );
          }
          else
-            std::cout << "." << std::flush;
+            tc.runner()->dot();
       }
 
    }

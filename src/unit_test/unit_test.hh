@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_unit_test_hh
-#define libhpc_debug_unit_test_hh
+#ifndef libhpc_unit_test_unit_test_hh
+#define libhpc_unit_test_unit_test_hh
 
 #include <iostream>
 #include <string>
