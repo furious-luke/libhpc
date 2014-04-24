@@ -15,11 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_h5_hh
-#define hpc_h5_hh
+#ifndef libhpc_h5_hh
+#define libhpc_h5_hh
 
-#include "file.hh"
-#include "property_list.hh"
-#include "derive.hh"
+#include "h5/file.hh"
+#include "h5/property_list.hh"
+#include "h5/derive.hh"
 
 #endif
