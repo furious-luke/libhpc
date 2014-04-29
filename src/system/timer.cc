@@ -20,12 +20,14 @@
 
 namespace hpc {
 
-   timer::timer()
+   timer::timer( bool start )
       : _total( 0 ),
         _cnt( 0 ),
         _run( false ),
         _stack( 0 )
    {
+      if( start )
+	 this->start_explicit();
    }
 
    timer::~timer()

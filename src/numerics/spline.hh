@@ -19,6 +19,7 @@
 #define libhpc_numerics_spline_hh
 
 #include <vector>
+#include <limits>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/system/assign.hh"

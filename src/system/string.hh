@@ -18,9 +18,11 @@
 #ifndef libhpc_system_string_hh
 #define libhpc_system_string_hh
 
+#include <string>
 #include <iomanip>
 #include <sstream>
-#include "cc_version.hh"
+#include <algorithm>
+#include <boost/algorithm/string.hpp>
 
 namespace hpc {
 
@@ -34,15 +36,19 @@ namespace hpc {
       return ss.str();
    }
 
+   inline
    void
-   to_lower( std::string& str );
+   to_lower( std::string& str )
+   {
+      std::transform( str.begin(), str.end(), str.begin(), ::tolower );
+   }
 
-#ifdef CXX_0X
-
+   inline
    std::string
-   to_lower( std::string const& str );
-
-#endif
+   to_lower_copy( std::string const& str )
+   {
+      return boost::algorithm::to_lower_copy( str );
+   }
 
 }
 

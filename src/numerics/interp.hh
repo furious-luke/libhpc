@@ -18,13 +18,12 @@
 #ifndef libhpc_numerics_interp_hh
 #define libhpc_numerics_interp_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/containers/vector.hh"
-
-class interp_suite;
+#include <vector>
+#include "libhpc/debug/assert.hh"
+#include "libhpc/system/assign.hh"
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       ///
       ///
@@ -32,24 +31,24 @@ namespace hpc {
       template< class T >
       class interp
       {
-         friend class ::interp_suite;
-
       public:
 
          typedef T value_type;
 
       public:
 
+         template< class Seq >
          void
-         set_abscissa( hpc::vector<value_type>& abs )
+         set_abscissa( Seq&& abs )
          {
-            _abs.take( abs );
+            hpc::assign( _abs, std::forward<Seq>( abs ) );
          }
 
+         template< class Seq >
          void
-         set_values( hpc::vector<value_type>& vals )
+         set_values( Seq&& vals )
          {
-            _vals.take( vals );
+            hpc::assign( _vals, std::forward<Seq>( vals ) );
          }
 
          value_type
@@ -78,8 +77,8 @@ namespace hpc {
 
       protected:
 
-         hpc::vector<value_type> _abs;
-         hpc::vector<value_type> _vals;
+         std::vector<value_type> _abs;
+         std::vector<value_type> _vals;
       };
 
    }

@@ -1,24 +1,16 @@
 #ifndef libhpc_numerics_clip_hh
 #define libhpc_numerics_clip_hh
 
+#include <vector>
+#include <list>
+#include <boost/array.hpp>
 #include <boost/iterator/zip_iterator.hpp>
-#include "libhpc/containers/combination.hpp"
+#include "libhpc/system/math.hh"
+#include "libhpc/algorithm/combination.hpp"
+#include "libhpc/algorithm/inner_product.hh"
+#include "libhpc/system/functional.hh"
 
 namespace hpc {
-
-   template< class Iterator1,
-	     class Iterator2 >
-   typename std::iterator_traits<Iterator1>::value_type
-   inner_product( Iterator1 first1,
-		  const Iterator1& last1,
-		  Iterator2 first2 )
-   {
-      typedef typename std::iterator_traits<Iterator1>::value_type real_type;
-      real_type sum = 0.0;
-      while( first1 != last1 )
-	 sum += (*first1++)*(*first2++);
-      return sum;
-   }
 
    template< class Iterator >
    typename std::iterator_traits<Iterator>::value_type
@@ -133,13 +125,13 @@ namespace hpc {
       typedef typename std::iterator_traits<MinIterator>::value_type real1_type;
       typedef typename std::iterator_traits<MaxIterator>::value_type real2_type;
       unsigned size = min_last - min_first;
-      vector<real1_type> perms( 2*size );
+      std::vector<real1_type> perms( 2*size );
       for( unsigned ii = 0; ii < size; ++ii )
       {
 	 perms[ii] = 0;
 	 perms[ii + size] = 1;
       }
-      array<real1_type,3> point;
+      boost::array<real1_type,3> point;
       do
       {
 	 MinIterator min_it = min_first;
@@ -175,13 +167,13 @@ namespace hpc {
       typedef typename std::iterator_traits<MinIterator>::value_type real1_type;
       typedef typename std::iterator_traits<MaxIterator>::value_type real2_type;
       unsigned size = min_last - min_first;
-      vector<real1_type> perms( 2*size );
+      std::vector<real1_type> perms( 2*size );
       for( unsigned ii = 0; ii < size; ++ii )
       {
 	 perms[ii] = 0;
 	 perms[ii + size] = 1;
       }
-      array<real1_type,3> point;
+      boost::array<real1_type,3> point;
       bool in = false, out = false;
       do
       {
@@ -340,7 +332,7 @@ namespace hpc {
 	 else if( !intersect[edge[0]] && intersect[edge[1]] )
 	 {
 	    // Save both intersection and inside vertex.
-	    array<real_type,2> tmp;
+	    boost::array<real_type,2> tmp;
 	    line_half_space_intersection(
 	       pnts[edge[0]]->begin(), pnts[edge[0]]->end(),
 	       pnts[edge[1]]->begin(), pnts[edge[1]]->end(),
@@ -355,7 +347,7 @@ namespace hpc {
 	 else if( intersect[edge[0]] && !intersect[edge[1]] )
 	 {
 	    // Save intersection.
-	    array<real_type,2> tmp;
+	    boost::array<real_type,2> tmp;
 	    line_half_space_intersection(
 	       pnts[edge[0]]->begin(), pnts[edge[0]]->end(),
 	       pnts[edge[1]]->begin(), pnts[edge[1]]->end(),
@@ -380,7 +372,7 @@ namespace hpc {
       // because of the swap.
       if( first_intersect ^ intersect[edge[0]] )
       {
-	 array<real_type,2> tmp;
+	 boost::array<real_type,2> tmp;
 	 line_half_space_intersection(
 	    pnts[edge[0]]->begin(), pnts[edge[0]]->end(),
 	    first_point->begin(), first_point->end(),
@@ -403,19 +395,19 @@ namespace hpc {
       typedef typename point_type::value_type real_type;
 
       // We will need temporary storage.
-      list<point_type> tmp[2];
+      std::list<point_type> tmp[2];
 
       // Need to know the number of dimensions to clip in.
       unsigned dim = poly_start->size();
 
       // Prepare the plane equation.
-      vector<real_type> hsp( dim + 1 );
+      std::vector<real_type> hsp( dim + 1 );
 
       // First clip the X axis.
       std::fill( hsp.begin(), hsp.end(), 0 );
       hsp[0] = 1;
       clip_edge( hsp.begin(), poly_start, poly_finish,
-		 std::insert_iterator<list<point_type> >( tmp[0], tmp[0].begin() ) );
+		 std::insert_iterator<std::list<point_type> >( tmp[0], tmp[0].begin() ) );
       hsp[0] = -1;
       hsp[dim] = -box_size;
       if( dim == 1 )
@@ -425,7 +417,7 @@ namespace hpc {
       else
       {
 	 clip_edge( hsp.begin(), tmp[0].begin(), tmp[0].end(),
-		    std::insert_iterator<list<point_type> >( tmp[1], tmp[1].begin() ) );
+		    std::insert_iterator<std::list<point_type> >( tmp[1], tmp[1].begin() ) );
       }
 
       // Now clip middle dimensions.
@@ -435,12 +427,12 @@ namespace hpc {
 	 hsp[ii] = 1;
 	 tmp[0].clear();
 	 clip_edge( hsp.begin(), tmp[1].begin(), tmp[1].end(),
-		    std::insert_iterator<list<point_type> >( tmp[0], tmp[0].begin() ) );
+		    std::insert_iterator<std::list<point_type> >( tmp[0], tmp[0].begin() ) );
 	 hsp[ii] = -1;
 	 hsp[dim] = -box_size;
 	 tmp[1].clear();
 	 clip_edge( hsp.begin(), tmp[0].begin(), tmp[0].end(),
-		    std::insert_iterator<list<point_type> >( tmp[1], tmp[1].begin() ) );
+		    std::insert_iterator<std::list<point_type> >( tmp[1], tmp[1].begin() ) );
       }
 
       // Now the final dimension.
@@ -448,16 +440,16 @@ namespace hpc {
       hsp[dim - 1] = 1;
       tmp[0].clear();
       clip_edge( hsp.begin(), tmp[1].begin(), tmp[1].end(),
-		 std::insert_iterator<list<point_type> >( tmp[0], tmp[0].begin() ) );
+		 std::insert_iterator<std::list<point_type> >( tmp[0], tmp[0].begin() ) );
       hsp[dim - 1] = -1;
       hsp[dim] = -box_size;
       tmp[1].clear();
       clip_edge( hsp.begin(), tmp[0].begin(), tmp[0].end(),
-		 std::insert_iterator<list<point_type> >( tmp[1], tmp[1].begin() ) );
+		 std::insert_iterator<std::list<point_type> >( tmp[1], tmp[1].begin() ) );
 
       // Finally, check if the area is zero (or close to). If so,
       // discard the new polygon.
-      if( !num::approx( polygon_area( tmp[1].begin(), tmp[1].end() ), 0.0, 1e-8 ) )
+      if( !approx( polygon_area( tmp[1].begin(), tmp[1].end() ), 0.0, 1e-8 ) )
 	 std::copy( tmp[1].begin(), tmp[1].end(), result );
    }
 }

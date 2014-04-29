@@ -36,7 +36,7 @@ namespace hpc {
 
    public:
 
-      timer();
+      timer( bool start = false );
 
       ~timer();
 

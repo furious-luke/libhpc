@@ -15,21 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef hpc_algorithm_inner_product_hh
+#define hpc_algorithm_inner_product_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
-#include "shared_library.hh"
-#include "daemon.hh"
-#include "path_finder.hh"
-#include "tmpfile.hh"
-#include "view.hh"
-#include "matrix.hh"
+namespace hpc {
+
+   template< class Iterator1,
+	     class Iterator2 >
+   typename std::iterator_traits<Iterator1>::value_type
+   inner_product( Iterator1 first1,
+		  const Iterator1& last1,
+		  Iterator2 first2 )
+   {
+      typedef typename std::iterator_traits<Iterator1>::value_type real_type;
+      real_type sum = 0.0;
+      while( first1 != last1 )
+	 sum += (*first1++)*(*first2++);
+      return sum;
+   }
+
+}
 
 #endif

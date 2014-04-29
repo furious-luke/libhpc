@@ -20,9 +20,7 @@
 
 #include <boost/optional.hpp>
 #include "libhpc/debug/assert.hh"
-#include "libhpc/containers/num.hh"
-#include "libhpc/containers/optional.hh"
-#include "libhpc/containers/mymath.hh"
+#include "libhpc/system/math.hh"
 
 namespace hpc {
    namespace algorithm {
@@ -36,7 +34,7 @@ namespace hpc {
       ridders( Function func,
 	       T x1,
 	       T x2,
-	       optional<unsigned&> num_its = optional<unsigned&>(),
+	       boost::optional<unsigned&> num_its = boost::optional<unsigned&>(),
                T xtol = default_xtol,
                unsigned max_its = default_max_its )
       {
@@ -57,7 +55,7 @@ namespace hpc {
 	       x3 = 0.5*(x1 + x2);
 	       f3 = func( x3 );
 	       denom = sqrt( f3*f3 - f1*f2 );
-	       if( num::is_zero( denom ) )
+	       if( is_zero( denom ) )
 		  break;
 
 	       xn = x3 + (x3 - x1)*((double)sgn( f1 - f2 )*f3)/denom;
@@ -94,12 +92,12 @@ namespace hpc {
 	       *num_its = ii;
 	    return x4;
 	 }
-	 else if( num::is_zero( f1 ) )
+	 else if( is_zero( f1 ) )
 	    return x1;
-	 else if( num::is_zero( f2 ) )
+	 else if( is_zero( f2 ) )
 	    return x2;
 	 else
-	    return none;
+	    return boost::none;
       }
 
    }

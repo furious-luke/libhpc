@@ -18,18 +18,14 @@
 #ifndef libhpc_hh
 #define libhpc_hh
 
-#include "libhpc/debug/debug.hh"
-#include "libhpc/memory/memory.hh"
-#include "libhpc/system/system.hh"
-#include "libhpc/logging/logging.hh"
-#include "libhpc/profile/profile.hh"
-#include "libhpc/containers/containers.hh"
-#include "libhpc/regexp/regexp.hh"
-#include "libhpc/options/options.hh"
-#include "libhpc/mpi/mpi.hh"
-#include "libhpc/h5/h5.hh"
-#include "libhpc/numerics/numerics.hh"
-#include "libhpc/algorithm/algorithm.hh"
+#include "libhpc/debug.hh"
+#include "libhpc/system.hh"
+#include "libhpc/logging.hh"
+#include "libhpc/containers.hh"
+#include "libhpc/mpi.hh"
+#include "libhpc/h5.hh"
+#include "libhpc/numerics.hh"
+#include "libhpc/algorithm.hh"
 #ifdef HAVE_GLUT
 #include "libhpc/interactive/interactive.hh"
 #endif

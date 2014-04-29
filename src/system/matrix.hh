@@ -15,21 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef hpc_containers_view_hh
+#define hpc_containers_view_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
-#include "shared_library.hh"
-#include "daemon.hh"
-#include "path_finder.hh"
-#include "tmpfile.hh"
-#include "view.hh"
-#include "matrix.hh"
+#include <vector>
+
+namespace hpc {
+
+   template< class T >
+   class matrix
+   {
+   public:
+
+      typedef typename std::vector<T>::size_type size_type;
+
+   public:
+
+      matrix()
+      {
+      }
+
+      matrix( size_type n_rows,
+	      size_type n_cols )
+	 : _vec( n_rows*n_cols ),
+	   _size{ n_rows, n_cols }
+      {
+      }
+
+   protected:
+
+      std::vector<T> _vec;
+      std::array<size_type,2> _size;
+   };
+
+}
 
 #endif
