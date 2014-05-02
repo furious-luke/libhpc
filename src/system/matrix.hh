@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_containers_view_hh
-#define hpc_containers_view_hh
+#ifndef hpc_containers_matrix_hh
+#define hpc_containers_matrix_hh
 
 #include <vector>
 
@@ -28,6 +28,7 @@ namespace hpc {
    public:
 
       typedef typename std::vector<T>::size_type size_type;
+      typedef          T                         value_type;
 
    public:
 
@@ -40,6 +41,22 @@ namespace hpc {
 	 : _vec( n_rows*n_cols ),
 	   _size{ n_rows, n_cols }
       {
+      }
+
+      value_type&
+      operator()( size_type row,
+                  size_type col )
+      {
+         ASSERT( row < _size[0], "Matrix row out of bounds." );
+         ASSERT( col < _size[1], "Matrix column out of bounds." );
+         return _vec[row*_size[1] + col];
+      }
+
+      value_type const&
+      operator()( size_type row,
+                  size_type col ) const
+      {
+         return (*((matrix*)this))( row, col );
       }
 
    protected:

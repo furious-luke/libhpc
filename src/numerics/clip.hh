@@ -5,6 +5,7 @@
 #include <list>
 #include <boost/array.hpp>
 #include <boost/iterator/zip_iterator.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include "libhpc/system/math.hh"
 #include "libhpc/algorithm/combination.hpp"
 #include "libhpc/algorithm/inner_product.hh"
