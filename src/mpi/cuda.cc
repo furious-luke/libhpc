@@ -19,6 +19,9 @@
 
 #include <cuda.h>
 #include <cuda_runtime_api.h>
+#include <libhpc/debug/insist.hh>
+#include <libhpc/debug/except.hh>
+#include <libhpc/logging.hh>
 #include "cuda.hh"
 #include "host.hh"
 

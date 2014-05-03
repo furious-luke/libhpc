@@ -60,21 +60,6 @@ namespace hpc {
          std::string _msg;
       };
 
-      template< class T,
-                class U >
-      void
-      expression<T,U>::test( test_case_base& tc,
-                             const std::string& desc )
-      {
-         if( !(*this) )
-         {
-            // Failed, log the failure and conclude this test.
-            throw test_expression_failed<T,U>( tc, *this, desc );
-         }
-         else
-            tc.runner()->dot();
-      }
-
    }
 }
 

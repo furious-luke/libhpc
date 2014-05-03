@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_random_hh
-#define libhpc_containers_random_hh
+#ifndef libhpc_system_random_hh
+#define libhpc_system_random_hh
 
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
