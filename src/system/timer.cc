@@ -32,8 +32,6 @@ namespace hpc {
 
    timer::~timer()
    {
-      ASSERT( !_stack );
-      ASSERT( !_run );
    }
 
    void
