@@ -15,14 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_h5_datatype_hh
-#define libhpc_h5_datatype_hh
+#ifndef hpc_h5_datatype_hh
+#define hpc_h5_datatype_hh
 
 #include <string>
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
+#include <boost/move/move.hpp>
 #include "libhpc/mpi.hh"
 #include <hdf5.h>
 
@@ -31,6 +32,8 @@ namespace hpc {
 
       class datatype
       {
+         BOOST_COPYABLE_AND_MOVABLE( datatype );
+
       public:
 
 	 static datatype native_char;
@@ -65,9 +68,34 @@ namespace hpc {
 
 	 datatype( datatype const& src );
 
-         datatype( datatype&& src );
+         inline
+         datatype( BOOST_RV_REF( datatype ) src )
+            : _id( src._id )
+         {
+            src._id = -1;
+         }
 
 	 ~datatype();
+
+         inline
+         datatype&
+         operator=( BOOST_COPY_ASSIGN_REF( datatype ) src )
+         {
+            close();
+            if( src._id != -1 )
+               INSIST( (_id = H5Tcopy( src._id )), >= 0 );
+            return *this;
+         }
+
+         inline
+         datatype&
+         operator=( BOOST_RV_REF( datatype ) src )
+         {
+            close();
+            _id = src._id;
+            src._id = -1;
+            return *this;
+         }
 
          void
          compound( size_t size );

@@ -20,10 +20,13 @@
 
 #include <vector>
 #include <set>
+#include "libhpc/system/cc_version.hh"
 #include "view.hh"
 #include "deallocate.hh"
 
 namespace hpc {
+
+#ifdef CXX_0X
 
    template< class T,
              class U >
@@ -38,7 +41,7 @@ namespace hpc {
              class U >
    std::vector<T>&
    assign( std::vector<T>& tgt,
-           view<std::vector<U>> const& src )
+           view<std::vector<U>>&& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );
@@ -49,10 +52,11 @@ namespace hpc {
              class U >
    std::vector<T>&
    assign( std::vector<T>& tgt,
-           view<std::vector<U>>&& src )
+           std::set<U>&& src )
    {
       tgt.resize( src.size() );
       std::copy( src.begin(), src.end(), tgt.begin() );
+      hpc::deallocate( src );
       return tgt;
    }
 
@@ -73,6 +77,30 @@ namespace hpc {
       return tgt;
    }
 
+#endif
+
+   template< class T,
+             class U >
+   std::vector<T>&
+   assign( std::vector<T>& tgt,
+           view<std::vector<U> > const& src )
+   {
+      tgt.resize( src.size() );
+      std::copy( src.begin(), src.end(), tgt.begin() );
+      return tgt;
+   }
+
+   template< class T,
+             class U >
+   std::vector<T>&
+   assign( std::vector<T>& tgt,
+           std::set<U> const& src )
+   {
+      tgt.resize( src.size() );
+      std::copy( src.begin(), src.end(), tgt.begin() );
+      return tgt;
+   }
+
    ///
    /// Adopt source vector.
    ///
@@ -81,8 +109,8 @@ namespace hpc {
    /// @return Reference to target view.
    ///
    template< class T >
-   view<std::vector<T>>&
-   assign( view<std::vector<T>>& tgt,
+   view<std::vector<T> >&
+   assign( view<std::vector<T> >& tgt,
            std::vector<T> const& src )
    {
       tgt.assign( src );
@@ -97,34 +125,11 @@ namespace hpc {
    /// @return Reference to target view.
    ///
    template< class T >
-   view<std::vector<T>>&
-   assign( view<std::vector<T>>& tgt,
+   view<std::vector<T> >&
+   assign( view<std::vector<T> >& tgt,
            std::vector<T>& src )
    {
       tgt.assign( src );
-      return tgt;
-   }
-
-   template< class T,
-             class U >
-   std::vector<T>&
-   assign( std::vector<T>& tgt,
-           std::set<U>&& src )
-   {
-      tgt.resize( src.size() );
-      std::copy( src.begin(), src.end(), tgt.begin() );
-      hpc::deallocate( src );
-      return tgt;
-   }
-
-   template< class T,
-             class U >
-   std::vector<T>&
-   assign( std::vector<T>& tgt,
-           std::set<U> const& src )
-   {
-      tgt.resize( src.size() );
-      std::copy( src.begin(), src.end(), tgt.begin() );
       return tgt;
    }
 

@@ -43,7 +43,7 @@ namespace hpc {
 
       logger::~logger()
       {
-         for( std::map<std::thread::id,std::stringstream*>::iterator it = _buf.begin();
+         for( std::map<boost::thread::id,std::stringstream*>::iterator it = _buf.begin();
               it != _buf.end();
               ++it )
          {
@@ -118,7 +118,7 @@ namespace hpc {
       bool
       logger::visible()
       {
-         const auto& cur_tags = current_tags();
+         std::map<std::string,int> const& cur_tags = current_tags();
 	 bool level_vis = levels().empty() || levels().front() >= _min_level;
 	 bool tag_vis = _tags.empty() && cur_tags.empty();
 	 if( !tag_vis )
@@ -140,7 +140,7 @@ namespace hpc {
       std::stringstream&
       logger::buffer()
       {
-         std::thread::id tid = std::this_thread::get_id();
+         boost::thread::id tid = boost::this_thread::get_id();
          _buf_mutex.lock();
          if( _buf.find( tid ) == _buf.end() )
             _buf.insert( std::make_pair( tid, new std::stringstream ) );
@@ -151,7 +151,7 @@ namespace hpc {
       std::list<unsigned>&
       logger::levels()
       {
-         std::thread::id tid = std::this_thread::get_id();
+         boost::thread::id tid = boost::this_thread::get_id();
          _levels_mutex.lock();
          if( _levels.find( tid ) == _levels.end() )
             _levels.insert( std::make_pair( tid, std::list<unsigned>() ) );
@@ -162,7 +162,7 @@ namespace hpc {
       std::map<std::string,int>&
       logger::current_tags()
       {
-         std::thread::id tid = std::this_thread::get_id();
+         boost::thread::id tid = boost::this_thread::get_id();
          _tags_mutex.lock();
          if( _cur_tags.find( tid ) == _cur_tags.end() )
             _cur_tags.insert( std::make_pair( tid, std::map<std::string,int>() ) );
@@ -173,7 +173,7 @@ namespace hpc {
       bool&
       logger::_get_new_line()
       {
-         std::thread::id tid = std::this_thread::get_id();
+         boost::thread::id tid = boost::this_thread::get_id();
          _new_line_mutex.lock();
          if( _new_line.find( tid ) == _new_line.end() )
             _new_line.insert( std::make_pair( tid, true ) );

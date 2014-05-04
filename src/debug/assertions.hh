@@ -36,6 +36,8 @@ namespace hpc {
       {
       public:
 
+         ~assertion() throw();
+
          assertion&
          details( const char* expr,
                   const char* file,

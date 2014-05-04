@@ -20,7 +20,11 @@
 
 #include <vector>
 #include <set>
+#include <map>
+#include "cc_version.hh"
+#ifdef CXX_0X
 #include <unordered_map>
+#endif
 #ifdef HAVE_THRUST
 #include <thrust/host_vector.h>
 #endif
@@ -46,11 +50,24 @@ namespace hpc {
    template< class T,
 	     class U >
    void
+   deallocate( std::map<T,U>& tgt )
+   {
+      std::map<T,U> tmp;
+      tgt.swap( tmp );
+   }
+
+#ifdef CXX_0X
+
+   template< class T,
+	     class U >
+   void
    deallocate( std::unordered_map<T,U>& tgt )
    {
       std::unordered_map<T,U> tmp;
       tgt.swap( tmp );
    }
+
+#endif
 
 #ifdef HAVE_THRUST
 

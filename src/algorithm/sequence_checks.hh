@@ -28,9 +28,9 @@ namespace hpc {
    {
       std::set<typename Seq::value_type> set;
       unsigned cnt = 0;
-      for( auto const& x : seq )
+      for( typename Seq::const_iterator it = seq.begin(); it != seq.end(); ++it )
       {
-         set.insert( x );
+         set.insert( *it );
          ++cnt;
       }
       return set.size() != cnt;
@@ -48,10 +48,10 @@ namespace hpc {
    bool
    is_ordered( Seq const& seq )
    {
-      auto it = seq.begin();
+      typename Seq::const_iterator it = seq.begin();
       if( it != seq.end() )
       {
-         auto last = it++;
+         typename Seq::value_type last = it++;
          while( it != seq.end() )
          {
             if( *it++ <= *last++ )

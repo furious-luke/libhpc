@@ -15,13 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_h5_dataset_hh
-#define libhpc_h5_dataset_hh
+#ifndef hpc_h5_dataset_hh
+#define hpc_h5_dataset_hh
 
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
+#include <boost/move/move.hpp>
 #include "libhpc/mpi.hh"
 #include "location.hh"
 #include "datatype.hh"
@@ -33,14 +34,14 @@ namespace hpc {
 
       class dataset
       {
+         BOOST_MOVABLE_BUT_NOT_COPYABLE( dataset );
+
       public:
 
          dataset();
 
 	 dataset( hid_t id,
                   bool dummy );
-
-         dataset( dataset&& src );
 
 	 dataset( h5::location const& loc,
 		  std::string const& name );
@@ -57,7 +58,24 @@ namespace hpc {
                   hsize_t size,
 		  property_list const& props = property_list() );
 
+         inline
+         dataset( BOOST_RV_REF( dataset ) src )
+            : _id( src._id )
+         {
+            src._id = -1;
+         }
+
 	 ~dataset();
+
+         inline
+         dataset&
+         operator=( BOOST_RV_REF( dataset ) src )
+         {
+            close();
+            _id = src._id;
+            src._id = -1;
+            return *this;
+         }
 
 	 void
 	 open( h5::location const& loc,

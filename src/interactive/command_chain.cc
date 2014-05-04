@@ -12,9 +12,9 @@ namespace hpc {
       bool
       chain::operator()( std::string const& line )
       {
-         for( auto& ctx : _ctxs )
+         for( std::list<context*>::const_iterator it = _ctxs.begin(); it != _ctxs.end(); ++it )
          {
-            if( (*ctx)( line ) )
+            if( (**it)( line ) )
                return true;
          }
          return false;

@@ -34,7 +34,7 @@ namespace hpc {
       stack::push( logger* log )
       {
          log->open();
-         _logs.emplace_back( log );
+         _logs.push_back( boost::shared_ptr<logger>( log ) );
       }
 
       void

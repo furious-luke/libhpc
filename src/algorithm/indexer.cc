@@ -44,7 +44,7 @@ namespace hpc {
 
       unsigned long long
       indexer::request( unsigned long long size,
-                        std::function<void(unsigned long long,unsigned long long)> cb )
+                        boost::function<void(unsigned long long,unsigned long long)> cb )
       {
 	 unsigned long long base;
 	 if( _comm->size() > 1 )
@@ -67,7 +67,7 @@ namespace hpc {
       }
 
       void
-      indexer::master( std::function<void(unsigned long long,unsigned long long)> cb )
+      indexer::master( boost::function<void(unsigned long long,unsigned long long)> cb )
       {
 	 // Must be the master to run this.
 	 ASSERT( _comm->rank() == 0 );

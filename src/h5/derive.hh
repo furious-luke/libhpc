@@ -15,9 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_h5_derive_hh
-#define libhpc_h5_derive_hh
+#ifndef hpc_h5_derive_hh
+#define hpc_h5_derive_hh
 
+#include <boost/tuple/tuple.hpp>
 #include "datatype.hh"
 
 namespace hpc {
@@ -27,10 +28,10 @@ namespace hpc {
       {
       public:
 
-	typedef std::tuple< h5::datatype const*,
-			    hsize_t,
-			    h5::datatype const*,
-			    std::string > entry_type;
+	typedef boost::tuple< h5::datatype const*,
+                              hsize_t,
+                              h5::datatype const*,
+                              std::string > entry_type;
 
       public:
 

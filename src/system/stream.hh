@@ -20,12 +20,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <array>
 #include <vector>
 #include <list>
 #include <set>
 #include <map>
-#include <tuple>
+#include <boost/array.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_io.hpp>
 
 namespace hpc {
 
@@ -53,7 +54,7 @@ operator<<( std::ostream& strm,
    strm << "[";
    if( !obj.empty() )
    {
-      auto it = obj.cbegin();
+      typename std::vector<T>::const_iterator it = obj.begin();
       strm << *it++;
       while( it != obj.cend() )
       {
@@ -68,12 +69,12 @@ template< class T,
 	  size_t N >
 std::ostream&
 operator<<( std::ostream& strm,
-	    std::array<T,N> const& obj )
+	    boost::array<T,N> const& obj )
 {
    strm << "(";
    if( N )
    {
-      auto it = obj.cbegin();
+      typename boost::array<T,N>::const_iterator it = obj.begin();
       strm << *it++;
       while( it != obj.cend() )
 	 strm << ", " << *it++;
@@ -90,7 +91,7 @@ operator<<( std::ostream& strm,
    strm << "{";
    if( !obj.empty() )
    {
-      auto it = obj.cbegin();
+      typename std::set<T>::const_iterator it = obj.begin();
       strm << *it++;
       while( it != obj.cend() )
       {
@@ -110,7 +111,7 @@ operator<<( std::ostream& strm,
    strm << "{";
    if( !obj.empty() )
    {
-      auto it = obj.cbegin();
+      typename std::map<Tk,Tv>::const_iterator it = obj.begin();
       strm << it->first << ": " << it->second;
       ++it;
       while( it != obj.cend() )
@@ -131,7 +132,7 @@ operator<<( std::ostream& strm,
    strm << "[";
    if( !obj.empty() )
    {
-      auto it = obj.cbegin();
+      typename std::list<T>::const_iterator it = obj.begin();
       strm << *it++;
       while( it != obj.cend() )
       {
@@ -142,43 +143,43 @@ operator<<( std::ostream& strm,
    return strm;
 }
 
-template< class Type,
-          int N,
-          int Last >
-struct tuple_output
-{
-   static
-   void
-   write( std::ostream& strm,
-          Type const& obj )
-   {
-      strm << std::get<N>( obj ) << ",";
-      tuple_output<Type,N + 1,Last>::write( strm, obj );
-   }
-};
+// template< class Type,
+//           int N,
+//           int Last >
+// struct tuple_output
+// {
+//    static
+//    void
+//    write( std::ostream& strm,
+//           Type const& obj )
+//    {
+//       strm << std::get<N>( obj ) << ",";
+//       tuple_output<Type,N + 1,Last>::write( strm, obj );
+//    }
+// };
 
-template< class Type,
-          int N >
-struct tuple_output<Type,N,N>
-{
-   static
-   void
-   write( std::ostream& strm,
-          Type const& obj )
-   {
-      strm << std::get<N>( obj );
-   }
-};
+// template< class Type,
+//           int N >
+// struct tuple_output<Type,N,N>
+// {
+//    static
+//    void
+//    write( std::ostream& strm,
+//           Type const& obj )
+//    {
+//       strm << std::get<N>( obj );
+//    }
+// };
 
-template< class... Args >
-std::ostream&
-operator<<( std::ostream& strm,
-            std::tuple<Args...> const& obj )
-{
-   strm << "(";
-   tuple_output<std::tuple<Args...>,0,sizeof...(Args) - 1>::write( strm, obj );
-   strm << ")";
-   return strm;
-}
+// template< class... Args >
+// std::ostream&
+// operator<<( std::ostream& strm,
+//             boost::tuple<Args...> const& obj )
+// {
+//    strm << "(";
+//    tuple_output<boost::tuple<Args...>,0,sizeof...(Args) - 1>::write( strm, obj );
+//    strm << ")";
+//    return strm;
+// }
 
 #endif

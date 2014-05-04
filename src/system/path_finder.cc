@@ -24,15 +24,14 @@ namespace hpc {
    {
    }
 
-   path_finder::path_finder( std::initializer_list<fs::path> roots )
-      : _roots( roots.begin(), roots.end() )
-   {
-   }
-
    void
    path_finder::add_root( fs::path const& root )
    {
+#ifdef CXX_0X
       _roots.emplace_back( root );
+#else
+      _roots.push_back( root );
+#endif
    }
 
    boost::optional<fs::path>
@@ -48,9 +47,9 @@ namespace hpc {
       }
 
       // Search for compositions.
-      for( auto const& root : boost::adaptors::reverse( _roots ) )
+      for( std::list<fs::path>::const_reverse_iterator it = _roots.rbegin(); it != _roots.rend(); ++it )
       {
-	 fs::path tmp = root/path;
+	 fs::path tmp = *it/path;
 	 if( fs::exists( tmp ) )
 	    return tmp;
       }

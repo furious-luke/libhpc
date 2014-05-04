@@ -20,13 +20,13 @@
 
 #if !defined(NLOG) && !defined(NTHREAD)
 
-#include <thread>
-#include <mutex>
 #include <typeinfo>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <set>
+#include <boost/thread.hpp>
+// #include <mutex>
 #include "libhpc/logging/file.hh"
 
 namespace hpc {
@@ -63,8 +63,8 @@ namespace hpc {
 
 	 protected:
 
-            std::mutex _write;
-	    std::set<std::thread::id> _tids;
+            boost::mutex _write;
+	    std::set<boost::thread::id> _tids;
 	    std::string _base;
 	 };
 

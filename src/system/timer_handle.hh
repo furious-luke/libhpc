@@ -18,12 +18,16 @@
 #ifndef libhpc_system_timer_handle_hh
 #define libhpc_system_timer_handle_hh
 
+#include <boost/move/move.hpp>
+
 namespace hpc {
 
    class timer;
 
    class timer_handle
    {
+      BOOST_MOVABLE_BUT_NOT_COPYABLE( timer_handle );
+
    public:
 
       enum stop_type
@@ -37,15 +41,25 @@ namespace hpc {
       timer_handle( hpc::timer* timer = 0,
                     stop_type stop = NORMAL );
 
-#ifndef __CUDA_ARCH__
-
-      timer_handle( timer_handle const& ) = delete;
-
-      timer_handle( timer_handle&& src );
-
-#endif
+      inline
+      timer_handle( BOOST_RV_REF( timer_handle ) src )
+         : _timer( src._timer ),
+           _stop( src._stop )
+      {
+         src._timer = 0;
+      }
 
       ~timer_handle();
+
+      inline
+      timer_handle&
+      operator=( BOOST_RV_REF( timer_handle ) src )
+      {
+         _timer = src._timer;
+         _stop = src._stop;
+         src._timer = 0;
+         return *this;
+      }
 
    protected:
 

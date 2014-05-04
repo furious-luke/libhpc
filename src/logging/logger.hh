@@ -18,14 +18,14 @@
 #ifndef libhpc_logging_logger_hh
 #define libhpc_logging_logger_hh
 
-#include <thread>
-#include <mutex>
 #include <typeinfo>
 #include <sstream>
 #include <iomanip>
 #include <list>
 #include <map>
 #include <set>
+#include <boost/thread.hpp>
+// #include <mutex>
 #include "libhpc/system/stream.hh"
 
 #ifndef NLOG
@@ -42,10 +42,10 @@ namespace hpc {
 	 strm << "{";
 	 if( !obj.empty() )
 	 {
-	    auto it = obj.cbegin();
+	    typename std::map<Tk,Tv>::const_iterator it = obj.begin();
 	    strm << it->first << ": " << it->second;
 	    ++it;
-	    while( it != obj.cend() )
+	    while( it != obj.end() )
 	    {
 	       strm << it->first << ": " << it->second;
 	       ++it;
@@ -63,9 +63,9 @@ namespace hpc {
 	 strm << "[";
 	 if( !obj.empty() )
 	 {
-	    auto it = obj.cbegin();
+            typename std::vector<T>::const_iterator it = obj.begin();
 	    strm << *it++;
-	    while( it != obj.cend() )
+	    while( it != obj.end() )
 	    {
 	       strm << ", " << *it++;
 	    }
@@ -82,9 +82,9 @@ namespace hpc {
 	 strm << "{";
 	 if( !obj.empty() )
 	 {
-	    auto it = obj.cbegin();
+	    typename std::set<T>::const_iterator it = obj.begin();
 	    strm << *it++;
-	    while( it != obj.cend() )
+	    while( it != obj.end() )
 	    {
 	       strm << ", " << *it++;
 	    }
@@ -101,9 +101,9 @@ namespace hpc {
 	 strm << "[";
 	 if( !obj.empty() )
 	 {
-	    auto it = obj.cbegin();
+	    typename std::list<T>::const_iterator it = obj.begin();
 	    strm << *it++;
-	    while( it != obj.cend() )
+	    while( it != obj.end() )
 	    {
 	       strm << ", " << *it++;
 	    }
@@ -116,14 +116,14 @@ namespace hpc {
                 size_t N >
       std::ostream&
       operator<<( std::ostream& strm,
-                  const std::array<T,N>& obj )
+                  const boost::array<T,N>& obj )
       {
          strm << "(";
          if( N )
          {
-            auto it = obj.cbegin();
+            typename boost::array<T,N>::const_iterator it = obj.begin();
             strm << *it++;
-            while( it != obj.cend() )
+            while( it != obj.end() )
             {
                strm << ", " << *it++;
             }
@@ -255,17 +255,17 @@ namespace hpc {
 
 	 // Using mappings from thread ID to the object in question.
 	 // Need this for threaded loggers.
-	 std::map<std::thread::id,bool> _new_line;
-         std::mutex _new_line_mutex;
-         std::map<std::thread::id,std::stringstream*> _buf;
-         std::mutex _buf_mutex;
-	 std::map<std::thread::id,std::list<unsigned> > _levels;
-         std::mutex _levels_mutex;
+	 std::map<boost::thread::id,bool> _new_line;
+         boost::mutex _new_line_mutex;
+         std::map<boost::thread::id,std::stringstream*> _buf;
+         boost::mutex _buf_mutex;
+	 std::map<boost::thread::id,std::list<unsigned> > _levels;
+         boost::mutex _levels_mutex;
 
 	 // Tags need a mapping from the tag to a count so we can
 	 // push and pop them properly.
-	 std::map<std::thread::id,std::map<std::string,int> > _cur_tags;
-         std::mutex _tags_mutex;
+	 std::map<boost::thread::id,std::map<std::string,int> > _cur_tags;
+         boost::mutex _tags_mutex;
 
          unsigned _min_level;
 	 std::set<std::string> _tags;

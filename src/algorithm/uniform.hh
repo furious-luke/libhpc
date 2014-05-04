@@ -18,7 +18,9 @@
 #ifndef libhpc_algorithm_uniform_hh
 #define libhpc_algorithm_uniform_hh
 
-#include "libhpc/containers/array.hh"
+#include <boost/array.hpp>
+#include "libhpc/system/cc_version.hh"
+#include "libhpc/system/cuda.hh"
 #include "libhpc/debug/assert.hh"
 
 namespace hpc {
@@ -40,15 +42,22 @@ namespace hpc {
 	     class Grid >
    struct lift_impl<IndexP,IndexL,2,Grid>
    {
-      CUDA_DEVICE_HOST
+      CUDA_DEV_HOST
       static
-      hpc::array<IndexL,2>
+      boost::array<IndexL,2>
       lift( IndexP idx,
-            hpc::array<Grid,2> const& sides )
+            boost::array<Grid,2> const& sides )
       {
          ASSERT( idx < sides[0]*sides[1], "Invalid grid cell index." );
          IndexL y = idx/sides[0];
-         return hpc::make_array<IndexL>( static_cast<IndexL>( idx - y*sides[0] ), y );
+#ifdef CXX_0X
+         return boost::array<IndexL,2>{ static_cast<IndexL>( idx - y*sides[0] ), y };
+#else
+         boost::array<IndexL,2> tmp;
+         tmp[0] = idx - y*sides[0];
+         tmp[1] = y;
+         return tmp;
+#endif
       }
    };
 
@@ -60,17 +69,25 @@ namespace hpc {
 	     class Grid >
    struct lift_impl<IndexP,IndexL,3,Grid>
    {
-      CUDA_DEVICE_HOST
+      CUDA_DEV_HOST
       static
-      hpc::array<IndexL,3>
+      boost::array<IndexL,3>
       lift( IndexP idx,
-            hpc::array<Grid,3> const& sides )
+            boost::array<Grid,3> const& sides )
       {
          ASSERT( idx < sides[0]*sides[1]*sides[2], "Invalid grid cell index." );
          IndexL z = static_cast<IndexL>( idx/(sides[0]*sides[1]) );
          IndexP rem = idx - z*(sides[0]*sides[1]);
          IndexL y = static_cast<IndexL>( rem/sides[0] );
-         return hpc::make_array<IndexL>( static_cast<IndexL>( rem - y*sides[0] ), y, z );
+#ifdef CXX_0X
+         return boost::array<IndexL,3>{ { static_cast<IndexL>( rem - y*sides[0] ), y, z } };
+#else
+         boost::array<IndexL,3> tmp;
+         tmp[0] = static_cast<IndexL>( rem - y*sides[0] );
+         tmp[1] = y;
+         tmp[2] = z;
+         return tmp;
+#endif
       }
    };
 
@@ -81,16 +98,16 @@ namespace hpc {
       class IndexP,
       class IndexL,
       unsigned D,
-#ifndef __CUDACC__
+#ifdef CXX_0X
       class Grid = IndexL
 #else
       class Grid
 #endif
       >
-   CUDA_DEVICE_HOST
-   hpc::array<IndexL,D>
+   CUDA_DEV_HOST
+   boost::array<IndexL,D>
    lift( IndexP idx,
-         hpc::array<Grid,D> const& sides )
+         boost::array<Grid,D> const& sides )
    {
       return lift_impl<IndexP,IndexL,D,Grid>::lift( idx, sides );
    }
@@ -112,11 +129,11 @@ namespace hpc {
 	     class Grid >
    struct project_impl<IndexL,IndexP,2,Grid>
    {
-      CUDA_DEVICE_HOST
+      CUDA_DEV_HOST
       static
       IndexP
-      project( hpc::array<IndexL,2> const& crd,
-               hpc::array<Grid,2> const& sides )
+      project( boost::array<IndexL,2> const& crd,
+               boost::array<Grid,2> const& sides )
       {
 #ifndef NDEBUG
          for( unsigned ii = 0; ii < 2; ++ii )
@@ -134,11 +151,11 @@ namespace hpc {
 	     class Grid >
    struct project_impl<IndexL,IndexP,3,Grid>
    {
-      CUDA_DEVICE_HOST
+      CUDA_DEV_HOST
       static
       IndexP
-      project( hpc::array<IndexL,3> const& crd,
-               hpc::array<Grid,3> const& sides )
+      project( boost::array<IndexL,3> const& crd,
+               boost::array<Grid,3> const& sides )
       {
 #ifndef NDEBUG
          for( unsigned ii = 0; ii < 3; ++ii )
@@ -155,16 +172,16 @@ namespace hpc {
       class IndexL,
       class IndexP,
       unsigned D,
-#ifndef __CUDACC__
+#ifdef CXX_0X
       class Grid = IndexL
 #else
       class Grid
 #endif
       >
-   CUDA_DEVICE_HOST
+   CUDA_DEV_HOST
    IndexP
-   project( hpc::array<IndexL,D> const& crd,
-            hpc::array<Grid,D> const& sides )
+   project( boost::array<IndexL,D> const& crd,
+            boost::array<Grid,D> const& sides )
    {
       return project_impl<IndexL,IndexP,D,Grid>::project( crd, sides );
    }

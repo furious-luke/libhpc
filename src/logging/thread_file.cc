@@ -47,15 +47,15 @@ namespace hpc {
 	 file::write()
 	 {
             // Open the file right now.
-            std::thread::id tid = std::this_thread::get_id();
+            boost::thread::id tid = boost::this_thread::get_id();
             std::stringstream ss;
             ss << _base << tid;
-            std::string filename = ss.str();
+            std::string fn = ss.str();
             _write.lock();
             if( _tids.insert( tid ).second )
-               remove( filename.c_str() );
+               remove( fn.c_str() );
             _write.unlock();
-            std::ofstream file( filename, std::fstream::out | std::fstream::app );
+            std::ofstream file( fn.c_str(), std::ios::app );
 
             // Output.
             file << buffer().str();

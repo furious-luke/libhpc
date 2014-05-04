@@ -18,7 +18,9 @@
 #ifndef libhpc_h5_dataspace_hh
 #define libhpc_h5_dataspace_hh
 
+#include <numeric>
 #include <boost/optional.hpp>
+#include <boost/move/move.hpp>
 #include "libhpc/mpi.hh"
 #include <hdf5.h>
 #include "libhpc/system/view.hh"
@@ -30,6 +32,8 @@ namespace hpc {
 
       class dataspace
       {
+         BOOST_COPYABLE_AND_MOVABLE( dataspace );
+
       public:
 
 	 static dataspace all;
@@ -47,9 +51,35 @@ namespace hpc {
          template< class Dims >
 	 dataspace( typename type_traits<Dims>::const_reference dims );
 
-	 dataspace( dataspace&& src );
+	 dataspace( dataspace const& src );
+
+         inline
+	 dataspace( BOOST_RV_REF( dataspace ) src )
+            : _id( src._id )
+         {
+            src._id = -1;
+         }
 
 	 ~dataspace();
+
+         inline
+         dataspace&
+         operator=( BOOST_COPY_ASSIGN_REF( dataspace ) src )
+         {
+            close();
+            if( src._id != -1 )
+               INSIST( (_id = H5Scopy( src._id )), >= 0 );
+            return *this;
+         }
+
+         dataspace&
+         operator=( BOOST_RV_REF( dataspace ) src )
+         {
+            close();
+            _id = src._id;
+            src._id = -1;
+            return *this;
+         }
 
 	 void
 	 set_id( hid_t id );
@@ -65,16 +95,15 @@ namespace hpc {
 	 void
 	 create( typename type_traits<Dims>::const_reference dims )
          {
+#ifdef CXX_0X
             static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t),
                            "Incompatible hsize_t type." );
-
+#endif
             close();
-
             if( std::accumulate( dims.begin(), dims.end(), 0 ) )
                _id = H5Screate_simple( dims.size(), dims.data(), 0 );
             else
                _id = H5Screate( H5S_NULL );
-
             ASSERT( _id >= 0 );
          }
 
@@ -92,7 +121,9 @@ namespace hpc {
          void
 	 simple_extent_dims( typename type_traits<Dims>::reference dims ) const
          {
+#ifdef CXX_0X
             static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
+#endif
             INSIST( H5Sget_simple_extent_dims( _id, dims.data(), 0 ), >= 0 );
          }
 
@@ -107,14 +138,16 @@ namespace hpc {
                      H5S_seloper_t op = H5S_SELECT_SET );
 
          template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer>>::type
+         typename boost::enable_if<random_access_trait<Buffer> >::type
 	 select_hyperslab( H5S_seloper_t op,
 			   typename type_traits<Buffer>::const_reference count,
 			   typename type_traits<Buffer>::const_reference start,
                            typename type_traits<Buffer>::const_reference stride = typename type_traits<Buffer>::const_reference(),
 			   typename type_traits<Buffer>::const_reference block = typename type_traits<Buffer>::const_reference() )
          {
+#ifdef CXX_0X
             static_assert( sizeof(typename Buffer::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
+#endif
             ASSERT( simple_extent_num_dims() == count.size() && count.size() == start.size() );
             ASSERT( stride.size() == 0 || stride.size() == count.size() );
             ASSERT( block.size() == 0 || block.size() == count.size() );
@@ -149,12 +182,14 @@ namespace hpc {
 	 select_elements( typename type_traits<Buffer>::const_reference elems,
                           H5S_seloper_t op = H5S_SELECT_SET )
          {
+#ifdef CXX_0X
             static_assert( sizeof(typename Buffer::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
+#endif
 
             if( !elems.empty() )
             {
                std::vector<hsize_t> dims( simple_extent_num_dims() );
-               simple_extent_dims<std::vector<hsize_t>>( dims );
+               simple_extent_dims<std::vector<hsize_t> >( dims );
                ASSERT( elems.size()%dims.size() == 0,
                       "Flattened element selection array does not divide evenly between the "
                       "number of dimensions in the dataset.");

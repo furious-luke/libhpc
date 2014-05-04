@@ -9,18 +9,18 @@ namespace hpc {
       context::add( std::string const& expr,
                     command::function_type action )
       {
-         _cmds.emplace_back( expr, action );
+         _cmds.push_back( command( expr, action ) );
       }
 
       bool
       context::operator()( std::string const& line )
       {
          boost::smatch match;
-         for( auto const& cmd : _cmds )
+         for( std::vector<command>::const_iterator it = _cmds.begin(); it != _cmds.end(); ++it )
          {
-            if( boost::regex_match( line, match, cmd.re() ) )
+            if( boost::regex_match( line, match, it->re() ) )
             {
-               cmd( match );
+               (*it)( match );
                return true;
             }
          }

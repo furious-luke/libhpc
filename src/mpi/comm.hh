@@ -98,7 +98,7 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 send( view<std::vector<T>> const& out,
+	 send( view<std::vector<T> > const& out,
 	       int to,
                unsigned block_size = 1,
 	       int tag = 0 ) const
@@ -114,7 +114,7 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 isend( view<std::vector<T>> const& out,
+	 isend( view<std::vector<T> > const& out,
 		int to,
 		request& req,
                 unsigned block_size = 1,
@@ -292,7 +292,7 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 irecv( view<std::vector<T>> inc,
+	 irecv( view<std::vector<T> > inc,
 		int from,
 		request& req,
                 unsigned block_size = 1,
@@ -454,13 +454,15 @@ namespace hpc {
 
 	 template< class T >
          std::vector<T>
-	 bcast2( view<std::vector<T>> const& data,
+	 bcast2( view<std::vector<T> > const& data,
                  int root ) const
 	 {
+            typedef typename view<std::vector<T> >::size_type size_type;
+
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 
             // Get size for resulting vector.
-            auto size = bcast2<decltype(data.size())>( data.size(), root );
+            size_type size = bcast2<size_type>( data.size(), root );
 
             if( rank() == root )
             {
@@ -503,7 +505,7 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 bcasta_root( view<std::vector<T>> data ) const
+	 bcasta_root( view<std::vector<T> > data ) const
 	 {
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
 	    int root = this->rank();
@@ -660,7 +662,7 @@ namespace hpc {
 	 /// Reduce an array of values.
 	 template< class T >
 	 void
-	 all_reduce( view<std::vector<T>> buf,
+	 all_reduce( view<std::vector<T> > buf,
 		     MPI_Op op = MPI_SUM ) const
 	 {
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );

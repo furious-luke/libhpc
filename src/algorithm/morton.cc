@@ -64,16 +64,43 @@ namespace hpc {
       return ((uint16_t)(t >> 18));
    }
 
+#ifndef CXX_0X
+
+   uint32_t
+   morton( uint16_t x,
+           uint16_t y )
+   {
+      return (dilate<2>( y ) << 1) + dilate<2>( x );
+   }
+
+   uint32_t
+   morton( uint16_t x,
+           uint16_t y,
+           uint16_t z )
+   {
+      return (dilate<2>( z ) << 2) + morton( x, y );
+   }
+
+#endif
+
    uint32_t
    morton_array( boost::array<uint16_t,2> const& crd )
    {
+#ifdef CXX_0X
       return morton_impl<2,0,uint16_t,uint16_t>::eval( crd[0], crd[1] );
+#else
+      return morton( crd[0], crd[1] );
+#endif
    }
 
    uint32_t
    morton_array( boost::array<uint16_t,3> const& crd )
    {
+#ifdef CXX_0X
       return morton_impl<3,0,uint16_t,uint16_t,uint16_t>::eval( crd[0], crd[1], crd[2] );
+#else
+      return morton( crd[0], crd[1], crd[2] );
+#endif
    }
 
    template<>

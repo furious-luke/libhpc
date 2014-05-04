@@ -20,6 +20,7 @@
 
 #include <string>
 #include <boost/filesystem.hpp>
+#include <boost/move/move.hpp>
 #include <dlfcn.h>
 #include "libhpc/debug.hh"
 #include "filesystem.hh"
@@ -28,15 +29,31 @@ namespace hpc {
 
    class shared_library
    {
+      BOOST_MOVABLE_BUT_NOT_COPYABLE( shared_library );
+
    public:
 
       shared_library();
 
       shared_library( fs::path const& path );
 
-      shared_library( shared_library&& src );
+      inline
+      shared_library( BOOST_RV_REF( shared_library ) src )
+         : _hnd( src._hnd )
+      {
+         src._hnd = 0;
+      }
 
       ~shared_library();
+
+      inline
+      shared_library&
+      operator=( BOOST_RV_REF( shared_library ) src )
+      {
+         _hnd = src._hnd;
+         src._hnd = 0;
+         return *this;
+      }
 
       void
       close();
@@ -53,9 +70,6 @@ namespace hpc {
          EXCEPT( sym, "Failed to load symbol from shared library: ", name );
          return sym;
       }
-
-      shared_library&
-      operator=( shared_library&& src );
 
    protected:
 

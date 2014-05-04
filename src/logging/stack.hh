@@ -19,7 +19,7 @@
 #define libhpc_logging_stack_hh
 
 #include <list>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include "logger.hh"
 
 #ifndef NLOG
@@ -34,7 +34,7 @@ namespace hpc {
       {
       public:
 
-	typedef std::list<std::unique_ptr<logger> >::iterator iterator;
+	typedef std::list<boost::shared_ptr<logger> >::iterator iterator;
 
       public:
 
@@ -63,7 +63,7 @@ namespace hpc {
          {
 	    for( iterator it = _logs.begin(); it != _logs.end(); ++it )
 	    {
-	       std::unique_ptr<logger>& log = *it;
+	       boost::shared_ptr<logger>& log = *it;
                *log << obj;
             }
             return *this;
@@ -71,7 +71,7 @@ namespace hpc {
 
       protected:
 
-	 std::list<std::unique_ptr<logger>> _logs;
+	 std::list<boost::shared_ptr<logger> > _logs;
       };
    }
 }

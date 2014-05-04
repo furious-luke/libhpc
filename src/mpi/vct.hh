@@ -18,7 +18,7 @@
 #ifndef libhpc_mpi_vct_hh
 #define libhpc_mpi_vct_hh
 
-#include <unordered_map>
+#include <map>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/system/assign.hh"
 #include "libhpc/algorithm/sequence_checks.hh"
@@ -35,6 +35,8 @@ namespace hpc {
 
 	 vct( mpi::comm const& comm = mpi::comm::null );
 
+#ifdef CXX_0X
+
          template< class Seq >
 	 vct( Seq&& nbrs,
 	      mpi::comm const& comm = mpi::comm::world )
@@ -42,6 +44,26 @@ namespace hpc {
          {
             set_neighbors( std::forward<Seq>( nbrs ) );
          }
+
+#else
+
+         template< class Seq >
+	 vct( Seq& nbrs,
+	      mpi::comm const& comm = mpi::comm::world )
+            : _comm( (mpi::comm const*)&comm )
+         {
+            set_neighbors( nbrs );
+         }
+
+         template< class Seq >
+	 vct( Seq const& nbrs,
+	      mpi::comm const& comm = mpi::comm::world )
+            : _comm( (mpi::comm const*)&comm )
+         {
+            set_neighbors( nbrs );
+         }
+
+#endif
 
 	 ~vct();
 
@@ -53,6 +75,8 @@ namespace hpc {
 
 	 mpi::comm const&
 	 comm() const;
+
+#ifdef CXX_0X
 
          template< class Seq >
 	 void
@@ -67,6 +91,36 @@ namespace hpc {
                _rtn.emplace( _nbrs[ii], ii );
          }
 
+#else
+
+         template< class Seq >
+	 void
+	 set_neighbors( Seq& nbrs )
+         {
+            ASSERT( !has_duplicates( nbrs ), "Duplicates in neighbors." );
+            ASSERT( !has_element( nbrs, _comm->rank() ), "Neighbors contains my rank." );
+            ASSERT( is_ordered( nbrs ), "Neighbors are not ordered." );
+            clear();
+            hpc::assign( _nbrs, nbrs );
+            for( unsigned ii = 0; ii < _nbrs.size(); ++ii )
+               _rtn.insert( std::make_pair( _nbrs[ii], ii ) );
+         }
+
+         template< class Seq >
+	 void
+	 set_neighbors( Seq const& nbrs )
+         {
+            ASSERT( !has_duplicates( nbrs ), "Duplicates in neighbors." );
+            ASSERT( !has_element( nbrs, _comm->rank() ), "Neighbors contains my rank." );
+            ASSERT( is_ordered( nbrs ), "Neighbors are not ordered." );
+            clear();
+            hpc::assign( _nbrs, nbrs );
+            for( unsigned ii = 0; ii < _nbrs.size(); ++ii )
+               _rtn.insert( std::make_pair( _nbrs[ii], ii ) );
+         }
+
+#endif
+
          unsigned
 	 n_neighbors() const;
 
@@ -79,7 +133,7 @@ namespace hpc {
 	 template< class T >
 	 void
 	 ibcast( T const& out,
-		 view<std::vector<T>> inc,
+		 view<std::vector<T> > inc,
                  mpi::requests& reqs,
 		 int tag = 0 ) const
          {
@@ -95,7 +149,7 @@ namespace hpc {
          template< class T >
          void
          bcast( T const& out,
-                view<std::vector<T>> inc,
+                view<std::vector<T> > inc,
                 int tag = 0 ) const
          {
             mpi::requests reqs;
@@ -112,8 +166,8 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 iscatter( view<std::vector<T>> const& out,
-		   view<std::vector<T>> inc,
+	 iscatter( view<std::vector<T> > const& out,
+		   view<std::vector<T> > inc,
 		   mpi::requests& reqs,
 		   int tag = 0 ) const
          {
@@ -125,8 +179,8 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 scatter( view<std::vector<T>> const& out,
-                  view<std::vector<T>> inc,
+	 scatter( view<std::vector<T> > const& out,
+                  view<std::vector<T> > inc,
                   int tag = 0 ) const
          {
             mpi::requests reqs;
@@ -136,9 +190,9 @@ namespace hpc {
          template< class Index >
 	 void
 	 iscatter( void* out,
-                   view<std::vector<Index>> const& out_displs,
+                   view<std::vector<Index> > const& out_displs,
                    void* inc,
-                   view<std::vector<Index>> inc_displs,
+                   view<std::vector<Index> > inc_displs,
                    mpi::datatype const& type,
                    mpi::requests& reqs,
                    unsigned block_size = 1,
@@ -189,10 +243,10 @@ namespace hpc {
          template< class T,
                    class Index >
 	 void
-	 iscatter( view<std::vector<T>> const& out,
-                   view<std::vector<Index>> const& out_displs,
-                   view<std::vector<T>> inc,
-                   view<std::vector<Index>> inc_displs,
+	 iscatter( view<std::vector<T> > const& out,
+                   view<std::vector<Index> > const& out_displs,
+                   view<std::vector<T> > inc,
+                   view<std::vector<Index> > inc_displs,
                    mpi::requests& reqs,
                    int tag = 0 ) const
          {
@@ -203,10 +257,10 @@ namespace hpc {
          template< class T,
                    class Index >
 	 void
-	 scatter( view<std::vector<T>> const& out,
-                  view<std::vector<Index>> const& out_displs,
-                  view<std::vector<T>> inc,
-                  view<std::vector<Index>> inc_displs,
+	 scatter( view<std::vector<T> > const& out,
+                  view<std::vector<Index> > const& out_displs,
+                  view<std::vector<T> > inc,
+                  view<std::vector<Index> > inc_displs,
                   int tag = 0 ) const
          {
             mpi::requests reqs;
@@ -216,8 +270,8 @@ namespace hpc {
          template< class T,
                    class Index >
          void
-         scattera( view<std::vector<T>> const& out,
-                   view<std::vector<Index>> const& out_displs,
+         scattera( view<std::vector<T> > const& out,
+                   view<std::vector<Index> > const& out_displs,
                    std::vector<T>& inc,
                    std::vector<Index>& inc_displs,
                    int tag = 0 ) const
@@ -267,11 +321,11 @@ namespace hpc {
 
 	 template< class DisplType >
 	 void
-	 scatter_displs( view<std::vector<DisplType>> const& out,
-			 view<std::vector<DisplType>> inc,
+	 scatter_displs( view<std::vector<DisplType> > const& out,
+			 view<std::vector<DisplType> > inc,
 			 int tag = 0 ) const
 	 {
-            typedef view<std::vector<DisplType>> view_type;
+            typedef view<std::vector<DisplType> > view_type;
 
 	    ASSERT( out.size() == inc.size() );
 	    if( out.size() > 1 )
@@ -286,7 +340,7 @@ namespace hpc {
       protected:
 
          std::vector<unsigned> _nbrs;
-         std::unordered_map<unsigned,unsigned> _rtn;
+         std::map<unsigned,unsigned> _rtn;
 	 mpi::comm const* _comm;
       };
    }

@@ -33,7 +33,7 @@ namespace hpc {
 	    if( group_names.size() )
             {
                std::vector<std::string> tmp( group_names );
-	       assign( group_names, view<std::vector<std::string>>( tmp, tmp.size() - 1 ) );
+	       assign( group_names, view<std::vector<std::string> >( tmp, tmp.size() - 1 ) );
 	    }
 	 }
       }

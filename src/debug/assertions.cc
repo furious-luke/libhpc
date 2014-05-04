@@ -26,6 +26,10 @@
 namespace hpc {
    namespace debug {
 
+      assertion::~assertion() throw()
+      {
+      }
+
       assertion&
       assertion::details( const char* expr,
                           const char* file,

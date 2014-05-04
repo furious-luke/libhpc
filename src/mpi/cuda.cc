@@ -38,7 +38,7 @@ namespace hpc {
 	 if( n_devs == 1 )
 	 {
 	    LOGILN( "Rank ", comm.rank(), " on host ", mpi::get_host(), " using CUDA device: 0" );
-	    auto res = cudaSetDevice( 0 );
+	    cudaError_t res = cudaSetDevice( 0 );
 	    EXCEPT( res == cudaSuccess, "Failed to set device." );
 	 }
 	 else if( n_devs > 1 )
@@ -47,12 +47,12 @@ namespace hpc {
 	    LOGILN( "Ranks shared on host: ", ranks );
 	    EXCEPT( ranks.size() <= n_devs, "Number of nodes on a host exceeds available GPUs." );
 	    unsigned dev = 0;
-	    for( auto rank : ranks )
+	    for( std::set<int>::const_iterator it = ranks.begin(); it != ranks.end(); ++it )
 	    {
-	       if( comm.rank() == rank )
+	       if( comm.rank() == *it )
 	       {
-		  LOGILN( "Rank ", rank, " on host ", mpi::get_host(), " using CUDA device: ", dev );
-		  auto res = cudaSetDevice( dev );
+		  LOGILN( "Rank ", *it, " on host ", mpi::get_host(), " using CUDA device: ", dev );
+		  cudaError_t res = cudaSetDevice( dev );
 		  EXCEPT( res == cudaSuccess, "Failed to set device." );
 	       }
 	       ++dev;

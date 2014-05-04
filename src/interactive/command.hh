@@ -2,6 +2,7 @@
 #define libhpc_interactive_command_hh
 
 #include <boost/regex.hpp>
+#include <boost/function.hpp>
 
 namespace hpc {
    namespace command {
@@ -10,7 +11,7 @@ namespace hpc {
       {
       public:
 
-         typedef std::function<void(const boost::smatch&)> function_type;
+         typedef boost::function<void(const boost::smatch&)> function_type;
 
       public:
 

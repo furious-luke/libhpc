@@ -53,10 +53,10 @@ namespace hpc {
 	 create( dims );
       }
 
-      dataspace::dataspace( dataspace&& src )
-         : _id( src._id )
+      dataspace::dataspace( dataspace const& src )
+         : _id( -1 )
       {
-         src._id = -1;
+         *this = src;
       }
 
       dataspace::~dataspace()

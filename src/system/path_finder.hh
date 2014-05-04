@@ -30,7 +30,11 @@ namespace hpc {
 
       path_finder();
 
-      path_finder( std::initializer_list<fs::path> roots );
+      template< class Seq >
+      path_finder( Seq const& roots )
+         : _roots( roots.begin(), roots.end() )
+      {
+      }
 
       void
       add_root( fs::path const& root );

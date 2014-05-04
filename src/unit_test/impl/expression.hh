@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_expression_hh
-#define libhpc_unit_test_expression_hh
+#ifndef libhpc_unit_test_impl_expression_hh
+#define libhpc_unit_test_impl_expression_hh
 
 #include <iostream>
 #include <string>
@@ -36,7 +36,7 @@ namespace hpc {
             throw test_expression_failed<T,U>( tc, *this, desc );
          }
          else
-            tc.runner().dot();
+            tc.runner()->dot();
       }
 
    }

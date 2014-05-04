@@ -108,7 +108,7 @@ namespace hpc {
 
       protected:
 
-         std::function<void(Fixture&)> _func;
+         boost::function<void(Fixture&)> _func;
       };
 
       template<>
@@ -119,7 +119,7 @@ namespace hpc {
 
          test_case( const std::string& name,
                     const std::string& desc,
-                    std::function<void()> func )
+                    boost::function<void()> func )
             : test_case_base( name, desc ),
               _func( func )
          {
@@ -135,7 +135,7 @@ namespace hpc {
 
       protected:
 
-         std::function<void()> _func;
+         boost::function<void()> _func;
       };
 
    }

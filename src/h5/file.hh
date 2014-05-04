@@ -56,7 +56,7 @@ namespace hpc {
 	 close();
 
 	 template< class Buffer >
-         typename boost::disable_if<random_access_trait<Buffer>>::type
+         typename boost::disable_if<random_access_trait<Buffer> >::type
 	 write( std::string const& name,
 		typename Buffer::value_type const& value )
 	 {
@@ -79,7 +79,7 @@ namespace hpc {
 	 }
 
 	 template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer>>::type
+         typename boost::enable_if<random_access_trait<Buffer> >::type
 	 write_serial( std::string const& name,
                        typename type_traits<Buffer>::const_reference buf )
 	 {
@@ -102,7 +102,7 @@ namespace hpc {
 	 }
 
 	 template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer>>::type
+         typename boost::enable_if<random_access_trait<Buffer> >::type
 	 write( std::string const& name,
                 typename type_traits<Buffer>::const_reference buf )
 	 {
@@ -144,7 +144,7 @@ namespace hpc {
                mpi::comm& comm = mpi::comm::self );
 
 	 template< class T >
-         typename boost::disable_if<random_access_trait<T>>::type
+         typename boost::disable_if<random_access_trait<T> >::type
 	 read( std::string const& name,
 	       hsize_t elem = 0 )
 	 {
@@ -153,7 +153,7 @@ namespace hpc {
 	 }
 
 	 template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer>>::type
+         typename boost::enable_if<random_access_trait<Buffer> >::type
 	 read( const std::string& name,
 	       typename type_traits<Buffer>::reference buf,
                hsize_t offs = 0 )

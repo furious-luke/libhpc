@@ -20,11 +20,13 @@
 
 #ifdef __CUDA_ARCH__
 
+#define CUDA_DEV_HOST     __device__
 #define CUDA_DEV_HOST     __device__ __host__
 #define CUDA_DEV_HOST_INL __device__ __host__ __forceinline__
 
 #else
 
+#define CUDA_DEV
 #define CUDA_DEV_HOST
 #define CUDA_DEV_HOST_INL inline
 

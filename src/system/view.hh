@@ -305,7 +305,7 @@ namespace hpc {
 
    template< class Vector >
    struct random_access_trait< view<Vector> >
-      : std::true_type {};
+      : boost::true_type {};
 
 }
 

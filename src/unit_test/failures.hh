@@ -18,11 +18,14 @@
 #ifndef libhpc_unit_test_failures_hh
 #define libhpc_unit_test_failures_hh
 
-#include "expression.hh"
+#include <boost/format.hpp>
 #include "runner.hh"
 
 namespace hpc {
    namespace test {
+
+      template< class, class >
+      class expression;
 
       class test_failed
          : public std::exception
@@ -43,11 +46,26 @@ namespace hpc {
               _expr( expr ),
               _desc( desc )
          {
+            boost::format fmt( "\n  Failed as a result of expression:\n"
+                               "    %2%\n"
+                               "  where\n"
+                               "    LHS: %3%\n"
+                               "    RHS: %4%\n"
+                               "  at\n"
+                               "    %5%:%6%\n" );
+            fmt % tc.name();
+            fmt % expr.str() % expr.lhs() % expr.rhs();
+            fmt % expr.file() % expr.line();
+            _msg = fmt.str();
+         }
+
+         ~test_expression_failed() throw()
+         {
          }
 
          virtual
          char const*
-         what() const noexcept
+         what() const throw()
          {
             return _msg.c_str();
          }

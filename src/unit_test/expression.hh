@@ -209,5 +209,6 @@ namespace hpc {
 }
 
 #include "failures.hh"
+#include "impl/expression.hh"
 
 #endif

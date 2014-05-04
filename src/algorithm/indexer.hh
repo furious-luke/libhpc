@@ -18,6 +18,7 @@
 #ifndef libhpc_algorithm_indexer_hh
 #define libhpc_algorithm_indexer_hh
 
+#include <boost/function.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
@@ -40,10 +41,10 @@ namespace hpc {
 
          unsigned long long
          request( unsigned long long size,
-                  std::function<void(unsigned long long,unsigned long long)> cb = std::function<void(unsigned long long,unsigned long long)>() );
+                  boost::function<void(unsigned long long,unsigned long long)> cb = boost::function<void(unsigned long long,unsigned long long)>() );
 
 	 void
-	 master( std::function<void(unsigned long long,unsigned long long)> cb = std::function<void(unsigned long long,unsigned long long)>() );
+	 master( boost::function<void(unsigned long long,unsigned long long)> cb = boost::function<void(unsigned long long,unsigned long long)>() );
 
 	 unsigned long long
 	 base() const;

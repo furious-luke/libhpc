@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include <boost/array.hpp>
+#include "libhpc/system/cc_version.hh"
 
 namespace hpc {
 
@@ -46,6 +47,8 @@ namespace hpc {
    template<>
    uint16_t
    undilate<3>( uint32_t t );
+
+#ifdef CXX_0X
 
    template< int D,
 	     int N,
@@ -89,6 +92,19 @@ namespace hpc {
 #endif
       return morton_impl<D,0,Args...>::eval( args... );
    }
+
+#else
+
+   uint32_t
+   morton( uint16_t x,
+           uint16_t y );
+
+   uint32_t
+   morton( uint16_t x,
+           uint16_t y,
+           uint16_t z );
+
+#endif
 
    uint32_t
    morton_array( boost::array<uint16_t,2> const& crd );
