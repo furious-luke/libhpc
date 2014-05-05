@@ -15,19 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_numerics_numerics_hh
-#define libhpc_numerics_numerics_hh
+#ifndef hpc_system_hh
+#define hpc_system_hh
 
-#include "constants.hh"
-#include "vector.hh"
-#include "matrix.hh"
-#include "interp.hh"
-#include "tridiag.hh"
-#include "spline.hh"
-#include "interp_iterator.hh"
-#include "simpson.hh"
-#include "coords.hh"
-#include "dft.hh"
-#include "spline_integrator.hh"
+#include "system/anon.hh"
+#include "system/stream.hh"
+#include "system/timer.hh"
+#include "system/id.hh"
+#include "system/filesystem.hh"
+#include "system/shared_library.hh"
+#include "system/daemon.hh"
+#include "system/path_finder.hh"
+#include "system/tmpfile.hh"
+#include "system/view.hh"
+#include "system/matrix.hh"
 
 #endif

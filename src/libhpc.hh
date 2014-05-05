@@ -15,19 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_hh
-#define libhpc_hh
+#ifndef hpc_hh
+#define hpc_hh
 
-#include "libhpc/debug.hh"
-#include "libhpc/system.hh"
-#include "libhpc/logging.hh"
-#include "libhpc/containers.hh"
-#include "libhpc/mpi.hh"
-#include "libhpc/h5.hh"
-#include "libhpc/numerics.hh"
-#include "libhpc/algorithm.hh"
+#include "debug.hh"
+#include "system.hh"
+#include "logging.hh"
+#include "mpi.hh"
+#include "h5.hh"
+#include "algorithm.hh"
+#include "numerics.hh"
 #ifdef HAVE_GLUT
-#include "libhpc/interactive/interactive.hh"
+#include "interactive/interactive.hh"
 #endif
 
 #endif

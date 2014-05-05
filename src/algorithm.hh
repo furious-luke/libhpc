@@ -15,21 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_hh
-#define libhpc_system_hh
+#ifndef hpc_algorithm_hh
+#define hpc_algorithm_hh
 
-#include "types.hh"
-#include "stream_indent.hh"
-#include "stream_output.hh"
-#include "timer.hh"
-#include "id.hh"
-#include "helpers.hh"
-#include "exe.hh"
-#include "shared_library.hh"
-#include "daemon.hh"
-#include "path_finder.hh"
-#include "tmpfile.hh"
-#include "view.hh"
-#include "matrix.hh"
+#include "algorithm/dual.hh"
+#include "algorithm/bin.hh"
+#include "algorithm/median.hh"
+// #include "algorithm/farmer.hh"
+// #include "algorithm/farmer2.hh"
+#include "algorithm/indexer.hh"
+#include "algorithm/dual.hh"
+#include "algorithm/bin.hh"
 
 #endif

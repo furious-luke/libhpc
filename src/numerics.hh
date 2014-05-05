@@ -15,16 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_algorithm_algorithm_hh
-#define libhpc_algorithm_algorithm_hh
+#ifndef hpc_numerics_hh
+#define hpc_numerics_hh
 
-#include "dual.hh"
-#include "bin.hh"
-#include "median.hh"
-#include "farmer.hh"
-#include "farmer2.hh"
-#include "indexer.hh"
-#include "dual.hh"
-#include "bin.hh"
+#include "numerics/constants.hh"
+#include "numerics/vector.hh"
+#include "numerics/matrix.hh"
+#include "numerics/interp.hh"
+#include "numerics/tridiag.hh"
+#include "numerics/spline.hh"
+#include "numerics/interp_iterator.hh"
+#include "numerics/simpson.hh"
+#include "numerics/coords.hh"
+#include "numerics/dft.hh"
+#include "numerics/spline_integrator.hh"
 
 #endif

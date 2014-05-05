@@ -18,12 +18,16 @@
 #ifndef libhpc_system_stream_hh
 #define libhpc_system_stream_hh
 
+#include "cc_version.hh"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <list>
 #include <set>
 #include <map>
+#ifdef CXX_0X
+#include <array>
+#endif
 #include <boost/array.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
@@ -46,101 +50,141 @@ namespace hpc {
 
 }
 
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            std::vector<T> const& obj )
-{
-   strm << "[";
-   if( !obj.empty() )
+namespace std {
+
+   template< class T,
+             class U >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::pair<T,U> const& obj )
    {
-      typename std::vector<T>::const_iterator it = obj.begin();
-      strm << *it++;
-      while( it != obj.cend() )
+      strm << "(" << obj.first << "," << obj.second << ")";
+      return strm;
+   }
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::vector<T> const& obj )
+   {
+      strm << "[";
+      if( !obj.empty() )
       {
-         strm << ", " << *it++;
+         typename std::vector<T>::const_iterator it = obj.begin();
+         strm << *it++;
+         while( it != obj.cend() )
+         {
+            strm << ", " << *it++;
+         }
       }
+      strm << "]";
+      return strm;
    }
-   strm << "]";
-   return strm;
-}
 
-template< class T,
-	  size_t N >
-std::ostream&
-operator<<( std::ostream& strm,
-	    boost::array<T,N> const& obj )
-{
-   strm << "(";
-   if( N )
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::set<T> const& obj )
    {
-      typename boost::array<T,N>::const_iterator it = obj.begin();
-      strm << *it++;
-      while( it != obj.cend() )
-	 strm << ", " << *it++;
-   }
-   strm << ")";
-   return strm;
-}
-
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            std::set<T> const& obj )
-{
-   strm << "{";
-   if( !obj.empty() )
-   {
-      typename std::set<T>::const_iterator it = obj.begin();
-      strm << *it++;
-      while( it != obj.cend() )
+      strm << "{";
+      if( !obj.empty() )
       {
-         strm << ", " << *it++;
+         typename std::set<T>::const_iterator it = obj.begin();
+         strm << *it++;
+         while( it != obj.cend() )
+         {
+            strm << ", " << *it++;
+         }
       }
+      strm << "}";
+      return strm;
    }
-   strm << "}";
-   return strm;
-}
 
-template< class Tk,
-          class Tv >
-std::ostream&
-operator<<( std::ostream& strm,
-            std::map<Tk,Tv> const& obj )
-{
-   strm << "{";
-   if( !obj.empty() )
+   template< class Tk,
+             class Tv >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::map<Tk,Tv> const& obj )
    {
-      typename std::map<Tk,Tv>::const_iterator it = obj.begin();
-      strm << it->first << ": " << it->second;
-      ++it;
-      while( it != obj.cend() )
+      strm << "{";
+      if( !obj.empty() )
       {
+         typename std::map<Tk,Tv>::const_iterator it = obj.begin();
          strm << it->first << ": " << it->second;
          ++it;
+         while( it != obj.cend() )
+         {
+            strm << it->first << ": " << it->second;
+            ++it;
+         }
       }
+      strm << "}";
+      return strm;
    }
-   strm << "}";
-   return strm;
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::list<T> const& obj )
+   {
+      strm << "[";
+      if( !obj.empty() )
+      {
+         typename std::list<T>::const_iterator it = obj.begin();
+         strm << *it++;
+         while( it != obj.cend() )
+         {
+            strm << ", " << *it++;
+         }
+      }
+      strm << "]";
+      return strm;
+   }
+
+#ifdef CXX_0X
+
+   template< class T,
+             size_t N >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               std::array<T,N> const& obj )
+   {
+      strm << "(";
+      if( N )
+      {
+         typename std::array<T,N>::const_iterator it = obj.begin();
+         strm << *it++;
+         while( it != obj.cend() )
+            strm << ", " << *it++;
+      }
+      strm << ")";
+      return strm;
+   }
+
+#endif
+
 }
 
-template< class T >
-std::ostream&
-operator<<( std::ostream& strm,
-            std::list<T> const& obj )
-{
-   strm << "[";
-   if( !obj.empty() )
+namespace boost {
+
+   template< class T,
+             size_t N >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               boost::array<T,N> const& obj )
    {
-      typename std::list<T>::const_iterator it = obj.begin();
-      strm << *it++;
-      while( it != obj.cend() )
+      strm << "(";
+      if( N )
       {
-         strm << ", " << *it++;
+         typename boost::array<T,N>::const_iterator it = obj.begin();
+         strm << *it++;
+         while( it != obj.cend() )
+            strm << ", " << *it++;
       }
+      strm << ")";
+      return strm;
    }
-   strm << "]";
-   return strm;
+
 }
 
 // template< class Type,

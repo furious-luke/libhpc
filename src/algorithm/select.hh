@@ -18,8 +18,9 @@
 #ifndef hpc_algorithm_select_hh
 #define hpc_algorithm_select_hh
 
+#include <algorithm>
 #include "libhpc/debug/assert.hh"
-#include "libhpc/hpcmpi/comm.hh"
+#include "libhpc/mpi/comm.hh"
 #include "ridders.hh"
 
 namespace hpc {
@@ -70,7 +71,7 @@ namespace hpc {
          ASSERT( position >= 0, "Invalid selection position." );
 
          // Find the minimum and maximum values.
-         std::pair<Iterator,Iterator> minmax = hpc::minmax_element( start, finish );
+         std::pair<Iterator,Iterator> minmax = std::minmax_element( start, finish );
          value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN );
          value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX );
 

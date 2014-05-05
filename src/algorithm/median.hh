@@ -15,30 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_select_hh
-#define hpc_algorithm_select_hh
+#ifndef hpc_algorithm_median_hh
+#define hpc_algorithm_median_hh
 
 #include "libhpc/debug/assert.hh"
-#include "libhpc/containers/num.hh"
-#include "libhpc/containers/optional.hh"
-#include "libhpc/containers/mymath.hh"
+#include "libhpc/mpi/comm.hh"
+#include "select.hh"
 
 namespace hpc {
    namespace algorithm {
 
       template< class Iterator >
       typename Iterator::value_type
-      median( const Iterator& start,
-              const Iterator& finish,
-              const mpi::comm& comm = mpi::comm::world )
+      median( Iterator const& start,
+              Iterator const& finish,
+              mpi::comm const& comm = mpi::comm::world )
       {
          typedef typename Iterator::value_type value_type;
 
          // Find the position of the median.
-         long position = comm.all_reduce( std::distance( start, finish ), MPI_SUM );
-         position >>= 1;
+         long pos = comm.all_reduce( std::distance( start, finish ), MPI_SUM );
+         pos >>= 1;
 
-         return select( start, finish, position, comm );
+         return select( start, finish, pos, comm );
       }
 
    }

@@ -19,6 +19,7 @@
 #define libhpc_unit_test_failures_hh
 
 #include <boost/format.hpp>
+#include "libhpc/system/stream.hh"
 #include "runner.hh"
 
 namespace hpc {

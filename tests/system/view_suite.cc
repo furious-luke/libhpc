@@ -48,6 +48,8 @@ namespace {
       fixture fix;
       hpc::view<std::vector<int>> view( fix.vec );
       check_contents( view );
+      hpc::view<std::vector<int> const> cv( fix.vec );
+      check_contents( cv );
    }
 
    TEST_CASE( "/libhpc/system/view/constructor/resize" )

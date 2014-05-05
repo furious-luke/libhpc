@@ -25,112 +25,12 @@
 #include <map>
 #include <set>
 #include <boost/thread.hpp>
-// #include <mutex>
 #include "libhpc/system/stream.hh"
 
 #ifndef NLOG
 
 namespace hpc {
    namespace log {
-
-      template< class Tk,
-		class Tv >
-      std::ostream&
-      operator<<( std::ostream& strm,
-		  const std::map<Tk,Tv>& obj )
-      {
-	 strm << "{";
-	 if( !obj.empty() )
-	 {
-	    typename std::map<Tk,Tv>::const_iterator it = obj.begin();
-	    strm << it->first << ": " << it->second;
-	    ++it;
-	    while( it != obj.end() )
-	    {
-	       strm << it->first << ": " << it->second;
-	       ++it;
-	    }
-	 }
-	 strm << "}";
-	 return strm;
-      }
-
-      template< class T >
-      std::ostream&
-      operator<<( std::ostream& strm,
-		  const std::vector<T>& obj )
-      {
-	 strm << "[";
-	 if( !obj.empty() )
-	 {
-            typename std::vector<T>::const_iterator it = obj.begin();
-	    strm << *it++;
-	    while( it != obj.end() )
-	    {
-	       strm << ", " << *it++;
-	    }
-	 }
-	 strm << "]";
-	 return strm;
-      }
-
-      template< class T >
-      std::ostream&
-      operator<<( std::ostream& strm,
-		  const std::set<T>& obj )
-      {
-	 strm << "{";
-	 if( !obj.empty() )
-	 {
-	    typename std::set<T>::const_iterator it = obj.begin();
-	    strm << *it++;
-	    while( it != obj.end() )
-	    {
-	       strm << ", " << *it++;
-	    }
-	 }
-	 strm << "}";
-	 return strm;
-      }
-
-      template< class T >
-      std::ostream&
-      operator<<( std::ostream& strm,
-		  std::list<T> const& obj )
-      {
-	 strm << "[";
-	 if( !obj.empty() )
-	 {
-	    typename std::list<T>::const_iterator it = obj.begin();
-	    strm << *it++;
-	    while( it != obj.end() )
-	    {
-	       strm << ", " << *it++;
-	    }
-	 }
-	 strm << "]";
-	 return strm;
-      }
-
-      template< class T,
-                size_t N >
-      std::ostream&
-      operator<<( std::ostream& strm,
-                  const boost::array<T,N>& obj )
-      {
-         strm << "(";
-         if( N )
-         {
-            typename boost::array<T,N>::const_iterator it = obj.begin();
-            strm << *it++;
-            while( it != obj.end() )
-            {
-               strm << ", " << *it++;
-            }
-         }
-         strm << ")";
-         return strm;
-      }
 
       ///
       ///

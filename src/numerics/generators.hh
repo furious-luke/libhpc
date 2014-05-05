@@ -15,14 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_numerics_generators_hh
-#define libhpc_numerics_generators_hh
+#ifndef hpc_numerics_generators_hh
+#define hpc_numerics_generators_hh
 
 #include <math.h>
 #include "libhpc/debug/assert.hh"
 
 namespace hpc {
-   namespace numerics {
+   namespace num {
 
       template< class Iter >
       void

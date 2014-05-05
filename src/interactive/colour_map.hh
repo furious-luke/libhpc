@@ -1,8 +1,8 @@
 #ifndef libhpc_interactive_colour_map_hh
 #define libhpc_interactive_colour_map_hh
 
-#include "libhpc/containers/array.hh"
-#include "libhpc/containers/vector.hh"
+#include <vector>
+#include <boost/array.hpp>
 
 namespace hpc {
    namespace gl {
@@ -18,12 +18,12 @@ namespace hpc {
 
          typedef S source_type;
          typedef C colour_field_type;
-         typedef array<colour_field_type,num_fields_const> colour_type;
+         typedef boost::array<colour_field_type,num_fields_const> colour_type;
 
       public:
 
          void
-         set_abscissa( vector<source_type>& abs )
+         set_abscissa( std::vector<source_type>& abs )
          {
             _abs.deallocate();
             _abs.swap( abs );
@@ -45,7 +45,7 @@ namespace hpc {
          }
 
          void
-         set_colours( vector<colour_type>& cols )
+         set_colours( std::vector<colour_type>& cols )
          {
             _cols.deallocate();
             _cols.swap( cols );
@@ -162,8 +162,8 @@ namespace hpc {
 
       protected:
 
-         vector<colour_type> _cols;
-         vector<source_type> _abs;
+         std::vector<colour_type> _cols;
+         std::vector<source_type> _abs;
          source_type _w;
       };
 

@@ -15,24 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_view_hh
-#define libhpc_containers_view_hh
+#ifndef hpc_containers_view_hh
+#define hpc_containers_view_hh
 
 #include <vector>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_const.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/system/type_traits.hh"
+#include "libhpc/system/stream.hh"
 
 namespace hpc {
 
    template< class > class view_iterator;
 
    template< class Vector >
-   class view
+   class const_view
    {
    public:
 
-      typedef Vector vector_type;
+      typedef typename boost::remove_const<Vector>::type const vector_type;
       typedef size_t size_type;
       typedef size_t key_type;
 
@@ -41,28 +44,26 @@ namespace hpc {
       typedef typename Vector::const_pointer   const_pointer;
       typedef typename Vector::pointer         pointer;
       typedef typename Vector::const_reference const_element_reference;
-      typedef typename Vector::reference       element_reference;
 
-      typedef view_iterator<value_type>       iterator;
       typedef view_iterator<value_type const> const_iterator;
 
    public:
 
-      view()
+      const_view()
          : _ptr( 0 ),
            _size( 0 )
       {
       }
 
       template< class Other >
-      view( Other const& vec )
+      const_view( Other const& vec )
          : _ptr( (pointer)vec.data() ),
            _size( vec.size() )
       {
       }
 
       template< class Other >
-      view( Other const& vec,
+      const_view( Other const& vec,
             size_t size,
             size_t offs = 0 )
          : _ptr( (pointer)vec.data() + offs ),
@@ -73,7 +74,7 @@ namespace hpc {
          ASSERT( offs + size <= vec.size() );
       }
 
-      view( const_pointer ptr,
+      const_view( const_pointer ptr,
             size_t size,
             size_t offs = 0 )
          : _ptr( (pointer)ptr + offs ),
@@ -115,7 +116,7 @@ namespace hpc {
          return _size == 0;
       }
 
-      pointer const
+      const_pointer const
       data() const
       {
          return _ptr;
@@ -127,22 +128,10 @@ namespace hpc {
          return const_iterator( _ptr );
       }
 
-      iterator
-      begin()
-      {
-         return iterator( _ptr );
-      }
-
       const_iterator
       end() const
       {
          return const_iterator( _ptr + _size );
-      }
-
-      iterator
-      end()
-      {
-         return iterator( _ptr + _size );
       }
 
       const_element_reference
@@ -166,21 +155,6 @@ namespace hpc {
          return _ptr[idx];
       }
 
-      element_reference
-      operator[]( size_t idx )
-      {
-         ASSERT( idx < _size, "Index out of bounds." );
-         return _ptr[idx];
-      }
-
-      template< class Other >
-      view&
-      operator=( Other const& op )
-      {
-         ASSERT( op.size() == _size );
-         std::copy( op.begin(), op.end(), begin() );
-      }
-
       template< class Other >
       bool
       operator==( Other const& op ) const
@@ -196,19 +170,14 @@ namespace hpc {
          return true;
       }
 
-      operator pointer()
-      {
-	 return _ptr;
-      }
-
-      operator const pointer() const
+      operator const_pointer() const
       {
 	 return _ptr;
       }
 
       friend std::ostream&
       operator<<( std::ostream& strm,
-		  const view<Vector>& obj )
+		  const_view<vector_type> const& obj )
       {
 	 strm << "[";
 	 if( obj.size() )
@@ -225,6 +194,180 @@ namespace hpc {
 
       pointer _ptr;
       size_type _size;
+   };
+
+   template< class Vector,
+             class Enable = void >
+   class view;
+
+   template< class Vector >
+   class view< Vector,
+               typename boost::enable_if<boost::is_const<Vector> >::type >
+      : public const_view<Vector>
+   {
+   public:
+
+      typedef const_view<Vector> super_type;
+      typedef Vector vector_type;
+      typedef size_t size_type;
+      typedef size_t key_type;
+
+      typedef typename Vector::value_type      mapped_type;
+      typedef typename Vector::value_type      value_type;
+      typedef typename Vector::const_pointer   const_pointer;
+      typedef typename Vector::pointer         pointer;
+      typedef typename Vector::const_reference const_element_reference;
+      typedef typename Vector::reference       element_reference;
+
+      typedef view_iterator<value_type>       iterator;
+      typedef view_iterator<value_type const> const_iterator;
+
+   public:
+
+      view()
+         : super_type()
+      {
+      }
+
+      template< class Other >
+      view( Other const& vec )
+         : super_type( vec )
+      {
+      }
+
+      template< class Other >
+      view( Other const& vec,
+            size_t size,
+            size_t offs = 0 )
+         : super_type( vec, size, offs )
+      {
+      }
+
+      view( const_pointer ptr,
+            size_t size,
+            size_t offs = 0 )
+         : super_type( ptr, size, offs )
+      {
+      }
+   };
+
+   template< class Vector >
+   class view< Vector,
+               typename boost::disable_if<boost::is_const<Vector> >::type >
+      : public const_view<Vector>
+   {
+   public:
+
+      typedef const_view<Vector> super_type;
+      typedef Vector vector_type;
+      typedef size_t size_type;
+      typedef size_t key_type;
+
+      typedef typename Vector::value_type      mapped_type;
+      typedef typename Vector::value_type      value_type;
+      typedef typename Vector::const_pointer   const_pointer;
+      typedef typename Vector::pointer         pointer;
+      typedef typename Vector::const_reference const_element_reference;
+      typedef typename Vector::reference       element_reference;
+
+      typedef view_iterator<value_type>       iterator;
+      typedef view_iterator<value_type const> const_iterator;
+
+   public:
+
+      view()
+         : super_type()
+      {
+      }
+
+      template< class Other >
+      view( Other const& vec )
+         : super_type( vec )
+      {
+      }
+
+      template< class Other >
+      view( Other const& vec,
+            size_t size,
+            size_t offs = 0 )
+         : super_type( vec, size, offs )
+      {
+      }
+
+      view( const_pointer ptr,
+            size_t size,
+            size_t offs = 0 )
+         : super_type( ptr, size, offs )
+      {
+      }
+
+      const_pointer
+      data() const
+      {
+         return this->_ptr;
+      }
+
+      pointer
+      data()
+      {
+         return this->_ptr;
+      }
+
+      const_iterator
+      begin() const
+      {
+         return const_iterator( this->_ptr );
+      }
+
+      iterator
+      begin()
+      {
+         return iterator( this->_ptr );
+      }
+
+      const_iterator
+      end() const
+      {
+         return const_iterator( this->_ptr + this->_size );
+      }
+
+      iterator
+      end()
+      {
+         return iterator( this->_ptr + this->_size );
+      }
+
+      const_element_reference
+      operator[]( size_t idx ) const
+      {
+         ASSERT( idx < this->_size, "Index out of bounds." );
+         return this->_ptr[idx];
+      }
+
+      element_reference
+      operator[]( size_t idx )
+      {
+         ASSERT( idx < this->_size, "Index out of bounds." );
+         return this->_ptr[idx];
+      }
+
+      template< class Other >
+      view&
+      operator=( Other const& op )
+      {
+         ASSERT( op.size() == this->_size );
+         std::copy( op.begin(), op.end(), begin() );
+      }
+
+      operator pointer()
+      {
+	 return this->_ptr;
+      }
+
+      operator const pointer() const
+      {
+	 return this->_ptr;
+      }
    };
 
    template< class T >

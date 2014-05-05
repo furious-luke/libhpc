@@ -19,6 +19,7 @@
 #define hpc_containers_matrix_hh
 
 #include <vector>
+#include "view.hh"
 
 namespace hpc {
 
@@ -41,6 +42,32 @@ namespace hpc {
 	 : _vec( n_rows*n_cols ),
 	   _size{ n_rows, n_cols }
       {
+      }
+
+      size_type
+      n_rows() const
+      {
+         return _size[0];
+      }
+
+      size_type
+      n_cols() const
+      {
+         return _size[1];
+      }
+
+      view<std::vector<value_type> >
+      operator[]( size_type row )
+      {
+         ASSERT( row < _size[0], "Matrix row out of bounds." );
+         return view<std::vector<value_type> >( _vec, _size[1], row*_size[1] );
+      }
+
+      view<std::vector<value_type> const>
+      operator[]( size_type row ) const
+      {
+         ASSERT( row < _size[0], "Matrix row out of bounds." );
+         return view<std::vector<value_type> const>( _vec, _size[1], row*_size[1] );
       }
 
       value_type&
