@@ -22,7 +22,6 @@
 
 using namespace hpc;
 using namespace hpc::num;
-using namespace std::placeholders;
 
 TEST_CASE( "/libhpc/numerics/spline_integrator/flat" )
 {
@@ -38,7 +37,7 @@ TEST_CASE( "/libhpc/numerics/spline_integrator/flat" )
    }
 
    spline_integrator<double> integ;
-   double sum = integ( sp0, std::bind( identity<double>(), _2 ) );
+   double sum = integ( sp0, std::bind( identity<double>(), std::placeholders::_2 ) );
    DELTA( sum, 2.0, 1e-6 );
 }
 
@@ -86,7 +85,7 @@ TEST_CASE( "/libhpc/numerics/spline_integrator/parabola" )
    }
 
    spline_integrator<double> integ;
-   double sum = integ( sp0, std::bind( identity<double>(), _2 )  );
+   double sum = integ( sp0, std::bind( identity<double>(), std::placeholders::_2 )  );
    DELTA( sum, 2.0/3.0, 1e-2 );
 }
 
@@ -191,7 +190,7 @@ TEST_CASE( "/libhpc/numerics/spline_spline_integrator/no_overlap" )
    spline_spline_integrator<double> integ;
    double sum = integ(
       sp0, sp1,
-      std::bind( std::multiplies<double>(), _2, _3 )
+      std::bind( std::multiplies<double>(), std::placeholders::_2, std::placeholders::_3 )
       );
    TEST( sum == 0.0 );
 }
@@ -223,7 +222,7 @@ TEST_CASE( "/libhpc/numerics/spline_spline_integrator/flat" )
    spline_spline_integrator<double> integ;
    double sum = integ(
       sp0, sp1,
-      std::bind( std::multiplies<double>(), _2, _3 )
+      std::bind( std::multiplies<double>(), std::placeholders::_2, std::placeholders::_3 )
       );
    DELTA( sum, 2.0, 1e-6 );
 }
@@ -259,7 +258,7 @@ TEST_CASE( "/libhpc/numerics/spline_spline_integrator/parabola" )
    spline_spline_integrator<double> integ;
    double sum = integ(
       sp0, sp1,
-      std::bind( std::multiplies<double>(), _2, _3 )
+      std::bind( std::multiplies<double>(), std::placeholders::_2, std::placeholders::_3 )
       );
    DELTA( sum, 2.0/5.0, 1e-1 );
 }

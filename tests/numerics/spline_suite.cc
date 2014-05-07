@@ -26,8 +26,8 @@ TEST_CASE( "/libhpc/numerics/spline/move_knots" )
    pnts[2] =  3.0; vals[2] = 3.0;
 
    hpc::num::spline<double,std::vector<double>,std::vector<double>> spl;
-   spl.set_knot_points( pnts );
-   spl.set_knot_values( vals );
+   spl.set_knot_points( std::move( pnts ) );
+   spl.set_knot_values( std::move( vals ) );
 
    TEST( pnts.empty() == true );
    TEST( vals.empty() == true );

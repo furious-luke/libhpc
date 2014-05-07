@@ -30,9 +30,9 @@ namespace hpc {
    {
    public:
 
-      typedef boost::chrono::process_cpu_clock clock_type;
-      typedef boost::chrono::duration<double>  time_type;
-      typedef timer_handle                     handle_type;
+      typedef boost::chrono::process_real_cpu_clock clock_type;
+      typedef boost::chrono::duration<double>       time_type;
+      typedef timer_handle                          handle_type;
 
    public:
 

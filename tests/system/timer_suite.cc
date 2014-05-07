@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <string.h>
 #include <unistd.h>
 #include <libhpc/unit_test/main.hh>
 #include <libhpc/system/timer.hh>
@@ -23,7 +22,7 @@
 using namespace hpc;
 using namespace hpc::test;
 
-TEST_CASE( "/libhpc/profile/timer/stop" )
+TEST_CASE( "/libhpc/system/timer/stop" )
 {
    hpc::timer timer;
    for( unsigned ii = 0; ii < 10; ++ii )
@@ -34,7 +33,7 @@ TEST_CASE( "/libhpc/profile/timer/stop" )
    DELTA( timer.total().count(), 1.0, 1e-2 );
 }
 
-TEST_CASE( "/libhpc/profile/timer/tally" )
+TEST_CASE( "/libhpc/system/timer/tally" )
 {
    hpc::timer timer;
    for( unsigned ii = 0; ii < 10; ++ii )

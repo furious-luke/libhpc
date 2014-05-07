@@ -175,21 +175,6 @@ namespace hpc {
 	 return _ptr;
       }
 
-      friend std::ostream&
-      operator<<( std::ostream& strm,
-		  const_view<vector_type> const& obj )
-      {
-	 strm << "[";
-	 if( obj.size() )
-         {
-	    strm << obj[0];
-	    for( size_t ii = 1; ii < obj.size(); ++ii )
-	       strm << ", " << obj[ii];
-	 }
-	 strm << "]";
-	 return strm;
-      }
-
    protected:
 
       pointer _ptr;
@@ -436,6 +421,22 @@ namespace hpc {
 
       T* _ptr;
    };
+
+   template< class Vector >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               const_view<Vector> const& obj )
+   {
+      strm << "[";
+      if( obj.size() )
+      {
+         strm << obj[0];
+         for( size_t ii = 1; ii < obj.size(); ++ii )
+            strm << ", " << obj[ii];
+      }
+      strm << "]";
+      return strm;
+   }
 
    template< class Vector >
    struct type_traits< view<Vector> >

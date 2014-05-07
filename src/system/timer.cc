@@ -77,7 +77,7 @@ namespace hpc {
       if( !_stack )
       {
          _run = false;
-         _total += (clock_type::now() - _start);
+         _total += boost::chrono::duration_cast<time_type>( clock_type::now() - _start );
       }
    }
 
