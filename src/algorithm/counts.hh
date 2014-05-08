@@ -19,6 +19,7 @@
 #define libhpc_algorithm_counts_hh
 
 #include <iterator>
+#include "libhpc/debug/assert.hh"
 #include "libhpc/system/type_traits.hh"
 #include "libhpc/system/deallocate.hh"
 
@@ -147,6 +148,35 @@ namespace hpc {
    displs_to_counts( typename type_traits<Sequence>::reference seq )
    {
       displs_to_counts(seq.begin(), seq.size());
+   }
+
+   template< class DisplsIter >
+   DisplsIter
+   correct_displs( DisplsIter first,
+                   size_t size )
+   {
+      typedef typename std::iterator_traits<DisplsIter>::value_type value_type;
+
+      if( !size )
+	 return first;
+
+      value_type prev = *first;
+      *first++ = 0;
+      while( --size )
+      {
+         value_type tmp = *first;
+         *first++ = prev;
+         prev = tmp;
+      }
+
+      return first;
+   }
+
+   template< class Seq >
+   void
+   correct_displs( typename hpc::type_traits<Seq>::reference seq )
+   {
+      correct_displs( seq.begin(), seq.size() );
    }
 
 }
