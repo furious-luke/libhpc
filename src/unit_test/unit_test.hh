@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_unit_test_hh
-#define libhpc_unit_test_unit_test_hh
+#ifndef hpc_unit_test_unit_test_hh
+#define hpc_unit_test_unit_test_hh
 
 #include <iostream>
 #include <string>
@@ -26,17 +26,21 @@
 #include "libhpc/system/anon.hh"
 #include "expression.hh"
 
-#define TEST( expr, ... )                       \
-   (::hpc::test::decompose()->*expr).set_info(  \
-      #expr, __FILE__, __LINE__ ).test(         \
-         *::hpc::test::_cur_tc, ##__VA_ARGS__ )
+#ifndef __CUDA_ARCH__
 
-#define DELTA( lhs, rhs, epsilon, ... )                 \
-   (::hpc::test::decompose()->*lhs)                     \
-   .delta( rhs, epsilon )                               \
-   .set_delta_info(                                     \
-      #lhs, #rhs, epsilon, __FILE__, __LINE__ ).test(   \
-         *::hpc::test::_cur_tc, ##__VA_ARGS__ )
+#define TEST( expr, ... )                       \
+   (::hpc::test::decompose()->*expr)            \
+   .set_info( #expr, __FILE__, __LINE__ )       \
+   .test( rb, ##__VA_ARGS__ )
+
+#define TEST_EQ( lhs, rhs )                     \
+   TEST( lhs == rhs )
+
+#define DELTA( lhs, rhs, eps, ... )                             \
+   (::hpc::test::decompose()->*lhs)                             \
+   .delta( rhs, eps )                                           \
+   .set_delta_info( #lhs, #rhs, eps, __FILE__, __LINE__ )       \
+   .test( rb, ##__VA_ARGS__ )
 
 #define THROWS( expr, ex, ... )                         \
    try {                                                \
@@ -63,5 +67,32 @@
    } catch( ... ) {                                     \
       throw hpc::test::test_failed();                   \
    }
+
+#else // __CUDA_ARCH__
+
+// ///
+// /// Need this to fix some kind of CUDA compiler issue.
+// /// TODO: Remove it when the compiler is better.
+// ///
+// template< class T,
+//           class U >
+// void
+// __hpc_test_fix( hpc::test::expression<T,U> expr,
+//                 hpc::test::result_buffer<>& rb )
+// {
+//    // expr.test( rb );
+//    rb.push( expr );
+// }
+
+#define TEST_EQ( lhs, rhs )                     \
+   rb.push( (lhs) == (rhs) )
+
+// #define DELTA( lhs, rhs, eps, ... )                             \
+//    (::hpc::test::decompose()->*lhs)                             \
+//    .delta( rhs, eps )                                           \
+//    .set_delta_info( #lhs, #rhs, eps, __FILE__, __LINE__ )       \
+//    .test( rb )
+
+#endif // __CUDA_ARCH__
 
 #endif

@@ -22,12 +22,13 @@ namespace hpc {
    namespace test {
 
       test_case_node_t* head = NULL;
-      test_case_base* _cur_tc;
 
       test_case_base::test_case_base( std::string const& name,
                                       std::string const& desc )
          : _name( name ),
-           _desc( desc )
+           _desc( desc ),
+           _runner( 0 ),
+           _succ( false )
       {
          _add_test_case();
       }
@@ -67,6 +68,42 @@ namespace hpc {
             head = (test_case_node_t*)malloc( sizeof(test_case_node_t) );
             head->next = NULL;
             head->tc = this;
+         }
+      }
+
+      test_case::test_case( const std::string& name,
+                            const std::string& desc,
+                            boost::function<void(result_buffer<>&)> func )
+         : test_case_base( name, desc ),
+           _func( func )
+      {
+         _buf.resize( 100000 );
+         _rb.set_buffer( _buf.data() );
+      }
+
+      void
+      test_case::run()
+      {
+         _func( _rb );
+
+         // Search for any failures.
+         std::vector<char>::const_iterator it = _buf.begin();
+         _succ = true;
+         while( it != _buf.end() && *it )
+         {
+            bool succ = *it++ == 1;
+            _succ = succ && _succ;
+         }
+      }
+
+      void
+      test_case::print_results() const
+      {
+         std::vector<char>::const_iterator it = _buf.begin();
+         while( it != _buf.end() && *it )
+         {
+            bool succ = *it++ == 1;
+            std::cout << (succ ? "." : "X");
          }
       }
 

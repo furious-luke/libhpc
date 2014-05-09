@@ -15,12 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_main_hh
-#define libhpc_unit_test_main_hh
+#ifndef hpc_unit_test_main_hh
+#define hpc_unit_test_main_hh
 
 #include <stdlib.h>
 #include "unit_test.hh"
-#include "test_case_cuda.hh"
 #include "runner.hh"
 #ifdef HPC_UT_LOG
 #include <libhpc/logging.hh>

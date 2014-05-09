@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <numeric>
+#include <boost/range/algorithm_ext/iota.hpp>
 #include <libhpc/unit_test/main.hh>
 #include <libhpc/system/view.hh>
 
@@ -25,7 +26,7 @@ struct fixture
    fixture()
       : vec( 10 )
    {
-      std::iota( vec.begin(), vec.end(), 0 );
+      boost::iota( vec, 0 );
    }
 
    std::vector<int> vec;
@@ -33,7 +34,8 @@ struct fixture
 
 template< class View >
 void
-check_contents( View const& view,
+check_contents( hpc::test::test_case_base& tc,
+                View const& view,
                 size_t size = 10,
                 size_t offs = 0 )
 {
@@ -45,43 +47,43 @@ check_contents( View const& view,
 TEST_CASE( "/hpc/system/view/constructor/one_to_one" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec );
-   check_contents( view );
+   hpc::view<std::vector<int> > view( fix.vec );
+   check_contents( tc, view );
    hpc::view<std::vector<int> const> cv( fix.vec );
-   check_contents( cv );
+   check_contents( tc, cv );
 }
 
 TEST_CASE( "/hpc/system/view/constructor/resize" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec, 5 );
-   check_contents( view, 5 );
+   hpc::view<std::vector<int> > view( fix.vec, 5 );
+   check_contents( tc, view, 5 );
    hpc::view<std::vector<int> const> cv( fix.vec, 5 );
-   check_contents( cv, 5 );
+   check_contents( tc, cv, 5 );
 }
 
 TEST_CASE( "/hpc/system/view/constructor/offset" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec, 7, 3 );
-   check_contents( view, 7, 3 );
+   hpc::view<std::vector<int> > view( fix.vec, 7, 3 );
+   check_contents( tc, view, 7, 3 );
    hpc::view<std::vector<int> const> cv( fix.vec, 7, 3 );
-   check_contents( cv, 7, 3 );
+   check_contents( tc, cv, 7, 3 );
 }
 
 TEST_CASE( "/hpc/system/view/constructor/copy" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec );
-   hpc::view<std::vector<int>> copy( view );
-   check_contents( view );
-   check_contents( copy );
+   hpc::view<std::vector<int> > view( fix.vec );
+   hpc::view<std::vector<int> > copy( view );
+   check_contents( tc, view );
+   check_contents( tc, copy );
 }
 
 TEST_CASE( "/hpc/system/view/size" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec );
+   hpc::view<std::vector<int> > view( fix.vec );
    TEST( view.size() == fix.vec.size() );
    hpc::view<std::vector<int> const> cv( fix.vec );
    TEST( cv.size() == fix.vec.size() );

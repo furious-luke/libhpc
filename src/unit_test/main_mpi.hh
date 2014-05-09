@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_main_mpi_hh
-#define libhpc_unit_test_main_mpi_hh
+#ifndef hpc_unit_test_main_mpi_hh
+#define hpc_unit_test_main_mpi_hh
 
 #define HPC_UT_MPI
 #include "main.hh"

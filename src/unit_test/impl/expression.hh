@@ -15,28 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_impl_expression_hh
-#define libhpc_unit_test_impl_expression_hh
+#ifndef hpc_unit_test_impl_expression_hh
+#define hpc_unit_test_impl_expression_hh
 
 #include <iostream>
 #include <string>
+#include "libhpc/system/cuda.hh"
 
 namespace hpc {
    namespace test {
 
       template< class T,
                 class U >
+      CUDA_DEV_HOST
       void
-      expression<T,U>::test( test_case_base& tc,
-                             std::string const& desc )
+      expression<T,U>::test( result_buffer<>& rb )
       {
-         if( !(*this) )
-         {
-            // Failed, log the failure and conclude this test.
-            throw test_expression_failed<T,U>( tc, *this, desc );
-         }
-         else
-            tc.runner()->dot();
+         rb.push( *this );
       }
 
    }

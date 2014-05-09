@@ -53,8 +53,8 @@
 
 #else // __CUDAARCH__
 
-#define _ASSERT( expr, id )                                     \
-   ((expr) ? (void)0 : (::hpc::debug::cuda_error = id, abort())
+#define _ASSERT( expr, ... )                    \
+   ((expr) ? (void)0 : abort())
 
 #endif // __CUDAARCH__
 

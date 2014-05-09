@@ -28,21 +28,12 @@ namespace hpc {
       runner::run( test_case_base& tc )
       {
          std::cout << tc.name() << " " << std::flush;
-         try
-         {
-            tc.run();
-            std::cout << " ok\n";
-         }
-         catch( test_failed& ex )
-         {
-            std::cout << ex.what();
-         }
-      }
-
-      void
-      runner::dot() const
-      {
-         std::cout << "." << std::flush;
+         tc.run();
+         tc.print_results();
+         if( (bool)tc )
+            std::cout << " ok\n" << std::flush;
+         else
+            std::cout << " FAILED\n" << std::flush;
       }
 
       void
