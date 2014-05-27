@@ -34,7 +34,7 @@
    .test( rb, ##__VA_ARGS__ )
 
 #define TEST_EQ( lhs, rhs )                     \
-   TEST( lhs == rhs )
+   TEST( (lhs) == (rhs) )
 
 #define DELTA( lhs, rhs, eps, ... )                             \
    (::hpc::test::decompose()->*lhs)                             \
@@ -70,28 +70,22 @@
 
 #else // __CUDA_ARCH__
 
-// ///
-// /// Need this to fix some kind of CUDA compiler issue.
-// /// TODO: Remove it when the compiler is better.
-// ///
-// template< class T,
-//           class U >
-// void
-// __hpc_test_fix( hpc::test::expression<T,U> expr,
-//                 hpc::test::result_buffer<>& rb )
-// {
-//    // expr.test( rb );
-//    rb.push( expr );
-// }
+template< class T,
+          class U >
+CUDA_DEV_HOST
+bool
+__hpc_test_delta( T const& lhs,
+		  U const& rhs,
+		  double eps )
+{
+   return (lhs >= rhs - eps && rhs <= rhs + eps);
+}
 
 #define TEST_EQ( lhs, rhs )                     \
    rb.push( (lhs) == (rhs) )
 
-// #define DELTA( lhs, rhs, eps, ... )                             \
-//    (::hpc::test::decompose()->*lhs)                             \
-//    .delta( rhs, eps )                                           \
-//    .set_delta_info( #lhs, #rhs, eps, __FILE__, __LINE__ )       \
-//    .test( rb )
+#define DELTA( lhs, rhs, eps, ... )		\
+   rb.push( __hpc_test_delta( lhs, rhs, eps ) )
 
 #endif // __CUDA_ARCH__
 
