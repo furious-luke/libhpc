@@ -114,7 +114,7 @@ namespace std {
          ++it;
          while( it != obj.end() )
          {
-            strm << it->first << ": " << it->second;
+            strm << ", " << it->first << ": " << it->second;
             ++it;
          }
       }

@@ -1,8 +1,9 @@
-#ifndef libhpc_interactive_colour_map_hh
-#define libhpc_interactive_colour_map_hh
+#ifndef hpc_interactive_colour_map_hh
+#define hpc_interactive_colour_map_hh
 
 #include <vector>
 #include <boost/array.hpp>
+#include "libhpc/system/reallocate.hh"
 
 namespace hpc {
    namespace gl {
@@ -54,7 +55,7 @@ namespace hpc {
          void
          set_colours_diverging_11()
          {
-            _cols.reallocate( 11 );
+            hpc::reallocate( _cols, 11 );
             _cols[0][0]  = 94.0/255.0;  _cols[0][1]  = 79.0/255.0;  _cols[0][2] = 162.0/255.0;
             _cols[1][0]  = 50.0/255.0;  _cols[1][1]  = 136.0/255.0; _cols[1][2] = 189.0/255.0;
             _cols[2][0]  = 102.0/255.0; _cols[2][1]  = 194.0/255.0; _cols[2][2] = 165.0/255.0;
@@ -71,7 +72,7 @@ namespace hpc {
          void
          set_colours_diverging_blue_to_red_12()
          {
-            _cols.reallocate( 12 );
+            hpc::reallocate( _cols, 12 );
             _cols[0][0]  = 41.0/255.0;  _cols[0][1]  = 10.0/255.0;  _cols[0][2] = 216.0/255.0;
             _cols[1][0]  = 28.0/255.0;  _cols[1][1]  = 77.0/255.0;  _cols[1][2] = 255.0/255.0;
             _cols[2][0]  = 63.0/255.0;  _cols[2][1]  = 160.0/255.0; _cols[2][2] = 255.0/255.0;
@@ -90,7 +91,7 @@ namespace hpc {
          set_abscissa_linear( source_type min,
                               source_type max )
          {
-            _abs.reallocate( _cols.size() );
+            hpc::reallocate( _abs, _cols.size() );
             if( _abs.size() )
             {
                _abs.front() = min;

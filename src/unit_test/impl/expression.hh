@@ -29,7 +29,8 @@ namespace hpc {
                 class U >
       CUDA_DEV_HOST
       void
-      expression<T,U>::test( result_buffer<>& rb )
+      expression<T,U>::test( result_buffer<>& rb,
+                             char const* info )
       {
          rb.push( *this );
       }

@@ -115,6 +115,32 @@ namespace hpc {
          T _val;
       };
 
+      template<>
+      class side<char const*>
+         : public side<std::string>
+      {
+      public:
+
+         CUDA_DEV_HOST_INL
+         side( char const* val )
+            : side<std::string>( val )
+         {
+         }
+      };
+
+      template< size_t N >
+      class side<char[N]>
+         : public side<std::string>
+      {
+      public:
+
+         CUDA_DEV_HOST_INL
+         side( char const val[N] )
+            : side<std::string>( val )
+         {
+         }
+      };
+
       template< class T,
                 class U >
       class expression
@@ -167,7 +193,8 @@ namespace hpc {
 
          CUDA_DEV_HOST
          void
-         test( result_buffer<>& rb);
+         test( result_buffer<>& rb,
+               char const* info = 0 );
 
          CUDA_DEV_HOST
          bool

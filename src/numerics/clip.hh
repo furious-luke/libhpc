@@ -590,7 +590,7 @@ namespace hpc {
       // into to halves.
       for( int half_ii = 0; half_ii < 2; ++half_ii )
       {
-         LOGDLN( "Checking half: ", half_ii );
+         LOGTLN( "Checking half: ", half_ii );
 
          // Which ecs coordinates should I use for the two planes?
          real_type min_ra, max_ra;
@@ -620,7 +620,7 @@ namespace hpc {
             else
                continue;
          }
-         LOGDLN( "Using RA range: ", min_ra, " to ", max_ra );
+         LOGTLN( "Using RA range: ", min_ra, " to ", max_ra );
 
          // Clip the appropriate surface.
          std::list<boost::array<real_type,3> > surf[2];
@@ -649,14 +649,14 @@ namespace hpc {
             cross_product_3( tmp[0], tmp[1], ra_planes[1] );
             ra_planes[1][3] = 0.0;
             ASSERT( hpc::approx( ra_planes[1][2], 0.0, 1e-8 ) );
-            LOGDLN( "RA planes: ", ra_planes[0], " and ", ra_planes[1] );
+            LOGTLN( "RA planes: ", ra_planes[0], " and ", ra_planes[1] );
             clip_edge( ra_planes[0].begin(), surf[1].begin(), surf[1].end(),
                        std::insert_iterator<std::list<boost::array<real_type,3> > >( surf[0], surf[0].begin() ) );
-            LOGDLN( "Intermediate surface: ", surf[0] );
+            LOGTLN( "Intermediate surface: ", surf[0] );
             surf[1].clear();
             clip_edge( ra_planes[1].begin(), surf[0].begin(), surf[0].end(),
                        std::insert_iterator<std::list<boost::array<real_type,3> > >( surf[1], surf[1].begin() ) );
-            LOGDLN( "Final surface: ", surf[1] );
+            LOGTLN( "Final surface: ", surf[1] );
          }
 
          // If there is no surface left then we can discard this half.
@@ -700,20 +700,20 @@ namespace hpc {
          if( sqrt( max_dist*max_dist + box_min[2]*box_min[2] ) < ecs_min[2] &&
              sqrt( max_dist*max_dist + box_max[2]*box_max[2] ) < ecs_min[2] )
          {
-            LOGDLN( "All clipped points within inner radius." );
+            LOGTLN( "All clipped points within inner radius." );
             continue;
          }
 
          // If the furthest point of the bottom plane is inside the
          // maximum DEC cone, we can discard.
-         // LOGDLN( "Checking max DEC: dec=", ecs_max[1], ", max_dist=", max_dist,
+         // LOGTLN( "Checking max DEC: dec=", ecs_max[1], ", max_dist=", max_dist,
          //         ", box_min[2]=", box_min[2], ", cone_rad=", box_min[2]/tan( ecs_max[1] ) );
          if( ecs_max[1] > 0.0 )
          {
             if( !hpc::approx( ecs_max[1], 0.5*M_PI, 1e-8 ) &&
                 box_min[2] > 0.0 && max_dist <= fabs( box_min[2]/tan( ecs_max[1] ) ) )
             {
-               LOGDLN( "Lower plane inside upper cone." );
+               LOGTLN( "Lower plane inside upper cone." );
                continue;
             }
          }
@@ -722,26 +722,26 @@ namespace hpc {
             if( hpc::approx( ecs_max[1], -0.5*M_PI, 1e-8 ) ||
                 (box_min[2] > 0.0 || min_dist >= fabs( box_min[2]/tan( ecs_max[1] ) )) )
             {
-               LOGDLN( "Lower plane inside upper cone." );
+               LOGTLN( "Lower plane inside upper cone." );
                continue;
             }
          }
          else if( box_min[2] >= 0.0 )
          {
-            LOGDLN( "Lower plane above maximum dec (0.0)." );
+            LOGTLN( "Lower plane above maximum dec (0.0)." );
             continue;
          }
 
          // If the nearest point of the top plane is outside the
          // minimum DEC cone, we can discard.
-         // LOGD( "Checking min DEC: dec=", ecs_min[1], ", max_dist=", max_dist, ", min_dist=", min_dist );
-         // LOGDLN(", box_max[2]=", box_max[2], ", cone_rad=", fabs( box_max[2]*tan( ecs_min[1] ) ) );
+         // LOGT( "Checking min DEC: dec=", ecs_min[1], ", max_dist=", max_dist, ", min_dist=", min_dist );
+         // LOGTLN(", box_max[2]=", box_max[2], ", cone_rad=", fabs( box_max[2]*tan( ecs_min[1] ) ) );
          if( ecs_min[1] < 0.0 )
          {
             if( !hpc::approx( ecs_min[1], -0.5*M_PI, 1e-8 ) &&
                 box_max[2] < 0.0 && max_dist <= fabs( box_max[2]/tan( ecs_min[1] ) ) )
             {
-               LOGDLN( "Upper plane inside lower cone." );
+               LOGTLN( "Upper plane inside lower cone." );
                continue;
             }
          }
@@ -750,13 +750,13 @@ namespace hpc {
             if( hpc::approx( ecs_min[1], 0.5*M_PI, 1e-8 ) ||
                 (box_max[2] < 0.0 || min_dist >= fabs( box_max[2]/tan( ecs_min[1] ) )) )
             {
-               LOGDLN( "Upper plane inside lower cone." );
+               LOGTLN( "Upper plane inside lower cone." );
                continue;
             }
          }
          else if( box_max[2] <= 0.0 )
          {
-            LOGDLN( "Upper plane below minimum dec (0.0)." );
+            LOGTLN( "Upper plane below minimum dec (0.0)." );
             continue;
          }
 
@@ -802,7 +802,7 @@ namespace hpc {
 
          // If I make it here, then this half touches the
          // ECS geometry.
-         LOGDLN( "In contact." );
+         LOGTLN( "In contact." );
          return true;
       }
 
