@@ -524,6 +524,28 @@ TEST_CASE( "/hpc/numerics/ecs_box_collision/clip_column" )
    TEST( hpc::ecs_box_collision( ecs_min, ecs_max, min, max ) == true );
 }
 
+TEST_CASE( "/hpc/numerics/ecs_box_collision/dec_planes" )
+{
+   std::array<double,3> ecs_min, ecs_max;
+   ecs_min[0] = 0.0;      ecs_min[1] = -0.25*M_PI; ecs_min[2] = 0.0;
+   ecs_max[0] = 2.0*M_PI; ecs_max[1] =  0.25*M_PI; ecs_max[2] = 100.0;
+   std::array<double,3> min, max;
+
+   // Upper.
+   min[0] = -1000.0; min[1] = -1000.0; min[2] = 71.0;
+   max[0] =  1000.0; max[1] =  1000.0; max[2] = 1000.0;
+   TEST( hpc::ecs_box_collision( ecs_min, ecs_max, min, max ) == false );
+   min[2] = 70.0;
+   TEST( hpc::ecs_box_collision( ecs_min, ecs_max, min, max ) == true );
+
+   // Lower.
+   min[0] = -1000.0; min[1] = -1000.0; min[2] = -1000.0;
+   max[0] =  1000.0; max[1] =  1000.0; max[2] = -71.0;
+   TEST( hpc::ecs_box_collision( ecs_min, ecs_max, min, max ) == false );
+   max[2] = -70.0;
+   TEST( hpc::ecs_box_collision( ecs_min, ecs_max, min, max ) == true );
+}
+
 TEST_CASE( "/hpc/numerics/ecs_box_collision/huge_box" )
 {
    std::array<double,3> ecs_min, ecs_max;

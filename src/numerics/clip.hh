@@ -586,6 +586,15 @@ namespace hpc {
          return false;
       }
 
+      // Boxes may be discarded if they are above/below the highest/lowest
+      // points created from +-sin(dec).
+      if( (ecs_max[1] >= 0.0 && box_min[2] >= ecs_max[2]*sin( ecs_max[1] )) ||
+          (ecs_min[1] <= 0.0 && box_max[2] <= ecs_max[2]*sin( ecs_min[1] )) )
+      {
+         LOGTLN( "Box above/below DEC planes." );
+         return false;
+      }
+
       // Now we handle RA and DEC. We need to split the operation
       // into to halves.
       for( int half_ii = 0; half_ii < 2; ++half_ii )
