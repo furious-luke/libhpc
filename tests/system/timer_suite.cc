@@ -19,15 +19,12 @@
 #include <libhpc/unit_test/main.hh>
 #include <libhpc/system/timer.hh>
 
-using namespace hpc;
-using namespace hpc::test;
-
 TEST_CASE( "/libhpc/system/timer/stop" )
 {
-   hpc::timer timer;
+   hpc::timer<> timer;
    for( unsigned ii = 0; ii < 10; ++ii )
    {
-      auto hnd = timer.start();
+      hpc::timer<>::handle hnd = timer.start();
       usleep( 100000 ); // sleep for 1/10 second
    }
    DELTA( timer.total().count(), 1.0, 1e-2 );
@@ -35,10 +32,10 @@ TEST_CASE( "/libhpc/system/timer/stop" )
 
 TEST_CASE( "/libhpc/system/timer/tally" )
 {
-   hpc::timer timer;
+   hpc::timer<> timer;
    for( unsigned ii = 0; ii < 10; ++ii )
    {
-      auto hnd = timer.start( hpc::timer_handle::TALLY );
+      hpc::timer<>::handle hnd = timer.start( hpc::timer<>::handle::TALLY );
       usleep( 100000 ); // sleep for 1/10 second
    }
    DELTA( timer.total().count(), 1.0, 1e-2 );
