@@ -15,42 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_unit_test_main_hh
-#define hpc_unit_test_main_hh
+#include <vector>
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/system/matrix.hh>
+#include <libhpc/system/view.hh>
 
-#include <stdlib.h>
-#include "unit_test.hh"
-#include "test_case_cuda.hh"
-#include "runner.hh"
-#include "fixtures.hh"
-#ifdef HPC_UT_LOG
-#include <libhpc/logging.hh>
-#endif
-#ifdef HPC_UT_MPI
-#include <libhpc/mpi.hh>
-#include "mpi_runner.hh"
-#endif
-
-int
-main( int argc,
-      char* argv[] )
+TEST_CASE( "/hpc/system/matrix/rows_iterator" )
 {
-#ifdef HPC_UT_MPI
-   hpc::mpi::initialise( argc, argv );
-#endif
-#ifdef HPC_UT_LOG
-   LOG_PUSH( new hpc::log::stdout );
-#endif
-#ifdef HPC_UT_MPI
-   hpc::test::mpi_runner runner;
-#else
-   hpc::test::runner runner;
-#endif
-   runner.run_all();
-#ifdef HPC_UT_MPI
-   hpc::mpi::finalise();
-#endif
-   return EXIT_SUCCESS;
+   hpc::matrix<int> mat( 4, 3 );
+   for( int ii = 0; ii < 4; ++ii )
+   {
+      for( int jj = 0; jj < 3; ++jj )
+         mat( ii, jj ) = 3*ii + jj;
+   }
+   int ii = 0;
+   for( hpc::matrix<int>::const_rows_iterator it = mat.rows_begin();
+        it != mat.rows_end();
+        ++it )
+   {
+      hpc::view<std::vector<int> const> row = *it;
+      for( int jj = 0; jj < 3; ++jj )
+         TEST( row[jj] == ii++ );
+   }
 }
-
-#endif

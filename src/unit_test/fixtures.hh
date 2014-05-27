@@ -15,42 +15,48 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_unit_test_main_hh
-#define hpc_unit_test_main_hh
+#ifndef hpc_unit_test_fixtures_hh
+#define hpc_unit_test_fixtures_hh
 
-#include <stdlib.h>
-#include "unit_test.hh"
-#include "test_case_cuda.hh"
-#include "runner.hh"
-#include "fixtures.hh"
-#ifdef HPC_UT_LOG
-#include <libhpc/logging.hh>
-#endif
-#ifdef HPC_UT_MPI
-#include <libhpc/mpi.hh>
-#include "mpi_runner.hh"
-#endif
+#define SUITE_FIXTURE( type ) hpc::test::suite_fixture<type>
 
-int
-main( int argc,
-      char* argv[] )
-{
-#ifdef HPC_UT_MPI
-   hpc::mpi::initialise( argc, argv );
-#endif
-#ifdef HPC_UT_LOG
-   LOG_PUSH( new hpc::log::stdout );
-#endif
-#ifdef HPC_UT_MPI
-   hpc::test::mpi_runner runner;
-#else
-   hpc::test::runner runner;
-#endif
-   runner.run_all();
-#ifdef HPC_UT_MPI
-   hpc::mpi::finalise();
-#endif
-   return EXIT_SUCCESS;
+namespace hpc {
+   namespace test {
+
+      template< class SuperT >
+      class suite_fixture
+      {
+      public:
+
+	 suite_fixture()
+	    : _fix( 0 )
+	 {
+	 }
+
+	 // TODO: May need to delete SuperT before destructor.
+	 ~suite_fixture()
+	 {
+	    if( _fix )
+	    {
+	       delete _fix;
+	       _fix = 0;
+	    }
+	 }
+
+	 SuperT*
+	 operator->()
+	 {
+	    if( !_fix )
+	       _fix = new SuperT();
+	    return _fix;
+	 }
+
+      protected:
+
+	 SuperT* _fix;
+      };
+
+   }
 }
 
 #endif

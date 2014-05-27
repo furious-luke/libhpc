@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_test_case_hh
-#define libhpc_unit_test_test_case_hh
+#ifndef hpc_unit_test_test_case_hh
+#define hpc_unit_test_test_case_hh
 
 #include <string>
 #include <boost/function.hpp>

@@ -15,8 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_sort_permute_iter_hh
-#define libhpc_sort_permute_iter_hh
+#ifndef hpc_sort_permute_iter_hh
+#define hpc_sort_permute_iter_hh
+
+#ifndef _GLIBCXX_DEBUG
 
 #include <tuple>
 #include <boost/iterator/iterator_facade.hpp>
@@ -176,5 +178,7 @@ namespace hpc {
    }
 
 }
+
+#endif
 
 #endif

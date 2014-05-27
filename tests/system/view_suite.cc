@@ -42,10 +42,19 @@ check_contents( View const& view,
       TEST( view[ii] == offs + ii );
 }
 
+TEST_CASE( "/hpc/system/view/constructor/pointer" )
+{
+   fixture fix;
+   hpc::view<std::vector<int> > view( fix.vec.data(), fix.vec.size() );
+   check_contents( view );
+   hpc::view<std::vector<int> const> cv( fix.vec.data(), fix.vec.size() );
+   check_contents( cv );
+}
+
 TEST_CASE( "/hpc/system/view/constructor/one_to_one" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec );
+   hpc::view<std::vector<int> > view( fix.vec );
    check_contents( view );
    hpc::view<std::vector<int> const> cv( fix.vec );
    check_contents( cv );
@@ -54,7 +63,7 @@ TEST_CASE( "/hpc/system/view/constructor/one_to_one" )
 TEST_CASE( "/hpc/system/view/constructor/resize" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec, 5 );
+   hpc::view<std::vector<int> > view( fix.vec, 5 );
    check_contents( view, 5 );
    hpc::view<std::vector<int> const> cv( fix.vec, 5 );
    check_contents( cv, 5 );
@@ -63,7 +72,7 @@ TEST_CASE( "/hpc/system/view/constructor/resize" )
 TEST_CASE( "/hpc/system/view/constructor/offset" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec, 7, 3 );
+   hpc::view<std::vector<int> > view( fix.vec, 7, 3 );
    check_contents( view, 7, 3 );
    hpc::view<std::vector<int> const> cv( fix.vec, 7, 3 );
    check_contents( cv, 7, 3 );
@@ -72,8 +81,8 @@ TEST_CASE( "/hpc/system/view/constructor/offset" )
 TEST_CASE( "/hpc/system/view/constructor/copy" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec );
-   hpc::view<std::vector<int>> copy( view );
+   hpc::view<std::vector<int> > view( fix.vec );
+   hpc::view<std::vector<int> > copy( view );
    check_contents( view );
    check_contents( copy );
 }
@@ -81,7 +90,7 @@ TEST_CASE( "/hpc/system/view/constructor/copy" )
 TEST_CASE( "/hpc/system/view/size" )
 {
    fixture fix;
-   hpc::view<std::vector<int>> view( fix.vec );
+   hpc::view<std::vector<int> > view( fix.vec );
    TEST( view.size() == fix.vec.size() );
    hpc::view<std::vector<int> const> cv( fix.vec );
    TEST( cv.size() == fix.vec.size() );

@@ -79,7 +79,7 @@ struct quadratic
    T value;
 };
 
-TEST_CASE( "/libhpc/numerics/integrate/quadrature_summation/1d" )
+TEST_CASE( "/hpc/numerics/integrate/quadrature_summation/1d" )
 {
    // Constant integration of 1 over interval of 2.
    {

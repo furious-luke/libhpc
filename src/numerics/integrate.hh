@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_numerics_integrate_hh
-#define libhpc_numerics_integrate_hh
+#ifndef hpc_numerics_integrate_hh
+#define hpc_numerics_integrate_hh
 
 namespace hpc {
    namespace num {

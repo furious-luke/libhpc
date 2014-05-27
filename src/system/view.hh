@@ -21,6 +21,7 @@
 #include <vector>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/system/type_traits.hh"
@@ -55,17 +56,19 @@ namespace hpc {
       {
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       const_view( Other const& vec )
          : _ptr( (pointer)vec.data() ),
            _size( vec.size() )
       {
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       const_view( Other const& vec,
-            size_t size,
-            size_t offs = 0 )
+                  size_t size,
+                  size_t offs = 0 )
          : _ptr( (pointer)vec.data() + offs ),
            _size( size )
       {
@@ -75,21 +78,28 @@ namespace hpc {
       }
 
       const_view( const_pointer ptr,
-            size_t size,
-            size_t offs = 0 )
+                  size_t size,
+                  size_t offs = 0 )
          : _ptr( (pointer)ptr + offs ),
            _size( size )
       {
       }
 
+      void
+      assign( const_pointer ptr,
+              size_t size = 0 )
+      {
+	 _ptr = (pointer)ptr;
+	 _size = size;
+      }
+
       template< class Other >
+                // typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       void
       assign( Other const& op,
               size_t size = 0,
               size_t offs = 0 )
       {
-	 ASSERT( size >= 0 );
-	 ASSERT( offs >= 0 );
 	 ASSERT( offs + size <= op.size() );
 	 _ptr = (pointer)op.data() + offs;
 	 _size = size ? size : op.size();
@@ -155,7 +165,8 @@ namespace hpc {
          return _ptr[idx];
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       bool
       operator==( Other const& op ) const
       {
@@ -214,13 +225,15 @@ namespace hpc {
       {
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       view( Other const& vec )
          : super_type( vec )
       {
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       view( Other const& vec,
             size_t size,
             size_t offs = 0 )
@@ -265,13 +278,15 @@ namespace hpc {
       {
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       view( Other const& vec )
          : super_type( vec )
       {
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       view( Other const& vec,
             size_t size,
             size_t offs = 0 )
@@ -336,7 +351,8 @@ namespace hpc {
          return this->_ptr[idx];
       }
 
-      template< class Other >
+      template< class Other,
+                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
       view&
       operator=( Other const& op )
       {

@@ -20,7 +20,7 @@
 
 template< class Vec >
 void
-forwarding( hpc::view<std::vector<int>>& tgt,
+forwarding( hpc::view<std::vector<int> >& tgt,
             Vec&& src )
 {
    hpc::assign( tgt, std::forward<Vec>( src ) );
@@ -29,7 +29,7 @@ forwarding( hpc::view<std::vector<int>>& tgt,
 TEST_CASE( "/libhpc/system/assign/view" )
 {
    std::vector<int> src_vec( 10 );
-   hpc::view<std::vector<int>> src( src_vec ), tgt;
+   hpc::view<std::vector<int> > src( src_vec ), tgt;
    hpc::assign( tgt, src );
    TEST( tgt.data() == src_vec.data() );
    TEST( tgt.size() == src_vec.size() );
@@ -38,7 +38,7 @@ TEST_CASE( "/libhpc/system/assign/view" )
 TEST_CASE( "/libhpc/system/assign/view/forwarding" )
 {
    std::vector<int> src_vec( 10 );
-   hpc::view<std::vector<int>> src( src_vec ), tgt;
+   hpc::view<std::vector<int> > src( src_vec ), tgt;
    forwarding( tgt, src );
    TEST( tgt.data() == src_vec.data() );
    TEST( tgt.size() == src_vec.size() );
@@ -47,7 +47,7 @@ TEST_CASE( "/libhpc/system/assign/view/forwarding" )
 TEST_CASE( "/libhpc/system/assign/view/vector/forwarding" )
 {
    std::vector<int> src_vec( 10 );
-   hpc::view<std::vector<int>> tgt;
+   hpc::view<std::vector<int> > tgt;
    forwarding( tgt, src_vec );
    TEST( tgt.data() == src_vec.data() );
    TEST( tgt.size() == src_vec.size() );
@@ -56,8 +56,35 @@ TEST_CASE( "/libhpc/system/assign/view/vector/forwarding" )
 TEST_CASE( "/libhpc/system/assign/view/const_vector" )
 {
    std::vector<int> src_vec( 10 );
-   hpc::view<std::vector<int>> tgt;
+   hpc::view<std::vector<int> > tgt;
    hpc::assign( tgt, (std::vector<int> const&)src_vec );
    TEST( tgt.data() == src_vec.data() );
    TEST( tgt.size() == src_vec.size() );
+}
+
+TEST_CASE( "/libhpc/system/assign/view/array" )
+{
+   std::vector<int> src_vec( 3 );
+   hpc::view<std::vector<int> > tgt( src_vec );
+   boost::array<int,3> src = { 1, 2, 3 };
+   hpc::assign( tgt, src );
+   for( int ii = 0; ii < 3; ++ii )
+   {
+      TEST( tgt[ii] == ii + 1 );
+      TEST( src[ii] == ii + 1 );
+   }
+}
+
+TEST_CASE( "/libhpc/system/assign/array/view" )
+{
+   std::vector<int> src_vec( 3 );
+   hpc::view<std::vector<int> > src( src_vec );
+   src[0] = 1; src[1] = 2; src[2] = 3;
+   boost::array<int,3> tgt = { 0 };
+   hpc::assign( tgt, src );
+   for( int ii = 0; ii < 3; ++ii )
+   {
+      TEST( tgt[ii] == ii + 1 );
+      TEST( src[ii] == ii + 1 );
+   }
 }

@@ -1,5 +1,3 @@
-#if 0
-
 #ifndef libhpc_interactive_console_hh
 #define libhpc_interactive_console_hh
 
@@ -102,8 +100,6 @@ namespace hpc {
 
    }
 }
-
-#endif
 
 #endif
 

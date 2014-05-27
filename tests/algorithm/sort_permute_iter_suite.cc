@@ -18,6 +18,8 @@
 #include <libhpc/unit_test/main.hh>
 #include <libhpc/algorithm/sort_permute_iter.hh>
 
+#ifndef _GLIBCXX_DEBUG
+
 TEST_CASE( "/libhpc/algorithm/sort_permute_iter" )
 {
    std::vector<int> order( 10 );
@@ -36,3 +38,5 @@ TEST_CASE( "/libhpc/algorithm/sort_permute_iter" )
       TEST( data[ii] == (float)((ii + 6)%10) );
    }
 }
+
+#endif
