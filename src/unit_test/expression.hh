@@ -15,10 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_expression_hh
-#define libhpc_unit_test_expression_hh
+#ifndef hpc_unit_test_expression_hh
+#define hpc_unit_test_expression_hh
 
 #include <boost/format.hpp>
+#include "libhpc/system/cuda.hh"
 #include "test_case.hh"
 
 namespace hpc {
@@ -32,20 +33,23 @@ namespace hpc {
       {
       public:
 
+         CUDA_DEV_HOST
          side( T const& val )
             : _val( val )
          {
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
-         operator==( const U& op ) const
+         operator==( U const& op ) const
          {
             bool res = _val == op;
             return expression<T,U>( *this, side<U>( op ), res );
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
          operator!=( const U& op ) const
          {
@@ -54,6 +58,7 @@ namespace hpc {
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
          operator<( const U& op ) const
          {
@@ -62,6 +67,7 @@ namespace hpc {
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
          operator<=( const U& op ) const
          {
@@ -70,6 +76,7 @@ namespace hpc {
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
          operator>( const U& op ) const
          {
@@ -78,6 +85,7 @@ namespace hpc {
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
          operator>=( const U& op ) const
          {
@@ -86,6 +94,7 @@ namespace hpc {
          }
 
          template< class U >
+         CUDA_DEV_HOST
          expression<T,U>
          delta( const U& op,
                 double epsilon ) const
@@ -94,6 +103,7 @@ namespace hpc {
             return expression<T,U>( *this, side<U>( op ), res );
          }
 
+         CUDA_DEV_HOST
          const T&
          operator*() const
          {
@@ -102,7 +112,7 @@ namespace hpc {
 
       protected:
 
-         T const& _val;
+         T _val;
       };
 
       template< class T,
@@ -111,18 +121,26 @@ namespace hpc {
       {
       public:
 
-         expression( const side<T>& left,
-                     const side<U>& right,
+         CUDA_DEV_HOST
+         expression( side<T> const& left,
+                     side<U> const& right,
                      bool result )
             : _left( left ),
               _right( right ),
-              _res( result )
+              _res( result ),
+              _lhs_str( 0 ),
+              _rhs_str( 0 ),
+              _eps( 0.0 ),
+              _expr_str( 0 ),
+              _file( 0 ),
+              _line( 0 )
          {
          }
 
+         CUDA_DEV_HOST
          expression&
-         set_info( const char* expr_str,
-                   const char* file,
+         set_info( char const* expr_str,
+                   char const* file,
                    int line )
          {
             _expr_str = expr_str;
@@ -131,34 +149,46 @@ namespace hpc {
             return *this;
          }
 
+         CUDA_DEV_HOST
          expression&
-         set_delta_info( const char* lhs,
-                         const char* rhs,
-                         double epsilon,
-                         const char* file,
+         set_delta_info( char const* lhs_str,
+                         char const* rhs_str,
+                         double eps,
+                         char const* file,
                          int line )
          {
-            _expr_str = boost::str( boost::format( "%1% == %2% within tolerance of %3%" ) % lhs % rhs % epsilon );
+            _lhs_str = lhs_str;
+            _rhs_str = rhs_str;
+            _eps = eps;
             _file = file;
             _line = line;
             return *this;
          }
 
+         CUDA_DEV_HOST
          void
-         test( test_case_base& tc,
-               const std::string& desc = std::string() );
+         test( result_buffer<>& rb);
+
+         CUDA_DEV_HOST
+         bool
+         result() const
+         {
+            return _res;
+         }
 
          operator bool()
          {
             return _res;
          }
 
+         CUDA_DEV_HOST
          const T&
          lhs() const
          {
             return *_left;
          }
 
+         CUDA_DEV_HOST
          const U&
          rhs() const
          {
@@ -171,12 +201,14 @@ namespace hpc {
             return _expr_str;
          }
 
-         const char*
+         CUDA_DEV_HOST
+         char const*
          file() const
          {
             return _file;
          }
 
+         CUDA_DEV_HOST
          int
          line() const
          {
@@ -188,8 +220,11 @@ namespace hpc {
          side<T> _left;
          side<U> _right;
          bool _res;
-         std::string _expr_str;
-         const char* _file;
+         char const* _lhs_str;
+         char const* _rhs_str;
+         double _eps;
+         char const* _expr_str;
+         char const* _file;
          int _line;
       };
 
@@ -198,6 +233,7 @@ namespace hpc {
       public:
 
          template< class T >
+         CUDA_DEV_HOST
          side<T>
          operator->*( T const& op ) const
          {

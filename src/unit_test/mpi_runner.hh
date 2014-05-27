@@ -31,10 +31,6 @@ namespace hpc {
 
          virtual void
          run( test_case_base& tc );
-
-         virtual
-         void
-         dot() const;
       };
 
    }

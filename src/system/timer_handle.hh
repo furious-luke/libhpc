@@ -15,20 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_timer_handle_hh
-#define libhpc_system_timer_handle_hh
+#ifndef hpc_system_timer_handle_hh
+#define hpc_system_timer_handle_hh
 
 #include <boost/move/move.hpp>
 
 namespace hpc {
 
+   template< class, class >
    class timer;
 
+   template< class TimeT,
+	     class ClockT >
    class timer_handle
    {
       BOOST_MOVABLE_BUT_NOT_COPYABLE( timer_handle );
 
    public:
+
+      typedef hpc::timer<TimeT,ClockT> timer_type;
 
       enum stop_type
       {
@@ -38,8 +43,12 @@ namespace hpc {
 
    public:
 
-      timer_handle( hpc::timer* timer = 0,
-                    stop_type stop = NORMAL );
+      timer_handle( timer_type* timer = 0,
+                    stop_type stop = NORMAL )
+	 : _timer( timer ),
+	   _stop( stop )
+      {
+      }
 
       inline
       timer_handle( BOOST_RV_REF( timer_handle ) src )
@@ -49,7 +58,21 @@ namespace hpc {
          src._timer = 0;
       }
 
-      ~timer_handle();
+      ~timer_handle()
+      {
+	 if( _timer )
+	 {
+	    switch( _stop )
+	    {
+	       case NORMAL:
+		  _timer->stop();
+		  break;
+	       case TALLY:
+		  _timer->stop_tally();
+		  break;
+	    };
+	 }
+      }
 
       inline
       timer_handle&
@@ -63,7 +86,7 @@ namespace hpc {
 
    protected:
 
-      hpc::timer* _timer;
+      timer_type* _timer;
       stop_type _stop;
    };
 

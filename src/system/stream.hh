@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_stream_hh
-#define libhpc_system_stream_hh
+#ifndef hpc_system_stream_hh
+#define hpc_system_stream_hh
 
 #include "cc_version.hh"
 #include <iostream>
@@ -72,7 +72,7 @@ namespace std {
       {
          typename std::vector<T>::const_iterator it = obj.begin();
          strm << *it++;
-         while( it != obj.cend() )
+         while( it != obj.end() )
          {
             strm << ", " << *it++;
          }
@@ -91,7 +91,7 @@ namespace std {
       {
          typename std::set<T>::const_iterator it = obj.begin();
          strm << *it++;
-         while( it != obj.cend() )
+         while( it != obj.end() )
          {
             strm << ", " << *it++;
          }
@@ -112,7 +112,7 @@ namespace std {
          typename std::map<Tk,Tv>::const_iterator it = obj.begin();
          strm << it->first << ": " << it->second;
          ++it;
-         while( it != obj.cend() )
+         while( it != obj.end() )
          {
             strm << it->first << ": " << it->second;
             ++it;
@@ -132,7 +132,7 @@ namespace std {
       {
          typename std::list<T>::const_iterator it = obj.begin();
          strm << *it++;
-         while( it != obj.cend() )
+         while( it != obj.end() )
          {
             strm << ", " << *it++;
          }
@@ -154,7 +154,7 @@ namespace std {
       {
          typename std::array<T,N>::const_iterator it = obj.begin();
          strm << *it++;
-         while( it != obj.cend() )
+         while( it != obj.end() )
             strm << ", " << *it++;
       }
       strm << ")";
@@ -178,7 +178,7 @@ namespace boost {
       {
          typename boost::array<T,N>::const_iterator it = obj.begin();
          strm << *it++;
-         while( it != obj.cend() )
+         while( it != obj.end() )
             strm << ", " << *it++;
       }
       strm << ")";

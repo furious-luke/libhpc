@@ -34,24 +34,15 @@ namespace hpc {
                std::cout << "[" << mpi::comm::world.size() << "]";
             std::cout << " " << std::flush;
          }
-         try
-         {
-            tc.run();
-            if( mpi::comm::world.rank() == 0 )
-               std::cout << " ok\n";
-         }
-         catch( test_failed& ex )
-         {
-            if( mpi::comm::world.rank() == 0 )
-               std::cout << ex.what();
-         }
-      }
-
-      void
-      mpi_runner::dot() const
-      {
+         tc.run();
          if( mpi::comm::world.rank() == 0 )
-            runner::dot();
+         {
+            tc.print_results();
+            if( (bool)tc )
+               std::cout << " ok\n";
+            else
+               std::cout << " FAILED\n" << std::flush;
+         }
       }
 
    }

@@ -12,8 +12,8 @@ namespace hpc {
                  void* font )
       {
          glRasterPos2f( x, y );
-         for( char c : text )
-            glutBitmapCharacter( font, c );
+         for( std::string::const_iterator it = text.begin(); it != text.end(); ++it )
+            glutBitmapCharacter( font, *it );
       }
 
    }

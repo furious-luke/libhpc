@@ -20,7 +20,6 @@
 
 #include <stdlib.h>
 #include "unit_test.hh"
-#include "test_case_cuda.hh"
 #include "runner.hh"
 #include "fixtures.hh"
 #ifdef HPC_UT_LOG

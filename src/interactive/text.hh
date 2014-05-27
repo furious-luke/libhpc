@@ -47,7 +47,7 @@ namespace hpc {
                       void* font = GLUT_BITMAP_9_BY_15,
                       GLfloat line_height = 15 )
       {
-         auto pos = str.begin();
+         std::string::const_iterator pos = str.begin();
          while( pos != str.end() && y >= 0 )
          {
             pos = draw_text_fit( pos, str.end(), x, y, width );

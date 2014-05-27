@@ -19,14 +19,66 @@
 #define hpc_unit_test_test_case_hh
 
 #include <string>
+#include <vector>
 #include <boost/function.hpp>
 #include <boost/scoped_ptr.hpp>
+#include "result_buffer.hh"
 
 #define TEST_CASE( name )                               \
-   void UNIQUE_LINE( __hpc_test_case__ )();             \
-   ::hpc::test::test_case<> ANON(                       \
+   void UNIQUE_LINE( __hpc_test_case__ )(               \
+      hpc::test::result_buffer<>& rb );                 \
+   hpc::test::test_case ANON(                           \
       name, "", UNIQUE_LINE( __hpc_test_case__ ) );     \
-   void UNIQUE_LINE( __hpc_test_case__ )()
+   void UNIQUE_LINE( __hpc_test_case__ )(               \
+      hpc::test::result_buffer<>& rb )
+
+#ifdef __CUDACC__
+
+#define TEST_CASE_CUDA( name )                                          \
+   CUDA_DEV_HOST                                                        \
+   void UNIQUE_LINE( __hpc_test_case__ )(                               \
+      hpc::test::result_buffer<>& rb );                                   \
+   hpc::test::test_case ANON(                                           \
+      name, "", UNIQUE_LINE( __hpc_test_case__ ) );                     \
+   __global__                                                           \
+   void UNIQUE_LINE( __hpc_cuda_global__ )(                             \
+      hpc::test::result_buffer<> rb )                                     \
+   {                                                                    \
+      UNIQUE_LINE( __hpc_test_case__ )( rb );                           \
+   }                                                                    \
+   void UNIQUE_LINE( __hpc_cuda_wrap__ )(                               \
+      hpc::test::result_buffer<>& rb )                                    \
+   {                                                                    \
+      char* dev_buf;                                                    \
+      cudaMalloc( &dev_buf, 100000 );                                   \
+      hpc::test::result_buffer<> dev_rb( dev_buf );                       \
+      UNIQUE_LINE( __hpc_cuda_global__ )<<<1,1>>>( dev_buf );           \
+      cudaDeviceSynchronize();                                          \
+      cudaError_t ec = cudaGetLastError();                              \
+      if( ec != cudaSuccess )                                           \
+      {                                                                 \
+         rb.buffer()[0] = 2;                                            \
+         rb.buffer()[1] = 0;                                            \
+         std::cout << cudaGetErrorString( ec ) << "\n";                 \
+      }                                                                 \
+      else                                                              \
+      {                                                                 \
+         cudaMemcpy( rb.buffer(), dev_buf, 100000,                      \
+                     cudaMemcpyDeviceToHost );                          \
+      }                                                                 \
+   }                                                                    \
+   hpc::test::test_case ANON(                                           \
+      name"/cuda", "", UNIQUE_LINE( __hpc_cuda_wrap__ ) );              \
+   CUDA_DEV_HOST                                                        \
+   void UNIQUE_LINE( __hpc_test_case__ )(                               \
+      hpc::test::result_buffer<>& rb )
+
+#else // __CUDACC__
+
+#define TEST_CASE_CUDA( name )                  \
+   TEST_CASE( name )
+
+#endif // __CUDACC__
 
 namespace hpc {
    namespace test {
@@ -40,8 +92,6 @@ namespace hpc {
          test_case_base* tc;
          test_case_node_t* next;
       };
-
-      extern test_case_base* _cur_tc;
 
       class test_case_base
       {
@@ -66,6 +116,15 @@ namespace hpc {
          test::runner const*
          runner() const;
 
+         operator bool() const
+         {
+            return _succ;
+         }
+
+         virtual
+         void
+         print_results() const = 0;
+
       protected:
 
          void
@@ -76,9 +135,9 @@ namespace hpc {
          std::string _name;
          std::string _desc;
          test::runner const* _runner;
+         bool _succ;
       };
 
-      template< class Fixture = void >
       class test_case
          : public test_case_base
       {
@@ -86,56 +145,21 @@ namespace hpc {
 
          test_case( const std::string& name,
                     const std::string& desc,
-                    boost::function<void(Fixture&)> func )
-            : test_case_base( name, desc ),
-              _func( func )
-         {
-         }
-
-         virtual
-         ~test_case()
-         {
-         }
+                    boost::function<void(result_buffer<>&)> func );
 
          virtual
          void
-         run()
-         {
-            _cur_tc = this;
-            boost::scoped_ptr<Fixture> fix( new Fixture );
-            _func( *fix.get() );
-         }
-
-      protected:
-
-         boost::function<void(Fixture&)> _func;
-      };
-
-      template<>
-      class test_case<void>
-         : public test_case_base
-      {
-      public:
-
-         test_case( const std::string& name,
-                    const std::string& desc,
-                    boost::function<void()> func )
-            : test_case_base( name, desc ),
-              _func( func )
-         {
-         }
+         run();
 
          virtual
          void
-         run()
-         {
-            _cur_tc = this;
-            _func();
-         }
+         print_results() const;
 
       protected:
 
-         boost::function<void()> _func;
+         boost::function<void(result_buffer<>&)> _func;
+         result_buffer<> _rb;
+         std::vector<char> _buf;
       };
 
    }
