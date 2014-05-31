@@ -31,6 +31,9 @@
 #include <boost/array.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
+#ifdef HAVE_THRUST
+#include <thrust/host_vector.h>
+#endif
 
 namespace hpc {
 
@@ -225,5 +228,60 @@ namespace boost {
 //    strm << ")";
 //    return strm;
 // }
+
+#ifdef HAVE_THRUST
+
+namespace thrust {
+
+   template< class T >
+   std::ostream&
+   operator<<( std::ostream& strm,
+               thrust::host_vector<T> const& obj )
+   {
+      strm << "[";
+      if( !obj.empty() )
+      {
+         typename thrust::host_vector<T>::const_iterator it = obj.begin();
+         strm << *it++;
+         while( it != obj.end() )
+         {
+            strm << ", " << *it++;
+         }
+      }
+      strm << "]";
+      return strm;
+   }
+
+}
+
+#endif
+
+#ifdef __CUDACC__
+
+inline
+std::ostream&
+operator<<( std::ostream& strm,
+            uint3 const& obj )
+{
+   return strm << "(" << obj.x << ", " << obj.y << ", " << obj.z << ")";
+}
+
+inline
+std::ostream&
+operator<<( std::ostream& strm,
+            double3 const& obj )
+{
+   return strm << "(" << obj.x << ", " << obj.y << ", " << obj.z << ")";
+}
+
+inline
+std::ostream&
+operator<<( std::ostream& strm,
+            double4 const& obj )
+{
+   return strm << "(" << obj.x << ", " << obj.y << ", " << obj.z << ", " << obj.w << ")";
+}
+
+#endif
 
 #endif
