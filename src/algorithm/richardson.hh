@@ -15,59 +15,67 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_richardson_hh
-#define libhpc_containers_richardson_hh
+#ifndef hpc_algorithm_richardson_hh
+#define hpc_algorithm_richardson_hh
 
-#include <limits>
+#include "libhpc/system/cc_version.hh"
+#include "libhpc/system/cuda.hh"
 #include "libhpc/debug/assert.hh"
 #include "libhpc/debug/except.hh"
-#include "libhpc/logging/logging.hh"
+#include "libhpc/logging.hh"
 
 namespace hpc {
 
+#ifdef CXX_0X
    static constexpr double default_richardson_tolerance = 1e-5;
    static constexpr unsigned default_richardson_max_its = 60;
+#else
+#define default_richardson_tolerance 1e-5
+#define default_richardson_max_its   60
+#endif
 
-   template< class Function,
+   template< class FuncT,
              class T >
-   std::tuple<T,unsigned>
-   richardson( Function& func,
-               T x1,
-               T x2,
-               T init = std::numeric_limits<T>::max(),
-               T tol = default_richardson_tolerance,
+   CUDA_DEV_HOST
+   T
+   richardson( FuncT func,
+               T const& x1,
+               T const& x2,
+               T x,
+               T const& tol = default_richardson_tolerance,
                unsigned max_its = default_richardson_max_its,
                T omega = 1.0 )
    {
-      LOGBLOCKT_TAG( "richardson", "Richardson solve:" );
-
-      // Were we given an initial value? If not, set it to the midpoint.
-      T x = (init != std::numeric_limits<T>::max()) ? init : 0.5*(x2 + x1);
-      LOGTLN( "Starting with x: ", x );
+      // LOGBLOCKD_TAG( "richardson", "Richardson solve:" );
 
       // Only loop up until or maximum.
       T f, new_x;
-      int ii;
+      unsigned ii;
       for( ii = 0; ii < max_its; ++ii )
       {
-         LOGBLOCKT( "Iteration: ", ii );
+         LOGBLOCKD( "Iteration: ", ii );
+         LOGDLN( "x     = ", x );
          f = func( x );
-         LOGTLN( "f(", x, ") = ", f );
-         new_x = (1.0 - omega)*x + omega*func.richardson( x, f );
-         LOGTLN( "new x = ", new_x );
+         LOGDLN( "f(x)  = ", f );
+         new_x = (1.0 - omega)*x + omega*f;
+         LOGDLN( "new x = ", new_x );
+
+         // Values must remain bracketed.
+         ASSERT( (x1 - x)*(x - x2) >= 0.0,
+                 "Function moved outside bracketed range." );
 
          // Check for convergence.
          if( fabs( x - new_x ) < tol )
             break;
 
-         // Update values.
+         // Update value.
          x = new_x;
       }
 
       // Break if we exceeded maximum its.
       EXCEPT( ii < max_its, "Richardson solve required too many iterations." );
 
-      return std::make_tuple( new_x, ii );
+      return new_x;
    }
 
 }
