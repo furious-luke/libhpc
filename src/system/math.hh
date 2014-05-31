@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef containers_mymath_hh
-#define containers_mymath_hh
+#ifndef hpc_system_math_hh
+#define hpc_system_math_hh
 
 #include <math.h>
 #include <limits>
@@ -90,6 +90,27 @@ namespace hpc {
          return x;
       else
          return pow2i( l + 1 );
+   }
+
+   template< class T >
+   CUDA_DEV_HOST_INL
+   T
+   fabs( T const& x );
+
+   template<>
+   CUDA_DEV_HOST_INL
+   float
+   fabs( float const& x )
+   {
+      return ::fabsf( x );
+   }
+
+   template<>
+   CUDA_DEV_HOST_INL
+   double
+   fabs( double const& x )
+   {
+      return ::fabs( x );
    }
 
    template< class T >
