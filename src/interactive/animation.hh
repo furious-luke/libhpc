@@ -1,8 +1,7 @@
-#if 0
+#ifndef hpc_interactive_animation_hh
+#define hpc_interactive_animation_hh
 
-#ifndef libhpc_interactive_animation_hh
-#define libhpc_interactive_animation_hh
-
+#include <stdint.h>
 #include <array>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/logging.hh"
@@ -20,6 +19,10 @@ namespace hpc {
          friend class boost::iterator_core_access;
 
       public:
+
+         typedef          boost::chrono::high_resolution_clock clock_type;
+         typedef typename clock_type::time_point               time_point_type;
+         typedef          boost::chrono::milliseconds          time_type;
 
          typedef T value_type;
          typedef value_type reference_type;
@@ -54,7 +57,7 @@ namespace hpc {
          {
             _pos = 0;
             _fac = 0;
-            _old = timer();
+            _old = clock_type::now();
             _fwd = forward;
          }
 
@@ -69,7 +72,8 @@ namespace hpc {
          void
          increment()
          {
-            _pos = std::min<double>( msecs( timer() - _old ), _dur );
+            auto dur = boost::chrono::duration_cast<time_type>( clock_type::now() - _old );
+            _pos = std::min<double>( (double)dur.count(), _dur );
             _fac = _pos*_inv_dur;
          }
 
@@ -96,13 +100,11 @@ namespace hpc {
          double _dur;
          double _inv_dur;
          double _fac;
-         time_type _old;
+         time_point_type _old;
          bool _fwd;
       };
 
    }
 }
-
-#endif
 
 #endif

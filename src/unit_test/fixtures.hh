@@ -15,25 +15,46 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_unit_test_impl_expression_hh
-#define hpc_unit_test_impl_expression_hh
+#ifndef hpc_unit_test_fixtures_hh
+#define hpc_unit_test_fixtures_hh
 
-#include <iostream>
-#include <string>
-#include "libhpc/system/cuda.hh"
+#define SUITE_FIXTURE( type ) hpc::test::suite_fixture<type>
 
 namespace hpc {
    namespace test {
 
-      template< class T,
-                class U >
-      CUDA_DEV_HOST
-      void
-      expression<T,U>::test( result_buffer<>& rb,
-                             char const* info )
+      template< class SuperT >
+      class suite_fixture
       {
-         rb.push( *this );
-      }
+      public:
+
+	 suite_fixture()
+	    : _fix( 0 )
+	 {
+	 }
+
+	 // TODO: May need to delete SuperT before destructor.
+	 ~suite_fixture()
+	 {
+	    if( _fix )
+	    {
+	       delete _fix;
+	       _fix = 0;
+	    }
+	 }
+
+	 SuperT*
+	 operator->()
+	 {
+	    if( !_fix )
+	       _fix = new SuperT();
+	    return _fix;
+	 }
+
+      protected:
+
+	 SuperT* _fix;
+      };
 
    }
 }

@@ -11,7 +11,7 @@ namespace hpc {
       {
       public:
 
-         typedef boost::function<void(const boost::smatch&)> function_type;
+         typedef boost::function<void(boost::smatch const&)> function_type;
 
       public:
 
@@ -27,7 +27,7 @@ namespace hpc {
          re() const;
 
          void
-         operator()( const boost::smatch& match ) const;
+         operator()( boost::smatch const& match ) const;
 
       protected:
 

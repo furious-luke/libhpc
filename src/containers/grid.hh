@@ -99,9 +99,16 @@ namespace hpc {
             OutputIterator result )
       {
          result += this->dimension() - 1;
-         for( unsigned ii = this->dimension(); ii > 0; --ii, --result ) {
+         for( unsigned ii = this->dimension(); ii > 0; --ii )
+         {
             *result = index/this->_basis[ii - 1];
             index -= (*result)*this->_basis[ii - 1];
+
+            // I put this here instead of in the loop description because I don't
+            // want to decrement an iterator pointing to the first element. C++
+            // debug mode complains about that sort of thing.
+            if( ii > 1 )
+               --result;
          }
       }
 

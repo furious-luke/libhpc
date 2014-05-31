@@ -15,27 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_unit_test_impl_expression_hh
-#define hpc_unit_test_impl_expression_hh
+#include <vector>
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/system/matrix.hh>
+#include <libhpc/system/view.hh>
 
-#include <iostream>
-#include <string>
-#include "libhpc/system/cuda.hh"
-
-namespace hpc {
-   namespace test {
-
-      template< class T,
-                class U >
-      CUDA_DEV_HOST
-      void
-      expression<T,U>::test( result_buffer<>& rb,
-                             char const* info )
-      {
-         rb.push( *this );
-      }
-
+TEST_CASE( "/hpc/system/matrix/rows_iterator" )
+{
+   hpc::matrix<int> mat( 4, 3 );
+   for( int ii = 0; ii < 4; ++ii )
+   {
+      for( int jj = 0; jj < 3; ++jj )
+         mat( ii, jj ) = 3*ii + jj;
+   }
+   int ii = 0;
+   for( hpc::matrix<int>::const_rows_iterator it = mat.rows_begin();
+        it != mat.rows_end();
+        ++it )
+   {
+      hpc::view<std::vector<int> const> row = *it;
+      for( int jj = 0; jj < 3; ++jj )
+         TEST( row[jj] == ii++ );
    }
 }
-
-#endif

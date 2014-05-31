@@ -34,7 +34,7 @@ struct fixture
 
 template< class View >
 void
-check_contents( hpc::test::test_case_base& tc,
+check_contents( hpc::test::result_buffer<>& rb,
                 View const& view,
                 size_t size = 10,
                 size_t offs = 0 )
@@ -44,31 +44,40 @@ check_contents( hpc::test::test_case_base& tc,
       TEST( view[ii] == offs + ii );
 }
 
+TEST_CASE( "/hpc/system/view/constructor/pointer" )
+{
+   fixture fix;
+   hpc::view<std::vector<int> > view( fix.vec.data(), fix.vec.size() );
+   check_contents( rb, view );
+   hpc::view<std::vector<int> const> cv( fix.vec.data(), fix.vec.size() );
+   check_contents( rb, cv );
+}
+
 TEST_CASE( "/hpc/system/view/constructor/one_to_one" )
 {
    fixture fix;
    hpc::view<std::vector<int> > view( fix.vec );
-   check_contents( tc, view );
+   check_contents( rb, view );
    hpc::view<std::vector<int> const> cv( fix.vec );
-   check_contents( tc, cv );
+   check_contents( rb, cv );
 }
 
 TEST_CASE( "/hpc/system/view/constructor/resize" )
 {
    fixture fix;
    hpc::view<std::vector<int> > view( fix.vec, 5 );
-   check_contents( tc, view, 5 );
+   check_contents( rb, view, 5 );
    hpc::view<std::vector<int> const> cv( fix.vec, 5 );
-   check_contents( tc, cv, 5 );
+   check_contents( rb, cv, 5 );
 }
 
 TEST_CASE( "/hpc/system/view/constructor/offset" )
 {
    fixture fix;
    hpc::view<std::vector<int> > view( fix.vec, 7, 3 );
-   check_contents( tc, view, 7, 3 );
+   check_contents( rb, view, 7, 3 );
    hpc::view<std::vector<int> const> cv( fix.vec, 7, 3 );
-   check_contents( tc, cv, 7, 3 );
+   check_contents( rb, cv, 7, 3 );
 }
 
 TEST_CASE( "/hpc/system/view/constructor/copy" )
@@ -76,8 +85,8 @@ TEST_CASE( "/hpc/system/view/constructor/copy" )
    fixture fix;
    hpc::view<std::vector<int> > view( fix.vec );
    hpc::view<std::vector<int> > copy( view );
-   check_contents( tc, view );
-   check_contents( tc, copy );
+   check_contents( rb, view );
+   check_contents( rb, copy );
 }
 
 TEST_CASE( "/hpc/system/view/size" )

@@ -45,9 +45,55 @@ TEST_CASE( "/libhpc/numerics/coords/cartesian_to_spherical" )
 TEST_CASE( "/libhpc/numerics/coords/cartesian_to_ecs" )
 {
    double ra, dec;
+
+   // First quadrant.
    hpc::num::cartesian_to_ecs<double>( 1, 1, 1, ra, dec );
    DELTA( ra, 0.25*M_PI, 1e-8 );
    DELTA( dec, 0.5*M_PI - acos( 1.0/sqrt( 3.0 ) ), 1e-8 );
+
+   // Second quadrant.
+   hpc::num::cartesian_to_ecs<double>( -1, 1, 1, ra, dec );
+   DELTA( ra, 0.75*M_PI, 1e-8 );
+   DELTA( dec, 0.5*M_PI - acos( 1.0/sqrt( 3.0 ) ), 1e-8 );
+
+   // Third quadrant.
+   hpc::num::cartesian_to_ecs<double>( -1, -1, 1, ra, dec );
+   DELTA( ra, 1.25*M_PI, 1e-8 );
+   DELTA( dec, 0.5*M_PI - acos( 1.0/sqrt( 3.0 ) ), 1e-8 );
+
+   // Fourth quadrant.
+   hpc::num::cartesian_to_ecs<double>( 1, -1, 1, ra, dec );
+   DELTA( ra, 1.75*M_PI, 1e-8 );
+   DELTA( dec, 0.5*M_PI - acos( 1.0/sqrt( 3.0 ) ), 1e-8 );
+}
+
+TEST_CASE( "/libhpc/numerics/coords/ecs_to_cartesian" )
+{
+   double x, y, z, dec = 0.5*M_PI - acos( 1.0/sqrt( 3.0 ) );
+
+   // First quadrant.
+   hpc::num::ecs_to_cartesian<double>( 0.25*M_PI, dec, x, y, z, sqrt( 3.0 )  );
+   DELTA( x, 1.0, 1e-8 );
+   DELTA( y, 1.0, 1e-8 );
+   DELTA( z, 1.0, 1e-8 );
+
+   // Second quadrant.
+   hpc::num::ecs_to_cartesian<double>( 0.75*M_PI, dec, x, y, z, sqrt( 3.0 )  );
+   DELTA( x, -1.0, 1e-8 );
+   DELTA( y, 1.0, 1e-8 );
+   DELTA( z, 1.0, 1e-8 );
+
+   // Third quadrant.
+   hpc::num::ecs_to_cartesian<double>( 1.25*M_PI, dec, x, y, z, sqrt( 3.0 )  );
+   DELTA( x, -1.0, 1e-8 );
+   DELTA( y, -1.0, 1e-8 );
+   DELTA( z, 1.0, 1e-8 );
+
+   // Fourth quadrant.
+   hpc::num::ecs_to_cartesian<double>( 1.75*M_PI, dec, x, y, z, sqrt( 3.0 )  );
+   DELTA( x, 1.0, 1e-8 );
+   DELTA( y, -1.0, 1e-8 );
+   DELTA( z, 1.0, 1e-8 );
 }
 
 TEST_CASE( "/libhpc/numerics/coords/gnomonic_projection" )

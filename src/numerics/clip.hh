@@ -1,5 +1,22 @@
-#ifndef libhpc_numerics_clip_hh
-#define libhpc_numerics_clip_hh
+// Copyright 2012 Luke Hodkinson
+
+// This file is part of libhpc.
+// 
+// libhpc is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// libhpc is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef hpc_numerics_clip_hh
+#define hpc_numerics_clip_hh
 
 #include <vector>
 #include <list>
@@ -7,9 +24,12 @@
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include "libhpc/system/math.hh"
+#include "libhpc/system/matrix.hh"
 #include "libhpc/algorithm/combination.hpp"
 #include "libhpc/algorithm/inner_product.hh"
 #include "libhpc/system/functional.hh"
+#include "libhpc/logging.hh"
+#include "coords.hh"
 
 namespace hpc {
 
@@ -39,6 +59,37 @@ namespace hpc {
       z[0] = x[1]*y[2] - x[2]*y[1];
       z[1] = x[2]*y[0] - x[0]*y[2];
       z[2] = x[0]*y[1] - x[1]*y[0];
+   }
+
+   template< class EndPointT,
+             class PointT >
+   typename PointT::value_type
+   distance_to_line_2( EndPointT const& ep0,
+                       EndPointT const& ep1,
+                       PointT const pnt )
+   {
+      typedef typename PointT::value_type real_type;
+      real_type numer = (pnt[0] - ep0[0])*(ep1[0] - ep0[0]) + (pnt[1] - ep0[1])*(ep1[1] - ep0[1]);
+      real_type denom = (ep1[0] - ep0[0])*(ep1[0] - ep0[0]) + (ep1[1] - ep0[1])*(ep1[1] - ep0[1]);
+      real_type r = numer/denom;
+      if( r >= 0.0 && r <= 1.0 )
+      {
+         PointT perp;
+         perp[0] = ep1[1] - ep0[1];
+         perp[1] = -(ep1[0] - ep0[0]);
+         real_type inv_mag = 1.0/sqrt( perp[1]*perp[1] + perp[0]*perp[0] );
+         real_type dist = fabs( -perp[1]*(ep0[1] - pnt[1]) - (ep0[0] - pnt[0])*perp[0] )*inv_mag;
+         return dist;
+         // real_type s = ((ep0[1] - pnt[1])*(ep1[0] - ep0[0]) - (ep0[0] - pnt[0])*(ep1[1] - ep0[1]))/denom;
+         // return fabs( s )/sqrt( denom );
+      }
+      else
+      {
+         return std::min(
+            sqrt( (ep0[0] - pnt[0])*(ep0[0] - pnt[0]) + (ep0[1] - pnt[1])*(ep0[1] - pnt[1]) ),
+            sqrt( (ep1[0] - pnt[0])*(ep1[0] - pnt[0]) + (ep1[1] - pnt[1])*(ep1[1] - pnt[1]) )
+            );
+      }
    }
 
    template< class PointIterator,
@@ -295,6 +346,7 @@ namespace hpc {
 	      const PointIterator& last,
 	      ResultIterator result )
    {
+      typedef typename std::iterator_traits<PointIterator>::value_type point_type;
       typedef typename std::iterator_traits<HalfSpaceIterator>::value_type real_type;
 
       // If we have nothing, return nothing.
@@ -311,6 +363,7 @@ namespace hpc {
       intersect[0] = inside( pnts[0]->begin(), pnts[0]->end(), half_space );
       if( intersect[0] )
       {
+         // Interior, store point.
 	 *result++ = *pnts[0];
 	 first_intersect = true;
       }
@@ -333,7 +386,7 @@ namespace hpc {
 	 else if( !intersect[edge[0]] && intersect[edge[1]] )
 	 {
 	    // Save both intersection and inside vertex.
-	    boost::array<real_type,2> tmp;
+	    point_type tmp;
 	    line_half_space_intersection(
 	       pnts[edge[0]]->begin(), pnts[edge[0]]->end(),
 	       pnts[edge[1]]->begin(), pnts[edge[1]]->end(),
@@ -348,7 +401,7 @@ namespace hpc {
 	 else if( intersect[edge[0]] && !intersect[edge[1]] )
 	 {
 	    // Save intersection.
-	    boost::array<real_type,2> tmp;
+            point_type tmp;
 	    line_half_space_intersection(
 	       pnts[edge[0]]->begin(), pnts[edge[0]]->end(),
 	       pnts[edge[1]]->begin(), pnts[edge[1]]->end(),
@@ -373,7 +426,7 @@ namespace hpc {
       // because of the swap.
       if( first_intersect ^ intersect[edge[0]] )
       {
-	 boost::array<real_type,2> tmp;
+         point_type tmp;
 	 line_half_space_intersection(
 	    pnts[edge[0]]->begin(), pnts[edge[0]]->end(),
 	    first_point->begin(), first_point->end(),
@@ -453,6 +506,328 @@ namespace hpc {
       if( !approx( polygon_area( tmp[1].begin(), tmp[1].end() ), 0.0, 1e-8 ) )
 	 std::copy( tmp[1].begin(), tmp[1].end(), result );
    }
+
+   template< class BoxMinIterT,
+             class BoxMaxIterT,
+             class SphIterT >
+   bool
+   sphere_box_collision( BoxMinIterT box_min_begin,
+                         BoxMinIterT const& box_min_end,
+                         BoxMaxIterT box_max_begin,
+                         SphIterT sph_begin )
+   {
+      typedef typename std::iterator_traits<BoxMinIterT>::value_type value_type;
+      value_type min_dist = 0;
+      while( box_min_begin != box_min_end )
+      {
+         value_type sph = *sph_begin++;
+         if( sph < *box_min_begin )
+            min_dist += (sph - *box_min_begin)*(sph - *box_min_begin);
+         else if( sph > *box_max_begin )
+            min_dist += (sph - *box_max_begin)*(sph - *box_max_begin);
+         ++box_min_begin;
+         ++box_max_begin;
+      }
+      LOGTLN( "Sphere-box collision, min_dist: ", min_dist, ", radius: ", (*sph_begin)*(*sph_begin) );
+      return min_dist < (*sph_begin)*(*sph_begin);
+   }
+
+   template< class EcsSeqT,
+	     class BoxSeqT >
+   bool
+   ecs_box_collision( EcsSeqT const& ecs_min,
+		      EcsSeqT const& ecs_max,
+		      BoxSeqT const& box_min,
+		      BoxSeqT const& box_max )
+   {
+      typedef typename BoxSeqT::value_type real_type;
+
+      hpc::matrix<real_type> crds( 8, 3 ), ecs( 8, 3 );
+      crds( 0, 0 ) = box_min[0]; crds( 0, 1 ) = box_min[1]; crds( 0, 2 ) = box_min[2];
+      crds( 1, 0 ) = box_max[0]; crds( 1, 1 ) = box_min[1]; crds( 1, 2 ) = box_min[2];
+      crds( 2, 0 ) = box_max[0]; crds( 2, 1 ) = box_max[1]; crds( 2, 2 ) = box_min[2];
+      crds( 3, 0 ) = box_min[0]; crds( 3, 1 ) = box_max[1]; crds( 3, 2 ) = box_min[2];
+      crds( 4, 0 ) = box_min[0]; crds( 4, 1 ) = box_min[1]; crds( 4, 2 ) = box_max[2];
+      crds( 5, 0 ) = box_max[0]; crds( 5, 1 ) = box_min[1]; crds( 5, 2 ) = box_max[2];
+      crds( 6, 0 ) = box_max[0]; crds( 6, 1 ) = box_max[1]; crds( 6, 2 ) = box_max[2];
+      crds( 7, 0 ) = box_min[0]; crds( 7, 1 ) = box_max[1]; crds( 7, 2 ) = box_max[2];
+      for( int ii = 0; ii < 8; ++ii )
+      {
+	 hpc::num::cartesian_to_ecs<double>( crds( ii, 0 ), crds( ii, 1 ), crds( ii, 2 ),
+					     ecs( ii, 0 ), ecs( ii, 1 ), ecs( ii, 2 ) );
+      }
+
+      // To discard based on max distance we need to use a
+      // collision routine.
+      {
+         boost::array<real_type,4> sph{ 0.0, 0.0, 0.0, ecs_max[2] };
+         if( !hpc::sphere_box_collision( box_min.begin(), box_min.end(), box_max.begin(), sph.begin() ) )
+         {
+            LOGTLN( "Box outside outer radius." );
+            return false;
+         }
+      }
+
+      // Alternatively, all of the corners may be below the minimum
+      // radial distance.
+      bool discard = true;
+      for( unsigned ii = 0; ii < 8; ++ii )
+      {
+         if( ecs( ii, 2 ) >= ecs_min[2] )
+         {
+            LOGTLN( "Corner ", ii, " with radius ", ecs( ii, 2 ), " greater than ", ecs_min[2], "." );
+            discard = false;
+            break;
+         }
+      }
+      if( discard )
+      {
+         LOGTLN( "Box within inner radius." );
+         return false;
+      }
+
+      // Boxes may be discarded if they are above/below the highest/lowest
+      // points created from +-sin(dec).
+      if( (ecs_max[1] >= 0.0 && box_min[2] >= ecs_max[2]*sin( ecs_max[1] )) ||
+          (ecs_min[1] <= 0.0 && box_max[2] <= ecs_max[2]*sin( ecs_min[1] )) )
+      {
+         LOGTLN( "Box above/below DEC planes." );
+         return false;
+      }
+
+      // Now we handle RA and DEC. We need to split the operation
+      // into to halves.
+      for( int half_ii = 0; half_ii < 2; ++half_ii )
+      {
+         LOGTLN( "Checking half: ", half_ii );
+
+         // Which ecs coordinates should I use for the two planes?
+         real_type min_ra, max_ra;
+         if( half_ii == 0 )
+         {
+            if( ecs_min[0] < M_PI )
+            {
+               min_ra = ecs_min[0];
+               if( ecs_max[0] <= M_PI )
+                  max_ra = ecs_max[0];
+               else
+                  max_ra = M_PI;
+            }
+            else
+               continue;
+         }
+         else
+         {
+            if( ecs_max[0] > M_PI )
+            {
+               max_ra = ecs_max[0];
+               if( ecs_min[0] >= M_PI )
+                  min_ra = ecs_min[0];
+               else
+                  min_ra = M_PI;
+            }
+            else
+               continue;
+         }
+         LOGTLN( "Using RA range: ", min_ra, " to ", max_ra );
+
+         // Clip the appropriate surface.
+         std::list<boost::array<real_type,3> > surf[2];
+         for( int ii = 0; ii < 4; ++ii )
+            surf[1].push_back( boost::array<real_type,3>{ crds( ii, 0 ), crds( ii, 1 ), 0.0 } );
+         if( hpc::approx( ecs_min[0], ecs_max[0], 1e-8 ) )
+         {
+            // Do nothing, as we want an empty list.
+            surf[1].clear();
+         }
+         else if( hpc::approx( ecs_min[0], 0.0, 1e-8 ) && hpc::approx( ecs_max[0], 2.0*M_PI, 1e-8 ) )
+         {
+            // Fill the list with the standard.
+         }
+         else
+         {
+            boost::array<real_type,4> ra_planes[2];
+            boost::array<real_type,3> tmp[2];
+            num::ecs_to_cartesian<real_type>( min_ra, -0.25*M_PI, tmp[0][0], tmp[0][1], tmp[0][2] );
+            num::ecs_to_cartesian<real_type>( min_ra,  0.25*M_PI, tmp[1][0], tmp[1][1], tmp[1][2] );
+            cross_product_3( tmp[1], tmp[0], ra_planes[0] );
+            ra_planes[0][3] = 0.0;
+            ASSERT( hpc::approx( ra_planes[0][2], 0.0, 1e-8 ) );
+            num::ecs_to_cartesian<real_type>( max_ra, -0.25*M_PI, tmp[0][0], tmp[0][1], tmp[0][2] );
+            num::ecs_to_cartesian<real_type>( max_ra,  0.25*M_PI, tmp[1][0], tmp[1][1], tmp[1][2] );
+            cross_product_3( tmp[0], tmp[1], ra_planes[1] );
+            ra_planes[1][3] = 0.0;
+            ASSERT( hpc::approx( ra_planes[1][2], 0.0, 1e-8 ) );
+            LOGTLN( "RA planes: ", ra_planes[0], " and ", ra_planes[1] );
+            clip_edge( ra_planes[0].begin(), surf[1].begin(), surf[1].end(),
+                       std::insert_iterator<std::list<boost::array<real_type,3> > >( surf[0], surf[0].begin() ) );
+            LOGTLN( "Intermediate surface: ", surf[0] );
+            surf[1].clear();
+            clip_edge( ra_planes[1].begin(), surf[0].begin(), surf[0].end(),
+                       std::insert_iterator<std::list<boost::array<real_type,3> > >( surf[1], surf[1].begin() ) );
+            LOGTLN( "Final surface: ", surf[1] );
+         }
+
+         // If there is no surface left then we can discard this half.
+         if( surf[1].empty() )
+            continue;
+
+         // Calculate the nearest and furthest of the points.
+         real_type min_dist = std::numeric_limits<real_type>::max();
+         real_type max_dist = std::numeric_limits<real_type>::min();
+         unsigned ii = 0;
+         for( typename std::list<boost::array<real_type,3> >::const_iterator it = surf[1].begin();
+              it != surf[1].end(); 
+              ++it, ++ii )
+         {
+            real_type dist;
+            boost::array<real_type,2> zero{ 0.0, 0.0 };
+            boost::array<real_type,2> ep0 = { (*it)[0], (*it)[1] };
+            if( ii < surf[1].size() - 1 )
+            {
+               typename std::list<boost::array<real_type,3> >::const_iterator it2 = it;
+               ++it2;
+               boost::array<real_type,2> ep1 = { (*it2)[0], (*it2)[1]};
+               dist = distance_to_line_2( ep0, ep1, zero );
+            }
+            else
+            {
+               boost::array<real_type,2> ep1 = { surf[1].front()[0], surf[1].front()[1] };
+               dist = distance_to_line_2( ep0, ep1, zero );
+            }
+            if( dist < min_dist )
+               min_dist = dist;
+
+            // The furthest distance will always be a point.
+            dist = sqrt( ep0[0]*ep0[0] + ep0[1]*ep0[1] );
+            if( dist > max_dist )
+               max_dist = dist;
+         }
+
+         // Use the calculated maximum distance to check if all points of
+         // the clipped box are now within the minimum radius.
+         if( sqrt( max_dist*max_dist + box_min[2]*box_min[2] ) <= ecs_min[2] &&
+             sqrt( max_dist*max_dist + box_max[2]*box_max[2] ) <= ecs_min[2] )
+         {
+            LOGTLN( "All clipped points within inner radius." );
+            continue;
+         }
+
+         // Use the calculated maximum distance to check if all points of
+         // the clipped box are now outside the maximum radius.
+         if( sqrt( min_dist*min_dist + box_min[2]*box_min[2] ) >= ecs_max[2] &&
+             sqrt( min_dist*min_dist + box_max[2]*box_max[2] ) >= ecs_max[2] )
+         {
+            LOGTLN( "All clipped points within inner radius." );
+            continue;
+         }
+
+         // If the furthest point of the bottom plane is inside the
+         // maximum DEC cone, we can discard.
+         // LOGTLN( "Checking max DEC: dec=", ecs_max[1], ", max_dist=", max_dist,
+         //         ", box_min[2]=", box_min[2], ", cone_rad=", box_min[2]/tan( ecs_max[1] ) );
+         if( ecs_max[1] > 0.0 )
+         {
+            if( !hpc::approx( ecs_max[1], 0.5*M_PI, 1e-8 ) &&
+                box_min[2] > 0.0 && max_dist <= fabs( box_min[2]/tan( ecs_max[1] ) ) )
+            {
+               LOGTLN( "Lower plane inside upper cone." );
+               continue;
+            }
+         }
+         else if( ecs_max[1] < 0.0 )
+         {
+            if( hpc::approx( ecs_max[1], -0.5*M_PI, 1e-8 ) ||
+                (box_min[2] > 0.0 || min_dist >= fabs( box_min[2]/tan( ecs_max[1] ) )) )
+            {
+               LOGTLN( "Lower plane inside upper cone." );
+               continue;
+            }
+         }
+         else if( box_min[2] >= 0.0 )
+         {
+            LOGTLN( "Lower plane above maximum dec (0.0)." );
+            continue;
+         }
+
+         // If the nearest point of the top plane is outside the
+         // minimum DEC cone, we can discard.
+         // LOGT( "Checking min DEC: dec=", ecs_min[1], ", max_dist=", max_dist, ", min_dist=", min_dist );
+         // LOGTLN(", box_max[2]=", box_max[2], ", cone_rad=", fabs( box_max[2]*tan( ecs_min[1] ) ) );
+         if( ecs_min[1] < 0.0 )
+         {
+            if( !hpc::approx( ecs_min[1], -0.5*M_PI, 1e-8 ) &&
+                box_max[2] < 0.0 && max_dist <= fabs( box_max[2]/tan( ecs_min[1] ) ) )
+            {
+               LOGTLN( "Upper plane inside lower cone." );
+               continue;
+            }
+         }
+         else if( ecs_min[1] > 0.0 )
+         {
+            if( hpc::approx( ecs_min[1], 0.5*M_PI, 1e-8 ) ||
+                (box_max[2] < 0.0 || min_dist >= fabs( box_max[2]/tan( ecs_min[1] ) )) )
+            {
+               LOGTLN( "Upper plane inside lower cone." );
+               continue;
+            }
+         }
+         else if( box_max[2] <= 0.0 )
+         {
+            LOGTLN( "Upper plane below minimum dec (0.0)." );
+            continue;
+         }
+
+         // Need to handle cases where there is a clipped column. This is
+         // basically checking the cylinder created by the dec circles...
+         // wow that's confusing.
+         {
+            real_type upp_rad = cos( ecs_max[1] )*ecs_min[2];
+            real_type upp_z = sin( ecs_max[1] )*ecs_min[2];
+            real_type low_rad = cos( ecs_min[1] )*ecs_min[2];
+            real_type low_z = sin( ecs_min[1] )*ecs_min[2];
+            if( box_max[2] >= upp_z && max_dist <= upp_rad )
+            {
+               if( box_min[2] >= 0.0 )
+                  continue;
+               else if( box_min[2] >= low_z )
+               {
+                  if( max_dist <= sqrt( ecs_min[2]*ecs_min[2] - box_min[2]*box_min[2] ) )
+                     continue;
+               }
+               else
+               {
+                  if( max_dist <= low_rad )
+                     continue;
+               }
+            }
+            if( box_min[2] <= low_z && max_dist <= low_rad )
+            {
+               if( box_max[2] <= 0.0 )
+                  continue;
+               else if( box_max[2] <= upp_z )
+               {
+                  if( max_dist <= sqrt( ecs_min[2]*ecs_min[2] - box_max[2]*box_max[2] ) )
+                     continue;
+               }
+               else
+               {
+                  if( max_dist <= upp_rad )
+                     continue;
+               }
+            }
+         }
+
+         // If I make it here, then this half touches the
+         // ECS geometry.
+         LOGTLN( "In contact." );
+         return true;
+      }
+
+      // If I make it here then neither half touches the ECS geom.
+      return false;
+   }
+
 }
 
 #endif

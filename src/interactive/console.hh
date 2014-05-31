@@ -1,7 +1,5 @@
-#if 0
-
-#ifndef libhpc_interactive_console_hh
-#define libhpc_interactive_console_hh
+#ifndef hpc_interactive_console_hh
+#define hpc_interactive_console_hh
 
 #ifdef HAVE_GLUT
 
@@ -19,6 +17,10 @@ namespace hpc {
       class console
       {
       public:
+
+         typedef          boost::chrono::high_resolution_clock clock_type;
+         typedef typename clock_type::time_point               time_point_type;
+         typedef          boost::chrono::milliseconds          time_type;
 
          enum keyboard_state_type
          {
@@ -97,13 +99,11 @@ namespace hpc {
          bool _cur_on;
          unsigned _cur_msecs;
          unsigned _cur_flash;
-         time_type _cur_old;
+         time_point_type _cur_old;
       };
 
    }
 }
-
-#endif
 
 #endif
 

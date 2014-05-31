@@ -81,6 +81,8 @@ namespace hpc {
       {
          T _r;
          cartesian_to_spherical( x, y, z, _r, dec, ra );
+         if( ra < 0.0 )
+            ra += 2.0*M_PI;
          dec = 0.5*M_PI - dec;
          if( r )
             *r = _r;
@@ -101,6 +103,8 @@ namespace hpc {
                         boost::optional<T> rad = boost::optional<T>() )
                         
       {
+         if( ra > M_PI )
+            ra -= 2.0*M_PI;
          dec = 0.5*M_PI - dec;
          T _rad = rad ? *rad : 1;
          spherical_to_cartesian( _rad, dec, ra, x, y, z );
