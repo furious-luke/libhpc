@@ -49,7 +49,7 @@ namespace hpc {
                       T x2,
                       PointIter points,
                       WeightIter weights,
-                      T tolerance = num::default_newton_tolerance )
+                      T tolerance = alg::default_newton_tolerance )
       {
          // Gauss-Legendre polynomial roots are symmetric; we only need
          // to calculate half of them.
@@ -74,7 +74,7 @@ namespace hpc {
             x = cos( M_PI*(ii - 0.25)/(np + 0.5) );
 
             // Solve using Newton-Raphson.
-            x = num::newton<polynomial::legendre<T>, T>( legendre, xl, xu, x, df, tolerance );
+            x = alg::newton<polynomial::legendre<T>, T>( legendre, xl, xu, x, df, tolerance );
 
             *points++ = xu - xl*x;
             cache[2*(ii - 1)] = xu - xl*x;
@@ -197,7 +197,7 @@ namespace hpc {
             }
 
             // Solve using Newton-Raphson.
-            x = num::newton<polynomial::jacobi<T>, T>( jacobi, -1.0, 1.0, x, df, tolerance );
+            x = alg::newton<polynomial::jacobi<T>,T>( jacobi, -1.0, 1.0, x, df, tolerance );
 
             // Update previous values.
             prev[2] = prev[1];

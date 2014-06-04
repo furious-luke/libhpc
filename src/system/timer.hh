@@ -21,6 +21,7 @@
 #include <boost/chrono.hpp>
 #include "libhpc/debug/assert.hh"
 #include "timer_handle.hh"
+#include "anon.hh"
 
 namespace hpc {
 

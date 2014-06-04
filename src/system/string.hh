@@ -23,6 +23,7 @@
 #include <sstream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace hpc {
 
@@ -48,6 +49,14 @@ namespace hpc {
    to_lower_copy( std::string const& str )
    {
       return boost::algorithm::to_lower_copy( str );
+   }
+
+   template< class T >
+   inline
+   std::string
+   to_string( T val )
+   {
+      return boost::lexical_cast<std::string>( val );
    }
 
 }

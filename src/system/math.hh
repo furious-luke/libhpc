@@ -21,6 +21,7 @@
 #include <math.h>
 #include <limits>
 #include "libhpc/debug/assert.hh"
+#include "cuda.hh"
 
 namespace hpc {
 
