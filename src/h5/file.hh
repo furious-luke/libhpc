@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_h5_file_hh
-#define libhpc_h5_file_hh
+#ifndef hpc_h5_file_hh
+#define hpc_h5_file_hh
 
 #include "libhpc/mpi/comm.hh"
 #include "location.hh"
@@ -55,12 +55,12 @@ namespace hpc {
 	 void
 	 close();
 
-	 template< class Buffer >
-         typename boost::disable_if<random_access_trait<Buffer> >::type
+	 template< class BufferT >
+         typename boost::disable_if<random_access_trait<BufferT> >::type
 	 write( std::string const& name,
-		typename Buffer::value_type const& value )
+		typename type_traits<BufferT>::const_reference value )
 	 {
-            typedef typename Buffer::value_type value_type;
+	    typedef typename type_traits<BufferT>::value value_type;
 
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
