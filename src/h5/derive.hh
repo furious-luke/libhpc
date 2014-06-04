@@ -28,18 +28,27 @@ namespace hpc {
       {
       public:
 
+<<<<<<< refs/remotes/origin/v0.1
 	typedef boost::tuple< h5::datatype const*,
                               hsize_t,
                               h5::datatype const*,
                               std::string > entry_type;
+=======
+	 typedef std::tuple< h5::datatype const*,
+			     hsize_t,
+			     h5::datatype const*,
+			     std::string > entry_type;
+>>>>>>> local
 
       public:
 
-	void
-	add( const h5::datatype& mem_type,
-	     hsize_t mem_offs,
-	     const h5::datatype& file_type,
-	     const std::string& desc = "" );
+	 derive( size_t mem_size = 0 );
+
+	 void
+	 add( const h5::datatype& mem_type,
+	      hsize_t mem_offs,
+	      const h5::datatype& file_type,
+	      const std::string& desc = "" );
 
 	 void
 	 commit( h5::datatype& mem_type,
@@ -55,6 +64,7 @@ namespace hpc {
 
       protected:
 
+	 size_t _mem_size;
 	 std::list<entry_type> _cache;
       };
 
