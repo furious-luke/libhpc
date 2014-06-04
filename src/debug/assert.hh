@@ -53,8 +53,7 @@
 
 #else // __CUDAARCH__
 
-#define _ASSERT( expr, ... )                    \
-   ((expr) ? (void)0 : abort())
+#define _ASSERT( expr, ... )
 
 #endif // __CUDAARCH__
 

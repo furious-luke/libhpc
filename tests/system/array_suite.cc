@@ -15,24 +15,26 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_debug_except_hh
-#define hpc_debug_except_hh
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/system/array.hh>
 
-#if !defined(NEXCEPT) && !defined(__CUDA_ARCH__)
+template< class T >
+hpc::array<T,2>
+return_value()
+{
+   return hpc::array<T,2>{ 2, 3 };
+}
 
-#include "assert.hh"
+TEST_CASE_CUDA( "/hpc/system/array/initialise" )
+{
+   hpc::array<int,2> ar{ 2, 3 };
+   TEST_EQ( ar[0], 2 );
+   TEST_EQ( ar[1], 3 );
+}
 
-#define EXCEPT( expr, ... )                             \
-  _ASSERT( expr, ::hpc::exception, ##__VA_ARGS__ )
-
-#define EXCEPTAS( expr, type, ... )             \
-   _ASSERT( expr, type, ##__VA_ARGS__ )
-
-#else
-
-#define EXCEPT( expr, ... )
-#define EXCEPTAS( expr, type, ... )
-
-#endif
-
-#endif
+TEST_CASE_CUDA( "/hpc/system/array/return" )
+{
+   hpc::array<int,2> ar = return_value<int>();
+   TEST_EQ( ar[0], 2 );
+   TEST_EQ( ar[1], 3 );
+}

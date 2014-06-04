@@ -706,8 +706,17 @@ namespace hpc {
 
          // Use the calculated maximum distance to check if all points of
          // the clipped box are now within the minimum radius.
-         if( sqrt( max_dist*max_dist + box_min[2]*box_min[2] ) < ecs_min[2] &&
-             sqrt( max_dist*max_dist + box_max[2]*box_max[2] ) < ecs_min[2] )
+         if( sqrt( max_dist*max_dist + box_min[2]*box_min[2] ) <= ecs_min[2] &&
+             sqrt( max_dist*max_dist + box_max[2]*box_max[2] ) <= ecs_min[2] )
+         {
+            LOGTLN( "All clipped points within inner radius." );
+            continue;
+         }
+
+         // Use the calculated maximum distance to check if all points of
+         // the clipped box are now outside the maximum radius.
+         if( sqrt( min_dist*min_dist + box_min[2]*box_min[2] ) >= ecs_max[2] &&
+             sqrt( min_dist*min_dist + box_max[2]*box_max[2] ) >= ecs_max[2] )
          {
             LOGTLN( "All clipped points within inner radius." );
             continue;

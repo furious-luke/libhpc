@@ -15,24 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_debug_except_hh
-#define hpc_debug_except_hh
+#include <libhpc/unit_test/main.hh>
+#include <libhpc/algorithm/newton.hh>
 
-#if !defined(NEXCEPT) && !defined(__CUDA_ARCH__)
+struct parabola
+{
+   CUDA_DEV_HOST
+   double
+   operator()( double x ) const
+   {
+      return x*x - 16.0;
+   }
 
-#include "assert.hh"
+   CUDA_DEV_HOST
+   double
+   deriv( double x,
+          double f ) const
+   {
+      return 2.0*x;
+   }
+};
 
-#define EXCEPT( expr, ... )                             \
-  _ASSERT( expr, ::hpc::exception, ##__VA_ARGS__ )
-
-#define EXCEPTAS( expr, type, ... )             \
-   _ASSERT( expr, type, ##__VA_ARGS__ )
-
-#else
-
-#define EXCEPT( expr, ... )
-#define EXCEPTAS( expr, type, ... )
-
-#endif
-
-#endif
+TEST_CASE_CUDA( "/hpc/algorithm/newton" )
+{
+   double x = hpc::alg::newton( parabola(), 3.0, 6.0, 5.5 );
+   DELTA( x, 4.0, 1e-4 );
+}

@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_logging_block_hh
-#define libhpc_logging_block_hh
+#ifndef hpc_logging_block_hh
+#define hpc_logging_block_hh
 
-#ifndef NLOG
+#if !defined(NLOG) && !defined(__CUDA_ARCH__)
 
 #include "libhpc/system/anon.hh"
 #include "libhpc/system/stream.hh"

@@ -15,10 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_algorithm_uniform_hh
-#define libhpc_algorithm_uniform_hh
+#ifndef hpc_algorithm_uniform_hh
+#define hpc_algorithm_uniform_hh
 
-#include <boost/array.hpp>
 #include "libhpc/system/cc_version.hh"
 #include "libhpc/system/cuda.hh"
 #include "libhpc/debug/assert.hh"
@@ -28,35 +27,34 @@ namespace hpc {
    ///
    /// Lift implementation prototype.
    ///
-   template< class IndexP,
-             class IndexL,
-             unsigned D,
-	     class Grid >
+   template< class ProjT,
+             class LiftT,
+             size_t D,
+	     class SideT >
    struct lift_impl;
 
    ///
    /// 2D lift implementation.
    ///
-   template< class IndexP,
-             class IndexL,
-	     class Grid >
-   struct lift_impl<IndexP,IndexL,2,Grid>
+   template< class ProjT,
+             class LiftT,
+	     class SideT >
+   struct lift_impl<ProjT,LiftT,2,SideT>
    {
       CUDA_DEV_HOST
       static
-      boost::array<IndexL,2>
-      lift( IndexP idx,
-            boost::array<Grid,2> const& sides )
+      LiftT
+      lift( ProjT idx,
+            SideT const& sides )
       {
+	 typedef typename LiftT::value_type lift_index_type;
          ASSERT( idx < sides[0]*sides[1], "Invalid grid cell index." );
-         IndexL y = idx/sides[0];
-#ifdef CXX_0X
-         return boost::array<IndexL,2>{ static_cast<IndexL>( idx - y*sides[0] ), y };
+         lift_index_type y = idx/sides[0];
+#ifdef __CUDACC__
+	 LiftT res = { (lift_index_type)(idx - y*sides[0]), y };
+	 return res;
 #else
-         boost::array<IndexL,2> tmp;
-         tmp[0] = idx - y*sides[0];
-         tmp[1] = y;
-         return tmp;
+	 return LiftT{ (lift_index_type)(idx - y*sides[0]), y };
 #endif
       }
    };
@@ -64,29 +62,27 @@ namespace hpc {
    ///
    /// 3D lift implementation.
    ///
-   template< class IndexP,
-             class IndexL,
-	     class Grid >
-   struct lift_impl<IndexP,IndexL,3,Grid>
+   template< class ProjT,
+             class LiftT,
+	     class SideT >
+   struct lift_impl<ProjT,LiftT,3,SideT>
    {
       CUDA_DEV_HOST
       static
-      boost::array<IndexL,3>
-      lift( IndexP idx,
-            boost::array<Grid,3> const& sides )
+      LiftT
+      lift( ProjT idx,
+	    SideT const& sides )
       {
+	 typedef typename LiftT::value_type lift_index_type;
          ASSERT( idx < sides[0]*sides[1]*sides[2], "Invalid grid cell index." );
-         IndexL z = static_cast<IndexL>( idx/(sides[0]*sides[1]) );
-         IndexP rem = idx - z*(sides[0]*sides[1]);
-         IndexL y = static_cast<IndexL>( rem/sides[0] );
-#ifdef CXX_0X
-         return boost::array<IndexL,3>{ { static_cast<IndexL>( rem - y*sides[0] ), y, z } };
+         lift_index_type z = (lift_index_type)(idx/(sides[0]*sides[1]));
+         ProjT rem = idx - z*(sides[0]*sides[1]);
+         lift_index_type y = (lift_index_type)(rem/sides[0]);
+#ifdef __CUDACC__
+	 LiftT res = { (lift_index_type)(rem - y*sides[0]), y, z };
+	 return res;
 #else
-         boost::array<IndexL,3> tmp;
-         tmp[0] = static_cast<IndexL>( rem - y*sides[0] );
-         tmp[1] = y;
-         tmp[2] = z;
-         return tmp;
+         return LiftT{ (lift_index_type)(rem - y*sides[0]), y, z };
 #endif
       }
    };
@@ -94,49 +90,43 @@ namespace hpc {
    ///
    /// Lift dispatch.
    ///
-   template<
-      class IndexP,
-      class IndexL,
-      unsigned D,
-#ifdef CXX_0X
-      class Grid = IndexL
-#else
-      class Grid
-#endif
-      >
+   template< class LiftT,
+	     size_t D,
+	     class ProjT,
+	     class SideT >
    CUDA_DEV_HOST
-   boost::array<IndexL,D>
-   lift( IndexP idx,
-         boost::array<Grid,D> const& sides )
+   LiftT
+   lift( ProjT idx,
+	 SideT const& sides )
    {
-      return lift_impl<IndexP,IndexL,D,Grid>::lift( idx, sides );
+      return lift_impl<ProjT,LiftT,D,SideT>::lift( idx, sides );
    }
 
    ///
    /// Project implementation prototype.
    ///
-   template< class IndexL,
-             class IndexP,
-             unsigned D,
-	     class Grid >
+   template< class LiftT,
+             class ProjT,
+             size_t D,
+	     class SideT >
    struct project_impl;
 
    ///
    /// 2D project implementation.
    ///
-   template< class IndexL,
-             class IndexP,
-	     class Grid >
-   struct project_impl<IndexL,IndexP,2,Grid>
+   template< class LiftT,
+             class ProjT,
+	     class SideT >
+   struct project_impl<LiftT,ProjT,2,SideT>
    {
       CUDA_DEV_HOST
       static
-      IndexP
-      project( boost::array<IndexL,2> const& crd,
-               boost::array<Grid,2> const& sides )
+      ProjT
+      project( LiftT const& crd,
+               SideT const& sides )
       {
 #ifndef NDEBUG
-         for( unsigned ii = 0; ii < 2; ++ii )
+         for( size_t ii = 0; ii < 2; ++ii )
             ASSERT( crd[ii] >= 0 && crd[ii] < sides[ii], "Invalid grid coordinate." );
 #endif
          return crd[0] + crd[1]*sides[0];
@@ -146,19 +136,19 @@ namespace hpc {
    ///
    /// 3D project implementation.
    ///
-   template< class IndexL,
-             class IndexP,
-	     class Grid >
-   struct project_impl<IndexL,IndexP,3,Grid>
+   template< class LiftT,
+             class ProjT,
+	     class SideT >
+   struct project_impl<LiftT,ProjT,3,SideT>
    {
       CUDA_DEV_HOST
       static
-      IndexP
-      project( boost::array<IndexL,3> const& crd,
-               boost::array<Grid,3> const& sides )
+      ProjT
+      project( LiftT const& crd,
+               SideT const& sides )
       {
 #ifndef NDEBUG
-         for( unsigned ii = 0; ii < 3; ++ii )
+         for( size_t ii = 0; ii < 3; ++ii )
             ASSERT( crd[ii] >= 0 && crd[ii] < sides[ii], "Invalid grid coordinate." );
 #endif
          return crd[0] + (crd[1] + crd[2]*sides[1])*sides[0];
@@ -168,23 +158,51 @@ namespace hpc {
    ///
    /// Project dispatch.
    ///
-   template<
-      class IndexL,
-      class IndexP,
-      unsigned D,
-#ifdef CXX_0X
-      class Grid = IndexL
-#else
-      class Grid
-#endif
-      >
+   template< class ProjT,
+	     size_t D,
+	     class LiftT,
+	     class SideT >
    CUDA_DEV_HOST
-   IndexP
-   project( boost::array<IndexL,D> const& crd,
-            boost::array<Grid,D> const& sides )
+   ProjT
+   project( LiftT const& crd,
+            SideT const& sides )
    {
-      return project_impl<IndexL,IndexP,D,Grid>::project( crd, sides );
+      return project_impl<LiftT,ProjT,D,SideT>::project( crd, sides );
    }
+
+#ifdef __CUDACC__
+
+   namespace cuda {
+
+      ///
+      /// Cuda 3D lift implementation.
+      ///
+      CUDA_DEV_HOST_INL
+      uint3
+      lift( uint const& idx,
+            uint3 const& sides )
+      {
+         ASSERT( idx < sides.x*sides.y*sides.z, "Invalid grid cell index." );
+         uint z = idx/(sides.x*sides.y);
+         uint rem = idx - z*(sides.x*sides.y);
+         uint y = rem/sides.x;
+         return make_uint3( rem - y*sides.x, y, z );
+      }
+
+      CUDA_DEV_HOST
+      uint
+      project( uint3 const& crd,
+               uint3 const& sides )
+      {
+         ASSERT( crd.x >= 0 && crd.x < sides.x, "Invalid grid coordinate." );
+         ASSERT( crd.y >= 0 && crd.y < sides.y, "Invalid grid coordinate." );
+         ASSERT( crd.z >= 0 && crd.z < sides.z, "Invalid grid coordinate." );
+         return crd.x + (crd.y + crd.z*sides.y)*sides.x;
+      }
+
+   }
+
+#endif // __CUDACC__
 
 }
 
