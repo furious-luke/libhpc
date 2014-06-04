@@ -28,17 +28,10 @@ namespace hpc {
       {
       public:
 
-<<<<<<< refs/remotes/origin/v0.1
-	typedef boost::tuple< h5::datatype const*,
-                              hsize_t,
-                              h5::datatype const*,
-                              std::string > entry_type;
-=======
-	 typedef std::tuple< h5::datatype const*,
-			     hsize_t,
-			     h5::datatype const*,
-			     std::string > entry_type;
->>>>>>> local
+	 typedef boost::tuple< h5::datatype const*,
+			       hsize_t,
+			       h5::datatype const*,
+			       std::string > entry_type;
 
       public:
 

@@ -55,35 +55,12 @@ namespace hpc {
       hsize_t
       derive::_calc_mem_size()
       {
-<<<<<<< refs/remotes/origin/v0.1
-	 hsize_t max_offs = 0, max_size = 0;
-	 for( std::list<entry_type>::const_iterator it = _cache.begin(); it != _cache.end(); ++it )
-	 {
-	    if( boost::get<1>( *it ) > max_offs )
-	    {
-	       max_offs = boost::get<1>( *it );
-	       max_size = boost::get<0>( *it )->size();
-	    }
-	 }
-	 return max_offs + max_size;
-=======
 	 ASSERT( _mem_size > 0, "Memory structure size has not been set." );
 #ifndef NDEBUG
 	 for( auto const& entry : _cache )
-	    ASSERT( std::get<1>( entry ) < _mem_size, "Memory structure size too small for offsets." );
+	    ASSERT( boost::get<1>( entry ) < _mem_size, "Memory structure size too small for offsets." );
 #endif
 	 return _mem_size;
-	 // hsize_t max_offs = 0, max_size = 0;
-	 // for( auto const& entry : _cache )
-	 // {
-	 //    if( std::get<1>( entry ) > max_offs )
-	 //    {
-	 //       max_offs = std::get<1>( entry );
-	 //       max_size = std::get<0>( entry )->size();
-	 //    }
-	 // }
-	 // return max_offs + max_size;
->>>>>>> local
       }
 
       hsize_t
