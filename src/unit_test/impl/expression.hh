@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string>
 #include "libhpc/system/cuda.hh"
+#include "../failures.hh"
 
 namespace hpc {
    namespace test {
@@ -33,6 +34,13 @@ namespace hpc {
                              char const* info )
       {
          rb.push( *this );
+
+#ifndef __CUDA_ARCH__
+         // When not running on a GPU we should stop when there is
+         // an error.
+         if( !_res )
+            throw test_expression_failed<T,U>( this );
+#endif
       }
 
    }

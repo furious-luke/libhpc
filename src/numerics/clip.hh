@@ -713,14 +713,17 @@ namespace hpc {
             continue;
          }
 
-         // Use the calculated maximum distance to check if all points of
-         // the clipped box are now outside the maximum radius.
-         if( sqrt( min_dist*min_dist + box_min[2]*box_min[2] ) >= ecs_max[2] &&
-             sqrt( min_dist*min_dist + box_max[2]*box_max[2] ) >= ecs_max[2] )
-         {
-            LOGTLN( "All clipped points within inner radius." );
-            continue;
-         }
+         // // Use the calculated maximum distance to check if all points of
+         // // the clipped box are now outside the maximum radius. Be careful,
+         // // this can only work if the top and bottom of the box are on the
+         // // same side.
+         // if( box_min[2]*box_max[2] > 0.0 &&
+         //     sqrt( min_dist*min_dist + box_min[2]*box_min[2] ) >= ecs_max[2] &&
+         //     sqrt( min_dist*min_dist + box_max[2]*box_max[2] ) >= ecs_max[2] )
+         // {
+         //    LOGTLN( "All clipped points outside outer radius." );
+         //    continue;
+         // }
 
          // If the furthest point of the bottom plane is inside the
          // maximum DEC cone, we can discard.
@@ -783,9 +786,9 @@ namespace hpc {
          // wow that's confusing.
          {
             real_type upp_rad = cos( ecs_max[1] )*ecs_min[2];
-            real_type upp_z = sin( ecs_max[1] )*ecs_min[2];
+            real_type upp_z   = sin( ecs_max[1] )*ecs_min[2];
             real_type low_rad = cos( ecs_min[1] )*ecs_min[2];
-            real_type low_z = sin( ecs_min[1] )*ecs_min[2];
+            real_type low_z   = sin( ecs_min[1] )*ecs_min[2];
             if( box_max[2] >= upp_z && max_dist <= upp_rad )
             {
                if( box_min[2] >= 0.0 )

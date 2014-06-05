@@ -36,7 +36,9 @@ namespace hpc {
 
 	 comm( MPI_Comm comm = MPI_COMM_NULL );
 
-	 comm( comm const& comm );
+         comm( comm&& src );
+
+	 comm( comm const& src );
 
 	 ~comm();
 
@@ -59,9 +61,8 @@ namespace hpc {
          translate_rank( int rank,
                          mpi::comm const& other ) const;
 
-         void
-         create_excl( int rank,
-                      mpi::comm& new_comm ) const;
+         mpi::comm
+         create_excl( int rank ) const;
 
 	 void
 	 create_range_incl( int first,
@@ -151,16 +152,13 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 send( const T& out,
+	 send( T const& out,
 	       int to,
 	       int tag = 0 ) const
 	 {
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
-	    MPI_INSIST( MPI_Send( (void*)&out,
-                                  1,
-                                  MPI_MAP_TYPE( T ),
-                                  to,
-                                  tag,
+	    MPI_INSIST( MPI_Send( (void*)&out, 1, MPI_MAP_TYPE( T ),
+                                  to, tag,
                                   _comm ) );
 	 }
 
@@ -324,6 +322,18 @@ namespace hpc {
 			  this->_comm,
 			  MPI_STATUS_IGNORE
 			  ));
+	 }
+
+	 template< class T >
+         T
+	 recv( MPI_Status const& stat )
+	 {
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<mpi::datatype::type_map,T>) );
+            T val;
+	    MPI_INSIST( MPI_Recv( (void*)&val, 1, MPI_MAP_TYPE( T ),
+                                  stat.MPI_SOURCE, stat.MPI_TAG,
+                                  _comm, MPI_STATUS_IGNORE ) );
+            return val;
 	 }
 
 	 template< class T >
@@ -749,6 +759,10 @@ namespace hpc {
 
 	 MPI_Comm _comm;
       };
+
+      std::ostream&
+      operator<<( std::ostream& strm,
+                  mpi::comm const& obj );
 
    }
 }

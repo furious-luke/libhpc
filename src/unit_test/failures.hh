@@ -15,11 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_unit_test_failures_hh
-#define libhpc_unit_test_failures_hh
+#ifndef hpc_unit_test_failures_hh
+#define hpc_unit_test_failures_hh
 
 #include <boost/format.hpp>
 #include "libhpc/system/stream.hh"
+#include "libhpc/system/string.hh"
 #include "runner.hh"
 
 namespace hpc {
@@ -40,23 +41,25 @@ namespace hpc {
       {
       public:
 
-         test_expression_failed( test_case_base const& tc,
-                                 expression<T,U> const& expr,
-                                 std::string const& desc )
-            : _tc( tc ),
-              _expr( expr ),
+         test_expression_failed( expression<T,U> const* expr,
+                                 std::string const& desc = std::string() )
+            : _expr( expr ),
               _desc( desc )
          {
             boost::format fmt( "\n  Failed as a result of expression:\n"
-                               "    %2%\n"
+                               "    %1%\n"
                                "  where\n"
-                               "    LHS: %3%\n"
-                               "    RHS: %4%\n"
+                               "    LHS: %2%\n"
+                               "    RHS: %3%\n"
                                "  at\n"
-                               "    %5%:%6%\n" );
-            fmt % tc.name();
-            fmt % expr.str() % expr.lhs() % expr.rhs();
-            fmt % expr.file() % expr.line();
+                               "    %4%:%5%\n" );
+            if( expr->str() )
+               fmt % expr->str();
+            else
+               fmt % (std::string( expr->lhs_str() ) + " == " + std::string( expr->rhs_str() ) +
+                      " within tolerance of " + to_string( expr->epsilon() ));
+            fmt % expr->lhs() % expr->rhs();
+            fmt % expr->file() % expr->line();
             _msg = fmt.str();
          }
 
@@ -73,8 +76,7 @@ namespace hpc {
 
       protected:
 
-         test_case_base const& _tc;
-         expression<T,U> const& _expr;
+         expression<T,U> const* _expr;
          std::string const& _desc;
          std::string _msg;
       };
