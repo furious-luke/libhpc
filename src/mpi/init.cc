@@ -50,23 +50,23 @@ namespace hpc {
          {
 	    // Need to initialise data types here because we calculate sizes during construction, which
 	    // needs MPI to be initialized. Note that NULL is already done.
-	    mpi::datatype::byte.mpi_datatype( MPI_BYTE );
+	    mpi::datatype::byte.mpi_datatype(               MPI_BYTE );
 #if defined( MPICH ) || defined( MPICH2 )
-	    mpi::datatype::boolean.mpi_datatype( MPIR_CXX_BOOL );
+	    mpi::datatype::boolean.mpi_datatype(            MPIR_CXX_BOOL );
 #elif OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
-            mpi::datatype::boolean.mpi_datatype( MPI_CHAR );
+            mpi::datatype::boolean.mpi_datatype(            MPI_CHAR );
 #else
-	    mpi::datatype::boolean.mpi_datatype( MPI_C_BOOL );
+	    mpi::datatype::boolean.mpi_datatype(            MPI_C_BOOL );
 #endif
-	    mpi::datatype::character.mpi_datatype( MPI_CHAR );
-	    mpi::datatype::integer.mpi_datatype( MPI_INT );
-	    mpi::datatype::unsigned_integer.mpi_datatype( MPI_UNSIGNED );
-	    mpi::datatype::long_integer.mpi_datatype( MPI_LONG );
-	    mpi::datatype::unsigned_long.mpi_datatype( MPI_UNSIGNED_LONG );
-	    mpi::datatype::long_long.mpi_datatype( MPI_LONG_LONG );
+	    mpi::datatype::character.mpi_datatype(          MPI_CHAR );
+	    mpi::datatype::integer.mpi_datatype(            MPI_INT );
+	    mpi::datatype::unsigned_integer.mpi_datatype(   MPI_UNSIGNED );
+	    mpi::datatype::long_integer.mpi_datatype(       MPI_LONG );
+	    mpi::datatype::unsigned_long.mpi_datatype(      MPI_UNSIGNED_LONG );
+	    mpi::datatype::long_long.mpi_datatype(          MPI_LONG_LONG );
 	    mpi::datatype::unsigned_long_long.mpi_datatype( MPI_UNSIGNED_LONG_LONG );
-	    mpi::datatype::floating.mpi_datatype( MPI_FLOAT );
-	    mpi::datatype::double_floating.mpi_datatype( MPI_DOUBLE );
+	    mpi::datatype::floating.mpi_datatype(           MPI_FLOAT );
+	    mpi::datatype::double_floating.mpi_datatype(    MPI_DOUBLE );
 
             // // Prepare static types.
             // static_comms[0].reset( &mpi::comm::null );
@@ -88,21 +88,21 @@ namespace hpc {
             // If we are not using MPICH2 (i.e. OpenMPI) update the
             // data type mapping.
 #if !( defined( MPICH ) || defined( MPICH2 ) )
-            mpi::datatype::_type_map[0] = MPI_BYTE;
+            mpi::_type_map[0]  = MPI_BYTE;
 #if OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
-            mpi::datatype::_type_map[1] = MPI_CHAR;
+            mpi::_type_map[1]  = MPI_CHAR;
 #else
-            mpi::datatype::_type_map[1] = MPI_C_BOOL;
+            mpi::_type_map[1]  = MPI_C_BOOL;
 #endif
-            mpi::datatype::_type_map[2] = MPI_CHAR;
-            mpi::datatype::_type_map[3] = MPI_INT;
-            mpi::datatype::_type_map[4] = MPI_UNSIGNED;
-            mpi::datatype::_type_map[5] = MPI_LONG;
-            mpi::datatype::_type_map[6] = MPI_UNSIGNED_LONG;
-            mpi::datatype::_type_map[7] = MPI_LONG_LONG;
-            mpi::datatype::_type_map[8] = MPI_UNSIGNED_LONG_LONG;
-            mpi::datatype::_type_map[9] = MPI_FLOAT;
-            mpi::datatype::_type_map[10] = MPI_DOUBLE;
+            mpi::_type_map[2]  = MPI_CHAR;
+            mpi::_type_map[3]  = MPI_INT;
+            mpi::_type_map[4]  = MPI_UNSIGNED;
+            mpi::_type_map[5]  = MPI_LONG;
+            mpi::_type_map[6]  = MPI_UNSIGNED_LONG;
+            mpi::_type_map[7]  = MPI_LONG_LONG;
+            mpi::_type_map[8]  = MPI_UNSIGNED_LONG_LONG;
+            mpi::_type_map[9]  = MPI_FLOAT;
+            mpi::_type_map[10] = MPI_DOUBLE;
 #endif
 
 	    _init = true;

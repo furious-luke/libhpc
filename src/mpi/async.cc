@@ -33,7 +33,8 @@ namespace hpc {
       }
 
       async::async( mpi::comm const& comm )
-         : _comm( &comm )
+         : _comm( &comm ),
+           _max_evts( 0 )
       {
       }
 
@@ -42,6 +43,12 @@ namespace hpc {
       {
          _comm = &comm;
          _ev_hndlrs.clear();
+      }
+
+      void
+      async::set_max_events( unsigned max_evts )
+      {
+         _max_evts = max_evts;
       }
 
       void
@@ -58,15 +65,23 @@ namespace hpc {
          return _ev_hndlrs;
       }
 
-      void
+      bool
       async::run()
       {
          LOGBLOCKD( "Entering mpi::async run." );
+
+         // If we are not the master, drop back out immediately.
+         if( _comm->rank() != 0 )
+         {
+            LOGDLN( "Not async master, returning." );
+            return false;
+         }
 
 	 // If we are running serially then skip this part to
          // avoid any kind of serial deadlock.
 	 if( _comm->size() > 1 )
 	 {
+            unsigned n_evts = 0;
             MPI_Status stat;
             bool done;
             do
@@ -82,9 +97,13 @@ namespace hpc {
                ASSERT( hpc::has( _ev_hndlrs, stat.MPI_TAG ) );
 
                done = _ev_hndlrs[stat.MPI_TAG]->event( stat );
+               if( ++n_evts == _max_evts )
+                  done = true;
             }
             while( !done );
 	 }
+
+         return true;
       }
 
    }

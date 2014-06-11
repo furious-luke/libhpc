@@ -29,7 +29,7 @@ namespace hpc {
 	     class OutputIter>
    OutputIter
    counts_to_displs( InputIter first,
-		     InputIter last,
+		     InputIter const& last,
 		     OutputIter result )
    {
       typedef typename std::iterator_traits<InputIter>::value_type value_type;
@@ -89,6 +89,29 @@ namespace hpc {
    {
       if(seq.size() > 0)
 	 counts_to_displs(seq.begin(), seq.size() - 1);
+   }
+
+   template< class SeqT >
+   std::vector<typename SeqT::value_type>
+   counts_to_displs( typename type_traits<SeqT>::const_reference cnts )
+   {
+      typedef typename SeqT::value_type value_type;
+      if( !cnts.empty() )
+      {
+         std::vector<value_type> displs( cnts.size() + 1 );
+         counts_to_displs( cnts.begin(), cnts.end(), displs.begin() );
+         return displs;
+      }
+      else
+         return std::vector<value_type>();
+   }
+
+   template< class T >
+   inline
+   std::vector<T>
+   counts_to_displs( std::vector<T> const& cnts )
+   {
+      return counts_to_displs<std::vector<T> >( cnts );
    }
 
    template<class InputIter,

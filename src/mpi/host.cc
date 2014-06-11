@@ -49,7 +49,7 @@ namespace hpc {
          std::set<int> ranks;
          for( unsigned ii = 0; ii < comm.size(); ++ii )
          {
-            std::vector<char> rem_name = comm.bcast2<char>( name, ii );
+            std::vector<char> rem_name = comm.bcast<char>( name, ii );
             if( rem_name == name )
                ranks.insert( ii );
          }

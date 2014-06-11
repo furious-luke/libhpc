@@ -18,16 +18,17 @@
 #ifndef hpc_mpi_indexer_hh
 #define hpc_mpi_indexer_hh
 
-#include <boost/function.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
+#include "async.hh"
 
 namespace hpc {
    namespace mpi {
 
       template< class IndexT >
       class indexer
+         : public async::event_handler
       {
       public:
 
@@ -37,12 +38,10 @@ namespace hpc {
 
          indexer( int tag,
                   mpi::comm const& comm = mpi::comm::world )
-            : _base{ 0 },
-              _max_its( 10 ),
-              _tag( tag ),
-              _comm( NULL )
+            : async::event_handler( tag ),
+              _base{ 0 },
+              _comm( &comm )
          {
-            set_comm( comm );
          }
 
          void
@@ -51,70 +50,57 @@ namespace hpc {
             _comm = &comm;
          }
 
-         void
-         set_max_its( unsigned its )
+         mpi::comm const&
+         comm() const
          {
-            _max_its = its;
+            return *_comm;
          }
 
          index_type
-         request( index_type size,
-                  boost::function<void(index_type,index_type)> cb = boost::function<void(index_type,index_type)>() )
+         request( index_type const& size )
          {
+            LOGBLOCKD( "Indexer requesting indices: ", size );
             index_type base;
             if( _comm->size() > 1 )
             {
-               LOGDLN( "Requesting ", size, " indices." );
-               _comm->send( size, 0, _tag );
-               _comm->recv( base, 0, _tag );
-               LOGDLN( "Received index base: ", base );
-               if( cb )
-                  cb( base, size );
+               _comm->send( size, 0, tag() );
+               _comm->recv( base, 0, tag() );
             }
             else
             {
                base = _base;
-               if( cb )
-                  cb( _base, size );
                _base += size;
             }
+            LOGDLN( "Received index base: ", base );
             return base;
          }
 
-	 void
-	 master( boost::function<void(index_type,index_type)> cb = boost::function<void(index_type,index_type)>() )
+         bool
+	 event( MPI_Status const& stat )
          {
-            // Must be the master to run this.
-            ASSERT( _comm->rank() == 0 );
+            ASSERT( _comm->rank() == 0, "Must be master to handle indexer events." );
+            ASSERT( _comm->size() > 1, "Must be running in parallel to handle indexer events." );
 
-            // If we are running serially then skip this part.
-            if( _comm->size() > 1 )
-            {
-               MPI_Status stat;
-               unsigned it = 0;
-               while( it++ < _max_its && _comm->iprobe( stat, MPI_ANY_SOURCE, _tag ) )
-               {
-                  LOGDLN( "Have an incoming index request from: ", stat.MPI_SOURCE );
-                  unsigned long long size;
-                  _comm->recv( size, stat.MPI_SOURCE, _tag );
-                  LOGDLN( "Requested ", size, " indices." );
-                  if( cb )
-                     cb( _base, size );
-                  _comm->send( _base, stat.MPI_SOURCE, _tag );
-                  _base += size;
-               }
-            }
+            LOGBLOCKD( "Have an incoming index request from: ", stat.MPI_SOURCE );
+            index_type size;
+            _comm->recv( size, stat.MPI_SOURCE, tag() );
+            LOGDLN( "Requested indices: ", size );
+            _comm->send( _base, stat.MPI_SOURCE, tag() );
+            _base += size;
+
+            return false;
          }
 
-         index_type
-	 base() const;
+         index_type const&
+	 base() const
+         {
+            return _base;
+         }
 
       protected:
 
          
          index_type _base;
-         unsigned _max_its;
-         int _tag;
          mpi::comm const* _comm;
       };
 

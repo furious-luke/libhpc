@@ -15,19 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_hh
-#define libhpc_mpi_hh
+#include "type_map.hh"
 
-#include "mpi/init.hh"
-#include "mpi/type_map.hh"
-#include "mpi/assert.hh"
-#include "mpi/logger.hh"
-#include "mpi/datatype.hh"
-#include "mpi/request.hh"
-#include "mpi/requests.hh"
-#include "mpi/comm.hh"
-#include "mpi/helpers.hh"
-#include "mpi/vct.hh"
-#include "mpi/application.hh"
+#if !( defined( MPICH ) || defined( MPICH2 ) )
+
+namespace hpc {
+   namespace mpi {
+
+      MPI_Datatype _type_map[11];
+
+   }
+}
 
 #endif

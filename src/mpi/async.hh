@@ -58,17 +58,21 @@ namespace hpc {
          set_comm( mpi::comm const& comm );
 
          void
+         set_max_events( unsigned max_evts );
+
+         void
          add_event_handler( event_handler* eh );
 
          std::unordered_map<int,event_handler*> const&
          event_handlers() const;
 
-         void
+         bool
          run();
 
       protected:
 
          std::unordered_map<int,event_handler*> _ev_hndlrs;
+         unsigned _max_evts;
          mpi::comm const* _comm;
       };
 

@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_helpers_hh
-#define libhpc_containers_helpers_hh
+#ifndef hpc_algorithm_helpers_hh
+#define hpc_algorithm_helpers_hh
 
 #include <set>
 
