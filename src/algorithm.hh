@@ -21,9 +21,6 @@
 #include "algorithm/dual.hh"
 #include "algorithm/bin.hh"
 #include "algorithm/median.hh"
-// #include "algorithm/farmer.hh"
-// #include "algorithm/farmer2.hh"
-#include "algorithm/indexer.hh"
 #include "algorithm/dual.hh"
 #include "algorithm/bin.hh"
 

@@ -28,6 +28,8 @@
 #include "mpi/comm.hh"
 #include "mpi/helpers.hh"
 #include "mpi/vct.hh"
+#include "mpi/indexer.hh"
+#include "mpi/async.hh"
 #include "mpi/application.hh"
 
 #endif
