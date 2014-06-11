@@ -222,7 +222,7 @@ namespace hpc {
             typedef typename Buffer::value_type value_type;
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
-            write( buf.data(), buf.size(), type, offset, comm );
+            write( buf.data(), type, buf.size(), offset, comm );
 	 }
 
       protected:
