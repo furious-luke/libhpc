@@ -73,6 +73,7 @@ namespace hpc {
 
          std::unordered_map<int,event_handler*> _ev_hndlrs;
          unsigned _max_evts;
+         unsigned _n_done;
          mpi::comm const* _comm;
       };
 

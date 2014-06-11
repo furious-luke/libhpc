@@ -20,6 +20,7 @@
 
 #include "init.hh"
 #include "comm.hh"
+#include "async.hh"
 
 namespace hpc {
    namespace mpi {
@@ -94,10 +95,11 @@ namespace hpc {
 
       protected:
 
-         mpi::comm const* _comm;
          int _mgr_rank;
          manager_type* _mgr;
          worker_type* _wkr;
+         mpi::async _async;
+         mpi::comm const* _comm;
       };
 
    }

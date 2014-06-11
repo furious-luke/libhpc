@@ -83,7 +83,7 @@ namespace hpc {
 	 {
             unsigned n_evts = 0;
             MPI_Status stat;
-            bool done;
+            _n_done = 0;
             do
             {
                // Wait for anything.
@@ -96,11 +96,16 @@ namespace hpc {
                // Be sure we have a handler for this.
                ASSERT( hpc::has( _ev_hndlrs, stat.MPI_TAG ) );
 
-               done = _ev_hndlrs[stat.MPI_TAG]->event( stat );
+               // Run the event handler. A return value of positive indicates
+               // that event handler is complete.
+               if( _ev_hndlrs[stat.MPI_TAG]->event( stat ) )
+                  ++_n_done;
+
+               // If we've hit our event limit terminate.
                if( ++n_evts == _max_evts )
-                  done = true;
+                  _n_done = _ev_hndlrs.size();
             }
-            while( !done );
+            while( _n_done < _ev_hndlrs.size() );
 	 }
 
          return true;
