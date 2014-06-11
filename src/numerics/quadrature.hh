@@ -74,7 +74,11 @@ namespace hpc {
             x = cos( M_PI*(ii - 0.25)/(np + 0.5) );
 
             // Solve using Newton-Raphson.
-            x = alg::newton<polynomial::legendre<T>, T>( legendre, xl, xu, x, df, tolerance );
+            std::array<T,2> x_df = alg::newtond<polynomial::legendre<T>,T>(
+               legendre, xl, xu, x, tolerance
+               );
+            x = x_df[0];
+            df = x_df[1];
 
             *points++ = xu - xl*x;
             cache[2*(ii - 1)] = xu - xl*x;
@@ -197,7 +201,11 @@ namespace hpc {
             }
 
             // Solve using Newton-Raphson.
-            x = alg::newton<polynomial::jacobi<T>,T>( jacobi, -1.0, 1.0, x, df, tolerance );
+            std::array<T,2> x_df = alg::newtond<polynomial::jacobi<T>,T>(
+               jacobi, -1.0, 1.0, x, tolerance
+               );
+            x = x_df[0];
+            df = x_df[1];
 
             // Update previous values.
             prev[2] = prev[1];

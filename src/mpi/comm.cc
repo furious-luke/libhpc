@@ -31,6 +31,12 @@ namespace hpc {
       {
       }
 
+      comm::comm( mpi::comm&& src )
+         : _comm( src._comm )
+      {
+         src._comm = MPI_COMM_NULL;
+      }
+
       comm::comm( mpi::comm const& comm )
       {
 	 if(comm._comm != MPI_COMM_NULL)
@@ -98,17 +104,15 @@ namespace hpc {
          return other_rank;
       }
 
-      void
-      comm::create_excl( int rank,
-                         mpi::comm& new_comm ) const
+      mpi::comm
+      comm::create_excl( int rank ) const
       {
 	 MPI_Group group, new_group;
 	 MPI_INSIST( MPI_Comm_group( this->_comm, &group ) );
 	 MPI_INSIST( MPI_Group_excl( group, 1, &rank, &new_group ) );
 	 MPI_Comm _new_comm;
 	 MPI_INSIST( MPI_Comm_create( this->_comm, new_group, &_new_comm ) );
-	 if( _new_comm != MPI_COMM_NULL )
-	    new_comm.mpi_comm( _new_comm );
+         return mpi::comm( _new_comm );
       }
 
       void
@@ -302,5 +306,21 @@ namespace hpc {
       {
 	 return this->_comm != comm;
       }
+
+      std::ostream&
+      operator<<( std::ostream& strm,
+                  mpi::comm const& obj )
+      {
+         if( obj.mpi_comm() == MPI_COMM_WORLD)
+            strm << "MPI_COMM_WORLD";
+         else if( obj.mpi_comm() == MPI_COMM_SELF )
+            strm << "MPI_COMM_SELF";
+         else if( obj.mpi_comm() == MPI_COMM_NULL )
+            strm << "MPI_COMM_NULL";
+         else
+            strm << "custom communicator";
+         return strm;
+      }
+
    }
 }

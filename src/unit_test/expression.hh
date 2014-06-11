@@ -20,6 +20,7 @@
 
 #include <boost/format.hpp>
 #include "libhpc/system/cuda.hh"
+#include "libhpc/debug/assert.hh"
 #include "test_case.hh"
 
 namespace hpc {
@@ -31,6 +32,10 @@ namespace hpc {
       template< class T >
       class side
       {
+      public:
+
+         typedef T value_type;
+
       public:
 
          CUDA_DEV_HOST
@@ -96,7 +101,7 @@ namespace hpc {
          template< class U >
          CUDA_DEV_HOST
          expression<T,U>
-         delta( const U& op,
+         delta( U const& op,
                 double epsilon ) const
          {
             bool res = (_val >= op - epsilon && _val <= op + epsilon);
@@ -209,23 +214,41 @@ namespace hpc {
          }
 
          CUDA_DEV_HOST
-         const T&
+         typename side<T>::value_type const&
          lhs() const
          {
             return *_left;
          }
 
+         char const*
+         lhs_str() const
+         {
+            return _lhs_str;
+         }
+
          CUDA_DEV_HOST
-         const U&
+         typename side<U>::value_type const&
          rhs() const
          {
             return *_right;
          }
 
-         const std::string&
+         char const*
+         rhs_str() const
+         {
+            return _rhs_str;
+         }
+
+         char const*
          str() const
          {
             return _expr_str;
+         }
+
+         double
+         epsilon() const
+         {
+            return _eps;
          }
 
          CUDA_DEV_HOST

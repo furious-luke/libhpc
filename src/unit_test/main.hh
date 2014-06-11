@@ -34,6 +34,7 @@ int
 main( int argc,
       char* argv[] )
 {
+   int rc = EXIT_SUCCESS;
 #ifdef HPC_UT_MPI
    hpc::mpi::initialise( argc, argv );
 #endif
@@ -45,11 +46,19 @@ main( int argc,
 #else
    hpc::test::runner runner;
 #endif
-   runner.run_all();
+   try
+   {
+      runner.run_all();
+   }
+   catch( hpc::test::test_failed const& ex )
+   {
+      std::cout << "\n" << ex.what() << "\n";
+      rc = EXIT_FAILURE;
+   }
 #ifdef HPC_UT_MPI
    hpc::mpi::finalise();
 #endif
-   return EXIT_SUCCESS;
+   return rc;
 }
 
 #endif

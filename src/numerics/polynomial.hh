@@ -66,6 +66,13 @@ namespace hpc {
             return _order*(x*value - _p1)/(x*x - 1.0);
          }
 
+         value_type
+         deriv( const value_type& x,
+                const value_type& value ) const
+         {
+            return derivative( x, value );
+         }
+
          T
          previous_order() const
          {
@@ -171,10 +178,25 @@ namespace hpc {
          }
 
          value_type
+         deriv( unsigned order,
+                value_type x,
+                value_type value ) const
+         {
+            return derivative( order, x, value );
+         }
+
+         value_type
          derivative( value_type x,
                      value_type value ) const
          {
             return this->derivative( this->_order, x, value );
+         }
+
+         value_type
+         deriv( value_type x,
+                value_type value ) const
+         {
+            return derivative( x, value );
          }
 
          value_type

@@ -40,7 +40,7 @@ namespace hpc {
 		class T >
       CUDA_DEV_HOST
       T
-      newton( FuncT func,
+      newton( FuncT& func,
               T const& x1,
               T const& x2,
               T x,
@@ -49,6 +49,14 @@ namespace hpc {
 	      T omega = 1.0 )
       {
 	 // LOGBLOCKD_TAG( "newton", "Newton-Raphson solve:" );
+
+         // Use a scaling to make sure we don't converge simply
+         // because x is very small.
+         T scale;
+         if( x > 0.0 )
+            scale = 1.0/x;
+         else
+            scale = 1.0;
 
          // Only loop up until or maximum.
          T f, df, delta, new_x;
@@ -64,7 +72,7 @@ namespace hpc {
 	    LOGDLN( "f(x)     = ", f );
 	    LOGDLN( "df/dx    = ", df );
 	    LOGDLN( "delta x  = ", delta );
-	    LOGDLN( "delta x% = ", delta/x );
+	    LOGDLN( "delta x% = ", delta*scale );
 	    LOGDLN( "old x    = ", x );
             new_x = (1.0 - omega)*x + omega*(x - delta);
 	    LOGDLN( "new x    = ", x );
@@ -75,7 +83,7 @@ namespace hpc {
 
             // Check for convergence. Note that I use "x" instead of
             // "new_x" to be sure we check for percentage difference.
-            if( hpc::fabs( delta/x ) < tol )
+            if( hpc::fabs( delta*scale ) < tol )
             {
                x = new_x;
                break;
@@ -89,6 +97,69 @@ namespace hpc {
          EXCEPT( ii < max_its, "Newton iterations exceeded limit." );
 
          return x;
+      }
+
+      template< class FuncT,
+		class T >
+      CUDA_DEV_HOST
+      std::array<T,2>
+      newtond( FuncT& func,
+               T const& x1,
+               T const& x2,
+               T x,
+               T const& tol = default_newton_tolerance,
+               unsigned max_its = default_newton_max_its,
+               T omega = 1.0 )
+      {
+	 // LOGBLOCKD_TAG( "newton", "Newton-Raphson solve:" );
+
+         // Use a scaling to make sure we don't converge simply
+         // because x is very small.
+         T scale;
+         if( x > 0.0 )
+            scale = 1.0/x;
+         else
+            scale = 1.0;
+
+         // Only loop up until or maximum.
+         T f, df, delta, new_x;
+         unsigned ii;
+         for( ii = 0; ii < max_its; ++ii )
+         {
+	    LOGBLOCKD( "Iteration: ", ii );
+
+            f = func( x );
+            df = func.deriv( x, f );
+            delta = f/df;
+            LOGDLN( "x        = ", x );
+	    LOGDLN( "f(x)     = ", f );
+	    LOGDLN( "df/dx    = ", df );
+	    LOGDLN( "delta x  = ", delta );
+	    LOGDLN( "delta x% = ", delta*scale );
+	    LOGDLN( "old x    = ", x );
+            new_x = (1.0 - omega)*x + omega*(x - delta);
+	    LOGDLN( "new x    = ", x );
+
+            // Values must remain bracketed.
+            ASSERT( (x1 - new_x)*(new_x - x2) >= 0.0,
+                    "Function moved outside bracketed range in Newton's method." );
+
+            // Check for convergence. Note that I use "x" instead of
+            // "new_x" to be sure we check for percentage difference.
+            if( hpc::fabs( delta*scale ) < tol )
+            {
+               x = new_x;
+               break;
+            }
+
+            // Update x value.
+            x = new_x;
+         }
+
+         // Break if we exceeded maximum its.
+         EXCEPT( ii < max_its, "Newton iterations exceeded limit." );
+
+         return std::array<T,2>{ x, df };
       }
 
       // template< class Function,

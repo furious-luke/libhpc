@@ -35,10 +35,6 @@ namespace hpc {
       mpi::datatype datatype::floating;
       mpi::datatype datatype::double_floating;
 
-#if !( defined( MPICH ) || defined( MPICH2 ) )
-      MPI_Datatype datatype::_type_map[11];
-#endif
-
       datatype::datatype( MPI_Datatype type )
 	 : _type(type)
       {

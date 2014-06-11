@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-class mpi_fixture : public CxxTest::GlobalFixture {
-public:
-  bool setUpWorld() {
-    hpc::mpi::initialise();
-    return true;
-  }
-  bool tearDownWorld() {
-    hpc::mpi::finalise(false);
-    return true;
-  }
-};
+#include "type_map.hh"
 
-static mpi_fixture mpi_fix;
+#if !( defined( MPICH ) || defined( MPICH2 ) )
+
+namespace hpc {
+   namespace mpi {
+
+      MPI_Datatype _type_map[11];
+
+   }
+}
+
+#endif

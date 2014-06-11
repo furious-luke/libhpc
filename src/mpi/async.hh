@@ -15,45 +15,65 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_algorithm_indexer_hh
-#define libhpc_algorithm_indexer_hh
+#ifndef hpc_mpi_async_hh
+#define hpc_mpi_async_hh
 
-#include <boost/function.hpp>
+#include <unordered_map>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
 
 namespace hpc {
-   namespace algorithm {
+   namespace mpi {
 
-      class indexer
+      class async_event_handler
       {
       public:
 
-         indexer( int tag,
-                  const mpi::comm& comm = mpi::comm::world );
+         async_event_handler( int tag = 0 );
 
-         void
-         set_comm( const mpi::comm& comm );
+         int
+         tag() const;
 
-         void
-         set_max_its( unsigned its );
-
-         unsigned long long
-         request( unsigned long long size,
-                  boost::function<void(unsigned long long,unsigned long long)> cb = boost::function<void(unsigned long long,unsigned long long)>() );
-
-	 void
-	 master( boost::function<void(unsigned long long,unsigned long long)> cb = boost::function<void(unsigned long long,unsigned long long)>() );
-
-	 unsigned long long
-	 base() const;
+         virtual
+         bool
+         event( MPI_Status const& stat ) = 0;
 
       protected:
 
-         unsigned long long _base;
-         unsigned _max_its;
          int _tag;
+      };
+
+      class async
+      {
+      public:
+
+         typedef async_event_handler event_handler;
+
+      public:
+
+         async( mpi::comm const& comm = mpi::comm::world );
+
+         void
+         set_comm( mpi::comm const& comm );
+
+         void
+         set_max_events( unsigned max_evts );
+
+         void
+         add_event_handler( event_handler* eh );
+
+         std::unordered_map<int,event_handler*> const&
+         event_handlers() const;
+
+         bool
+         run();
+
+      protected:
+
+         std::unordered_map<int,event_handler*> _ev_hndlrs;
+         unsigned _max_evts;
+         unsigned _n_done;
          mpi::comm const* _comm;
       };
 

@@ -15,24 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_datatype_hh
-#define libhpc_mpi_datatype_hh
+#ifndef hpc_mpi_datatype_hh
+#define hpc_mpi_datatype_hh
 
 #include <vector>
-#include <boost/mpl/map.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/at.hpp>
 #include "libhpc/debug/assert.hh"
 #include "init.hh"
-
-#if defined( MPICH ) || defined( MPICH2 )
-#define MPI_MAP_TYPE( T )                                       \
-   boost::mpl::at<hpc::mpi::datatype::type_map,T>::type::value
-#else
-#define MPI_MAP_TYPE( T )                                               \
-   hpc::mpi::datatype::_type_map[boost::mpl::at<hpc::mpi::datatype::type_map,T>::type::value]
-#endif
 
 namespace hpc {
    namespace mpi {
@@ -53,33 +41,6 @@ namespace hpc {
 	 static mpi::datatype unsigned_long_long;
 	 static mpi::datatype floating;
 	 static mpi::datatype double_floating;
-
-#if defined( MPICH ) || defined( MPICH2 )
-	 typedef boost::mpl::map< boost::mpl::pair<unsigned char,      boost::mpl::int_<MPI_BYTE> >,
-                                  boost::mpl::pair<bool,               boost::mpl::int_<MPIR_CXX_BOOL> >,
-                                  boost::mpl::pair<char,               boost::mpl::int_<MPI_CHAR> >,
-                                  boost::mpl::pair<int,                boost::mpl::int_<MPI_INT> >,
-                                  boost::mpl::pair<unsigned int,       boost::mpl::int_<MPI_UNSIGNED> >,
-                                  boost::mpl::pair<long,               boost::mpl::int_<MPI_LONG> >,
-                                  boost::mpl::pair<unsigned long,      boost::mpl::int_<MPI_UNSIGNED_LONG> >,
-                                  boost::mpl::pair<long long,          boost::mpl::int_<MPI_LONG_LONG> >,
-                                  boost::mpl::pair<unsigned long long, boost::mpl::int_<MPI_UNSIGNED_LONG_LONG> >,
-                                  boost::mpl::pair<float,              boost::mpl::int_<MPI_FLOAT> >,
-                                  boost::mpl::pair<double,             boost::mpl::int_<MPI_DOUBLE> > > type_map;
-#else
-	 typedef boost::mpl::map< boost::mpl::pair<unsigned char,      boost::mpl::int_<0> >,
-                                  boost::mpl::pair<bool,               boost::mpl::int_<1> >,
-                                  boost::mpl::pair<char,               boost::mpl::int_<2> >,
-                                  boost::mpl::pair<int,                boost::mpl::int_<3> >,
-                                  boost::mpl::pair<unsigned int,       boost::mpl::int_<4> >,
-                                  boost::mpl::pair<long,               boost::mpl::int_<5> >,
-                                  boost::mpl::pair<unsigned long,      boost::mpl::int_<6> >,
-                                  boost::mpl::pair<long long,          boost::mpl::int_<7> >,
-                                  boost::mpl::pair<unsigned long long, boost::mpl::int_<8> >,
-                                  boost::mpl::pair<float,              boost::mpl::int_<9> >,
-                                  boost::mpl::pair<double,             boost::mpl::int_<10> > > type_map;
-         static MPI_Datatype _type_map[11];
-#endif
 
 	 datatype( MPI_Datatype type = MPI_DATATYPE_NULL );
 

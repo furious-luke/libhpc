@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_has_hh
-#define libhpc_system_has_hh
+#ifndef hpc_system_has_hh
+#define hpc_system_has_hh
 
 namespace hpc {
 
