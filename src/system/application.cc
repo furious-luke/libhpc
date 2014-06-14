@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/program_options/errors.hpp>
 #include "application.hh"
 #include "libhpc/logging.hh"
 
@@ -80,13 +81,22 @@ namespace hpc {
 	 ("help,h", "Show this help");
 
       po::store( po::command_line_parser( argc, argv ).options( _opt_desc ).positional( _pos_opt_desc ).run(), _vm );
-      po::notify( _vm );
 
       if( _vm.count( "help" ) )
       {
 	 if( !_app_info.empty() )
 	    std::cout << "\n" << _app_info << "\n\n";
-      	 std::cout << _opt_desc << "\n";
+	 std::cout << _opt_desc << "\n";
+	 throw silent_terminate();
+      }
+
+      try
+      {
+	 po::notify( _vm );
+      }
+      catch( boost::program_options::required_option& ex )
+      {
+	 std::cerr << "Error: " << ex.what() << "\n";
 	 throw silent_terminate();
       }
    }
