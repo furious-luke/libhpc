@@ -64,6 +64,7 @@ namespace hpc {
                                   boost::mpl::pair<char,               boost::mpl::int_<-10> >,
                                   boost::mpl::pair<std::string,        boost::mpl::int_<-11> > > type_map;
 
+	 explicit
 	 datatype( hid_t id = -1 );
 
 	 datatype( datatype const& src );

@@ -21,8 +21,11 @@
 namespace hpc {
    namespace h5 {
 
+      struct hid_tag {};
+
       class location;
       class group;
+
    }
 }
 

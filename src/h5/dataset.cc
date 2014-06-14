@@ -134,7 +134,7 @@ namespace hpc {
       {
 	 hid_t id = H5Dget_space( _id );
 	 ASSERT( id >= 0, "Failed to retrieve HDF5 dataspace." );
-         return h5::dataspace( id, true );
+         return h5::dataspace( hid_tag(), id );
       }
 
       hsize_t
@@ -233,7 +233,7 @@ namespace hpc {
          h5::dataspace file_space( this->dataspace() );
 #ifndef NDEBUG
 	 hssize_t file_size = H5Sget_select_npoints( file_space.id() );
-         ASSERT( offset + size < file_size, "Trying to write out of range: offset=",
+         ASSERT( offset + size <= file_size, "Trying to write out of range: offset=",
                  offset, ", size=", size, ", dataset size=", file_size );
 #endif
          file_space.select_hyperslab( H5S_SELECT_SET, size, offset );

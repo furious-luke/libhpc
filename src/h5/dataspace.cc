@@ -28,6 +28,12 @@ namespace hpc {
       {
       }
 
+      dataspace::dataspace( hid_tag tag,
+			    hid_t id )
+	 : _id( id )
+      {
+      }
+
       dataspace::dataspace( hsize_t size,
                             bool unlimited )
          : _id( -1 )

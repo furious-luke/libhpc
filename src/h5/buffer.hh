@@ -19,6 +19,7 @@
 #define hpc_h5_buffer_hh
 
 #include <vector>
+#include <boost/utility/enable_if.hpp>
 #include "libhpc/system/type_traits.hh"
 #include "libhpc/system/reallocate.hh"
 #include "dataset.hh"
@@ -80,6 +81,18 @@ namespace hpc {
          }
 
          template< class U >
+         typename boost::disable_if<random_access_trait<U> >::type
+         write( U const& data )
+	 {
+	    if( _buf.size() == _buf.capacity() )
+	    {
+	       _write_to_file<std::vector<element_type> >( _buf );
+	       _buf.resize( 0 );
+	    }
+	    _buf.push_back( data );
+	 }
+
+         template< class U >
          inline
          void
          write( std::vector<U> const& buf )
@@ -88,7 +101,7 @@ namespace hpc {
          }
 
          template< class DataT >
-         void
+         typename boost::enable_if<random_access_trait<DataT> >::type
          write( typename hpc::type_traits<DataT>::const_reference data )
          {
             size_t max_size = _buf.capacity();

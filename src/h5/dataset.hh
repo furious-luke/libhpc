@@ -128,7 +128,7 @@ namespace hpc {
                mpi::comm const& comm = mpi::comm::self );
 
 	 template< class T >
-         T
+         typename boost::disable_if<random_access_trait<T>,T>::type
 	 read( hsize_t elem )
          {
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,T>) );
@@ -146,13 +146,23 @@ namespace hpc {
 	    return data;
          }
 
-	 template< class Buffer >
+	 template< class T >
+	 inline
 	 void
-	 read( typename type_traits<Buffer>::reference buf,
+	 read( std::vector<T>& buf,
                hsize_t offs = 0,
                mpi::comm const& comm = mpi::comm::self )
 	 {
-            typedef typename Buffer::value_type value_type;
+	    read<std::vector<T> >( buf, offs, comm );
+	 }
+
+	 template< class BufferT >
+         typename boost::enable_if<random_access_trait<BufferT>,void>::type
+	 read( typename type_traits<BufferT>::reference buf,
+               hsize_t offs = 0,
+               mpi::comm const& comm = mpi::comm::self )
+	 {
+            typedef typename BufferT::value_type value_type;
 
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
@@ -213,8 +223,27 @@ namespace hpc {
                 hsize_t offset,
                 mpi::comm const& comm = mpi::comm::self );
 
+	 template< class DataT >
+         typename boost::disable_if<random_access_trait<DataT> >::type
+	 write( typename type_traits<DataT>::const_reference data,
+		hsize_t offs = 0 )
+	 {
+	    typedef typename type_traits<DataT>::value value_type;
+
+	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
+	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
+
+	    h5::dataspace file_space = this->dataspace();
+	    file_space.select_one( offs );
+
+	    h5::dataspace mem_space( 1 );
+	    mem_space.select_all();
+
+	    write( &data, type, mem_space, file_space );
+	 }
+
 	 template< class Buffer >
-	 void
+         typename boost::enable_if<random_access_trait<Buffer> >::type
 	 write( typename type_traits<Buffer>::const_reference buf,
                 hsize_t offset = 0,
                 mpi::comm const& comm = mpi::comm::self )

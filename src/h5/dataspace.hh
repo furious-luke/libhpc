@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_h5_dataspace_hh
-#define libhpc_h5_dataspace_hh
+#ifndef hpc_h5_dataspace_hh
+#define hpc_h5_dataspace_hh
 
 #include <numeric>
 #include <boost/optional.hpp>
@@ -24,6 +24,7 @@
 #include "libhpc/mpi.hh"
 #include <hdf5.h>
 #include "libhpc/system/view.hh"
+#include "types.hh"
 
 namespace hpc {
    namespace h5 {
@@ -39,6 +40,9 @@ namespace hpc {
 	 static dataspace all;
 
 	 dataspace();
+
+	 dataspace( hid_tag tag,
+		    hid_t id );
 
          explicit
          dataspace( hsize_t size,
