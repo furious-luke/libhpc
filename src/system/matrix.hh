@@ -49,6 +49,15 @@ namespace hpc {
       {
       }
 
+      void
+      resize( size_type n_rows,
+              size_type n_cols )
+      {
+         _vec.resize( n_rows*n_cols );
+         _size[0] = n_rows;
+         _size[1] = n_cols;
+      }
+
       size_type
       n_rows() const
       {

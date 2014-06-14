@@ -29,5 +29,6 @@
 #include "system/tmpfile.hh"
 #include "system/view.hh"
 #include "system/matrix.hh"
+#include "system/has.hh"
 
 #endif

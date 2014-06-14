@@ -57,6 +57,12 @@ namespace hpc {
          void
          set_comm( mpi::comm const& comm );
 
+	 mpi::comm const&
+	 comm() const;
+
+	 mpi::comm const&
+	 worker_comm() const;
+
          void
          set_max_events( unsigned max_evts );
 
@@ -69,12 +75,15 @@ namespace hpc {
          bool
          run();
 
+	 void
+	 done( int ec = 0 ) const;
+
       protected:
 
          std::unordered_map<int,event_handler*> _ev_hndlrs;
          unsigned _max_evts;
-         unsigned _n_done;
          mpi::comm const* _comm;
+	 mpi::comm _wkr_comm;
       };
 
    }

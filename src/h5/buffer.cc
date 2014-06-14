@@ -15,29 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_mpi_helpers_hh
-#define hpc_mpi_helpers_hh
-
-#include <string>
-#include "libhpc/system/math.hh"
-#include "comm.hh"
+#include "buffer.hh"
 
 namespace hpc {
-   namespace mpi {
-
-      std::string
-      rank_string( mpi::comm const& comm = mpi::comm::world,
-		   unsigned width = 5 );
-
-      template< class T >
-      std::array<T,2>
-      modulo( T size,
-	      mpi::comm const& comm = mpi::comm::world )
-      {
-	 return hpc::modulo<T>( size, comm.rank(), comm.size() );
-      }
+   namespace h5 {
 
    }
 }
-
-#endif

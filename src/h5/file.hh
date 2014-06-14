@@ -78,6 +78,14 @@ namespace hpc {
 	       file_set.write( &value, type, mem_space, file_space );
 	 }
 
+	 template< class T >
+	 void
+	 write_serial( std::string const& name,
+		       std::vector<T> const& buf )
+	 {
+	    write_serial<std::vector<T> >( name, buf );
+	 }
+
 	 template< class Buffer >
          typename boost::enable_if<random_access_trait<Buffer> >::type
 	 write_serial( std::string const& name,
@@ -141,7 +149,7 @@ namespace hpc {
                h5::datatype const& type,
                hsize_t size,
                hsize_t offs,
-               mpi::comm& comm = mpi::comm::self );
+               mpi::comm const& comm = mpi::comm::self );
 
 	 template< class T >
          typename boost::disable_if<random_access_trait<T> >::type

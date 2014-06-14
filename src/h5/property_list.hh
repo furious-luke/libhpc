@@ -35,6 +35,17 @@ namespace hpc {
 	 ///
 	 property_list( hid_t class_id );
 
+#ifdef PARALLELHDF5
+
+         property_list( hid_t class_id,
+                        mpi::comm const& comm );
+
+#endif
+
+         property_list( property_list const& src );
+
+         property_list( property_list&& src );
+
 	 ~property_list();
 
 	 hid_t
@@ -63,9 +74,11 @@ namespace hpc {
 #ifdef PARALLELHDF5
 
 	 void
-	 set_parallel( const mpi::comm& comm = mpi::comm::world );
+	 set_parallel( mpi::comm const& comm = mpi::comm::world );
 
 #endif
+
+         operator bool() const;
 
       protected:
 

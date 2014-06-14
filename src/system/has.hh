@@ -20,10 +20,11 @@
 
 namespace hpc {
 
-   template< class Seq >
+   template< class SeqT >
+   inline
    bool
-   has( Seq const& seq,
-        typename Seq::key_type const& key )
+   has( SeqT const& seq,
+        typename SeqT::key_type const& key )
    {
       return seq.find( key ) != seq.end();
    }

@@ -49,22 +49,23 @@ namespace hpc {
       {
 	 _comm = &comm;
 
-#ifdef HAVE_HDF5_PARALLEL
-	 h5::property_list local_props;
+	 h5::property_list local_props( props );
+#ifdef PARALLELHDF5
 	 if( *_comm != mpi::comm::null && _comm->size() != 1 )
          {
-	    if( props )
-	       local_props = props;
-            else
+	    if( !props )
                local_props.create( H5P_FILE_ACCESS );
 	    local_props.set_parallel( *_comm );
 	 }
+#else
+         ASSERT( _comm == mpi::comm::null || _comm->size() == 1,
+                 "Attempting to create parallel HDF5 file without parallel extensions." );
 #endif
 
 	 if( flags == H5F_ACC_TRUNC || flags == H5F_ACC_EXCL )
-	    _id = H5Fcreate( filename.c_str(), flags, H5P_DEFAULT, props.id() );
+	    _id = H5Fcreate( filename.c_str(), flags, H5P_DEFAULT, local_props.id() );
 	 else
-	    _id = H5Fopen( filename.c_str(), flags, props.id() );
+	    _id = H5Fopen( filename.c_str(), flags, local_props.id() );
       }
 
       void

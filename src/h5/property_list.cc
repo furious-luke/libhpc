@@ -31,6 +31,34 @@ namespace hpc {
 	 create( class_id );
       }
 
+#ifdef PARALLELHDF5
+
+      property_list::property_list( hid_t class_id,
+                                    mpi::comm const& comm )
+      {
+         create( class_id );
+         set_parallel( comm );
+      }
+
+#endif
+
+      property_list::property_list( property_list const& src )
+      {
+         if( src._id == H5P_DEFAULT )
+            _id = H5P_DEFAULT;
+         else
+         {
+            _id = H5Pcopy( src._id );
+            ASSERT( _id >= 0, "H5Pcopy failed." );
+         }
+      }
+
+      property_list::property_list( property_list&& src )
+         : _id( src._id )
+      {
+         src._id = H5P_DEFAULT;
+      }
+
       property_list::~property_list()
       {
 	 close();
@@ -89,12 +117,17 @@ namespace hpc {
 #ifdef PARALLELHDF5
 
       void
-      property_list::set_parallel( const mpi::comm& comm )
+      property_list::set_parallel( mpi::comm const& comm )
       {
 	 INSIST( H5Pset_fapl_mpio( _id, comm.mpi_comm(), MPI_INFO_NULL ), >= 0 );
       }
 
 #endif
+
+      property_list::operator bool() const
+      {
+         return _id != H5P_DEFAULT;
+      }
 
    }
 }

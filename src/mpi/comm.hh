@@ -35,9 +35,9 @@ namespace hpc {
       class comm {
       public:
 
-	 static mpi::comm null;
-	 static mpi::comm self;
-	 static mpi::comm world;
+	 static mpi::comm const null;
+	 static mpi::comm const self;
+	 static mpi::comm const world;
 
 	 comm( MPI_Comm comm = MPI_COMM_NULL );
 
@@ -46,6 +46,12 @@ namespace hpc {
 	 comm( comm const& src );
 
 	 ~comm();
+
+	 comm&
+	 operator=( comm&& src );
+
+	 comm&
+	 operator=( comm const& src );
 
 	 void
 	 clear();

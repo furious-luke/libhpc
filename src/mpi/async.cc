@@ -45,6 +45,18 @@ namespace hpc {
          _ev_hndlrs.clear();
       }
 
+      mpi::comm const&
+      async::comm() const
+      {
+	 return *_comm;
+      }
+
+      mpi::comm const&
+      async::worker_comm() const
+      {
+	 return _wkr_comm;
+      }
+
       void
       async::set_max_events( unsigned max_evts )
       {
@@ -55,6 +67,7 @@ namespace hpc {
       async::add_event_handler( async::event_handler* eh )
       {
          ASSERT( eh );
+	 ASSERT( eh->tag() != 0 );
          ASSERT( !hpc::has( _ev_hndlrs, eh->tag() ) );
          _ev_hndlrs[eh->tag()] = eh;
       }
@@ -70,6 +83,12 @@ namespace hpc {
       {
          LOGBLOCKD( "Entering mpi::async run." );
 
+	 // Compute the worker communicator.
+	 if( _comm->size() > 1 )
+	    _wkr_comm = _comm->create_excl( 0 );
+	 else
+	    _wkr_comm = mpi::comm::self;
+
          // If we are not the master, drop back out immediately.
          if( _comm->rank() != 0 )
          {
@@ -81,9 +100,10 @@ namespace hpc {
          // avoid any kind of serial deadlock.
 	 if( _comm->size() > 1 )
 	 {
+	    int n_wkrs = _comm->size() - 1;
             unsigned n_evts = 0;
             MPI_Status stat;
-            _n_done = 0;
+            int n_done = 0;
             do
             {
                // Wait for anything.
@@ -93,22 +113,44 @@ namespace hpc {
 	       LOGBLOCKD( "Have an incoming event from ", stat.MPI_SOURCE,
                           " with tag ", stat.MPI_TAG );
 
-               // Be sure we have a handler for this.
-               ASSERT( hpc::has( _ev_hndlrs, stat.MPI_TAG ) );
+	       // A tag of zero indicates the worker is done.
+	       if( stat.MPI_TAG == 0 )
+	       {
+		  int ec;
+		  _comm->recv( ec, stat.MPI_SOURCE, stat.MPI_TAG );
+		  ++n_done;
+	       }
+	       else
+	       {
+		  // Be sure we have a handler for this.
+		  ASSERT( hpc::has( _ev_hndlrs, stat.MPI_TAG ) );
 
-               // Run the event handler. A return value of positive indicates
-               // that event handler is complete.
-               if( _ev_hndlrs[stat.MPI_TAG]->event( stat ) )
-                  ++_n_done;
+		  // Run the event handler. A return value of positive indicates
+		  // that event handler has failed.
+		  if( _ev_hndlrs[stat.MPI_TAG]->event( stat ) )
+		     n_done = n_wkrs;
 
-               // If we've hit our event limit terminate.
-               if( ++n_evts == _max_evts )
-                  _n_done = _ev_hndlrs.size();
+		  // If we've hit our event limit terminate.
+		  if( ++n_evts == _max_evts )
+		     n_done = n_wkrs;
+	       }
             }
-            while( _n_done < _ev_hndlrs.size() );
+            while( n_done < n_wkrs );
 	 }
+	 else
+	   return false;
 
          return true;
+      }
+
+      void
+      async::done( int ec ) const
+      {
+	 if( _comm->size() > 1 )
+	 {
+	    ASSERT( _comm->rank() > 0 );
+	    _comm->send( ec, 0, 0 );
+	 }
       }
 
    }

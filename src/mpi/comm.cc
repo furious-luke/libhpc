@@ -22,9 +22,9 @@
 namespace hpc {
    namespace mpi {
 
-      mpi::comm comm::null( MPI_COMM_NULL );
-      mpi::comm comm::self( MPI_COMM_SELF );
-      mpi::comm comm::world( MPI_COMM_WORLD );
+      mpi::comm const comm::null(  MPI_COMM_NULL );
+      mpi::comm const comm::self(  MPI_COMM_SELF );
+      mpi::comm const comm::world( MPI_COMM_WORLD );
 
       comm::comm( MPI_Comm comm )
 	 : _comm( comm )
@@ -48,6 +48,27 @@ namespace hpc {
       comm::~comm()
       {
 	 this->clear();
+      }
+
+      mpi::comm&
+      comm::operator=( mpi::comm&& src )
+      {
+	 _comm = src._comm;
+         src._comm = MPI_COMM_NULL;
+	 return *this;
+      }
+
+      mpi::comm&
+      comm::operator=( mpi::comm const& comm )
+      {
+	 if( comm._comm != MPI_COMM_WORLD &&
+             comm._comm != MPI_COMM_NULL &&
+             comm._comm != MPI_COMM_SELF )
+	 {
+	    MPI_INSIST( MPI_Comm_dup( comm._comm, &_comm ) );
+	 }
+	 else
+	    _comm = comm._comm;
       }
 
       void

@@ -207,7 +207,7 @@ namespace hpc {
 		mpi::comm const& comm = mpi::comm::self );
 
          void
-         write( void* buf,
+         write( void const* buf,
                 h5::datatype const& type,
                 hsize_t size,
                 hsize_t offset,

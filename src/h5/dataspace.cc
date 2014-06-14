@@ -28,17 +28,11 @@ namespace hpc {
       {
       }
 
-      dataspace::dataspace( hid_t id,
-                            bool dummy )
-	 : _id( id )
-      {
-      }
-
       dataspace::dataspace( hsize_t size,
                             bool unlimited )
          : _id( -1 )
       {
-         create( size );
+         create( size, unlimited );
       }
 
       dataspace::dataspace( dataset const& dset )

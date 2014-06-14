@@ -21,5 +21,6 @@
 #include "h5/file.hh"
 #include "h5/property_list.hh"
 #include "h5/derive.hh"
+#include "h5/buffer.hh"
 
 #endif

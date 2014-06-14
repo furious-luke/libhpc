@@ -40,9 +40,7 @@ namespace hpc {
 
 	 dataspace();
 
-	 dataspace( hid_t id,
-                    bool dummy );
-
+         explicit
          dataspace( hsize_t size,
                     bool unlimited = false );
 

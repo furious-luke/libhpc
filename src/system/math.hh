@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <limits>
+#include <array>
 #include "libhpc/debug/assert.hh"
 #include "cuda.hh"
 
@@ -142,6 +143,15 @@ namespace hpc {
                T num_ranks )
    {
       return x/num_ranks + ((rank < (x%num_ranks)) ? 1 : 0);
+   }
+
+   template< class T >
+   std::array<T,2>
+   modulo( T size,
+	   T rank,
+	   T group )
+   {
+      return std::array<T,2>{ (rank*size)/group, ((rank + 1)*size)/group };
    }
 
 }
