@@ -152,7 +152,7 @@ namespace hpc {
                mpi::comm const& comm = mpi::comm::self );
 
 	 template< class T >
-         typename boost::disable_if<random_access_trait<T> >::type
+         typename boost::disable_if<random_access_trait<T>,T>::type
 	 read( std::string const& name,
 	       hsize_t elem = 0 )
 	 {

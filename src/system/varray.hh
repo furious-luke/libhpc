@@ -19,6 +19,7 @@
 #define hpc_system_varray_hh
 
 #include <iostream>
+#include <boost/functional/hash.hpp>
 #include "libhpc/system/cuda.hh"
 
 namespace hpc {
@@ -134,6 +135,24 @@ namespace hpc {
       strm << ")";
       return strm;
    }
+
+}
+
+namespace std {
+
+   template< class T,
+	     size_t N >
+   struct hash< hpc::varray<T,N> >
+   {
+      size_t
+      operator()( hpc::varray<T,N> const& x ) const
+      {
+	 size_t h = 0;
+	 for( size_t ii = 0; ii < N; ++ii )
+	    boost::hash_combine( h, boost::hash_value( x[ii] ) );
+	 return h;
+      }
+   };
 
 }
 
