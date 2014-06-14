@@ -313,7 +313,7 @@ namespace hpc {
 
 	 template< class T >
          T
-	 recv( MPI_Status const& stat )
+	 recv( MPI_Status const& stat ) const
 	 {
             T val;
 	    MPI_INSIST( MPI_Recv( (void*)&val, 1, MPI_MAP_TYPE( T ),
