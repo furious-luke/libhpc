@@ -49,7 +49,7 @@ namespace hpc {
       location::open_group( const std::string& name,
 			    h5::group& group ) const
       {
-	 hid_t id = H5Gopen(this->_id, name.c_str(), H5P_DEFAULT);
+	 hid_t id = H5Gopen2(this->_id, name.c_str(), H5P_DEFAULT);
 	 ASSERT(this->_id >= 0);
 	 group.set_id(id);
       }

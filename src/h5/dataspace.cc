@@ -21,7 +21,7 @@
 namespace hpc {
    namespace h5 {
 
-      dataspace dataspace::all( H5S_ALL );
+      dataspace dataspace::all( hid_tag(), H5S_ALL );
 
       dataspace::dataspace()
          : _id( -1 )

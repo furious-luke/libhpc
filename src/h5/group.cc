@@ -85,7 +85,7 @@ namespace hpc {
 		   const std::string& name )
       {
 	 this->close();
-	 this->_id = H5Gopen(loc.id(), name.c_str(), H5P_DEFAULT);
+	 this->_id = H5Gopen2(loc.id(), name.c_str(), H5P_DEFAULT);
 	 ASSERT(this->_id >= 0);
       }
 
