@@ -58,7 +58,7 @@ namespace hpc {
 	    local_props.set_parallel( *_comm );
 	 }
 #else
-         ASSERT( _comm == mpi::comm::null || _comm->size() == 1,
+         ASSERT( *_comm == mpi::comm::null || _comm->size() == 1,
                  "Attempting to create parallel HDF5 file without parallel extensions." );
 #endif
 
