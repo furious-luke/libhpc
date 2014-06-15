@@ -803,7 +803,7 @@ namespace hpc {
 	 }
 
 	 void
-	 abort( int ec = 1 );
+	 abort( int ec = 1 ) const;
 
 	 bool
 	 operator==(const comm& comm) const;

@@ -299,7 +299,7 @@ namespace hpc {
       }
 
       void
-      comm::abort( int ec )
+      comm::abort( int ec ) const
       {
 	 MPI_Abort( _comm, ec );
       }

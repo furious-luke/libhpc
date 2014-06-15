@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_mpi_main_hh
-#define libhpc_mpi_main_hh
+#ifndef hpc_mpi_main_hh
+#define hpc_mpi_main_hh
 
 #ifndef HPC_APP_CLASS
 #define HPC_APP_CLASS application
@@ -48,13 +48,11 @@ main( int argc,
       catch( hpc::silent_terminate& ex )
       {
       }
-#ifdef NDEBUG
-      catch( hpc::exception& ex )
+      catch( std::exception& ex )
       {
          std::cerr << "\nError: " << ex.what() << "\n\n";
 	 hpc::mpi::comm::world.abort();
       }
-#endif
       hpc::mpi::finalise();
    }
    return EXIT_SUCCESS;
