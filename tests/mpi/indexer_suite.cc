@@ -62,10 +62,13 @@ TEST_CASE( "/hpc/mpi/indexer/parallel" )
    {
       TEST( idxr.base() == 15*(comm::world.size() - 1) );
    }
-   std::vector<int> all_bases = comm::world.all_gatherv( bases );
-   TEST( hpc::has_duplicates( all_bases ) == false );
-   TEST( *std::max_element( all_bases.begin(), all_bases.end() ) == 15*(comm::world.size() - 1) - 5 );
-   TEST( *std::min_element( all_bases.begin(), all_bases.end() ) == 0 );
+   if( comm::world.size() > 1 )
+   {
+      std::vector<int> all_bases = comm::world.all_gatherv( bases );
+      TEST( hpc::has_duplicates( all_bases ) == false );
+      TEST( *std::max_element( all_bases.begin(), all_bases.end() ) == 15*(comm::world.size() - 1) - 5 );
+      TEST( *std::min_element( all_bases.begin(), all_bases.end() ) == 0 );
+   }
 }
 
 TEST_CASE( "/hpc/mpi/indexer/parallel/array" )
@@ -86,10 +89,13 @@ TEST_CASE( "/hpc/mpi/indexer/parallel/array" )
       hpc::varray<int,2> val{ 15*(comm::world.size() - 1), 6*(comm::world.size() - 1) };
       TEST( idxr.base() == val );
    }
-   std::vector<hpc::varray<int,2> > all_bases = comm::world.all_gatherv( bases );
-   TEST( hpc::has_duplicates( all_bases ) == false );
-   hpc::varray<int,2> val{ 15*(comm::world.size() - 1) - 5, 6*(comm::world.size() - 1) - 2 };
-   TEST( *std::max_element( all_bases.begin(), all_bases.end() ) == val );
-   val[0] = 0; val[1] = 0;
-   TEST( *std::min_element( all_bases.begin(), all_bases.end() ) == val );
+   if( comm::world.size() > 1 )
+   {
+      std::vector<hpc::varray<int,2> > all_bases = comm::world.all_gatherv( bases );
+      TEST( hpc::has_duplicates( all_bases ) == false );
+      hpc::varray<int,2> val{ 15*(comm::world.size() - 1) - 5, 6*(comm::world.size() - 1) - 2 };
+      TEST( *std::max_element( all_bases.begin(), all_bases.end() ) == val );
+      val[0] = 0; val[1] = 0;
+      TEST( *std::min_element( all_bases.begin(), all_bases.end() ) == val );
+   }
 }
