@@ -11,15 +11,24 @@
 ##
 
 args = (arguments()
-        ('--prefix', default='/usr/local', help='Installation path.')
-        ('--enable-debug', dest='debug', action='boolean', default=False, help='Enable/disable debugging mode.')
-        ('--enable-openmp', dest='openmp', action='boolean', default=False, help='Enable/disable OpenMP.')
-        ('--enable-instrument', dest='instrument', action='boolean', default=False, help='Enable/disable instrumentation.')
-        ('--enable-stacktrace', dest='stacktrace', action='boolean', default=False, help='Enable/disable debugging stacktrace.')
-        ('--enable-memory-debug', dest='memory_debug', action='boolean', default=False, help='Enable/disable memory debugging.')
-        ('--enable-memory-ops', dest='memory_ops', action='boolean', default=False, help='Enable/disable memory operation logging.')
-        ('--enable-memory-stats', dest='memory_stats', action='boolean', default=False, help='Enable/disable memory statistics logging.')
-        ('--enable-logging', dest='logging', action='boolean', default=True, help='Enable/disable all logging routines.'))
+        ('--prefix', default='/usr/local',
+         help='Installation path.')
+        ('--enable-debug', dest='debug', action='boolean', default=False,
+         help='Enable/disable debugging mode.')
+        ('--enable-openmp', dest='openmp', action='boolean', default=False,
+         help='Enable/disable OpenMP.')
+        ('--enable-instrument', dest='instrument', action='boolean', default=False,
+         help='Enable/disable instrumentation.')
+        ('--enable-stacktrace', dest='stacktrace', action='boolean', default=False,
+         help='Enable/disable debugging stacktrace.')
+        ('--enable-memory-debug', dest='memory_debug', action='boolean', default=False,
+         help='Enable/disable memory debugging.')
+        ('--enable-memory-ops', dest='memory_ops', action='boolean', default=False,
+         help='Enable/disable memory operation logging.')
+        ('--enable-memory-stats', dest='memory_stats', action='boolean', default=False,
+         help='Enable/disable memory statistics logging.')
+        ('--enable-logging', dest='logging', action='boolean', default=True,
+         help='Enable/disable all logging routines.'))
 
 ##
 ## Declare the packages we are interested in.
@@ -36,32 +45,31 @@ eigen   = use('eigen')
 ## Declare option sets.
 ##
 
-# C++ compiler options.
-cc_opts = (
+opts = (
 
     # General options.
-    options(cxx11  = True,
-            pic    = True,
-            define = [platform.os_name.upper()]) + 
+    options(cxx11        = True,
+            pic          = True,
+            library_dirs = ['{prefix}/lib'],
+            rpath_dirs   = ['{prefix}/lib'],
+            header_dirs  = ['{prefix}/include'],
+            define       = [platform.os_name.upper()]) + 
 
     # Debug mode.
     options(args.debug == True,
-            prefix       = 'build/debug',
-            library_dirs = ['build/debug/lib'],
-            rpath_dirs   = ['build/debug/lib'],
-            header_dirs  = ['build/debug/include'],
-            optimise     = 0,
-            symbols      = True) +
+            prefix   = 'build/debug',
+            optimise = 0,
+            symbols  = True) +
 
     # Optimised mode.
     options(args.debug == False,
-            prefix       = 'build/optimised',
-            library_dirs = ['build/optimised/lib'],
-            rpath_dirs   = ['build/optimised/lib'],
-            header_dirs  = ['build/optimised/include'],
-            optimise     = 3,
-            symbols      = False,
-            define       = ['NDEBUG', 'NLOGTRIVIAL', 'NLOGDEBUG']) +
+            prefix   = 'build/optimised',
+            optimise = 3,
+            symbols  = False,
+            define   = ['NDEBUG', 'NLOGTRIVIAL', 'NLOGDEBUG']) +
+
+    # Will override previous prefixes if enabled.
+    options(targets.contains('install'), prefix = args.prefix) + 
 
     # Optional compilation/linking commands.
     options(args.instrument   == False, define=['NINSTRUMENT']) +
@@ -78,27 +86,16 @@ cc_opts = (
     options(eigen.have                   == True, define=['HAVE_EIGEN'])
 )
 
-# Copy/install options.
-cp_opts = (
-    options(args.debug == True,
-            prefix='build/debug/include/libhpc') +
-    options(args.debug == False,
-            prefix='build/optimised/include/libhpc')
-)
-
 ##
 ## Define compilers/linkers, or anything dependant on the options.
 ##
 
-cc        =           use('cxx_compiler', cc_opts,                              compile=True)
-sl        =           use('cxx_compiler', cc_opts,                              shared_lib=True)
-sl_inst   =           use('cxx_compiler', cc_opts, targets.contains('install'), shared_lib=True, prefix=args.prefix)
-bin       =           use('cxx_compiler', cc_opts)
-ar        =           use('ar',           cc_opts,                              add=True)
-cp        = files.feature('copy',         cp_opts)
-hdr_inst  = files.feature('copy',         None,    targets.contains('install'), prefix=args.prefix + '/include/libhpc')
-lib_inst  = files.feature('copy',         None,    targets.contains('install'), prefix=args.prefix)
-run_tests = files.feature('run',          None,    targets.contains('check'))
+cc        =           use('cxx_compiler', opts, compile=True)
+sl        =           use('cxx_compiler', opts, shared_lib=True)
+bin       =           use('cxx_compiler', opts)
+ar        =           use('ar',           opts, add=True)
+cp        = files.feature('copy',         opts, join_path='include/libhpc')
+run_tests = files.feature('run',          None, targets.contains('check'))
 pkgs      = boost + mpi + hdf5 + pugixml + (glut | identity) + (eigen | identity)
 cc        = cc  + pkgs
 sl        = sl  + pkgs
@@ -108,14 +105,15 @@ bin       = bin + pkgs
 ## Declare build rules.
 ##
 
-hdrs       = rule(r'src/.+\.(?:hh|hpp|tcc)$', cp & hdr_inst, target_strip_dirs=1)
-objs       = rule(r'src/.+\.cc$',             cc)
-static_lib = rule(objs,                       ar,            target=platform.make_static_library('lib/hpc'))
-shared_lib = rule(objs,                       sl & sl_inst,  target=platform.make_shared_library('lib/hpc'))
-dummy      = rule(static_lib,                 lib_inst,      target_strip_dirs=2)
-tests      = rule(r'tests/.+\.cc$',           bin,           libraries=['hpc'], single=False, suffix='')
-dummy      = rule(tests,                      run_tests,     target=dummies.always)
+hdrs = rule(('src', r'.+\.(?:hh|hpp|tcc)$)', cp, target_strip_dirs=1)
+objs = rule(('src', r'.+\.cc$'),             cc)
+
+static_lib = rule(objs, ar, target=platform.make_static_library('lib/hpc'))
+shared_lib = rule(objs, sl, target=platform.make_shared_library('lib/hpc'))
+
+tests = rule(('tests', r'.+\.cc$'), bin,       single=False, suffix='')
+dummy = rule(tests,                 run_tests, target=dummies.always)
 
 # Examples.
-rule(r'exs/system/daemon/.+\.cc$', bin, target='exs/daemon', libraries=['hpc'])
-rule(r'exs/mpi/host.cc$', bin, target='exs/host', libraries=['hpc'])
+dummy = rule(('exs/system/daemon', r'.+\.cc$'), bin, target='exs/daemon')
+dummy = rule(('exs/mpi/host',      r'.+\.cc$'), bin, target='exs/host')
