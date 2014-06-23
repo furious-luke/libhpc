@@ -224,4 +224,5 @@ public:
 protected:
 
    std::string filename;
+
 };
