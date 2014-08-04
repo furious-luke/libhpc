@@ -74,6 +74,7 @@ namespace hpc {
             return *this;
          }
 
+         inline
          dataspace&
          operator=( BOOST_RV_REF( dataspace ) src )
          {

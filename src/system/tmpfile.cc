@@ -32,7 +32,13 @@ namespace hpc {
 
    tmpfile::~tmpfile()
    {
-      if( fs::exists( _path ) )
+      close();
+   }
+
+   void
+   tmpfile::close()
+   {
+      if( !_path.empty() && fs::exists( _path ) )
          fs::remove( _path );
    }
 
