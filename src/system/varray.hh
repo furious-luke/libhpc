@@ -93,6 +93,33 @@ namespace hpc {
          return *this;
       }
 
+      varray
+      operator/( value_type const& x ) const
+      {
+         varray y;
+         for( int ii = 0; ii < N; ++ii )
+            y[ii] = elems[ii]/x;
+         return y;
+      }
+
+      value_type
+      dot( varray const& x ) const
+      {
+         value_type y = 0.0;
+         for( int ii = 0; ii < N; ++ii )
+            y += elems[ii]*x[ii];
+         return y;
+      }
+
+      value_type
+      magnitude() const
+      {
+         value_type y = 0.0;
+         for( int ii = 0; ii < N; ++ii )
+            y += elems[ii]*elems[ii];
+         return sqrt( y );
+      }
+
       bool
       operator==( varray const& x ) const
       {
