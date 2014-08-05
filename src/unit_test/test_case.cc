@@ -27,11 +27,13 @@ namespace hpc {
 
       test_case_base::test_case_base( std::string const& name,
                                       std::string const& desc )
-         : _name( std::string( _prefix ) + name ),
+         : _name( name ),
            _desc( desc ),
            _runner( 0 ),
            _succ( false )
       {
+         if( _prefix )
+            _name = std::string( _prefix ) + _name;
          _add_test_case();
       }
 
