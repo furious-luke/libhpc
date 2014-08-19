@@ -35,7 +35,7 @@ namespace hpc {
       {
          rb.push( *this );
 
-#ifndef __CUDA_ARCH__
+#ifdef CUDA_HOST
          // When not running on a GPU we should stop when there is
          // an error.
          if( !_res )

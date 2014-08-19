@@ -110,12 +110,12 @@ namespace hpc {
 
    /// Non-class types.
    template< class T,
-             class U,
-             typename boost::disable_if<boost::is_class<T>,int>::type = 0 >
+             class U >
    inline
    T&
    assign( T& tgt,
-           U const& src )
+           U const& src,
+           typename boost::disable_if<boost::is_class<T>,int>::type = 0 )
    {
       tgt = src;
       return tgt;

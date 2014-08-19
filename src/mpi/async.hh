@@ -18,7 +18,7 @@
 #ifndef hpc_mpi_async_hh
 #define hpc_mpi_async_hh
 
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include "libhpc/debug/assert.hh"
 #include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
@@ -69,7 +69,7 @@ namespace hpc {
          void
          add_event_handler( event_handler* eh );
 
-         std::unordered_map<int,event_handler*> const&
+         boost::unordered_map<int,event_handler*> const&
          event_handlers() const;
 
          bool
@@ -80,7 +80,7 @@ namespace hpc {
 
       protected:
 
-         std::unordered_map<int,event_handler*> _ev_hndlrs;
+         boost::unordered_map<int,event_handler*> _ev_hndlrs;
          unsigned _max_evts;
          mpi::comm const* _comm;
 	 mpi::comm _wkr_comm;

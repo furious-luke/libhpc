@@ -18,7 +18,9 @@
 #ifndef hpc_logging_globals_hh
 #define hpc_logging_globals_hh
 
-#if !defined(NLOG) && !defined(__CUDA_ARCH__)
+#include "libhpc/system/cuda.hh"
+
+#if !defined(NLOG) && defined(CUDA_HOST)
 
 #include "libhpc/system/stream.hh"
 #include "libhpc/system/narg.hh"

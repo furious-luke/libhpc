@@ -21,6 +21,7 @@
 #include "libhpc/system/cc_version.hh"
 #include "libhpc/system/cuda.hh"
 #include "libhpc/system/math.hh"
+#include "libhpc/system/array.hh"
 #include "libhpc/debug/assert.hh"
 #include "libhpc/debug/except.hh"
 #include "libhpc/logging.hh"
@@ -102,7 +103,7 @@ namespace hpc {
       template< class FuncT,
 		class T >
       CUDA_DEV_HOST
-      std::array<T,2>
+      hpc::array<T,2>
       newtond( FuncT& func,
                T const& x1,
                T const& x2,
@@ -159,7 +160,14 @@ namespace hpc {
          // Break if we exceeded maximum its.
          EXCEPT( ii < max_its, "Newton iterations exceeded limit." );
 
-         return std::array<T,2>{ x, df };
+#ifdef CXX_0X
+         return hpc::array<T,2>{ x, df };
+#else
+	 hpc::array<T,2> res;
+	 res[0] = x;
+	 res[1] = df;
+	 return res;
+#endif
       }
 
       // template< class Function,

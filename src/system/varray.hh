@@ -18,8 +18,11 @@
 #ifndef hpc_system_varray_hh
 #define hpc_system_varray_hh
 
+#include "cc_version.hh"
 #include <iostream>
+#ifdef CXX_0X
 #include <boost/functional/hash.hpp>
+#endif
 #include "libhpc/system/cuda.hh"
 
 namespace hpc {
@@ -140,6 +143,8 @@ namespace hpc {
 
 namespace std {
 
+#ifdef CXX_0X
+
    template< class T,
 	     size_t N >
    struct hash< hpc::varray<T,N> >
@@ -153,6 +158,8 @@ namespace std {
 	 return h;
       }
    };
+
+#endif
 
 }
 

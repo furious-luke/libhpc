@@ -56,19 +56,19 @@ namespace hpc {
       {
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
-      const_view( Other const& vec )
+      template< class Other >
+      const_view( Other const& vec,
+                  typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
          : _ptr( (pointer)vec.data() ),
            _size( vec.size() )
       {
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
+      template< class Other >
       const_view( Other const& vec,
                   size_t size,
-                  size_t offs = 0 )
+                  size_t offs = 0,
+                  typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
          : _ptr( (pointer)vec.data() + offs ),
            _size( size )
       {
@@ -165,10 +165,10 @@ namespace hpc {
          return _ptr[idx];
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
+      template< class Other >
       bool
-      operator==( Other const& op ) const
+      compare( Other const& op,
+               typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 ) const
       {
          if( _size != op._size )
             return false;
@@ -179,6 +179,13 @@ namespace hpc {
                return false;
          }
          return true;
+      }
+
+      template< class Other >
+      bool
+      operator==( Other const& op )
+      {
+         return compare<Other>( op );
       }
 
       operator const_pointer() const
@@ -225,18 +232,18 @@ namespace hpc {
       {
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
-      view( Other const& vec )
+      template< class Other >
+      view( Other const& vec,
+            typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
          : super_type( vec )
       {
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
+      template< class Other >
       view( Other const& vec,
             size_t size,
-            size_t offs = 0 )
+            size_t offs = 0,
+            typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
          : super_type( vec, size, offs )
       {
       }
@@ -278,18 +285,18 @@ namespace hpc {
       {
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
-      view( Other const& vec )
+      template< class Other >
+      view( Other const& vec,
+            typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
          : super_type( vec )
       {
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
+      template< class Other >
       view( Other const& vec,
             size_t size,
-            size_t offs = 0 )
+            size_t offs = 0,
+            typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
          : super_type( vec, size, offs )
       {
       }
@@ -351,13 +358,21 @@ namespace hpc {
          return this->_ptr[idx];
       }
 
-      template< class Other,
-                typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 >
+      template< class Other >
       view&
-      operator=( Other const& op )
+      assign( Other const& op,
+              typename boost::enable_if<boost::is_base_of<vector_type,Other>,int>::type = 0 )
       {
          ASSERT( op.size() == this->_size );
          std::copy( op.begin(), op.end(), begin() );
+         return *this;
+      }
+
+      template< class Other >
+      view&
+      operator=( Other const& op )
+      {
+         return assign<Other>( op );
       }
 
       operator pointer()

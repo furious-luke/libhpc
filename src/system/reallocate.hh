@@ -15,10 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_reallocate_hh
-#define libhpc_containers_reallocate_hh
+#ifndef hpc_system_reallocate_hh
+#define hpc_system_reallocate_hh
+
+#include "cc_version.hh"
 
 namespace hpc {
+
+#ifdef CXX_0X
 
    template< class T,
              class ...Args >
@@ -30,6 +34,20 @@ namespace hpc {
       obj.swap( tmp );
       obj.resize( size );
    }
+
+#else
+
+   template< class T >
+   void
+   reallocate( std::vector<T>& obj,
+               typename std::vector<T>::size_type size )
+   {
+      std::vector<T> tmp;
+      obj.swap( tmp );
+      obj.resize( size );
+   }
+
+#endif
 
 }
 

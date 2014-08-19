@@ -57,8 +57,8 @@ namespace hpc {
       {
 	 ASSERT( _mem_size > 0, "Memory structure size has not been set." );
 #ifndef NDEBUG
-	 for( auto const& entry : _cache )
-	    ASSERT( boost::get<1>( entry ) < _mem_size, "Memory structure size too small for offsets." );
+         for( std::list<entry_type>::const_iterator it = _cache.begin(); it != _cache.end(); ++it )
+	    ASSERT( boost::get<1>( *it ) < _mem_size, "Memory structure size too small for offsets." );
 #endif
 	 return _mem_size;
       }

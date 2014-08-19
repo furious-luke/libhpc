@@ -18,6 +18,7 @@
 #ifndef hpc_mpi_indexer_hh
 #define hpc_mpi_indexer_hh
 
+#include "libhpc/system/cc_version.hh"
 #include "libhpc/debug/assert.hh"
 #include "libhpc/logging.hh"
 #include "libhpc/mpi/comm.hh"
@@ -39,9 +40,14 @@ namespace hpc {
          indexer( int tag,
                   mpi::comm const& comm = mpi::comm::world )
             : async::event_handler( tag ),
+#ifdef CXX_0X
               _base{ 0 },
+#endif
               _comm( &comm )
          {
+#ifndef CXX_0X
+            _base = 0;
+#endif
          }
 
          void

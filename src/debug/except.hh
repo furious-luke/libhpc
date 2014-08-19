@@ -18,7 +18,9 @@
 #ifndef hpc_debug_except_hh
 #define hpc_debug_except_hh
 
-#if !defined(NEXCEPT) && !defined(__CUDA_ARCH__)
+#include "libhpc/system/cuda.hh"
+
+#if !defined(NEXCEPT) && defined(CUDA_HOST)
 
 #include "assert.hh"
 

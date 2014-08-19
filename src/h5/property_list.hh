@@ -18,6 +18,7 @@
 #ifndef libhpc_h5_property_list_hh
 #define libhpc_h5_property_list_hh
 
+#include <boost/move/move.hpp>
 #include "libhpc/mpi.hh"
 #include "dataspace.hh"
 
@@ -26,6 +27,8 @@ namespace hpc {
 
       class property_list
       {
+         BOOST_COPYABLE_AND_MOVABLE( property_list );
+
       public:
 
          property_list();
@@ -44,9 +47,36 @@ namespace hpc {
 
          property_list( property_list const& src );
 
-         property_list( property_list&& src );
+         inline
+         property_list( BOOST_RV_REF( property_list ) src )
+            : _id( src._id )
+         {
+            src._id = H5P_DEFAULT;
+         }
 
 	 ~property_list();
+
+         inline
+         property_list&
+         operator=( BOOST_COPY_ASSIGN_REF( property_list ) src )
+         {
+            close();
+            if( src._id >= 0 && src._id != H5P_DEFAULT )
+               _id = H5Pcopy( src._id );
+            else
+               _id = src._id;
+            return *this;
+         }
+
+         inline
+         property_list&
+         operator=( BOOST_RV_REF( property_list ) src )
+         {
+            close();
+            _id = src._id;
+            src._id = H5P_DEFAULT;
+            return *this;
+         }
 
 	 hid_t
 	 id() const;

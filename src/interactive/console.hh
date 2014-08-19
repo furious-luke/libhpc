@@ -6,9 +6,9 @@
 #include <stdint.h>
 #include <string>
 #include <list>
-#include <array>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "libhpc/system/array.hh"
 #include "animation.hh"
 
 namespace hpc {
@@ -86,7 +86,7 @@ namespace hpc {
 
       protected:
 
-	 std::array<uint16_t,2> _scr;
+         hpc::array<uint16_t,2> _scr;
          uint16_t _num_lines;
          uint16_t _line_height;
          GLfloat _alpha;

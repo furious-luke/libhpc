@@ -95,8 +95,8 @@ namespace hpc {
          {
             if( !_line.empty() )
             {
-               _cur_x -= glutBitmapWidth( GLUT_BITMAP_9_BY_15, _line.back() );
-               _line.pop_back();
+               _cur_x -= glutBitmapWidth( GLUT_BITMAP_9_BY_15, _line[_line.size() - 1] );
+               _line.resize( _line.size() - 1 );
                return CAUGHT;
             }
          }
@@ -188,7 +188,7 @@ namespace hpc {
          draw_text_fit( _line.begin(), _line.end(), 0, 4, _scr[0] );
 
          unsigned ii = 1;
-         for( auto it = _hist.rbegin();
+         for( std::list<std::string>::const_reverse_iterator it = _hist.rbegin();
               it != _hist.rend() && ii < _num_lines;
               ++it, ++ii )
          {

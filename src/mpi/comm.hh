@@ -20,6 +20,7 @@
 
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_class.hpp>
+#include <boost/move/move.hpp>
 #include "libhpc/logging.hh"
 #include "libhpc/system/view.hh"
 #include "libhpc/algorithm/counts.hh"
@@ -32,7 +33,10 @@
 namespace hpc {
    namespace mpi {
 
-      class comm {
+      class comm
+      {
+         BOOST_COPYABLE_AND_MOVABLE( comm );
+
       public:
 
 	 static mpi::comm const null;
@@ -41,17 +45,41 @@ namespace hpc {
 
 	 comm( MPI_Comm comm = MPI_COMM_NULL );
 
-         comm( comm&& src );
-
 	 comm( comm const& src );
+
+         inline
+         comm( BOOST_RV_REF( comm ) src )
+            : _comm( src._comm )
+         {
+            src._comm = MPI_COMM_NULL;
+         }
 
 	 ~comm();
 
+         inline
 	 comm&
-	 operator=( comm&& src );
+	 operator=( BOOST_COPY_ASSIGN_REF( comm ) src )
+         {
+            clear();
+            if( src._comm != MPI_COMM_WORLD &&
+                src._comm != MPI_COMM_NULL &&
+                src._comm != MPI_COMM_SELF )
+            {
+               MPI_INSIST( MPI_Comm_dup( src._comm, &_comm ) );
+            }
+            else
+               _comm = src._comm;
+         }
 
+         inline
 	 comm&
-	 operator=( comm const& src );
+	 operator=( BOOST_RV_REF( comm ) src )
+         {
+            clear();
+            _comm = src._comm;
+            src._comm = MPI_COMM_NULL;
+            return *this;
+         }
 
 	 void
 	 clear();
@@ -381,11 +409,11 @@ namespace hpc {
 	       int root,
 	       int count=1) const;
 
-	 template< class T,
-                   typename boost::disable_if<boost::is_class<T>,int>::type = 0 >
+	 template< class T >
 	 void
 	 bcast( T& value,
-		int root ) const
+		int root,
+                typename boost::disable_if<boost::is_class<T>,int>::type = 0 ) const
 	 {
 	    MPI_INSIST(MPI_Bcast(
 			  &value,
@@ -559,10 +587,10 @@ namespace hpc {
 	 void
 	 barrier() const;
 
-         template< class T,
-                   typename boost::disable_if<boost::is_class<T>,int>::type = 0 >
+         template< class T >
          std::vector<T>
-         all_gather( T const& data ) const
+         all_gather( T const& data,
+                     typename boost::disable_if<boost::is_class<T>,int>::type = 0 ) const
          {
             typedef typename std::vector<T>::size_type size_type;
 
@@ -619,10 +647,10 @@ namespace hpc {
             // Multiply displacements/counts to get result in blocks.
             if( size != 1 )
             {
-               std::transform( cnts.begin(),   cnts.end(),   cnts.begin(),
-                               [size]( int x ) { return x*size; } );
+               std::transform( cnts.begin(), cnts.end(), cnts.begin(),
+                               std::bind1st( std::multiplies<int>(), size ) );
                std::transform( displs.begin(), displs.end(), displs.begin(),
-                               [size]( int x ) { return x*size; } );
+                               std::bind1st( std::multiplies<int>(), size ) );
             }
 
             // Get final size.

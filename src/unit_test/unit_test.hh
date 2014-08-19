@@ -23,10 +23,11 @@
 #include <functional>
 #include <assert.h>
 #include <boost/format.hpp>
+#include "libhpc/system/cuda.hh"
 #include "libhpc/system/anon.hh"
 #include "expression.hh"
 
-#ifndef __CUDA_ARCH__
+#ifdef CUDA_HOST
 
 #define TEST( expr, ... )                       \
    (::hpc::test::decompose()->*expr)            \

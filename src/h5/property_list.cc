@@ -53,12 +53,6 @@ namespace hpc {
          }
       }
 
-      property_list::property_list( property_list&& src )
-         : _id( src._id )
-      {
-         src._id = H5P_DEFAULT;
-      }
-
       property_list::~property_list()
       {
 	 close();

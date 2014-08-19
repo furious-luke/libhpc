@@ -2,9 +2,9 @@
 #define hpc_interactive_animation_hh
 
 #include <stdint.h>
-#include <array>
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/logging.hh"
+#include "libhpc/system/array.hh"
 
 namespace hpc {
    namespace inter {
@@ -36,11 +36,19 @@ namespace hpc {
 
          animation( const value_type& start,
                     const value_type& finish )
-            : _rng{ { start, finish } },
+            : _dur( 200 ),
+#ifdef CXX_0X
+              _rng{ { start, finish } },
               _ease{ { 0, 0 } },
-              _dur( 200 ),
+#endif
               _inv_dur( 1.0/200.0 )
          {
+#ifndef CXX_0X
+            _rng[0] = start;
+            _rng[1] = finish;
+            _ease[0] = 0;
+            _ease[1] = 0;
+#endif
          }
 
          void
@@ -72,7 +80,7 @@ namespace hpc {
          void
          increment()
          {
-            auto dur = boost::chrono::duration_cast<time_type>( clock_type::now() - _old );
+            time_type dur = boost::chrono::duration_cast<time_type>( clock_type::now() - _old );
             _pos = std::min<double>( (double)dur.count(), _dur );
             _fac = _pos*_inv_dur;
          }
@@ -94,8 +102,8 @@ namespace hpc {
 
       protected:
 
-	 std::array<value_type,2> _rng;
-	 std::array<unsigned,2> _ease;
+	 hpc::array<value_type,2> _rng;
+	 hpc::array<unsigned,2> _ease;
          double _pos;
          double _dur;
          double _inv_dur;

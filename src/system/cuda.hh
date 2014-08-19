@@ -15,8 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_system_cuda_hh
-#define libhpc_system_cuda_hh
+#ifndef hpc_system_cuda_hh
+#define hpc_system_cuda_hh
+
+#if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ == 0
+#define CUDA_HOST
+#else
+#ifdef CUDA_HOST
+#undef CUDA_HOST
+#endif
+#endif
 
 #ifdef __CUDACC__
 

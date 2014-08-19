@@ -20,6 +20,7 @@
 
 #include <string>
 #include "libhpc/system/math.hh"
+#include "libhpc/system/array.hh"
 #include "comm.hh"
 
 namespace hpc {
@@ -30,7 +31,7 @@ namespace hpc {
 		   unsigned width = 5 );
 
       template< class T >
-      std::array<T,2>
+      hpc::array<T,2>
       modulo( T size,
 	      mpi::comm const& comm = mpi::comm::world )
       {

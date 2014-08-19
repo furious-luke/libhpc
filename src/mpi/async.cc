@@ -72,7 +72,7 @@ namespace hpc {
          _ev_hndlrs[eh->tag()] = eh;
       }
 
-      std::unordered_map<int,async::event_handler*> const&
+      boost::unordered_map<int,async::event_handler*> const&
       async::event_handlers() const
       {
          return _ev_hndlrs;

@@ -15,12 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_assert_hh
-#define libhpc_debug_assert_hh
+#ifndef hpc_debug_assert_hh
+#define hpc_debug_assert_hh
+
+#include "libhpc/system/cuda.hh"
 
 #if (!defined( NDEBUG ) || !defined( NEXCEPT ))
 
-#ifndef __CUDA_ARCH__
+#ifdef CUDA_HOST
 
 #include <sstream>
 #include "libhpc/system/narg.hh"
@@ -51,7 +53,7 @@
 
 #endif // NSTACKTRACE
 
-#else // __CUDAARCH__
+#else // __CUDA_ARCH__
 
 #define _ASSERT( expr, ... )
 

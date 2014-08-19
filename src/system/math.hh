@@ -18,11 +18,12 @@
 #ifndef hpc_system_math_hh
 #define hpc_system_math_hh
 
+#include "cc_version.hh"
 #include <math.h>
 #include <limits>
-#include <array>
 #include "libhpc/debug/assert.hh"
 #include "cuda.hh"
+#include "array.hh"
 
 namespace hpc {
 
@@ -146,12 +147,19 @@ namespace hpc {
    }
 
    template< class T >
-   std::array<T,2>
+   hpc::array<T,2>
    modulo( T size,
 	   T rank,
 	   T group )
    {
-      return std::array<T,2>{ (rank*size)/group, ((rank + 1)*size)/group };
+#ifdef CXX_0X
+      return hpc::array<T,2>{ (rank*size)/group, ((rank + 1)*size)/group };
+#else
+      hpc::array<T,2> res;
+      res[0] = (rank*size)/group;
+      res[1] = ((rank + 1)*size)/group;
+      return res;
+#endif
    }
 
 }
