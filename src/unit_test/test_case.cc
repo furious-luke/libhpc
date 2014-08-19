@@ -21,6 +21,8 @@
 namespace hpc {
    namespace test {
 
+      char const* _prefix;
+
       test_case_node_t* head = NULL;
 
       test_case_base::test_case_base( std::string const& name,
@@ -30,6 +32,8 @@ namespace hpc {
            _runner( 0 ),
            _succ( false )
       {
+         if( _prefix )
+            _name = std::string( _prefix ) + _name;
          _add_test_case();
       }
 
@@ -105,6 +109,11 @@ namespace hpc {
             bool succ = *it++ == 1;
             std::cout << (succ ? "." : "X");
          }
+      }
+
+      set_suite_prefix::set_suite_prefix( char const* pre )
+      {
+         _prefix = pre;
       }
 
    }

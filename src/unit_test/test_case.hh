@@ -24,6 +24,9 @@
 #include <boost/scoped_ptr.hpp>
 #include "result_buffer.hh"
 
+#define SUITE_PREFIX( pre )                     \
+   hpc::test::set_suite_prefix ANON( pre )
+
 #define TEST_CASE( name )                               \
    void UNIQUE_LINE( __hpc_test_case__ )(               \
       hpc::test::result_buffer<>& rb );                 \
@@ -160,6 +163,13 @@ namespace hpc {
          boost::function<void(result_buffer<>&)> _func;
          result_buffer<> _rb;
          std::vector<char> _buf;
+      };
+
+      class set_suite_prefix
+      {
+      public:
+
+         set_suite_prefix( char const* pre );
       };
 
    }

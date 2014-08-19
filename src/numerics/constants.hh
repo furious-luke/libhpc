@@ -15,15 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_numerics_constants_hh
-#define libhpc_numerics_constants_hh
+#ifndef hpc_numerics_constants_hh
+#define hpc_numerics_constants_hh
 
 namespace hpc {
    namespace constant {
 
       // Astronomy/astrophysics.
       static const double c           = 2.99792458e8; // m/s
-      static const double c_km_s      = 299792.458; // m/s
+      static const double c_km_s      = 299792.458; // km/s
       static const double c_mpc_gyr   = 3.06391536e2; // Mpc/Gyr
       static const double parsec      = 3.08567758e16; // m
       static const double mpc         = 3.08567758e22; // m

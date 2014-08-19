@@ -19,19 +19,42 @@
 #define libhpc_system_tmpfile_hh
 
 #include <boost/filesystem.hpp>
+#include <boost/move/move.hpp>
 
 namespace hpc {
    namespace fs = boost::filesystem;
 
    class tmpfile
    {
+      BOOST_MOVABLE_BUT_NOT_COPYABLE( tmpfile );
+
    public:
 
       tmpfile();
 
       tmpfile( std::ios_base::openmode mode );
 
+      inline
+      tmpfile( BOOST_RV_REF( tmpfile ) src )
+         : _path( src._path )
+      {
+         src._path.clear();
+      }
+
       ~tmpfile();
+
+      inline
+      tmpfile&
+      operator=( BOOST_RV_REF( tmpfile ) src )
+      {
+         close();
+         _path = src._path;
+         src._path.clear();
+         return *this;
+      }
+
+      void
+      close();
 
       fs::path const&
       filename() const;

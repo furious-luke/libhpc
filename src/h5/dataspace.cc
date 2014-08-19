@@ -42,8 +42,9 @@ namespace hpc {
       }
 
       dataspace::dataspace( dataset const& dset )
-	 : _id( dset.dataspace().id() )
+         : _id( -1 )
       {
+         *this = dset.dataspace();
       }
 
       template< class Dims >
