@@ -24,63 +24,61 @@
 #include "ridders.hh"
 
 namespace hpc {
-   namespace algorithm {
 
-      template< typename Iterator >
-      struct select_function
+   template< typename Iterator >
+   struct select_function
+   {
+      typedef typename Iterator::value_type value_type;
+
+      select_function( Iterator const& start,
+                       Iterator const& finish,
+                       long position,
+                       mpi::comm const& comm )
+         : start( start ),
+           finish( finish ),
+           position( position ),
+           comm( comm )
       {
-         typedef typename Iterator::value_type value_type;
-
-         select_function( const Iterator& start,
-                          const Iterator& finish,
-                          long position,
-                          const mpi::comm& comm )
-            : start( start ),
-              finish( finish ),
-              position( position ),
-              comm( comm )
-         {
-         }
-
-         long
-         operator()( const value_type& x )
-         {
-            long sum_left = std::count_if(
-               start, finish,
-               std::bind2nd(
-                  std::less<value_type>(), x
-                  )
-               );
-            return comm.all_reduce( sum_left ) - position;
-         }
-
-         const Iterator start, finish;
-         long position;
-         const mpi::comm& comm;
-      };
-
-      template< class Iterator >
-      typename Iterator::value_type
-      select( const Iterator& start,
-              const Iterator& finish,
-              long position,
-              const mpi::comm& comm = mpi::comm::world )
-      {
-         typedef typename Iterator::value_type value_type;
-
-         ASSERT( position >= 0, "Invalid selection position." );
-
-         // Find the minimum and maximum values.
-         std::pair<Iterator,Iterator> minmax = std::minmax_element( start, finish );
-         value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN );
-         value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX );
-
-         // Run Ridders until we find the balance point.
-         select_function<Iterator> func( start, finish, position, comm );
-         return ridders( func, x1, x2 );
       }
 
+      long
+      operator()( value_type const& x )
+      {
+         long sum_left = std::count_if(
+            start, finish,
+            std::bind2nd(
+               std::less<value_type>(), x
+               )
+            );
+         return comm.all_reduce( sum_left ) - position;
+      }
+
+      Iterator const start, finish;
+      long position;
+      mpi::comm const& comm;
+   };
+
+   template< class Iterator >
+   typename Iterator::value_type
+   select( Iterator const& start,
+           Iterator const& finish,
+           long position,
+           mpi::comm const& comm = mpi::comm::world )
+   {
+      typedef typename Iterator::value_type value_type;
+
+      ASSERT( position >= 0, "Invalid selection position." );
+
+      // Find the minimum and maximum values.
+      std::pair<Iterator,Iterator> minmax = std::minmax_element( start, finish );
+      value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN );
+      value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX );
+
+      // Run Ridders until we find the balance point.
+      select_function<Iterator> func( start, finish, position, comm );
+      return ridders( func, x1, x2 );
    }
+
 }
 
 #endif
