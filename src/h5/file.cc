@@ -79,6 +79,12 @@ namespace hpc {
          }
       }
 
+      h5::dataset const
+      file::dataset( std::string const& name ) const
+      {
+         return h5::dataset( *this, name );
+      }
+
       // template<>
       // void
       // file::write<string>( const std::string& name,

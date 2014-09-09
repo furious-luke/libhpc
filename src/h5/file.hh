@@ -55,6 +55,9 @@ namespace hpc {
 	 void
 	 close();
 
+         h5::dataset const
+         dataset( std::string const& name ) const;
+
 	 template< class BufferT >
          typename boost::disable_if<random_access_trait<BufferT> >::type
 	 write( std::string const& name,

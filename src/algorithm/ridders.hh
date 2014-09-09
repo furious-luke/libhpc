@@ -95,10 +95,8 @@ namespace hpc {
          return x1;
       else if( is_zero( f2 ) )
          return x2;
-#ifndef NDEBUG
       else
-         ASSERT( "Ridders failed to converge." );
-#endif
+         return std::numeric_limits<T>::max();
    }
 
 }

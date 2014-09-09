@@ -23,24 +23,22 @@
 #include "select.hh"
 
 namespace hpc {
-   namespace algorithm {
 
-      template< class Iterator >
-      typename Iterator::value_type
-      median( Iterator const& start,
-              Iterator const& finish,
-              mpi::comm const& comm = mpi::comm::world )
-      {
-         typedef typename Iterator::value_type value_type;
+   template< class Iterator >
+   typename Iterator::value_type
+   median( Iterator const& start,
+           Iterator const& finish,
+           mpi::comm const& comm = mpi::comm::world )
+   {
+      typedef typename Iterator::value_type value_type;
 
-         // Find the position of the median.
-         long pos = comm.all_reduce( std::distance( start, finish ), MPI_SUM );
-         pos >>= 1;
+      // Find the position of the median.
+      long pos = comm.all_reduce( std::distance( start, finish ), MPI_SUM );
+      pos >>= 1;
 
-         return select( start, finish, pos, comm );
-      }
-
+      return select( start, finish, pos, comm );
    }
+
 }
 
 #endif

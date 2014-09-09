@@ -30,5 +30,6 @@
 #include "system/view.hh"
 #include "system/matrix.hh"
 #include "system/has.hh"
+#include "system/string.hh"
 
 #endif
