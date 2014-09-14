@@ -46,32 +46,49 @@ namespace hpc {
 	 this->clear();
       }
 
+      datatype::datatype( datatype&& src )
+	 : _type( src._type ),
+	   _size( src._size )
+      {
+	 if( !src.is_primitive() )
+	 {
+	    src._type = MPI_DATATYPE_NULL;
+	    src._size = 0;
+	 }
+      }
+
       void
       datatype::clear()
       {
-	 if(this->_type != MPI_DATATYPE_NULL &&
-#if defined( MPICH ) || defined( MPICH2 )
-	    this->_type != MPIR_CXX_BOOL &&
-#elif OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
-            this->_type != MPI_CHAR &&
-#else
-            this->_type != MPI_C_BOOL &&
-#endif
-	    this->_type != MPI_INT &&
-	    this->_type != MPI_UNSIGNED &&
-	    this->_type != MPI_LONG &&
-	    this->_type != MPI_UNSIGNED_LONG &&
-	    this->_type != MPI_LONG_LONG &&
-	    this->_type != MPI_UNSIGNED_LONG_LONG &&
-	    this->_type != MPI_BYTE &&
-	    this->_type != MPI_CHAR &&
-	    this->_type != MPI_FLOAT &&
-	    this->_type != MPI_DOUBLE)
+	 if( !is_primitive() )
 	 {
-	    MPI_Type_free(&this->_type);
+	    MPI_Type_free( &_type );
+	    _type = MPI_DATATYPE_NULL;
+	    _size = 0;
 	 }
-	 this->_type = MPI_DATATYPE_NULL;
-	 this->_size = 0;
+      }
+
+      bool
+      datatype::is_primitive() const
+      {
+	 return _type == MPI_DATATYPE_NULL ||
+#if defined( MPICH ) || defined( MPICH2 )
+	    _type == MPIR_CXX_BOOL ||
+#elif OMPI_MAJOR_VERSION <= 1 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION <= 4)
+            _type == MPI_CHAR ||
+#else
+            _type == MPI_C_BOOL ||
+#endif
+	    _type == MPI_INT ||
+	    _type == MPI_UNSIGNED ||
+	    _type == MPI_LONG ||
+	    _type == MPI_UNSIGNED_LONG ||
+	    _type == MPI_LONG_LONG ||
+	    _type == MPI_UNSIGNED_LONG_LONG ||
+	    _type == MPI_BYTE ||
+	    _type == MPI_CHAR ||
+	    _type == MPI_FLOAT ||
+	    _type == MPI_DOUBLE;
       }
 
       void

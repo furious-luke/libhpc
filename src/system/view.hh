@@ -480,6 +480,15 @@ namespace hpc {
    };
 
    template< class Vector >
+   struct type_traits< view<Vector>& >
+   {
+      typedef       view<Vector>  value;
+      typedef const view<Vector>  const_value;
+      typedef       view<Vector>  reference;
+      typedef const view<Vector>& const_reference;
+   };
+
+   template< class Vector >
    struct random_access_trait< view<Vector> >
       : boost::true_type {};
 

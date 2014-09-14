@@ -51,7 +51,12 @@ namespace hpc {
          comm( BOOST_RV_REF( comm ) src )
             : _comm( src._comm )
          {
-            src._comm = MPI_COMM_NULL;
+            if( src._comm != MPI_COMM_WORLD &&
+                src._comm != MPI_COMM_NULL &&
+                src._comm != MPI_COMM_SELF )
+	    {
+	       src._comm = MPI_COMM_NULL;
+	    }
          }
 
 	 ~comm();
@@ -77,7 +82,12 @@ namespace hpc {
          {
             clear();
             _comm = src._comm;
-            src._comm = MPI_COMM_NULL;
+            if( src._comm != MPI_COMM_WORLD &&
+                src._comm != MPI_COMM_NULL &&
+                src._comm != MPI_COMM_SELF )
+	    {
+	       src._comm = MPI_COMM_NULL;
+	    }
             return *this;
          }
 
@@ -108,10 +118,9 @@ namespace hpc {
 			    int last,
 			    mpi::comm& new_comm );
 
-         void
+	 mpi::comm
          split( int color,
-                mpi::comm& new_comm,
-                int key=0 );
+                int key = 0 ) const;
 
 	 void
 	 send( const void* out,
@@ -404,6 +413,28 @@ namespace hpc {
 	 }
 
 	 void
+	 sendrecv( void* out_data,
+		   int out_cnt,
+		   mpi::datatype const& out_type,
+		   int dst,
+		   int out_tag,
+		   void* inc_data,
+		   int inc_cnt,
+		   mpi::datatype const& inc_type,
+		   int src,
+		   int inc_tag ) const;
+
+	 void
+	 exchange( void* out_data,
+		   int out_cnt,
+		   mpi::datatype const& out_type,
+		   void* inc_data,
+		   int inc_cnt,
+		   mpi::datatype const& inc_type,
+		   int partner,
+		   int tag = 0 ) const;
+
+	 void
 	 bcast(void* data,
 	       const datatype& type,
 	       int root,
@@ -587,19 +618,27 @@ namespace hpc {
 	 void
 	 barrier() const;
 
-         template< class T >
-         std::vector<T>
+         template< class T,
+		   typename boost::disable_if<boost::is_class<T>,int>::type = 0 >
+	 void
          all_gather( T const& data,
-                     typename boost::disable_if<boost::is_class<T>,int>::type = 0 ) const
+		     std::vector<T>& out ) const
          {
             typedef typename std::vector<T>::size_type size_type;
-
-            // Call MPI routine.
-            std::vector<T> res( size() );
+	    ASSERT( out.size() == size(), "Allgather buffer wrong size." );
 	    MPI_INSIST( MPI_Allgather( (void*)&data, 1, MPI_MAP_TYPE( T ),
-                                       res.data(), 1, MPI_MAP_TYPE( T ),
+                                       out.data(),   1, MPI_MAP_TYPE( T ),
                                        _comm ) );
+         }
 
+         template< class T,
+		   typename boost::disable_if<boost::is_class<T>,int>::type = 0 >
+         std::vector<T>
+         all_gather( T const& data ) const
+         {
+            typedef typename std::vector<T>::size_type size_type;
+            std::vector<T> res( size() );
+	    all_gather( data, res );
             return res;
          }
 

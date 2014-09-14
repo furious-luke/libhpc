@@ -44,10 +44,15 @@ namespace hpc {
 
 	 datatype( MPI_Datatype type = MPI_DATATYPE_NULL );
 
+	 datatype( datatype&& src );
+
 	 ~datatype();
 
 	 void
 	 clear();
+
+	 bool
+	 is_primitive() const;
 
 	 void
 	 mpi_datatype( MPI_Datatype type );
@@ -61,10 +66,15 @@ namespace hpc {
 		     size_t block_size=1,
 		     size_t offs=0 );
 
-	 // void
-	 // indexed( const vector<mpi::lindex>::view& idxs,
-	 //          const datatype& base,
-	 //          mpi::lindex block_size=1 );
+	 template< class IndexVec >
+	 mpi::datatype
+	 indexed( IndexVec const& idxs ) const
+	 {
+	    MPI_Datatype new_type;
+	    MPI_Type_create_indexed_block( idxs.size(), 1, (int*)idxs.data(), _type, &new_type );
+	    MPI_Type_commit( &new_type );
+	    return mpi::datatype( new_type );
+	 }
 
 	 template< class DisplVec,
 		   class IndexVec >

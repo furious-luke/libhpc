@@ -83,19 +83,26 @@ namespace hpc {
       return first;
    }
 
-   template< class Sequence >
+   template< class Seq >
    void
-   counts_to_displs( typename type_traits<Sequence>::reference seq )
+   _counts_to_displs_i( typename type_traits<Seq>::reference seq )
    {
-      if(seq.size() > 0)
-	 counts_to_displs(seq.begin(), seq.size() - 1);
+      if( seq.size() > 0 )
+	 counts_to_displs( seq.begin(), seq.size() - 1 );
    }
 
-   template< class SeqT >
-   std::vector<typename SeqT::value_type>
-   counts_to_displs( typename type_traits<SeqT>::const_reference cnts )
+   template< class T >
+   void
+   counts_to_displs_i( T&& seq )
    {
-      typedef typename SeqT::value_type value_type;
+      _counts_to_displs_i<T>( std::forward<T>( seq ) );
+   }
+
+   template< class Seq >
+   std::vector<typename Seq::value_type>
+   counts_to_displs( typename type_traits<Seq>::const_reference cnts )
+   {
+      typedef typename Seq::value_type value_type;
       if( !cnts.empty() )
       {
          std::vector<value_type> displs( cnts.size() + 1 );

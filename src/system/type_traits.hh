@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #ifdef HAVE_THRUST
 #include <thrust/host_vector.h>
 #endif
@@ -29,10 +30,10 @@ namespace hpc {
    template< class T >
    struct type_traits
    {
-      typedef       T  value;
-      typedef const T  const_value;
-      typedef       T& reference;
-      typedef const T& const_reference;
+      typedef       typename boost::remove_reference<T>::type  value;
+      typedef const typename boost::remove_reference<T>::type  const_value;
+      typedef       typename boost::remove_reference<T>::type& reference;
+      typedef const typename boost::remove_reference<T>::type& const_reference;
    };
 
    template< class T >

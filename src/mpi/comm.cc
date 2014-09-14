@@ -52,8 +52,8 @@ namespace hpc {
              this->_comm != MPI_COMM_SELF )
 	 {
 	    MPI_INSIST( MPI_Comm_free( &this->_comm ) );
+	    this->_comm = MPI_COMM_NULL;
 	 }
-	 this->_comm = MPI_COMM_NULL;
       }
 
       void
@@ -132,14 +132,13 @@ namespace hpc {
 	    new_comm.mpi_comm( _new_comm );
       }
 
-      void
+      mpi::comm
       comm::split( int color,
-                   mpi::comm& new_comm,
-                   int key )
+                   int key ) const
       {
          MPI_Comm _new_comm;
-         MPI_Comm_split(this->_comm, color, key, &_new_comm);
-         new_comm.mpi_comm(_new_comm);
+         MPI_Comm_split( _comm, color, key, &_new_comm );
+	 return mpi::comm( _new_comm );
       }
 
       void
@@ -198,6 +197,37 @@ namespace hpc {
       {
 	 ASSERT(count >= 0);
 	 MPI_INSIST(MPI_Irecv(inc, count, type.mpi_datatype(), from, tag, this->_comm, &req.mod_mpi_request()));
+      }
+
+      void
+      comm::sendrecv( void* out_data,
+		      int out_cnt,
+		      mpi::datatype const& out_type,
+		      int dst,
+		      int out_tag,
+		      void* inc_data,
+		      int inc_cnt,
+		      mpi::datatype const& inc_type,
+		      int src,
+		      int inc_tag ) const
+      {
+	 MPI_INSIST( MPI_Sendrecv( out_data, out_cnt, out_type.mpi_datatype(), dst, out_tag,
+				   inc_data, inc_cnt, inc_type.mpi_datatype(), src, inc_tag,
+				   _comm, 0 ) );
+      }
+
+      void
+      comm::exchange( void* out_data,
+		      int out_cnt,
+		      mpi::datatype const& out_type,
+		      void* inc_data,
+		      int inc_cnt,
+		      mpi::datatype const& inc_type,
+		      int partner,
+		      int tag ) const
+      {
+	 sendrecv( out_data, out_cnt, out_type, partner, tag,
+		   inc_data, inc_cnt, inc_type, partner, tag );
       }
 
       void
