@@ -18,32 +18,82 @@
 #ifndef hpc_algorithm_binary_partitioner_hh
 #define hpc_algorithm_binary_partitioner_hh
 
+#include "libhpc/mpi/comm.hh"
+#include "libhpc/system/math.hh"
+#include "libhpc/mpi/helpers.hh"
+#include "libhpc/mpi/partition.hh"
+#include "median.hh"
+
 namespace hpc {
 
-   template< class DimIterT
-	     class CoordT = double >
+   template< class IterT >
+   class median_iterator
+   {
+   public:
+
+      typedef IterT iterator_type;
+      typedef typename iterator_type::value_type median_type;
+
+   public:
+
+      median_iterator( iterator_type it,
+		       median_type med = 0 )
+	 : _it( it ),
+	   _med( med )
+      {
+      }
+
+      bool
+      operator!=( iterator_type const& other ) const
+      {
+	 return _it = other._it;
+      }
+
+      int
+      operator*() const
+      {
+	 return *_it <= _med;
+      }
+
+      void
+      operator++()
+      {
+	 ++_it;
+      }
+
+   protected:
+
+      iterator_type _it;
+      median_type _med;
+   };
+
+   template< class DimIterT,
+	     class PermuteT >
    class binary_partitioner
    {
    public:
 
       typedef DimIterT dim_iter_type;
-      typedef dim_iter_type::value_type coord_iter_type;
-      typedef CoordT coord_type;
+      typedef PermuteT permute_type;
+      typedef typename dim_iter_type::const_iterator coord_iter_type;
+      typedef typename coord_iter_type::value_type coord_type;
 
    public:
 
       binary_partitioner( dim_iter_type dims_begin,
 			  dim_iter_type dims_end,
+			  permute_type perm,
 			  unsigned ppc = 1000,
 			  mpi::comm const& comm = mpi::comm::world )
 	 : _dims_begin( dims_begin ),
 	   _dims_end( dims_end ),
+	   _perm( perm ),
 	   _max_ppc( ppc )
       {
-	 _lsize = *dims_end - *dims_begin;
+	 _lsize = dims_begin->end() - dims_begin->begin();
 	 _gsize = comm.all_gather( _lsize );
-	 _n_leaf_cells = _lsize/_ppc;
-	 if( _n_leaf_cells*_ppc < _lsize )
+	 _n_leaf_cells = _lsize/_max_ppc;
+	 if( _n_leaf_cells*_max_ppc < _lsize )
 	    ++_n_leaf_cells;
 	 _depth = log2i( _n_leaf_cells );
 	 if( (1 << _depth) < _n_leaf_cells )
@@ -76,27 +126,27 @@ namespace hpc {
       {
 	 // Which dimension is best to split?
 	 unsigned dim = _choose_dim( bnds );
-	 coord_iter_type crd_begin = *(_dim_begin + dim);
-	 coord_iter_type crd_end = *(_dim_end + dim);
+	 coord_iter_type crd_begin = (_dims_begin + dim)->begin();
+	 coord_iter_type crd_end = (_dims_begin + dim)->end();
 
 	 // Different version depending on serial or parallel.
 	 if( comm.size() > 1 )
 	 {
 	    // Calculate an initial median.
 	    unsigned left_size = mpi::balanced_left_size( _lsize, comm );
-	    coord_type med = mpi::select( crd_begin, crd_end, left_size, comm );
+	    coord_type med = select( crd_begin, crd_end, left_size, comm );
 
 	    // Calculate which ranks will collect on the left.
-	    mpi::partition part( comm );
+	    mpi::balanced_partition part( comm );
 	    part.split( median_iterator_type( crd_begin, med ), median_iterator_type( crd_end ) );
 
 	    // Reevaluate the kth position to split on such that all
 	    // ranks on the left keep their array sizes.
-	    unsigned sub_size = part.sub_comm.all_reduce( _lsize );
-	    bool root_on_left = comm.bcast( part.collecting_left() );
-	    unsigned root_sub_size = comm.bcast( sub_size );
+	    unsigned sub_size = part.sub_comm().all_reduce( _lsize );
+	    bool root_on_left = comm.bcast2( part.collecting_left() );
+	    unsigned root_sub_size = comm.bcast2( sub_size );
 	    left_size = root_on_left ? root_sub_size : (_gsize - root_sub_size);
-	    med = mpi::select( crd_begin, crd_end, left_size, comm );
+	    med = select( crd_begin, crd_end, left_size, comm );
 
 	    // Calculate mpi::partition.
 	    part.connect( median_iterator_type( crd_begin, med ), median_iterator_type( crd_end ) );
@@ -107,7 +157,7 @@ namespace hpc {
 	    _sub_size = sub_size;
 
 	    // Call permutation callback.
-	    _permute( part );
+	    _perm( part );
 	 }
 	 else
 	 {
@@ -117,10 +167,10 @@ namespace hpc {
 	    crd_end += _offs[cell] + _cnts[cell];
 
 	    // Calculate median.
-	    coord_type med = hpc::median( crd_begin, crd_end, mpi::comm::self );
+	    coord_type med = median( crd_begin, crd_end, mpi::comm::self );
 
 	    // Create partition.
-	    mpi::partition part( mpi::comm::self );
+	    mpi::balanced_partition part( mpi::comm::self );
 	    part.split( median_iterator_type( crd_begin, med ), median_iterator_type( crd_end ) );
 
 	    // Stash results.
@@ -134,7 +184,7 @@ namespace hpc {
 	    _split = std::tuple<coord_type,unsigned>( med, dim );
 
 	    // Call permutation.
-	    _permute( part );
+	    _perm( part );
 	 }
       }
 
@@ -178,10 +228,17 @@ namespace hpc {
 
    protected:
 
-      dim_iter_type _dim_begin_begin, _dim_begin_end;
-      dim_iter_type _dim_end_begin, _dim_end_end;
-      std::array<coord_type,dim_const> _min, _max;
+      dim_iter_type _dims_begin, _dims_end;
+      permute_type _perm;
+      unsigned _max_ppc;
+      unsigned _depth;
+      unsigned _lsize, _gsize;
+      unsigned _n_leaf_cells, _n_cells, _n_inc_leaf_cells;
+      std::vector<coord_type> _min, _max;
       std::vector<unsigned> _offs, _cnts;
+      std::tuple<coord_type,unsigned> _split;
+      unsigned _sub_size;
+      mpi::comm _sub_comm;
    };
 
 }

@@ -74,6 +74,30 @@ namespace hpc {
 	 return *_comm;
       }
 
+      mpi::comm const&
+      balanced_partition::sub_comm() const
+      {
+	 return _sub_comm;
+      }
+
+      bool
+      balanced_partition::collecting_left() const
+      {
+	 return _collecting_left;
+      }
+
+      unsigned
+      balanced_partition::left_size() const
+      {
+	 return _left_size;
+      }
+
+      unsigned
+      balanced_partition::right_size() const
+      {
+	 return _right_size;
+      }
+
       std::vector<unsigned> const
       balanced_partition::displs() const
       {

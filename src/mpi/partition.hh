@@ -46,9 +46,34 @@ namespace hpc {
 	 {
 	    clear();
 	    if( _comm->size() == 1 )
-	       return _construct_serial( begin, end );
+	       _construct_serial( begin, end );
 	    else
-	       return _construct_parallel( begin, end );
+	       _construct_parallel( begin, end );
+	    return _sub_comm;
+	 }
+
+	 template< class Iter >
+	 void
+	 split( Iter const& begin,
+		Iter const& end )
+	 {
+	    clear();
+	    if( _comm->size() == 1 )
+	       mpi::comm::self;
+	    else
+	       _split_parallel( begin, end );
+	 }
+
+	 template< class Iter >
+	 void
+	 connect( Iter const& begin,
+		  Iter const& end )
+	 {
+	    clear();
+	    if( _comm->size() == 1 )
+	       _construct_serial( begin, end );
+	    else
+	       _connect_parallel( begin, end );
 	 }
 
 	 void
@@ -72,6 +97,18 @@ namespace hpc {
 
 	 mpi::comm const&
 	 comm() const;
+
+	 mpi::comm const&
+	 sub_comm() const;
+
+	 bool
+	 collecting_left() const;
+
+	 unsigned
+	 left_size() const;
+
+	 unsigned
+	 right_size() const;
 
 	 std::vector<unsigned> const
 	 displs() const;
@@ -113,7 +150,15 @@ namespace hpc {
 			      Iter const& end )
 	 {
 	    LOGBLOCKD( "Constructing parallel balanced partition." );
+	    _split_parallel( begin, end );
+	    _connect_parallel( begin, end );
+	 }
 
+	 template< class Iter >
+	 void
+	 _split_parallel( Iter const& begin,
+			  Iter const& end )
+	 {
 	    mpi::comm const& comm = *_comm;
 	    int my_rank = comm.rank();
 
@@ -124,59 +169,78 @@ namespace hpc {
 		    "Partition does not respect processor boundaries." );
 
 	    // Sum the number of elements on the left.
-	    long on_left = 0;
+	    _on_left = 0;
 	    for( Iter it = begin; it != end; ++it )
-	       on_left += ((*it) ? 0 : 1);
-	    LOGDLN( on_left, " elements initially on left." );
+	       _on_left += ((*it) ? 0 : 1);
+	    LOGDLN( _on_left, " elements initially on left." );
 
 	    // Gather them all to determine which ranks will be collecting for
 	    // which side.
-	    std::vector<long> balances = comm.all_gather( on_left );
-	    std::vector<int> ranks( balances.size() );
-            boost::iota( ranks, 0 );
-            sort_by_key( balances, ranks );
-	    LOGDLN( "On left vector: ", balances );
-	    LOGDLN( "Rank vector:    ", ranks );
+	    _balances = comm.all_gather( _on_left );
+	    _ranks.resize( _balances.size() );
+            boost::iota( _ranks, 0 );
+            sort_by_key( _balances, _ranks );
+	    LOGDLN( "On left vector: ", _balances );
+	    LOGDLN( "Rank vector:    ", _ranks );
 
 	    // Assign processors to left or right.
-	    bool collecting_left = false;
-	    for( unsigned ii = balances.size(); ii > balances.size() - (_comm->size()/2 + _comm->size()%2); --ii )
+	    _collecting_left = false;
+	    for( unsigned ii = _balances.size(); ii > _balances.size() - (_comm->size()/2 + _comm->size()%2); --ii )
 	    {
-	       if( ranks[ii - 1] == my_rank )
+	       if( _ranks[ii - 1] == my_rank )
 	       {
-		  collecting_left = true;
+		  _collecting_left = true;
 		  break;
 	       }
 	    }
 
+	    // Split the communicator.
+	    _sub_comm = _comm->split( _collecting_left ? 0 : 1 );
+
+	    // Sum sub-sizes.
+	    unsigned size = (_collecting_left ? (end - begin) : 0);
+	    _left_size = _comm->all_gather( size );
+	    size = (_collecting_left ? 0 : (end - begin));
+	    _right_size = _comm->all_gather( size );
+
+	 }
+
+	 template< class Iter >
+	 void
+	 _connect_parallel( Iter const& begin,
+			    Iter const& end )
+	 {
+	    mpi::comm const& comm = *_comm;
+	    int my_rank = comm.rank();
+
 	    // Reformulate the on_left value to indicate how many elements I need.
 	    // Positive the value is how many lefts we need. If it's negative,
 	    // it's how many lefts we need.
-	    if( collecting_left )
+	    if( _collecting_left )
 	    {
-	       on_left = (end - begin) - on_left;
+	       _on_left = (end - begin) - _on_left;
 	       LOGDLN( "Collecting for left." );
 	    }
 	    else
 	    {
-	       on_left *= -1;
+	       _on_left *= -1;
 	       LOGDLN( "Collecting for right." );
 	    }
 
 	    // Perform a second gather all.
-	    comm.all_gather( on_left, balances );
-            boost::iota( ranks, 0 );
-            sort_by_key( balances, ranks );
-	    std::reverse( balances.begin(), balances.end() );
-	    std::reverse( ranks.begin(), ranks.end() );
-	    LOGDLN( "Balance vector: ", balances );
-	    LOGDLN( "Rank vector:    ", ranks );
+	    comm.all_gather( _on_left, _balances );
+            boost::iota( _ranks, 0 );
+            sort_by_key( _balances, _ranks );
+	    std::reverse( _balances.begin(), _balances.end() );
+	    std::reverse( _ranks.begin(), _ranks.end() );
+	    LOGDLN( "Balance vector: ", _balances );
+	    LOGDLN( "Rank vector:    ", _ranks );
 
 	    unsigned n_exs, n_idxs;
 	    for( int phase = 0; phase < 3; ++phase )
 	    {
 	       LOGBLOCKD( "Phase: ", phase );
-	       std::vector<long> bals = balances;
+	       std::vector<long> bals = _balances;
 
 	       if( phase == 0 )
 		  n_idxs = 0;
@@ -194,10 +258,10 @@ namespace hpc {
 		  LOGDLN( "Displs: ", _displs );
 	       }
 
-	       unsigned left = 0, right = ranks.size() - 1;
+	       unsigned left = 0, right = _ranks.size() - 1;
 	       Iter it = begin;
 	       n_exs = 0;
-	       while( left < ranks.size() && bals[left] > 0 )
+	       while( left < _ranks.size() && bals[left] > 0 )
 	       {
 		  LOGDLN( "Left: ", left );
 		  LOGDLN( "Right: ", right );
@@ -207,7 +271,7 @@ namespace hpc {
 
 		  unsigned to_ex = std::min( bals[left], -bals[right] );
 		  LOGDLN( "To exchange: ", to_ex );
-		  if( ranks[left] == my_rank || ranks[right] == my_rank )
+		  if( _ranks[left] == my_rank || _ranks[right] == my_rank )
 		  {
 		     if( phase == 0 )
 		     {
@@ -218,12 +282,12 @@ namespace hpc {
 		     {
 			if( phase == 2 )
 			{
-			   int partner = (ranks[left] == my_rank) ? ranks[right] : ranks[left];
+			   int partner = (_ranks[left] == my_rank) ? _ranks[right] : _ranks[left];
 			   _partners[n_exs] = partner;
 			}
 			for( unsigned ii = 0; ii < to_ex; ++it )
 			{
-			   if( *it == (collecting_left ? 1 : 0) )
+			   if( *it == (_collecting_left ? 1 : 0) )
 			   {
 			      LOGDLN( "Going to transfer at position: ", it - begin );
 			      if( phase == 2 )
@@ -262,16 +326,20 @@ namespace hpc {
 		  tmp = tmp2;
 	       }
 	    }
-
-	    return _comm->split( collecting_left ? 0 : 1 );
 	 }
 
       protected:
 
+	 long _on_left;
+	 std::vector<long> _balances;
+	 std::vector<int> _ranks;
+	 bool _collecting_left;
 	 std::vector<unsigned> _displs;
 	 std::vector<unsigned> _idxs;
 	 std::vector<int> _partners;
 	 mpi::comm const* _comm;
+	 mpi::comm _sub_comm;
+	 unsigned _left_size, _right_size;
       };
 
    }
