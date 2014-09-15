@@ -35,7 +35,7 @@ namespace hpc {
 
       void
       balanced_partition::transfer( void* data,
-				    mpi::datatype const& type )
+				    mpi::datatype const& type ) const
       {
 	 if( _partners.size() > 0 )
 	 {

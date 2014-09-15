@@ -18,6 +18,7 @@
 #ifndef hpc_algorithm_binary_partitioner_hh
 #define hpc_algorithm_binary_partitioner_hh
 
+#include <iterator>
 #include "libhpc/mpi/comm.hh"
 #include "libhpc/system/math.hh"
 #include "libhpc/mpi/helpers.hh"
@@ -44,15 +45,15 @@ namespace hpc {
       }
 
       bool
-      operator!=( iterator_type const& other ) const
+      operator!=( median_iterator const& other ) const
       {
-	 return _it = other._it;
+	 return _it != other._it;
       }
 
       int
       operator*() const
       {
-	 return *_it <= _med;
+	 return (*_it <= _med) ? 0 : 1;
       }
 
       void
@@ -61,11 +62,25 @@ namespace hpc {
 	 ++_it;
       }
 
+      typename iterator_type::difference_type
+      operator-( median_iterator const& other ) const
+      {
+         return _it - other._it;
+      }
+
    protected:
 
       iterator_type _it;
       median_type _med;
    };
+
+   template< class IterT >
+   median_iterator<IterT>
+   make_median_iterator( IterT it,
+                         typename IterT::value_type med = 0 )
+   {
+      return median_iterator<IterT>( it, med );
+   }
 
    template< class DimIterT,
 	     class PermuteT >
@@ -75,14 +90,14 @@ namespace hpc {
 
       typedef DimIterT dim_iter_type;
       typedef PermuteT permute_type;
-      typedef typename dim_iter_type::const_iterator coord_iter_type;
-      typedef typename coord_iter_type::value_type coord_type;
+      typedef typename std::iterator_traits<dim_iter_type>::value_type::const_iterator coord_iter_type;
+      typedef typename std::iterator_traits<coord_iter_type>::value_type coord_type;
 
    public:
 
       binary_partitioner( dim_iter_type dims_begin,
 			  dim_iter_type dims_end,
-			  permute_type perm,
+			  permute_type& perm,
 			  unsigned ppc = 1000,
 			  mpi::comm const& comm = mpi::comm::world )
 	 : _dims_begin( dims_begin ),
@@ -91,32 +106,69 @@ namespace hpc {
 	   _max_ppc( ppc )
       {
 	 _lsize = dims_begin->end() - dims_begin->begin();
-	 _gsize = comm.all_gather( _lsize );
+	 _gsize = comm.all_reduce( _lsize );
 	 _n_leaf_cells = _lsize/_max_ppc;
 	 if( _n_leaf_cells*_max_ppc < _lsize )
 	    ++_n_leaf_cells;
+
+         // Calculate depth.
 	 _depth = log2i( _n_leaf_cells );
 	 if( (1 << _depth) < _n_leaf_cells )
 	    ++_depth;
-	 _n_inc_leaf_cells = (1 << _depth) - _n_leaf_cells;
+
+         // Calculate number of incomplete leaf cells.
+	 _n_inc_leaf_cells = 2*(_n_leaf_cells - (1 << (_depth - 1)));
 
 	 // Calculate number of cells, including branch cells.
-	 _n_cells = 0;
+	 _n_cells = _n_inc_leaf_cells;
 	 for( unsigned ii = 0; ii < _depth; ++ii )
 	    _n_cells += 1 << ii;
-	 _n_cells -= (1 << _depth) - _n_inc_leaf_cells;
+
+         // Setup arrays.
+         _offs.resize( _n_cells );
+         _cnts.resize( _n_cells );
+#ifndef NDEBUG
+         boost::fill( _offs, std::numeric_limits<unsigned>::max() );
+         boost::fill( _cnts, std::numeric_limits<unsigned>::max() );
+#endif
+         _offs[0] = 0;
+         _cnts[0] = _lsize;
       }
 
       unsigned
-      n_cells()
+      n_elems() const
+      {
+	 return _lsize;
+      }
+
+      unsigned
+      n_gelems() const
+      {
+	 return _gsize;
+      }
+
+      unsigned
+      n_cells() const
       {
 	 return _n_cells;
       }
 
       unsigned
-      n_leaf_cells()
+      n_leaf_cells() const
       {
 	 return _n_leaf_cells;
+      }
+
+      unsigned
+      n_incomplete_leaf_cells() const
+      {
+	 return _n_inc_leaf_cells;
+      }
+
+      unsigned
+      depth() const
+      {
+	 return _depth;
       }
 
       void
@@ -138,7 +190,7 @@ namespace hpc {
 
 	    // Calculate which ranks will collect on the left.
 	    mpi::balanced_partition part( comm );
-	    part.split( median_iterator_type( crd_begin, med ), median_iterator_type( crd_end ) );
+	    part.split( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
 
 	    // Reevaluate the kth position to split on such that all
 	    // ranks on the left keep their array sizes.
@@ -149,7 +201,7 @@ namespace hpc {
 	    med = select( crd_begin, crd_end, left_size, comm );
 
 	    // Calculate mpi::partition.
-	    part.connect( median_iterator_type( crd_begin, med ), median_iterator_type( crd_end ) );
+	    part.connect( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
 
 	    // Stash results.
 	    _sub_comm = part.sub_comm();
@@ -163,15 +215,20 @@ namespace hpc {
 	 {
 	    // Use the provided "cell" index to identify which particles to
 	    // use as the cell to be split.
+            ASSERT( cell < _n_cells, "Invalid cell passed to partition." );
+            ASSERT( _offs[cell] != std::numeric_limits<unsigned>::max(),
+                    "Out-of-order cell passed to partition." );
+            ASSERT( _cnts[cell] != std::numeric_limits<unsigned>::max(),
+                    "Out-of-order cell passed to partition." );
 	    crd_begin += _offs[cell];
-	    crd_end += _offs[cell] + _cnts[cell];
+	    crd_end = crd_begin + _cnts[cell];
 
 	    // Calculate median.
 	    coord_type med = median( crd_begin, crd_end, mpi::comm::self );
 
 	    // Create partition.
 	    mpi::balanced_partition part( mpi::comm::self );
-	    part.split( median_iterator_type( crd_begin, med ), median_iterator_type( crd_end ) );
+	    part.construct( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
 
 	    // Stash results.
 	    unsigned lc = _left_child( cell );
@@ -200,26 +257,39 @@ namespace hpc {
 	 return _split;
       }
 
+      std::vector<unsigned> const&
+      offsets() const
+      {
+         return _offs;
+      }
+
+      std::vector<unsigned> const&
+      counts() const
+      {
+         return _cnts;
+      }
+
    protected:
 
-      void
+      unsigned
       _left_child( unsigned cell ) const
+      {
+	 return (cell + 1)*2 - 1;
+      }
+
+      unsigned
+      _right_child( unsigned cell ) const
       {
 	 return (cell + 1)*2;
       }
 
-      void
-      _right_child( unsigned cell ) const
-      {
-	 return _left_child( cell ) + 1;
-      }
-
-      void
+      unsigned
       _choose_dim( std::vector<std::array<coord_type,2> > bnds )
       {
 	 // Just select the longest dimension.
 	 auto res = std::max_element( bnds.begin(), bnds.end(),
-				      []( auto const& x, auto const& y )
+				      []( std::array<coord_type,2> const& x,
+                                          std::array<coord_type,2> const& y )
 				      {
 					 return (x[1] - x[0]) < (y[1] - y[0]);
 				      } );
@@ -240,6 +310,18 @@ namespace hpc {
       unsigned _sub_size;
       mpi::comm _sub_comm;
    };
+
+   template< class DimIterT,
+             class PermuteT >
+   binary_partitioner<DimIterT,PermuteT>
+   make_binary_partitioner( DimIterT dims_begin,
+                            DimIterT dims_end,
+                            PermuteT& perm,
+                            unsigned ppc = 1000,
+                            mpi::comm const& comm = mpi::comm::world )
+   {
+      return binary_partitioner<DimIterT,PermuteT>( dims_begin, dims_end, perm, ppc, comm );
+   }
 
 }
 

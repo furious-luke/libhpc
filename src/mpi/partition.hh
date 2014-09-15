@@ -59,7 +59,7 @@ namespace hpc {
 	 {
 	    clear();
 	    if( _comm->size() == 1 )
-	       mpi::comm::self;
+	       _sub_comm = mpi::comm::self;
 	    else
 	       _split_parallel( begin, end );
 	 }
@@ -78,11 +78,11 @@ namespace hpc {
 
 	 void
 	 transfer( void* data,
-		   mpi::datatype const& type );
+		   mpi::datatype const& type ) const;
 
 	 template< class Vec >
 	 void
-	 transfer( typename type_traits<Vec>::reference data )
+	 transfer( typename type_traits<Vec>::reference data ) const
 	 {
 	    typedef typename type_traits<Vec>::value::value_type value_type;
 	    transfer( data.data(), mpi::datatype( MPI_MAP_TYPE( value_type ) ) );
@@ -90,7 +90,7 @@ namespace hpc {
 
 	 template< class T >
 	 void
-	 transfer( T&& data )
+	 transfer( T&& data ) const
 	 {
 	    transfer<T>( std::forward<T>( data ) );
 	 }
@@ -134,7 +134,9 @@ namespace hpc {
 
 	    // In serial we just need to collect the indices that will
 	    // belong on the left.
-	    _idxs.reserve( balanced_left_size( end - begin, *_comm ) );
+            _left_size = balanced_left_size( end - begin, mpi::comm::self );
+            _right_size = (end - begin) - _left_size;
+	    _idxs.reserve( _left_size );
 	    for( Iter it = begin; it != end; ++it )
 	    {
 	       if( *it == 0 )
@@ -199,9 +201,9 @@ namespace hpc {
 
 	    // Sum sub-sizes.
 	    unsigned size = (_collecting_left ? (end - begin) : 0);
-	    _left_size = _comm->all_gather( size );
+	    _left_size = _comm->all_reduce( size );
 	    size = (_collecting_left ? 0 : (end - begin));
-	    _right_size = _comm->all_gather( size );
+	    _right_size = _comm->all_reduce( size );
 
 	 }
 
