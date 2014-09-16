@@ -29,6 +29,7 @@
 #include "datatype.hh"
 #include "request.hh"
 #include "insist.hh"
+#include "comm_proxies.hh"
 
 namespace hpc {
    namespace mpi {
@@ -830,22 +831,49 @@ namespace hpc {
 	 iprobe(int from=MPI_ANY_SOURCE,
 		int tag=MPI_ANY_TAG) const;
 
-	 template< class T >
-	 T
-	 scan( const T& out,
-	       MPI_Op op = MPI_SUM,
-	       bool exclusive = true ) const
+	 template< class T,
+		   typename boost::enable_if<hpc::is_fundamental_r<T>,int>::type = 0 >
+	 typename type_traits<T>::value
+	 _scan( typename type_traits<T>::const_reference out,
+		MPI_Op op = MPI_SUM,
+		bool exclusive = true ) const
 	 {
-	    T inc;
-	    MPI_INSIST( MPI_Scan( (void*)&out,
-                                  &inc,
-                                  1,
-                                  MPI_MAP_TYPE( T ),
-                                  op,
-                                  this->_comm ) );
+	    typename type_traits<T>::value inc;
+	    MPI_INSIST( MPI_Scan( (void*)&out, &inc, 1,
+                                  MPI_MAP_TYPE( typename type_traits<T>::value ), op, _comm ) );
 	    if( exclusive )
 	       inc -= out;
 	    return inc;
+	 }
+
+	 template< class T,
+		   typename boost::disable_if<hpc::is_fundamental_r<T>,int>::type = 0 >
+	 std::vector<typename type_traits<T>::value::value_type>
+	 _scan( typename type_traits<T>::const_reference out,
+		MPI_Op op = MPI_SUM,
+		bool exclusive = true ) const
+	 {
+	    std::vector<typename type_traits<T>::value::value_type> inc( out.size() );
+	    MPI_INSIST( MPI_Scan( (void*)out.data(), inc.data(), out.size(),
+                                  MPI_MAP_TYPE( typename type_traits<T>::value::value_type ),
+				  op, _comm ) );
+	    if( exclusive )
+	    {
+	       auto inc_it = inc.begin();
+	       auto out_it = out.cbegin();
+	       for( ; inc_it != inc.end(); ++inc_it, ++out_it )
+		  *inc_it -= *out_it;
+	    }
+	    return inc;
+	 }
+
+	 template< class T >
+	 typename scan_proxy<T>::result_type
+	 scan( T&& out,
+	       MPI_Op op = MPI_SUM,
+	       bool exclusive = true ) const
+	 {
+	    return _scan<T>( std::forward<T>( out ), op, exclusive );
 	 }
 
 	 template<class T>

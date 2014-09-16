@@ -40,11 +40,18 @@ namespace hpc {
 
       template< class T >
       T
+      balanced_local_sizeg( T gsize,
+			    mpi::comm const& comm = mpi::comm::world )
+      {
+	 return gsize/comm.size() + ((comm.rank() < (gsize%comm.size())) ? 1 : 0);
+      }
+
+      template< class T >
+      T
       balanced_local_size( T lsize,
 			   mpi::comm const& comm = mpi::comm::world )
       {
-	 T gsize = comm.all_reduce( lsize );
-	 return gsize/comm.size() + ((comm.rank() < (gsize%comm.size())) ? 1 : 0);
+	 return balanced_local_sizeg<T>( comm.all_reduce( lsize ), comm );
       }
 
       template< class T >

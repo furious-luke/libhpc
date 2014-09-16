@@ -21,6 +21,7 @@
 #include <vector>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
 #ifdef HAVE_THRUST
 #include <thrust/host_vector.h>
 #endif
@@ -35,6 +36,10 @@ namespace hpc {
       typedef       typename boost::remove_reference<T>::type& reference;
       typedef const typename boost::remove_reference<T>::type& const_reference;
    };
+
+   template< class T >
+   struct is_fundamental_r
+      : public boost::is_fundamental< typename boost::remove_reference<T>::type > {};
 
    template< class T >
    struct random_access_trait

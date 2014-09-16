@@ -184,6 +184,18 @@ namespace hpc {
             file_set.read<Buffer>( buf, elems, *_comm );
 	 }
 
+	 template< class BufT,
+		   typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+	 typename type_traits<BufT>::value
+	 read( std::string const& name,
+	       hsize_t offs = 0 )
+	 {
+            h5::dataset ds( *this, name );
+	    typename type_traits<BufT>::value buf( ds.extent() );
+            ds.read<BufT>( buf, offs, *_comm );
+	    return buf;
+	 }
+
 	 // template< class Buffer >
 	 // void
 	 // reada( const std::string& name,
