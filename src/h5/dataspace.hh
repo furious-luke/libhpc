@@ -21,6 +21,8 @@
 #include <numeric>
 #include <boost/optional.hpp>
 #include <boost/move/move.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
+#include <boost/utility/enable_if.hpp>
 #include "libhpc/mpi.hh"
 #include <hdf5.h>
 #include "libhpc/system/view.hh"
@@ -50,8 +52,13 @@ namespace hpc {
 
 	 dataspace( h5::dataset const& dset );
 
-         template< class Dims >
-	 dataspace( typename type_traits<Dims>::const_reference dims );
+         template< class DimsT,
+                   typename boost::disable_if<boost::is_fundamental<DimsT>,int>::type = 0 >
+	 dataspace( DimsT const& dims )
+            : _id( -1 )
+         {
+            create( dims );
+         }
 
 	 dataspace( dataspace const& src );
 
@@ -94,12 +101,13 @@ namespace hpc {
          create( hsize_t size,
 		 bool unlimited = false );
 
-         template< class Dims >
+         template< class DimsT,
+                   typename boost::disable_if<boost::is_fundamental<DimsT>,int>::type = 0 >    
 	 void
-	 create( typename type_traits<Dims>::const_reference dims )
+	 create( DimsT const& dims )
          {
 #ifdef CXX_0X
-            static_assert( sizeof(typename Dims::value_type) == sizeof(hsize_t),
+            static_assert( sizeof(typename DimsT::value_type) == sizeof(hsize_t),
                            "Incompatible hsize_t type." );
 #endif
             close();
@@ -109,7 +117,6 @@ namespace hpc {
                _id = H5Screate( H5S_NULL );
             ASSERT( _id >= 0 );
          }
-
 
 	 void
 	 close();
@@ -140,16 +147,17 @@ namespace hpc {
 	 select_one( hsize_t element,
                      H5S_seloper_t op = H5S_SELECT_SET );
 
-         template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer> >::type
+         template< class BufT,
+                   typename boost::enable_if<random_access_trait<BufT>,int>::type = 0 >
+         void
 	 select_hyperslab( H5S_seloper_t op,
-			   typename type_traits<Buffer>::const_reference count,
-			   typename type_traits<Buffer>::const_reference start,
-                           typename type_traits<Buffer>::const_reference stride = typename type_traits<Buffer>::const_reference(),
-			   typename type_traits<Buffer>::const_reference block = typename type_traits<Buffer>::const_reference() )
+			   typename type_traits<BufT>::const_reference count,
+			   typename type_traits<BufT>::const_reference start,
+                           typename type_traits<BufT>::const_reference stride = typename type_traits<BufT>::value(),
+			   typename type_traits<BufT>::const_reference block = typename type_traits<BufT>::value() )
          {
 #ifdef CXX_0X
-            static_assert( sizeof(typename Buffer::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
+            static_assert( sizeof(typename BufT::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
 #endif
             ASSERT( simple_extent_num_dims() == count.size() && count.size() == start.size() );
             ASSERT( stride.size() == 0 || stride.size() == count.size() );
@@ -175,6 +183,13 @@ namespace hpc {
 			   hsize_t start,
 			   boost::optional<hsize_t> stride = boost::optional<hsize_t>(),
                            boost::optional<hsize_t> block = boost::optional<hsize_t>() );
+
+	 void
+	 select_hyperslab( hsize_t count,
+			   hsize_t start,
+                           hsize_t stride = 1,
+                           hsize_t block = 1,
+                           H5S_seloper_t op = H5S_SELECT_SET );
 
 	 void
 	 select_range( hsize_t start,

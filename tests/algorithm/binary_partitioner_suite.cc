@@ -57,6 +57,76 @@ TEST_CASE( "construct" )
    TEST( bp.n_cells() == 19 );
 }
 
+TEST_CASE( "n_leaf_cells" )
+{
+   std::array<std::vector<double>,3> crds;
+   for( unsigned ii = 0; ii < 3; ++ii )
+   {
+      for( unsigned jj = 0; jj < 11; ++jj )
+	 crds[ii].push_back( 10*(ii + 1)*(jj + 1) );
+   }
+   permute perm( crds );
+   auto bp = hpc::make_binary_partitioner( crds.begin(), crds.end(), perm, 1 );
+   TEST( bp.n_elems() == 11 );
+   TEST( bp.n_gelems() == comm::world.size()*11 );
+   TEST( bp.n_leaf_cells() == 11 );
+   TEST( bp.depth() == 4 );
+   TEST( bp.n_incomplete_leaf_cells() == 6 );
+   TEST( bp.n_cells() == 21 );
+   TEST( bp.n_leaf_cells( 0 ) == 11 );
+   TEST( bp.n_leaf_cells( 1 ) == 7 );
+   TEST( bp.n_leaf_cells( 2 ) == 4 );
+   TEST( bp.n_leaf_cells( 3 ) == 4 );
+   TEST( bp.n_leaf_cells( 4 ) == 3 );
+   TEST( bp.n_leaf_cells( 5 ) == 2 );
+   TEST( bp.n_leaf_cells( 6 ) == 2 );
+   TEST( bp.n_leaf_cells( 7 ) == 2 );
+   TEST( bp.n_leaf_cells( 8 ) == 2 );
+   TEST( bp.n_leaf_cells( 9 ) == 2 );
+   TEST( bp.n_leaf_cells( 10 ) == 1 );
+   TEST( bp.n_leaf_cells( 11 ) == 1 );
+   TEST( bp.n_leaf_cells( 12 ) == 1 );
+   TEST( bp.n_leaf_cells( 13 ) == 1 );
+   TEST( bp.n_leaf_cells( 14 ) == 1 );
+}
+
+TEST_CASE( "n_elems" )
+{
+   std::array<std::vector<double>,3> crds;
+   for( unsigned ii = 0; ii < 3; ++ii )
+   {
+      for( unsigned jj = 0; jj < 11; ++jj )
+	 crds[ii].push_back( 10*(ii + 1)*(jj + 1) );
+   }
+   permute perm( crds );
+   auto bp = hpc::make_binary_partitioner( crds.begin(), crds.end(), perm, 2 );
+   TEST( bp.n_elems() == 11 );
+   TEST( bp.n_gelems() == comm::world.size()*11 );
+   TEST( bp.n_leaf_cells() == 6 );
+   TEST( bp.depth() == 3 );
+   TEST( bp.n_incomplete_leaf_cells() == 4 );
+   TEST( bp.n_cells() == 11 );
+   TEST( bp.n_leaf_cells( 0 ) == 6 );
+   TEST( bp.n_leaf_cells( 1 ) == 4 );
+   TEST( bp.n_leaf_cells( 2 ) == 2 );
+   TEST( bp.n_leaf_cells( 3 ) == 2 );
+   TEST( bp.n_leaf_cells( 4 ) == 2 );
+   TEST( bp.n_leaf_cells( 5 ) == 1 );
+   TEST( bp.n_leaf_cells( 6 ) == 1 );
+
+   TEST( bp.n_elems( 0 ) == 11 );
+   TEST( bp.n_elems( 1 ) == 8 );
+   TEST( bp.n_elems( 2 ) == 3 );
+   TEST( bp.n_elems( 3 ) == 4 );
+   TEST( bp.n_elems( 4 ) == 4 );
+   TEST( bp.n_elems( 5 ) == 2 );
+   TEST( bp.n_elems( 6 ) == 1 );
+   TEST( bp.n_elems( 7 ) == 2 );
+   TEST( bp.n_elems( 8 ) == 2 );
+   TEST( bp.n_elems( 9 ) == 2 );
+   TEST( bp.n_elems( 10 ) == 2 );
+}
+
 TEST_CASE( "partition/serial" )
 {
    std::array<std::vector<double>,3> crds;
@@ -78,11 +148,11 @@ TEST_CASE( "partition/serial" )
    {
       TEST( bp.offsets()[0] == 0 );
       TEST( bp.offsets()[1] == 0 );
-      TEST( bp.offsets()[2] == 5 );
+      TEST( bp.offsets()[2] == 6 );
       TEST( bp.counts()[0] == 10 );
-      TEST( bp.counts()[1] == 5 );
-      TEST( bp.counts()[2] == 5 );
-      for( unsigned ii = 0; ii < 5; ++ii )
+      TEST( bp.counts()[1] == 6 );
+      TEST( bp.counts()[2] == 4 );
+      for( unsigned ii = 0; ii < 6; ++ii )
       {
          hpc::view<std::vector<double> > cur_crds( crds[0], bp.counts()[1], bp.offsets()[1] );
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 10*(ii + 1) ) != cur_crds.end()) == true );
@@ -91,7 +161,7 @@ TEST_CASE( "partition/serial" )
          cur_crds.assign( crds[2], bp.counts()[1], bp.offsets()[1] );
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 30*(ii + 1) ) != cur_crds.end()) == true );
       }
-      for( unsigned ii = 5; ii < 10; ++ii )
+      for( unsigned ii = 6; ii < 10; ++ii )
       {
          hpc::view<std::vector<double> > cur_crds( crds[0], bp.counts()[2], bp.offsets()[2] );
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 10*(ii + 1) ) != cur_crds.end()) == true );
@@ -101,7 +171,7 @@ TEST_CASE( "partition/serial" )
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 30*(ii + 1) ) != cur_crds.end()) == true );
       }
       TEST( std::get<1>( bp.split() ) == 2 );
-      DELTA( std::get<0>( bp.split() ), 165.0, 0.1 );
+      DELTA( std::get<0>( bp.split() ), 195.0, 0.1 );
       TEST( bp.sub_comm().size() == 1 );
    }
 
@@ -111,15 +181,15 @@ TEST_CASE( "partition/serial" )
    {
       TEST( bp.offsets()[0] == 0 );
       TEST( bp.offsets()[1] == 0 );
-      TEST( bp.offsets()[2] == 5 );
+      TEST( bp.offsets()[2] == 6 );
       TEST( bp.offsets()[3] == 0 );
-      TEST( bp.offsets()[4] == 3 );
+      TEST( bp.offsets()[4] == 4 );
       TEST( bp.counts()[0] == 10 );
-      TEST( bp.counts()[1] == 5 );
-      TEST( bp.counts()[2] == 5 );
-      TEST( bp.counts()[3] == 3 );
+      TEST( bp.counts()[1] == 6 );
+      TEST( bp.counts()[2] == 4 );
+      TEST( bp.counts()[3] == 4 );
       TEST( bp.counts()[4] == 2 );
-      for( unsigned ii = 0; ii < 3; ++ii )
+      for( unsigned ii = 0; ii < 4; ++ii )
       {
          hpc::view<std::vector<double> > cur_crds( crds[0], bp.counts()[3], bp.offsets()[3] );
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 10*(ii + 1) ) != cur_crds.end()) == true );
@@ -128,7 +198,7 @@ TEST_CASE( "partition/serial" )
          cur_crds.assign( crds[2], bp.counts()[3], bp.offsets()[3] );
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 30*(ii + 1) ) != cur_crds.end()) == true );
       }
-      for( unsigned ii = 3; ii < 5; ++ii )
+      for( unsigned ii = 4; ii < 6; ++ii )
       {
          hpc::view<std::vector<double> > cur_crds( crds[0], bp.counts()[4], bp.offsets()[4] );
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 10*(ii + 1) ) != cur_crds.end()) == true );
@@ -138,7 +208,7 @@ TEST_CASE( "partition/serial" )
          TEST( (std::find( cur_crds.begin(), cur_crds.end(), 30*(ii + 1) ) != cur_crds.end()) == true );
       }
       TEST( std::get<1>( bp.split() ) == 1 );
-      DELTA( std::get<0>( bp.split() ), 60.0, 0.1 );
+      DELTA( std::get<0>( bp.split() ), 90.0, 0.1 );
       TEST( bp.sub_comm().size() == 1 );
    }
 }

@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <set>
+#include <list>
 #include <map>
 #include "cc_version.hh"
 #ifdef CXX_0X
@@ -36,6 +37,14 @@ namespace hpc {
    deallocate( std::vector<T>& tgt )
    {
       std::vector<T> tmp;
+      tgt.swap( tmp );
+   }
+
+   template< class T >
+   void
+   deallocate( std::list<T>& tgt )
+   {
+      std::list<T> tmp;
       tgt.swap( tmp );
    }
 

@@ -60,9 +60,11 @@ namespace hpc {
 	    {
 	       if( dst != _idxs[src] )
 	       {
-		  memcpy( buf.data(), (char*)data + dst*type_size, type_size );
-		  memcpy( (char*)data + dst*type_size, (char*)data + _idxs[src]*type_size, type_size );
-		  memcpy( (char*)data + _idxs[src]*type_size, buf.data(), type_size );
+                  unsigned to = (dst + _offs)*type_size;
+                  unsigned fr = (_idxs[src] + _offs)*type_size;
+		  memcpy( buf.data(), (char*)data + to, type_size );
+		  memcpy( (char*)data + to, (char*)data + fr, type_size );
+		  memcpy( (char*)data + fr, buf.data(), type_size );
 	       }
 	    }
 	 }

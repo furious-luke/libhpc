@@ -42,11 +42,12 @@ namespace hpc {
 	 template< class Iter >
 	 mpi::comm
 	 construct( Iter const& begin,
-		    Iter const& end )
+		    Iter const& end,
+                    unsigned offs = 0 )
 	 {
 	    clear();
 	    if( _comm->size() == 1 )
-	       _construct_serial( begin, end );
+	       _construct_serial( begin, end, offs );
 	    else
 	       _construct_parallel( begin, end );
 	    return _sub_comm;
@@ -124,24 +125,25 @@ namespace hpc {
 	 template< class Iter >
 	 mpi::comm
 	 _construct_serial( Iter const& begin,
-			    Iter const& end )
+			    Iter const& end,
+                            unsigned offs = 0 )
 	 {
 	    LOGBLOCKD( "Constructing serial balanced partition." );
 
-	    // Sanity checks.
-	    ASSERT( std::accumulate( begin, end, 0 ) == balanced_right_size( end - begin, *_comm ),
-		    "Partition is not balanced." );
-
 	    // In serial we just need to collect the indices that will
 	    // belong on the left.
-            _left_size = balanced_left_size( end - begin, mpi::comm::self );
-            _right_size = (end - begin) - _left_size;
+            _right_size = std::accumulate( begin, end, 0 );
+            _left_size = (end - begin) - _right_size;
 	    _idxs.reserve( _left_size );
 	    for( Iter it = begin; it != end; ++it )
 	    {
 	       if( *it == 0 )
 		  _idxs.push_back( it - begin );
 	    }
+
+            // Need to cache any given offset. We need this to work
+            // with global arrays.
+            _offs = offs;
 
 	    return mpi::comm::self;
 	 }
@@ -341,6 +343,7 @@ namespace hpc {
 	 std::vector<int> _partners;
 	 mpi::comm const* _comm;
 	 mpi::comm _sub_comm;
+         unsigned _offs;
 	 unsigned _left_size, _right_size;
       };
 

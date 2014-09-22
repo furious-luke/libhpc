@@ -85,6 +85,23 @@ namespace hpc {
          return h5::dataset( *this, name );
       }
 
+      std::vector<std::string>
+      file::links() const
+      {
+         hsize_t n_objs;
+         INSIST( H5Gget_num_objs( _id, &n_objs ), >= 0 );
+         std::vector<std::string> lnks( n_objs );
+         for( unsigned ii = 0; ii < n_objs; ++ii )
+         {
+            hsize_t size = 1 + H5Lget_name_by_idx( _id, ".", H5_INDEX_NAME, H5_ITER_INC, ii, 0, 0, H5P_DEFAULT );
+            char name[size];
+            ASSERT( size >= 0 );
+            INSIST( H5Lget_name_by_idx( _id, ".", H5_INDEX_NAME, H5_ITER_INC, ii, name, size, H5P_DEFAULT ), >= 0 );
+            lnks[ii] = name;
+         }
+         return lnks;
+      }
+
       // template<>
       // void
       // file::write<string>( const std::string& name,

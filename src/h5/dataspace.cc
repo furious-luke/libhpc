@@ -47,13 +47,6 @@ namespace hpc {
          *this = dset.dataspace();
       }
 
-      template< class Dims >
-      dataspace::dataspace( typename type_traits<Dims>::const_reference dims )
-	 : _id( -1 )
-      {
-	 create( dims );
-      }
-
       dataspace::dataspace( dataspace const& src )
          : _id( -1 )
       {
@@ -168,6 +161,22 @@ namespace hpc {
                        block ? &*block : NULL
                        ), >= 0 );
 	 }
+	 else
+	    INSIST( H5Sselect_none( _id ), >= 0 );
+      }
+
+      void
+      dataspace::select_hyperslab( hsize_t count,
+                                   hsize_t start,
+                                   hsize_t stride,
+                                   hsize_t block,
+                                   H5S_seloper_t op )
+      {
+	 ASSERT( simple_extent_num_dims() == 1 );
+
+	 // Don't call the HDF5 routine if there is nothing to select.
+	 if( count )
+	    INSIST( H5Sselect_hyperslab( _id, op, &start, &stride, &count, &block ), >= 0 );
 	 else
 	    INSIST( H5Sselect_none( _id ), >= 0 );
       }

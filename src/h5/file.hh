@@ -306,6 +306,9 @@ namespace hpc {
 	 //    this->read<T>( name, data );
 	 // }
 
+         std::vector<std::string>
+         links() const;
+
       protected:
 
          mpi::comm const* _comm;

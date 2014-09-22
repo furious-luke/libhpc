@@ -28,15 +28,15 @@ TEST_CASE( "minimum" )
    std::vector<double> values( 10 );
    boost::iota( values, 10*comm::world.rank() );
    double x = hpc::select( values.begin(), values.end(), 0 );
-   DELTA( x, 0.0, 1e-4 );
+   TEST( x < 0.0 );
 }
 
 TEST_CASE( "maximum" )
 {
    std::vector<double> values( 10 );
    boost::iota( values, 10*comm::world.rank() );
-   double x = hpc::select( values.begin(), values.end(), 10*comm::world.size() - 1 );
-   DELTA( x, (double)(10*comm::world.size() - 1), 1e-4 );
+   double x = hpc::select( values.begin(), values.end(), 10*comm::world.size() );
+   TEST( x >= (double)(10*comm::world.size() - 1) );
 }
 
 TEST_CASE( "7th" )

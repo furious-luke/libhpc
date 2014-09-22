@@ -118,18 +118,18 @@ namespace hpc {
 	       h5::datatype const& mem_type,
 	       h5::dataspace const& mem_space = h5::dataspace::all,
 	       h5::dataspace const& file_space = h5::dataspace::all,
-	       mpi::comm const& comm = mpi::comm::self );
+	       mpi::comm const& comm = mpi::comm::self ) const;
 
          void
          read( void* buf,
                h5::datatype const& type,
                hsize_t size,
                hsize_t offset,
-               mpi::comm const& comm = mpi::comm::self );
+               mpi::comm const& comm = mpi::comm::self ) const;
 
 	 template< class T >
          typename boost::disable_if<random_access_trait<T>,T>::type
-	 read( hsize_t elem )
+	 read( hsize_t elem ) const
          {
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,T>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,T>::type::value );
@@ -151,7 +151,7 @@ namespace hpc {
 	 void
 	 read( std::vector<T>& buf,
                hsize_t offs = 0,
-               mpi::comm const& comm = mpi::comm::self )
+               mpi::comm const& comm = mpi::comm::self ) const
 	 {
 	    read<std::vector<T> >( buf, offs, comm );
 	 }
@@ -160,7 +160,7 @@ namespace hpc {
          typename boost::enable_if<random_access_trait<BufferT>,void>::type
 	 read( typename type_traits<BufferT>::reference buf,
                hsize_t offs = 0,
-               mpi::comm const& comm = mpi::comm::self )
+               mpi::comm const& comm = mpi::comm::self ) const
 	 {
             typedef typename BufferT::value_type value_type;
 
@@ -187,7 +187,7 @@ namespace hpc {
 	 void
 	 read( typename type_traits<Buffer>::reference buf,
 	       typename type_traits<Elements>::const_reference elems,
-               mpi::comm& comm = mpi::comm::self )
+               mpi::comm& comm = mpi::comm::self ) const
 	 {
             typedef typename Buffer::value_type value_type;
 
@@ -214,14 +214,16 @@ namespace hpc {
 		h5::datatype const& mem_type,
 		h5::dataspace const& mem_space = h5::dataspace::all,
 		h5::dataspace const& file_space = h5::dataspace::all,
-		mpi::comm const& comm = mpi::comm::self );
+		mpi::comm const& comm = mpi::comm::self,
+                h5::property_list const& props = h5::property_list() );
 
          void
          write( void const* buf,
                 h5::datatype const& type,
                 hsize_t size,
                 hsize_t offset,
-                mpi::comm const& comm = mpi::comm::self );
+                mpi::comm const& comm = mpi::comm::self,
+                h5::property_list const& props = h5::property_list() );
 
 	 template< class DataT >
          typename boost::disable_if<random_access_trait<DataT> >::type

@@ -23,5 +23,7 @@
 #include "algorithm/median.hh"
 #include "algorithm/dual.hh"
 #include "algorithm/bin.hh"
+#include "algorithm/kdtree.hh"
+#include "algorithm/binary_partitioner.hh"
 
 #endif

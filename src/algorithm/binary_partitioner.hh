@@ -82,6 +82,63 @@ namespace hpc {
       return median_iterator<IterT>( it, med );
    }
 
+   // template< class IterT >
+   // class serial_median_iterator
+   // {
+   // public:
+
+   //    typedef IterT iterator_type;
+
+   // public:
+
+   //    serial_median_iterator( iterator_type it,
+   //                            unsigned left_size = 0 )
+   //       : _it( it ),
+   //         _ls( left_size ),
+   //         _idx( 0 )
+   //    {
+   //    }
+
+   //    bool
+   //    operator!=( serial_median_iterator const& other ) const
+   //    {
+   //       return _it != other._it;
+   //    }
+
+   //    int
+   //    operator*() const
+   //    {
+   //       return (_idx < _ls) ? 0 : 1;
+   //    }
+
+   //    void
+   //    operator++()
+   //    {
+   //       ++_it;
+   //       ++_idx;
+   //    }
+
+   //    typename iterator_type::difference_type
+   //    operator-( serial_median_iterator const& other ) const
+   //    {
+   //       return _it - other._it;
+   //    }
+
+   // protected:
+
+   //    iterator_type _it;
+   //    unsigned _ls;
+   //    unsigned _idx;
+   // };
+
+   // template< class IterT >
+   // serial_median_iterator<IterT>
+   // make_serial_median_iterator( IterT it,
+   //                              unsigned left_size = 0 )
+   // {
+   //    return serial_median_iterator<IterT>( it, left_size );
+   // }
+
    template< class DimIterT,
 	     class PermuteT >
    class binary_partitioner
@@ -90,7 +147,7 @@ namespace hpc {
 
       typedef DimIterT dim_iter_type;
       typedef PermuteT permute_type;
-      typedef typename std::iterator_traits<dim_iter_type>::value_type::const_iterator coord_iter_type;
+      typedef typename std::iterator_traits<dim_iter_type>::value_type::iterator coord_iter_type;
       typedef typename std::iterator_traits<coord_iter_type>::value_type coord_type;
 
    public:
@@ -116,13 +173,21 @@ namespace hpc {
 	 if( (1 << _depth) < _n_leaf_cells )
 	    ++_depth;
 
-         // Calculate number of incomplete leaf cells.
-	 _n_inc_leaf_cells = 2*(_n_leaf_cells - (1 << (_depth - 1)));
+         if( _depth > 0 )
+         {
+            // Calculate number of incomplete leaf cells.
+            _n_inc_leaf_cells = 2*(_n_leaf_cells - (1 << (_depth - 1)));
 
-	 // Calculate number of cells, including branch cells.
-	 _n_cells = _n_inc_leaf_cells;
-	 for( unsigned ii = 0; ii < _depth; ++ii )
-	    _n_cells += 1 << ii;
+            // Calculate number of cells, including branch cells.
+            _n_cells = _n_inc_leaf_cells;
+            for( unsigned ii = 0; ii < _depth; ++ii )
+               _n_cells += 1 << ii;
+         }
+         else
+         {
+            _n_inc_leaf_cells = 0;
+            _n_cells = _n_leaf_cells;
+         }
 
          // Setup arrays.
          _offs.resize( _n_cells );
@@ -133,6 +198,16 @@ namespace hpc {
 #endif
          _offs[0] = 0;
          _cnts[0] = _lsize;
+
+         // Calculate the bounds.
+         _bnds.resize( dims_end - dims_begin );
+         for( auto it = dims_begin; it != dims_end; ++it )
+         {
+            auto mm = std::minmax_element( it->begin(), it->end() );
+            unsigned ii = it - dims_begin;
+            _bnds[ii][0] = *mm.first;
+            _bnds[ii][1] = *mm.second;
+         }
       }
 
       unsigned
@@ -160,6 +235,12 @@ namespace hpc {
       }
 
       unsigned
+      n_branch_cells() const
+      {
+	 return _n_cells - _n_leaf_cells;
+      }
+
+      unsigned
       n_incomplete_leaf_cells() const
       {
 	 return _n_inc_leaf_cells;
@@ -169,6 +250,12 @@ namespace hpc {
       depth() const
       {
 	 return _depth;
+      }
+
+      bool
+      need_refinement( unsigned cell ) const
+      {
+         return _cnts[cell] > _max_ppc;
       }
 
       void
@@ -206,6 +293,7 @@ namespace hpc {
 	    // Stash results.
 	    _sub_comm = part.sub_comm();
 	    _split = std::tuple<coord_type,unsigned>( med, dim );
+            _split_and_side = std::tuple<coord_type,unsigned,int>( med, dim, part.collecting_left() ? 0 : 1 );
 	    _sub_size = sub_size;
 
 	    // Call permutation callback.
@@ -223,16 +311,43 @@ namespace hpc {
 	    crd_begin += _offs[cell];
 	    crd_end = crd_begin + _cnts[cell];
 
-	    // Calculate median.
-	    coord_type med = median( crd_begin, crd_end, mpi::comm::self );
+            // TODO: Median calculation is unfortunately a bastard and frequently
+            // fails. I need a better way of doing this.
+	    unsigned left_size = n_elems( left_child( cell ) );
+            std::vector<int> sides( crd_end - crd_begin );
+            boost::fill( sides, 1 );
+            coord_type med;
+            {
+               std::vector<unsigned> tmp_map( sides.size() );
+               boost::iota( tmp_map, 0 );
+               std::vector<coord_type> tmp_crds( sides.size() );
+               std::copy( crd_begin, crd_end, tmp_crds.begin() );
+               sort_by_key( tmp_crds, tmp_map );
+               if( left_size == 0 )
+                  med = tmp_crds[0] - std::numeric_limits<coord_type>::epsilon();
+               else if( left_size == tmp_crds.size() )
+                  med = tmp_crds[left_size - 1] + std::numeric_limits<coord_type>::epsilon();
+               else
+                  med = 0.5*(tmp_crds[left_size - 1] + tmp_crds[left_size]);
+               for( unsigned ii = 0; ii < left_size; ++ii )
+                  sides[tmp_map[ii]] = 0;
+            }
+            // coord_type med = select( crd_begin, crd_end, left_size, mpi::comm::self );
+            LOGDLN( "Particles in cell: ", crd_end - crd_begin );
+            LOGDLN( "Splitting into:    ", left_size, " -- ", (crd_end - crd_begin) - left_size );
+            LOGDLN( "Chosen dimension:  ", dim );
+            LOGDLN( "Chosen median:     ", med );
 
-	    // Create partition.
+	    // Create partition. Capitalises on the ordered array.
 	    mpi::balanced_partition part( mpi::comm::self );
-	    part.construct( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
+	    // part.construct( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
+            part.construct( sides.begin(), sides.end(), _offs[cell] );
+            ASSERT( part.left_size() == left_size, "Selection value too innacurate: ",
+                    part.left_size(), " != ", left_size );
 
 	    // Stash results.
-	    unsigned lc = _left_child( cell );
-	    unsigned rc = _right_child( cell );
+	    unsigned lc = left_child( cell );
+	    unsigned rc = right_child( cell );
 	    _offs[lc] = _offs[cell];
 	    _cnts[lc] = part.left_size();
 	    _offs[rc] = _offs[cell] + _cnts[lc];
@@ -257,6 +372,12 @@ namespace hpc {
 	 return _split;
       }
 
+      std::tuple<coord_type,unsigned,int> const&
+      split_and_side() const
+      {
+         return _split_and_side;
+      }
+
       std::vector<unsigned> const&
       offsets() const
       {
@@ -269,19 +390,80 @@ namespace hpc {
          return _cnts;
       }
 
-   protected:
+      std::vector<std::array<coord_type,2> > const&
+      bounds() const
+      {
+         return _bnds;
+      }
 
       unsigned
-      _left_child( unsigned cell ) const
+      left_child( unsigned cell ) const
       {
 	 return (cell + 1)*2 - 1;
       }
 
       unsigned
-      _right_child( unsigned cell ) const
+      right_child( unsigned cell ) const
       {
 	 return (cell + 1)*2;
       }
+
+      std::array<unsigned,2>
+      lowest_range( unsigned cell ) const
+      {
+         if( cell > 0 )
+         {
+            unsigned depth = log2i( cell + 1 );
+            unsigned offs = (cell + 1) - (1 << depth);
+            unsigned depth_diff = _depth - depth;
+            unsigned min = offs << depth_diff;
+            unsigned max = min + (1 << depth_diff);
+            return std::array<unsigned,2>{ min, max };
+         }
+         else
+            return std::array<unsigned,2>{ 0, 1 << _depth };
+      }
+
+      std::array<unsigned,2>
+      leaf_cell_range( unsigned cell ) const
+      {
+         auto rng = lowest_range( cell );
+         if( _n_inc_leaf_cells >= rng[0] )
+         {
+            unsigned nlc = std::min( _n_inc_leaf_cells, rng[1] ) - rng[0];
+            nlc += ((rng[1] - rng[0]) - nlc) >> 1;
+            rng[1] = rng[0] + nlc;
+         }
+         else
+         {
+            unsigned nlc = (rng[1] - rng[0]) >> 1;
+            rng[0] = _n_inc_leaf_cells + ((rng[0] - _n_inc_leaf_cells) >> 1);
+            rng[1] = rng[0] + nlc;
+         }
+         return rng;
+      }
+
+      unsigned
+      n_leaf_cells( unsigned cell ) const
+      {
+         auto rng = leaf_cell_range( cell );
+         return rng[1] - rng[0];
+      }
+
+      unsigned
+      n_elems( unsigned cell ) const
+      {
+         auto rng = leaf_cell_range( cell );
+         unsigned nlc = rng[1] - rng[0];
+         unsigned ppc = _lsize/_n_leaf_cells;
+         unsigned mod = _lsize%_n_leaf_cells;
+         unsigned ne = nlc*ppc;
+         if( mod > rng[0] )
+            ne += std::min( mod - rng[0], nlc );
+         return ne;
+      }
+
+   protected:
 
       unsigned
       _choose_dim( std::vector<std::array<coord_type,2> > bnds )
@@ -304,9 +486,11 @@ namespace hpc {
       unsigned _depth;
       unsigned _lsize, _gsize;
       unsigned _n_leaf_cells, _n_cells, _n_inc_leaf_cells;
+      std::vector<std::array<coord_type,2> > _bnds;
       std::vector<coord_type> _min, _max;
       std::vector<unsigned> _offs, _cnts;
       std::tuple<coord_type,unsigned> _split;
+      std::tuple<coord_type,unsigned,int> _split_and_side;
       unsigned _sub_size;
       mpi::comm _sub_comm;
    };

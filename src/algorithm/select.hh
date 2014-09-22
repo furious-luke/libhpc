@@ -46,11 +46,10 @@ namespace hpc {
       {
          long sum_left = std::count_if(
             start, finish,
-            std::bind2nd(
-               std::less<value_type>(), x
-               )
+            std::bind2nd( std::less_equal<value_type>(), x )
             );
-         return comm.all_reduce( sum_left ) - position;
+         sum_left = comm.all_reduce( sum_left );
+         return sum_left - position;
       }
 
       Iterator const start, finish;
@@ -71,12 +70,45 @@ namespace hpc {
 
       // Find the minimum and maximum values.
       std::pair<Iterator,Iterator> minmax = std::minmax_element( start, finish );
-      value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN );
-      value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX );
+      value_type x1 = comm.all_reduce( *minmax.first, MPI_MIN ) - std::numeric_limits<value_type>::epsilon();
+      value_type x2 = comm.all_reduce( *minmax.second, MPI_MAX ) + std::numeric_limits<value_type>::epsilon();
 
       // Run Ridders until we find the balance point.
       select_function<Iterator> func( start, finish, position, comm );
-      return ridders( func, x1, x2 );
+      auto x = ridders( func, x1, x2 );
+
+#ifndef NDEBUG
+      // Sanity check that it worked.
+      unsigned cnt = 0;
+      for( auto it = start; it != finish; ++it )
+      {
+         if( *it <= x )
+            ++cnt;
+      }
+      ASSERT( cnt == position, "Selection failed. Needed ", position, " on left, but found ", cnt, "." );
+#endif
+
+      return x;
+   }
+
+   template< class Iterator >
+   typename Iterator::value_type
+   select_serial( Iterator start,
+                  Iterator finish,
+                  long position )
+   {
+      typedef typename Iterator::value_type value_type;
+
+      ASSERT( position >= 0, "Invalid selection position." );
+
+      // Standard sort and return.
+      std::sort( start, finish );
+      if( position == finish - start )
+         return *(start + position - 1) + std::numeric_limits<value_type>::epsilon();
+      else if( position == 0 )
+         return *start - std::numeric_limits<value_type>::epsilon();
+      else
+         return 0.5*(*(start + position - 1) + *(start + position));
    }
 
 }

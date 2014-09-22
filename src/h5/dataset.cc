@@ -157,7 +157,7 @@ namespace hpc {
 		     const h5::datatype& mem_type,
 		     const h5::dataspace& mem_space,
 		     const h5::dataspace& file_space,
-		     const mpi::comm& comm )
+		     const mpi::comm& comm ) const
       {
 	 hid_t plist_id;
 #ifdef PARALLELHDF5
@@ -180,7 +180,7 @@ namespace hpc {
                      h5::datatype const& dtype,
                      hsize_t size,
                      hsize_t offset,
-                     mpi::comm const& comm )
+                     mpi::comm const& comm ) const
       {
          h5::dataspace file_space( this->dataspace() );
          file_space.select_hyperslab( H5S_SELECT_SET, size, offset );
@@ -196,7 +196,8 @@ namespace hpc {
 		      h5::datatype const& mem_type,
 		      h5::dataspace const& mem_space,
 		      h5::dataspace const& file_space,
-		      mpi::comm const& comm )
+		      mpi::comm const& comm,
+                      h5::property_list const& props )
       {
 #ifndef NDEBUG
 	 hssize_t mem_size = H5Sget_select_npoints(mem_space.id());
@@ -204,23 +205,20 @@ namespace hpc {
          ASSERT( mem_size == file_size, "Dataspace sizes don't match: ", mem_size, ", ", file_size );
 #endif
 
-	 hid_t plist_id;
+	 h5::property_list local_props( props );
 #ifdef PARALLELHDF5
 	 if( comm != mpi::comm::null && comm.size() != 1 )
          {
-	    plist_id = H5Pcreate( H5P_DATASET_XFER );
-	    H5Pset_dxpl_mpio( plist_id, H5FD_MPIO_COLLECTIVE );
+            if( !props )
+               local_props.create( H5P_DATASET_XFER );
+            local_props.set_collective();
 	 }
-	 else
+#else
+         ASSERT( *_comm == mpi::comm::null || _comm->size() == 1,
+                 "Attempting to create parallel HDF5 file without parallel extensions." );
 #endif
-	    plist_id = H5P_DEFAULT;
 
-	 INSIST( H5Dwrite( _id, mem_type.id(), mem_space.id(), file_space.id(), plist_id, buf ), >= 0 );
-
-#ifdef PARALLELHDF5
-	 if( comm != mpi::comm::null && comm.size() != 1 )
-	    H5Pclose( plist_id );
-#endif
+	 INSIST( H5Dwrite( _id, mem_type.id(), mem_space.id(), file_space.id(), local_props.id(), buf ), >= 0 );
       }
 
       void
@@ -228,9 +226,10 @@ namespace hpc {
                       h5::datatype const& type,
                       hsize_t size,
                       hsize_t offset,
-                      mpi::comm const& comm )
+                      mpi::comm const& comm,
+                      h5::property_list const& props )
       {
-         h5::dataspace file_space( this->dataspace() );
+         h5::dataspace file_space( dataspace() );
 #ifndef NDEBUG
 	 hssize_t file_size = H5Sget_select_npoints( file_space.id() );
          ASSERT( offset + size <= file_size, "Trying to write out of range: offset=",
@@ -241,7 +240,7 @@ namespace hpc {
          h5::dataspace mem_space( size );
          mem_space.select_all();
 
-         write( buf, type, mem_space, file_space, comm );
+         write( buf, type, mem_space, file_space, comm, props );
       }
 
       void

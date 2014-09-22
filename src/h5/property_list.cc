@@ -20,8 +20,9 @@
 namespace hpc {
    namespace h5 {
 
-      property_list::property_list()
-         : _id( H5P_DEFAULT )
+      property_list::property_list( hid_tag tag,
+                                    hid_t id )
+         : _id( id )
       {
       }
 
@@ -108,12 +109,24 @@ namespace hpc {
 	 INSIST( H5Pset_fapl_family( _id, size, H5P_DEFAULT ), >= 0 );
       }
 
+      void
+      property_list::set_preserve( bool state )
+      {
+	 INSIST( H5Pset_preserve( _id, (state ? 1 : 0) ), >= 0 );
+      }
+
 #ifdef PARALLELHDF5
 
       void
       property_list::set_parallel( mpi::comm const& comm )
       {
 	 INSIST( H5Pset_fapl_mpio( _id, comm.mpi_comm(), MPI_INFO_NULL ), >= 0 );
+      }
+
+      void
+      property_list::set_collective()
+      {
+	 INSIST( H5Pset_dxpl_mpio( _id, H5FD_MPIO_COLLECTIVE ), >= 0 );
       }
 
 #endif

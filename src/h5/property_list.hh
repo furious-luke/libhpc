@@ -31,10 +31,12 @@ namespace hpc {
 
       public:
 
-         property_list();
+         property_list( hid_tag tag = hid_tag(),
+                        hid_t id = H5P_DEFAULT );
 
 	 ///
-	 /// @param[in] id One of H5P_FILE_ACCESS, H5P_DATASET_CREATE
+	 /// @param[in] id One of H5P_FILE_ACCESS, H5P_DATASET_CREATE,
+         ///               H5P_DATASET_XFER
 	 ///
 	 property_list( hid_t class_id );
 
@@ -101,10 +103,16 @@ namespace hpc {
 	 void
 	 set_family( hsize_t size = (hsize_t)1 << 31 );
 
+         void
+         set_preserve( bool state = true );
+
 #ifdef PARALLELHDF5
 
 	 void
 	 set_parallel( mpi::comm const& comm = mpi::comm::world );
+
+         void
+         set_collective();
 
 #endif
 

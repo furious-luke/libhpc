@@ -32,9 +32,9 @@ namespace hpc {
    {
       typedef typename Iterator::value_type value_type;
 
-      // Find the position of the median.
-      long pos = comm.all_reduce( std::distance( start, finish ), MPI_SUM );
-      pos >>= 1;
+      // Find the position of the median. Use the MPI balanced left
+      // size value. This keeps everything consistant.
+      long pos = mpi::balanced_left_size( std::distance( start, finish ) );
 
       return select( start, finish, pos, comm );
    }
