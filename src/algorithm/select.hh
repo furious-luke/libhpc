@@ -77,16 +77,16 @@ namespace hpc {
       select_function<Iterator> func( start, finish, position, comm );
       auto x = ridders( func, x1, x2 );
 
-#ifndef NDEBUG
-      // Sanity check that it worked.
-      unsigned cnt = 0;
-      for( auto it = start; it != finish; ++it )
-      {
-         if( *it <= x )
-            ++cnt;
-      }
-      ASSERT( cnt == position, "Selection failed. Needed ", position, " on left, but found ", cnt, "." );
-#endif
+// #ifndef NDEBUG
+//       // Sanity check that it worked.
+//       unsigned cnt = 0;
+//       for( auto it = start; it != finish; ++it )
+//       {
+//          if( *it <= x )
+//             ++cnt;
+//       }
+//       ASSERT( cnt == position, "Selection failed. Needed ", position, " on left, but found ", cnt, "." );
+// #endif
 
       return x;
    }

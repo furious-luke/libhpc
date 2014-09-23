@@ -85,14 +85,21 @@ namespace hpc {
             // Refine until we hit serial or finish splitting.
 	    while( comm.size() != 1 )
 	    {
+	       LOGBLOCKD( "Bounds: ", bnds );
 	       part.partition( 0, bnds, comm );
 	       comm = part.sub_comm();
                auto split = part.split_and_side();
+	       LOGDLN( "Split: ", std::get<0>( split ), ", ", std::get<1>( split ) );
+	       LOGDLN( "Side:  ", std::get<2>( split ) );
 	       splits.push_back( split );
                if( std::get<2>( split ) == 0 )
                   std::get<1>( bnds[std::get<1>( split )] ) = std::get<0>( split );
                else
                   std::get<0>( bnds[std::get<1>( split )] ) = std::get<0>( split );
+
+	       // Update local boundary.
+	       _bnds[std::get<1>( split )][std::get<2>( split ) ? 0 : 1] = std::get<0>( split );
+	       LOGDLN( "New bounds: ", _bnds );
 	    }
 
             // Transfer

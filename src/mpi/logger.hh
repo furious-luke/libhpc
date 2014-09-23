@@ -27,6 +27,9 @@
 #include <mpi.h>
 #include "libhpc/logging.hh"
 
+#define LOG_MPI( base )				\
+   LOG_PUSH( new hpc::mpi::logger( base, 0 ) )
+
 namespace hpc {
    namespace mpi {
 
@@ -59,6 +62,10 @@ namespace hpc {
       };
    }
 }
+
+#else
+
+#define LOG_MPI( base )
 
 #endif
 

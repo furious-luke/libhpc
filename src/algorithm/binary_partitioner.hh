@@ -274,10 +274,16 @@ namespace hpc {
 	    // Calculate an initial median.
 	    unsigned left_size = mpi::balanced_left_size( _lsize, comm );
 	    coord_type med = select( crd_begin, crd_end, left_size, comm );
+            LOGDLN( "Particles in cell:  ", crd_end - crd_begin );
+	    LOGDLN( "Targeted left size: ", left_size );
+            LOGDLN( "Chosen dimension:   ", dim );
+            LOGDLN( "Chosen median:      ", med );
 
 	    // Calculate which ranks will collect on the left.
 	    mpi::balanced_partition part( comm );
 	    part.split( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
+            ASSERT( part.left_size() == left_size, "Selection value too innacurate: ",
+                    part.left_size(), " != ", left_size );
 
 	    // Reevaluate the kth position to split on such that all
 	    // ranks on the left keep their array sizes.
@@ -311,13 +317,27 @@ namespace hpc {
 	    crd_begin += _offs[cell];
 	    crd_end = crd_begin + _cnts[cell];
 
-            // TODO: Median calculation is unfortunately a bastard and frequently
-            // fails. I need a better way of doing this.
+	    // Calculate base median.
 	    unsigned left_size = n_elems( left_child( cell ) );
-            std::vector<int> sides( crd_end - crd_begin );
-            boost::fill( sides, 1 );
-            coord_type med;
-            {
+	    coord_type med = select( crd_begin, crd_end, left_size, mpi::comm::self );
+            LOGDLN( "Particles in cell:  ", crd_end - crd_begin );
+            LOGDLN( "Splitting into:     ", left_size, " -- ", (crd_end - crd_begin) - left_size );
+            LOGDLN( "Chosen dimension:   ", dim );
+            LOGDLN( "Chosen median:      ", med );
+
+	    // Create the balanced partition. Need to check if we can use
+	    // the median or if we need to be more specific.
+	    mpi::balanced_partition part( mpi::comm::self );
+	    unsigned on_left = (crd_end - crd_begin) - std::accumulate(
+	       make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ), 0
+	       );
+	    LOGDLN( "Initially found ", on_left, " on the left." );
+	    if( on_left == left_size )
+	       part.construct( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ), _offs[cell] );
+	    else
+	    {
+	       std::vector<int> sides( crd_end - crd_begin );
+	       boost::fill( sides, 1 );
                std::vector<unsigned> tmp_map( sides.size() );
                boost::iota( tmp_map, 0 );
                std::vector<coord_type> tmp_crds( sides.size() );
@@ -331,17 +351,8 @@ namespace hpc {
                   med = 0.5*(tmp_crds[left_size - 1] + tmp_crds[left_size]);
                for( unsigned ii = 0; ii < left_size; ++ii )
                   sides[tmp_map[ii]] = 0;
-            }
-            // coord_type med = select( crd_begin, crd_end, left_size, mpi::comm::self );
-            LOGDLN( "Particles in cell: ", crd_end - crd_begin );
-            LOGDLN( "Splitting into:    ", left_size, " -- ", (crd_end - crd_begin) - left_size );
-            LOGDLN( "Chosen dimension:  ", dim );
-            LOGDLN( "Chosen median:     ", med );
-
-	    // Create partition. Capitalises on the ordered array.
-	    mpi::balanced_partition part( mpi::comm::self );
-	    // part.construct( make_median_iterator( crd_begin, med ), make_median_iterator( crd_end ) );
-            part.construct( sides.begin(), sides.end(), _offs[cell] );
+	       part.construct( sides.begin(), sides.end(), _offs[cell] );
+	    }
             ASSERT( part.left_size() == left_size, "Selection value too innacurate: ",
                     part.left_size(), " != ", left_size );
 

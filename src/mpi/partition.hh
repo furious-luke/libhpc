@@ -170,7 +170,8 @@ namespace hpc {
 	    ASSERT( end - begin == balanced_local_size( end - begin, *_comm ),
 		    "Distributed array must be balanced prior to partition." );
 	    ASSERT( comm.all_reduce( std::accumulate( begin, end, 0 ) ) == balanced_right_size( end - begin, *_comm ),
-		    "Partition does not respect processor boundaries." );
+		    "Partition is not balanced, right sizes: ", comm.all_reduce( std::accumulate( begin, end, 0 ) ),
+		    " -- ", balanced_right_size( end - begin, *_comm ) );
 
 	    // Sum the number of elements on the left.
 	    _on_left = 0;

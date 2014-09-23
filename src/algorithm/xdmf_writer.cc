@@ -8,10 +8,9 @@ namespace hpc {
    }
 
    xdmf_writer::xdmf_writer( const std::string& base_filename,
-                             const std::string& name,
-                             const kdtree<>& kdt )
+			     mpi::comm const& comm )
    {
-      this->open( base_filename, name, kdt );
+      this->open( base_filename, comm );
    }
 
    xdmf_writer::~xdmf_writer()
@@ -21,53 +20,51 @@ namespace hpc {
 
    void
    xdmf_writer::open( const std::string& base_filename,
-                      const std::string& name,
-                      const kdtree<>& kdt )
+		      mpi::comm const& comm )
    {
       std::string xml_filename = base_filename + ".xmf";
       this->_h5_filename = base_filename + ".h5";
-
       this->_xml_file.open( xml_filename, std::ios::out );
-      write_xdmf_xml_open( this->_xml_file, this->_h5_filename, name, kdt );
-
-      const mpi::comm& comm = kdt.comm();
+      write_xdmf_open_xml( this->_xml_file, this->_h5_filename );
       this->_h5_file.open( this->_h5_filename, H5F_ACC_TRUNC, comm );
-      write_xdmf_h5( this->_h5_file, name, kdt );
+   }
+
+   void
+   xdmf_writer::open_grid( const std::string& name,
+			   const kdtree<>& kdt )
+   {
+      _grid = name;
+      write_xdmf_open_grid_xml( this->_xml_file, this->_h5_filename, name, kdt );
+      write_xdmf_open_grid_h5( this->_h5_file, _grid, kdt );
+   }
+
+   void
+   xdmf_writer::close_grid()
+   {
+      write_xdmf_close_grid_xml( this->_xml_file );
    }
 
    void
    xdmf_writer::close()
    {
-      write_xdmf_xml_close( this->_xml_file );
+      write_xdmf_xml_domain_end( this->_xml_file );
+      write_xdmf_xml_end( this->_xml_file );
       this->_xml_file.close();
       this->_h5_file.close();
    }
 
    void
-   write_xdmf( const std::string& base_filename,
-               const std::string& name,
-               const kdtree<>& kdt )
+   write_xdmf_open_xml( std::ofstream& xml_file,
+			std::string const& h5_fn )
    {
-      std::string xml_filename = base_filename + ".xmf";
-      std::string h5_filename = base_filename + ".h5";
-      write_xdmf_xml( xml_filename, h5_filename, name, kdt );
-      write_xdmf_h5( h5_filename, name, kdt );
+      write_xdmf_xml_begin( xml_file );
+      write_xdmf_xml_domain_begin( xml_file );
    }
 
    void
-   write_xdmf_h5( const std::string& h5_filename,
-                  const std::string& name,
-                  const kdtree<>& kdt )
-   {
-      const mpi::comm& comm = kdt.comm();
-      h5::file h5_file( h5_filename, H5F_ACC_TRUNC, comm );
-      write_xdmf_h5( h5_file, name, kdt );
-   }
-
-   void
-   write_xdmf_h5( h5::file& h5_file,
-                  const std::string& name,
-                  const kdtree<>& kdt )
+   write_xdmf_open_grid_h5( h5::file& h5_file,
+			    const std::string& grid,
+			    const kdtree<>& kdt )
    {
       const mpi::comm& comm = kdt.comm();
       unsigned dim = kdt.n_dims();
@@ -81,7 +78,7 @@ namespace hpc {
          space_dims[1] = num_cell_points;
          h5::dataspace file_space( space_dims );
          h5::dataset topology_set;
-         topology_set.create( h5_file, "topology", h5::datatype::native_ulong, file_space );
+         topology_set.create( h5_file, grid + "/topology", h5::datatype::native_ulong, file_space );
          space_dims[0] = 1;
          h5::dataspace mem_space( space_dims );
          mem_space.select_all();
@@ -104,7 +101,7 @@ namespace hpc {
          space_dims[1] = dim;
          h5::dataspace file_space( space_dims );
          h5::dataset geometry_set;
-         geometry_set.create( h5_file, "geometry", h5::datatype::native_double, file_space );
+         geometry_set.create( h5_file, grid + "/geometry", h5::datatype::native_double, file_space );
          space_dims[0] = num_cell_points;
          h5::dataspace mem_space( space_dims );
          mem_space.select_all();
@@ -154,53 +151,40 @@ namespace hpc {
             geometry_set.write( buffer.data(), h5::datatype::native_double, mem_space, file_space, comm );
          }
       }
-      {
-         std::vector<hsize_t> space_dims( 1 );
-         space_dims[0] = num_global_cells;
-         h5::dataspace file_space( space_dims );
-         h5::dataset topology_set;
-         topology_set.create( h5_file, "ownership", h5::datatype::native_int, file_space );
-         space_dims[0] = 1;
-         h5::dataspace mem_space( space_dims );
-         mem_space.select_all();
-         std::vector<hsize_t> start( 1 ), count( 1 );
-         count[0] = 1;
-         unsigned global_offs = comm.scan( num_local_cells, MPI_SUM, true );
-         int buffer = comm.rank();
-         for( unsigned ii = global_offs; ii < global_offs + num_local_cells; ++ii ) {
-            start[0] = ii;
-            file_space.select_hyperslab<std::vector<hsize_t> >( H5S_SELECT_SET, count, start );
-            topology_set.write( &buffer, h5::datatype::native_int, mem_space, file_space, comm );
-         }
-      }
+      // {
+      //    std::vector<hsize_t> space_dims( 1 );
+      //    space_dims[0] = num_global_cells;
+      //    h5::dataspace file_space( space_dims );
+      //    h5::dataset topology_set;
+      //    topology_set.create( h5_file, "ownership", h5::datatype::native_int, file_space );
+      //    space_dims[0] = 1;
+      //    h5::dataspace mem_space( space_dims );
+      //    mem_space.select_all();
+      //    std::vector<hsize_t> start( 1 ), count( 1 );
+      //    count[0] = 1;
+      //    unsigned global_offs = comm.scan( num_local_cells, MPI_SUM, true );
+      //    int buffer = comm.rank();
+      //    for( unsigned ii = global_offs; ii < global_offs + num_local_cells; ++ii ) {
+      //       start[0] = ii;
+      //       file_space.select_hyperslab<std::vector<hsize_t> >( H5S_SELECT_SET, count, start );
+      //       topology_set.write( &buffer, h5::datatype::native_int, mem_space, file_space, comm );
+      //    }
+      // }
    }
 
    void
-   write_xdmf_xml( const std::string& xml_filename,
-                   const std::string& h5_filename,
-                   const std::string& name,
-                   const kdtree<>& kdt )
-   {
-      std::ofstream xml_file( xml_filename, std::ios::out );
-      write_xdmf_xml_open( xml_file, h5_filename, name, kdt );
-      write_xdmf_xml_close( xml_file );
-   }
-
-   void
-   write_xdmf_xml_open( std::ofstream& xml_file,
-                        const std::string& h5_filename,
-                        const std::string& name,
-                        const kdtree<>& kdt )
+   write_xdmf_open_grid_xml( std::ofstream& xml_file,
+			     const std::string& h5_filename,
+			     const std::string& name,
+			     const kdtree<>& kdt )
    {
       unsigned dim = kdt.n_dims();
       unsigned num_global_cells = kdt.comm().all_reduce( kdt.n_leafs() );
       unsigned num_cell_points = 1 << dim;
-      write_xdmf_xml_begin( xml_file );
-      write_xdmf_xml_domain_begin( xml_file );
       write_xdmf_xml_grid_begin( xml_file, name );
-      write_xdmf_xml_topology( xml_file, h5_filename, dim, num_global_cells, num_cell_points );
-      write_xdmf_xml_geometry( xml_file, h5_filename, dim, num_global_cells, num_cell_points );
-      write_xdmf_xml_attribute( xml_file, "ownership", h5_filename, "/ownership", "Int", 1, num_global_cells, true );
+      write_xdmf_xml_topology( xml_file, h5_filename, name, dim, num_global_cells, num_cell_points );
+      write_xdmf_xml_geometry( xml_file, h5_filename, name, dim, num_global_cells, num_cell_points );
+      // write_xdmf_xml_attribute( xml_file, "ownership", h5_filename, "/ownership", "Int", 1, num_global_cells, true );
    }
 
    void
@@ -214,16 +198,8 @@ namespace hpc {
       write_xdmf_xml_begin( xml_file );
       write_xdmf_xml_domain_begin( xml_file );
       write_xdmf_xml_grid_begin( xml_file, name );
-      write_xdmf_xml_topology( xml_file, h5_filename, n_dims, n_parts, 1 );
-      write_xdmf_xml_geometry( xml_file, h5_filename, n_dims, n_parts, 1 );
-   }
-
-   void
-   write_xdmf_xml_close( std::ofstream& xml_file )
-   {
-      write_xdmf_xml_grid_end( xml_file );
-      write_xdmf_xml_domain_end( xml_file );
-      write_xdmf_xml_end( xml_file );
+      write_xdmf_xml_topology( xml_file, h5_filename, name, n_dims, n_parts, 1 );
+      write_xdmf_xml_geometry( xml_file, h5_filename, name, n_dims, n_parts, 1 );
    }
 
    void
@@ -258,14 +234,9 @@ namespace hpc {
    }
 
    void
-   write_xdmf_xml_grid_end( std::ofstream& xml_file )
-   {
-      xml_file << setindent( -2 ) << indent << "</Grid>\n";
-   }
-
-   void
    write_xdmf_xml_topology( std::ofstream& xml_file,
                             const std::string& h5_filename,
+			    const std::string& grid,
                             int dim,
                             unsigned num_global_cells,
                             unsigned num_cell_points )
@@ -288,7 +259,7 @@ namespace hpc {
 
       xml_file << indent << "<DataItem Format=\"HDF\" NumberType=\"UINT\" ";
       xml_file << "Dimensions=\"" << num_global_cells << " " << num_cell_points << "\">\n" << setindent( 2 );
-      xml_file << indent << h5_filename << ":/topology\n";
+      xml_file << indent << h5_filename << ":/" << grid << "/topology\n";
       xml_file << setindent( -2 ) << indent << "</DataItem>\n";
 
       xml_file << setindent( -2 ) << indent << "</Topology>\n";
@@ -297,6 +268,7 @@ namespace hpc {
    void
    write_xdmf_xml_geometry( std::ofstream& xml_file,
                             const std::string& h5_filename,
+			    const std::string& grid,
                             int dim,
                             unsigned num_global_cells,
                             unsigned num_cell_points )
@@ -313,7 +285,7 @@ namespace hpc {
 
       xml_file << indent << "<DataItem Format=\"HDF\" NumberType=\"Float\" ";
       xml_file << "Dimensions=\"" << num_global_cells*num_cell_points << " " << dim << "\">\n" << setindent( 2 );
-      xml_file << indent << h5_filename << ":/geometry\n";
+      xml_file << indent << h5_filename << ":/" << grid << "/geometry\n";
       xml_file << setindent( -2 ) << indent << "</DataItem>\n";
 
       xml_file << setindent( -2 ) << indent << "</Geometry>\n";
@@ -342,6 +314,12 @@ namespace hpc {
       xml_file << setindent( -2 ) << indent << "</DataItem>\n";
 
       xml_file << setindent( -2 ) << indent << "</Attribute>\n";
+   }
+
+   void
+   write_xdmf_close_grid_xml( std::ofstream& xml_file )
+   {
+      xml_file << setindent( -2 ) << indent << "</Grid>\n";
    }
 
 }
