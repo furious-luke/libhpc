@@ -18,7 +18,7 @@
 #ifndef hpc_sort_permute_iter_hh
 #define hpc_sort_permute_iter_hh
 
-#ifndef _GLIBCXX_DEBUG
+// #ifndef _GLIBCXX_DEBUG
 
 #include <tuple>
 #include <boost/iterator/iterator_facade.hpp>
@@ -179,6 +179,6 @@ namespace hpc {
 
 }
 
-#endif
+// #endif
 
 #endif

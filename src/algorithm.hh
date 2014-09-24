@@ -25,5 +25,6 @@
 #include "algorithm/bin.hh"
 #include "algorithm/kdtree.hh"
 #include "algorithm/binary_partitioner.hh"
+#include "algorithm/sort_by_key.hh"
 
 #endif

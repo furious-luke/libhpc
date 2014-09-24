@@ -18,8 +18,6 @@
 #ifndef hpc_sort_by_key_hh
 #define hpc_sort_by_key_hh
 
-#ifndef _GLIBCXX_DEBUG
-
 #include <algorithm>
 #include <tuple>
 #include <boost/iterator/iterator_facade.hpp>
@@ -52,7 +50,5 @@ namespace hpc {
    }
 
 }
-
-#endif
 
 #endif
