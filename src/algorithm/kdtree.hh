@@ -247,7 +247,7 @@ namespace hpc {
       unsigned
       leaf_to_cell( unsigned leaf ) const
       {
-         unsigned md = _max_depth();
+         unsigned md = max_depth();
          unsigned cell;
          if( md )
          {
@@ -262,10 +262,8 @@ namespace hpc {
          return cell;
       }
 
-   protected:
-
       unsigned
-      _max_depth() const
+      max_depth() const
       {
          unsigned nl = n_leafs();
          unsigned dep = log2i( nl );
@@ -274,10 +272,12 @@ namespace hpc {
          return dep;
       }
 
+   protected:
+
       unsigned
       _n_inc_leafs() const
       {
-         unsigned md = _max_depth();
+         unsigned md = max_depth();
          if( md )
             return 2*(n_leafs() - (1 << (md - 1)));
          else
