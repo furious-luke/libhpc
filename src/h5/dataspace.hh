@@ -195,15 +195,13 @@ namespace hpc {
 	 select_range( hsize_t start,
 		       hsize_t finish );
 
-         template< class Buffer >
+         template< class BufT,
+                   typename boost::enable_if<random_access_trait<BufT>,int>::type = 0 >
 	 void
-	 select_elements( typename type_traits<Buffer>::const_reference elems,
+	 select_elements( BufT const& elems,
                           H5S_seloper_t op = H5S_SELECT_SET )
          {
-#ifdef CXX_0X
-            static_assert( sizeof(typename Buffer::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
-#endif
-
+            static_assert( sizeof(typename BufT::value_type) == sizeof(hsize_t), "Incompatible hsize_t type." );
             if( !elems.empty() )
             {
                std::vector<hsize_t> dims( simple_extent_num_dims() );
@@ -211,7 +209,7 @@ namespace hpc {
                ASSERT( elems.size()%dims.size() == 0,
                       "Flattened element selection array does not divide evenly between the "
                       "number of dimensions in the dataset.");
-               INSIST( H5Sselect_elements( _id, op, elems.size()/dims.size(), elems ), >= 0 );
+               INSIST( H5Sselect_elements( _id, op, elems.size()/dims.size(), (hsize_t const*)elems.data() ), >= 0 );
             }
             else if( op == H5S_SELECT_SET )
                select_none();

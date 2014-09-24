@@ -101,6 +101,18 @@ namespace hpc {
          void
          compound( size_t size );
 
+         unsigned
+         n_members() const;
+
+         std::string
+         member_name( unsigned idx ) const;
+
+         size_t
+         member_offset( unsigned idx ) const;
+
+         h5::datatype
+         member_type( unsigned idx ) const;
+
          void
          close();
 
@@ -119,6 +131,11 @@ namespace hpc {
 
 	 hid_t _id;
       };
+
+      std::ostream&
+      operator<<( std::ostream& strm,
+                  h5::datatype const& obj );
+
    }
 }
 

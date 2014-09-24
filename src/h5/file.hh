@@ -58,12 +58,13 @@ namespace hpc {
          h5::dataset const
          dataset( std::string const& name ) const;
 
-	 template< class BufferT >
-         typename boost::disable_if<random_access_trait<BufferT> >::type
+	 template< class BufT,
+                   typename boost::disable_if<random_access_trait<BufT>,int>::type = 0 >
+         void
 	 write( std::string const& name,
-		typename type_traits<BufferT>::const_reference value )
+                BufT const& value )
 	 {
-	    typedef typename type_traits<BufferT>::value value_type;
+	    typedef typename type_traits<BufT>::value value_type;
 
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
@@ -89,12 +90,13 @@ namespace hpc {
 	    write_serial<std::vector<T> >( name, buf );
 	 }
 
-	 template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer> >::type
+	 template< class BufT,
+                   typename boost::enable_if<random_access_trait<BufT>,int>::type = 0 >
+         void
 	 write_serial( std::string const& name,
-                       typename type_traits<Buffer>::const_reference buf )
+                       BufT const& buf )
 	 {
-            typedef typename Buffer::value_type value_type;
+            typedef typename BufT::value_type value_type;
 
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
@@ -112,12 +114,13 @@ namespace hpc {
 	       file_set.write( buf.data(), type, mem_space, file_space );
 	 }
 
-	 template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer> >::type
+	 template< class BufT,
+                   typename boost::enable_if<random_access_trait<BufT>,int>::type = 0 >
+         void
 	 write( std::string const& name,
-                typename type_traits<Buffer>::const_reference buf )
+                BufT const& buf )
 	 {
-            typedef typename Buffer::value_type value_type;
+            typedef typename BufT::value_type value_type;
 
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );

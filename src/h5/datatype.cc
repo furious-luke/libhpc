@@ -79,6 +79,38 @@ namespace hpc {
          ASSERT( _id > 0 );
       }
 
+      unsigned
+      datatype::n_members() const
+      {
+         int n_mems = H5Tget_nmembers( _id );
+         ASSERT( n_mems >= 0 );
+         return n_mems;
+      }
+
+      std::string
+      datatype::member_name( unsigned idx ) const
+      {
+         char* cname = H5Tget_member_name( _id, idx );
+         ASSERT( cname );
+         std::string name( cname );
+         free( cname );
+         return name;
+      }
+
+      size_t
+      datatype::member_offset( unsigned idx ) const
+      {
+         return H5Tget_member_offset( _id, idx );
+      }
+
+      h5::datatype
+      datatype::member_type( unsigned idx ) const
+      {
+         hid_t dt = H5Tget_member_type( _id, idx );
+         ASSERT( dt >= 0 );
+         return h5::datatype( dt );
+      }
+
       void
       datatype::close()
       {
@@ -124,6 +156,27 @@ namespace hpc {
       datatype::id() const
       {
 	 return _id;
+      }
+
+      std::ostream&
+      operator<<( std::ostream& strm,
+                  h5::datatype const& obj )
+      {
+         switch( obj.id() )
+         {
+            case -2: strm << "H5T_NATIVE_INT"; break;
+            case -3: strm << "H5T_NATIVE_UINT"; break;
+            case -4: strm << "H5T_NATIVE_LONG"; break;
+            case -5: strm << "H5T_NATIVE_ULONG"; break;
+            case -6: strm << "H5T_NATIVE_LLONG"; break;
+            case -7: strm << "H5T_NATIVE_ULLONG"; break;
+            case -8: strm << "H5T_NATIVE_FLOAT"; break;
+            case -9: strm << "H5T_NATIVE_DOUBLE"; break;
+            case -10: strm << "H5T_NATIVE_CHAR"; break;
+            case -11: strm << "H5T_STRING"; break;
+            default:  strm << "unknown HDF5 type"; break;
+         }
+         
       }
 
    }
