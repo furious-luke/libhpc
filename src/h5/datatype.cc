@@ -20,6 +20,7 @@
 namespace hpc {
    namespace h5 {
 
+      datatype datatype::invalid( -1 );
       datatype datatype::native_char( H5T_NATIVE_CHAR );
       datatype datatype::native_int( H5T_NATIVE_INT );
       datatype datatype::native_uint( H5T_NATIVE_UINT );
@@ -156,6 +157,12 @@ namespace hpc {
       datatype::id() const
       {
 	 return _id;
+      }
+
+      bool
+      datatype::operator==( h5::datatype const& other ) const
+      {
+	 return _id == other._id;
       }
 
       std::ostream&

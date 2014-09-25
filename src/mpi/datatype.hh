@@ -48,6 +48,9 @@ namespace hpc {
 
 	 ~datatype();
 
+	 datatype&
+	 operator=( datatype&& other );
+
 	 void
 	 clear();
 
@@ -101,7 +104,6 @@ namespace hpc {
 
 	    MPI_Type_indexed( idxs.size(), block_cnts.data(), block_displs.data(), base._type, &_type );
 	    MPI_Type_commit( &_type );
-	    calc_size();
 	 }
 
 	 size_t
@@ -123,13 +125,9 @@ namespace hpc {
 	 operator<<( std::ostream& strm,
 		     const datatype& obj );
 
-      private:
-
-	 void
-	 calc_size();
+      protected:
 
 	 MPI_Datatype _type;
-	 size_t _size;
       };
 
    }

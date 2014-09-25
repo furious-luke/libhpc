@@ -44,6 +44,8 @@ namespace hpc {
 	 group( location& loc,
 		const std::string& name );
 
+	 group( group&& src );
+
 	 ~group();
 
 	 void
@@ -54,8 +56,8 @@ namespace hpc {
 		 const std::string& name );
 
 	 void
-	 open( location& loc,
-	       const std::string& name );
+	 open( location const& loc,
+	       std::string const& name );
 
 	 void
 	 close();

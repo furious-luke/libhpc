@@ -36,6 +36,7 @@ namespace hpc {
 
       public:
 
+	 static datatype invalid;
 	 static datatype native_char;
 	 static datatype native_int;
 	 static datatype native_uint;
@@ -126,6 +127,9 @@ namespace hpc {
 
 	 hid_t
 	 id() const;
+
+	 bool
+	 operator==( h5::datatype const& other ) const;
 
       protected:
 

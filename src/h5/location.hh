@@ -31,7 +31,7 @@ namespace hpc {
       {
       public:
 
-	 location( hid_t id=-1 );
+	 location( hid_t id = -1 );
 
 	 ~location();
 

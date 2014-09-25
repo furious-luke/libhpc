@@ -79,10 +79,24 @@ namespace hpc {
          }
       }
 
+      bool
+      file::is_open() const
+      {
+	 return _id >= 0;
+      }
+
       h5::dataset const
       file::dataset( std::string const& name ) const
       {
          return h5::dataset( *this, name );
+      }
+
+      h5::group const
+      file::group( std::string const& name ) const
+      {
+	 h5::group grp;
+	 grp.open( *this, name );
+	 return grp;
       }
 
       std::vector<std::string>

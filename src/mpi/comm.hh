@@ -897,6 +897,47 @@ namespace hpc {
 	    return inc;
 	 }
 
+	 template< class OutBufT,
+		   class IncBufT >
+	 void
+	 alltoall( OutBufT const& out,
+		   IncBufT&& inc ) const
+	 {
+	    _alltoall<OutBufT,IncBufT>( out, std::forward<IncBufT>( inc ) );
+	 }
+
+	 template< class OutBufT,
+		   class OutCntsT,
+		   class OutDisplsT,
+		   class IncBufT,
+		   class IncCntsT,
+		   class IncDisplsT >
+	 void
+	 alltoallv( OutBufT const& out_buf,
+		    OutCntsT const& out_cnts,
+		    OutDisplsT const& out_displs,
+		    IncBufT&& inc_buf,
+		    IncCntsT&& inc_cnts,
+		    IncDisplsT&& inc_displs ) const
+	 {
+	    _alltoallv<OutBufT,OutCntsT,OutDisplsT,IncBufT,IncCntsT,IncDisplsT>(
+	       out_buf, out_cnts, out_displs,
+	       std::forward<IncBufT>( inc_buf ),
+	       std::forward<IncCntsT>( inc_cnts ),
+	       std::forward<IncDisplsT>( inc_displs )
+	       );
+	 }
+
+	 void
+	 alltoallw( void const* out_data,
+		    int const* out_cnts,
+		    int const* out_displs,
+		    datatype const* out_types,
+		    void* inc_data,
+		    int const* inc_cnts,
+		    int const* inc_displs,
+		    datatype const* inc_types ) const;
+
 	 void
 	 abort( int ec = 1 ) const;
 
@@ -911,6 +952,44 @@ namespace hpc {
 
 	 bool
 	 operator!=(MPI_Comm comm) const;
+
+      protected:
+
+	 template< class OutBufT,
+		   class IncBufT >
+	 void
+	 _alltoall( OutBufT const& out,
+		    typename type_traits<IncBufT>::reference inc ) const
+	 {
+	    typedef typename OutBufT::value_type out_type;
+	    typedef typename type_traits<IncBufT>::value::value_type inc_type;
+	    MPI_INSIST( MPI_Alltoall( (void*)out.data(), 1, MPI_MAP_TYPE( out_type ),
+				      (void*)inc.data(), 1, MPI_MAP_TYPE( inc_type ),
+				      _comm ) );
+	 }
+
+	 template< class OutBufT,
+		   class OutCntsT,
+		   class OutDisplsT,
+		   class IncBufT,
+		   class IncCntsT,
+		   class IncDisplsT >
+	 void
+	 _alltoallv( OutBufT const& out_buf,
+		     OutCntsT const& out_cnts,
+		     OutDisplsT const& out_displs,
+		     typename type_traits<IncBufT>::reference inc_buf,
+		     typename type_traits<IncCntsT>::reference inc_cnts,
+		     typename type_traits<IncDisplsT>::reference inc_displs ) const
+	 {
+	    typedef typename OutBufT::value_type out_type;
+	    typedef typename type_traits<IncBufT>::value::value_type inc_type;
+	    MPI_INSIST(
+	       MPI_Alltoallv( (void*)out_buf.data(), (int*)out_cnts.data(), (int*)out_displs.data(), MPI_MAP_TYPE( out_type ),
+			      (void*)inc_buf.data(), (int*)inc_cnts.data(), (int*)inc_displs.data(), MPI_MAP_TYPE( inc_type ),
+			      _comm )
+	       );
+	 }
 
       protected:
 

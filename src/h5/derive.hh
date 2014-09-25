@@ -44,6 +44,12 @@ namespace hpc {
 	      const std::string& desc = "" );
 
 	 void
+	 add2( h5::datatype const& mem_type,
+	       hsize_t mem_offs,
+	       std::string const& desc = "",
+	       h5::datatype const& file_type = h5::datatype::invalid );
+
+	 void
 	 commit( h5::datatype& mem_type,
 		 h5::datatype& file_type );
 

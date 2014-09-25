@@ -80,6 +80,19 @@ namespace hpc {
 	 return comm.all_reduce( lsize ) - balanced_left_size( lsize, comm );
       }
 
+      template< class T >
+      int
+      balanced_locate_rank( T n_gelems,
+			    int n_ranks,
+			    T idx )
+      {
+	 T upp = n_gelems/n_ranks, rem = n_gelems%n_ranks;
+	 if( idx < rem*(upp + 1) )
+	    return idx/(upp + 1);
+	 else
+	    return rem + (idx - rem*(upp + 1))/upp;
+      }
+
    }
 }
 

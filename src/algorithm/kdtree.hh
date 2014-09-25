@@ -19,6 +19,10 @@
 #define hpc_algorithm_kdtree_hh
 
 #include <boost/range/algorithm/copy.hpp>
+#include "libhpc/h5/location.hh"
+#include "libhpc/h5/derive.hh"
+#include "libhpc/h5/datatype.hh"
+#include "libhpc/h5/dataset.hh"
 
 namespace hpc {
 
@@ -298,6 +302,43 @@ namespace hpc {
       std::vector<split_type> _splits;
       mpi::comm const* _comm;
    };
+
+   template< class CoordT >
+   h5::location&
+   operator<<( h5::location& loc,
+	       kdtree<CoordT> const& kdt )
+   {
+      // Write bounds.
+      {
+         h5::derive der( 2*sizeof(CoordT) );
+         der.add2( h5::datatype::native_double, 0, "minimum" );
+         der.add2( h5::datatype::native_double, sizeof(double), "maximum" );
+         h5::datatype mdt, fdt;
+         der.commit( mdt, fdt );
+         h5::dataset ds( loc, "bounds", fdt, kdt.bounds().size() );
+         ds.write( kdt.bounds().data(), mdt, kdt.bounds().size(), 0 );
+      }
+
+      // Write splits.
+      {
+         h5::derive der( sizeof(kdtree<CoordT>::split_type) );
+         der.add2( h5::datatype::native_double, HOFFSET( typename kdtree<CoordT>::split_type, pos ), "position" );
+         der.add2( h5::datatype::native_uint, HOFFSET( typename kdtree<CoordT>::split_type, dim ), "dimension" );
+         h5::datatype mdt, fdt;
+         der.commit( mdt, fdt );
+         h5::dataset ds( loc, "splits", fdt, kdt.splits().size() );
+         ds.write( kdt.splits().data(), mdt, kdt.splits().size(), 0 );
+      }
+
+      return loc;
+   }
+
+   template< class CoordT >
+   h5::location const&
+   operator>>( h5::location const& loc,
+	       kdtree<CoordT>& kdt )
+   {
+   }
 
 }
 

@@ -59,6 +59,12 @@ namespace hpc {
 	 this->create(loc, name);
       }
 
+      group::group( group&& src )
+	 : location( src._id )
+      {
+	 src._id = -1;
+      }
+
       group::~group()
       {
 	 this->close();
@@ -81,19 +87,22 @@ namespace hpc {
       }
 
       void
-      group::open( location& loc,
-		   const std::string& name )
+      group::open( location const& loc,
+		   std::string const& name )
       {
-	 this->close();
-	 this->_id = H5Gopen2(loc.id(), name.c_str(), H5P_DEFAULT);
-	 ASSERT(this->_id >= 0);
+	 close();
+	 _id = H5Gopen2( loc.id(), name.c_str(), H5P_DEFAULT );
+	 ASSERT( _id >= 0 );
       }
 
       void
       group::close()
       {
 	 if(this->_id >= 0)
+	 {
 	    INSIST(H5Gclose(this->_id), >= 0);
+	    _id = -1;
+	 }
       }
 
       hsize_t

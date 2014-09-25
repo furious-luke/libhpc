@@ -307,6 +307,21 @@ namespace hpc {
 	 MPI_Abort( _comm, ec );
       }
 
+      void
+      comm::alltoallw( void const* out_data,
+		       int const* out_cnts,
+		       int const* out_displs,
+		       datatype const* out_types,
+		       void* inc_data,
+		       int const* inc_cnts,
+		       int const* inc_displs,
+		       datatype const* inc_types ) const
+      {
+	 MPI_INSIST( MPI_Alltoallw( (void*)out_data, (int*)out_cnts, (int*)out_displs, (MPI_Datatype*)out_types,
+				    inc_data, (int*)inc_cnts, (int*)inc_displs, (MPI_Datatype*)inc_types,
+				    _comm ) );
+      }
+
       bool
       comm::operator==(const comm& comm) const
       {

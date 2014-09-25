@@ -36,9 +36,8 @@ namespace hpc {
       mpi::datatype datatype::double_floating;
 
       datatype::datatype( MPI_Datatype type )
-	 : _type(type)
+	 : _type( type )
       {
-	 this->calc_size();
       }
 
       datatype::~datatype()
@@ -47,14 +46,19 @@ namespace hpc {
       }
 
       datatype::datatype( datatype&& src )
-	 : _type( src._type ),
-	   _size( src._size )
+	 : _type( src._type )
       {
 	 if( !src.is_primitive() )
-	 {
 	    src._type = MPI_DATATYPE_NULL;
-	    src._size = 0;
-	 }
+      }
+
+      datatype&
+      datatype::operator=( datatype&& other )
+      {
+	 clear();
+	 _type = other._type;
+	 other._type = MPI_DATATYPE_NULL;
+	 return *this;
       }
 
       void
@@ -64,7 +68,6 @@ namespace hpc {
 	 {
 	    MPI_Type_free( &_type );
 	    _type = MPI_DATATYPE_NULL;
-	    _size = 0;
 	 }
       }
 
@@ -96,7 +99,6 @@ namespace hpc {
       {
 	 this->clear();
 	 this->_type = type;
-	 this->calc_size();
       }
 
       const MPI_Datatype&
@@ -119,7 +121,6 @@ namespace hpc {
 	 else
 	    MPI_Type_contiguous(size*block_size, base._type, &this->_type);
 	 MPI_Type_commit(&this->_type);
-	 this->calc_size();
       }
 
       // void
@@ -138,13 +139,17 @@ namespace hpc {
       //    else
       //       MPI_Type_create_indexed_block(idxs.size(), block_size, (int*)idxs.data(), base._type, &this->_type);
       //    MPI_Type_commit(&this->_type);
-      //    this->calc_size();
       // }
 
       size_t
       datatype::size() const
       {
-	 return _size;
+	 int sz;
+	 if( _type != MPI_DATATYPE_NULL )
+	    MPI_INSIST( MPI_Type_size( _type, (int*)&sz ) );
+	 else
+	    sz = 0;
+	 return sz;
       }
 
       bool
@@ -196,15 +201,9 @@ namespace hpc {
 	 else if(obj._type == MPI_DOUBLE)
 	    strm << "DOUBLE";
 	 else
-	    strm << "CUSTOM(" << obj._size << ")";
+	    strm << "CUSTOM";
 	 return strm;
       }
 
-      void datatype::calc_size() {
-	 if(this->_type != MPI_DATATYPE_NULL)
-	    MPI_INSIST(MPI_Type_size(this->_type, (int*)&this->_size));
-	 else
-	    this->_size = 0;
-      }
    }
 }

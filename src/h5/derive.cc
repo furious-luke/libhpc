@@ -35,6 +35,16 @@ namespace hpc {
       }
 
       void
+      derive::add2( h5::datatype const& mem_type,
+		    hsize_t mem_offs,
+		    std::string const& desc,
+		    h5::datatype const& file_type )
+      {
+	 h5::datatype const* fdt = (file_type == h5::datatype::invalid) ? &mem_type : &file_type;
+	 _cache.push_back( boost::make_tuple( &mem_type, mem_offs, fdt, desc ) );
+      }
+
+      void
       derive::commit( h5::datatype& mem_type,
 		      h5::datatype& file_type )
       {

@@ -55,8 +55,14 @@ namespace hpc {
 	 void
 	 close();
 
+	 bool
+	 is_open() const;
+
          h5::dataset const
          dataset( std::string const& name ) const;
+
+	 h5::group const
+	 group( std::string const& name ) const;
 
 	 template< class BufT,
                    typename boost::disable_if<random_access_trait<BufT>,int>::type = 0 >
