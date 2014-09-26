@@ -15,17 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_algorithm_hh
-#define hpc_algorithm_hh
+#include <boost/range/algorithm_ext/iota.hpp>
+#include <libhpc/unit_test/main_mpi.hh>
+#include <libhpc/algorithm/permute.hh>
 
-#include "algorithm/dual.hh"
-#include "algorithm/bin.hh"
-#include "algorithm/median.hh"
-#include "algorithm/dual.hh"
-#include "algorithm/bin.hh"
-#include "algorithm/kdtree.hh"
-#include "algorithm/binary_partitioner.hh"
-#include "algorithm/sort_by_key.hh"
-#include "algorithm/permute.hh"
+typedef hpc::mpi::comm comm;
 
-#endif
+SUITE_PREFIX( "/hpc/algorithm/permute/" );
+
+TEST_CASE( "basic" )
+{
+   std::vector<int> vals( 10 ), idxs( 10 );
+   boost::iota( vals, 0 );
+   idxs[0] = 3; idxs[3] = 8; idxs[8] = 2; idxs[2] = 0;
+   idxs[1] = 4; idxs[4] = 1;
+   idxs[5] = 5;
+   idxs[6] = 7; idxs[7] = 9; idxs[9] = 6;
+   hpc::permute( vals.begin(), vals.end(), idxs.begin() );
+   int results[] = { 2, 4, 8, 0, 1, 5, 9, 6, 3, 7 };
+   for( unsigned ii = 0; ii < 10; ++ii )
+      TEST( vals[ii] == results[ii] );
+}
