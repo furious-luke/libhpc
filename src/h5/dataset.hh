@@ -146,23 +146,14 @@ namespace hpc {
 	    return data;
          }
 
-	 template< class T >
-	 inline
-	 void
-	 read( std::vector<T>& buf,
+	 template< class BufT,
+		   typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+         void
+	 read( typename type_traits<BufT>::reference buf,
                hsize_t offs = 0,
                mpi::comm const& comm = mpi::comm::self ) const
 	 {
-	    read<std::vector<T> >( buf, offs, comm );
-	 }
-
-	 template< class BufferT >
-         typename boost::enable_if<random_access_trait<BufferT>,void>::type
-	 read( typename type_traits<BufferT>::reference buf,
-               hsize_t offs = 0,
-               mpi::comm const& comm = mpi::comm::self ) const
-	 {
-            typedef typename BufferT::value_type value_type;
+            typedef typename type_traits<BufT>::value::value_type value_type;
 
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
@@ -180,6 +171,16 @@ namespace hpc {
 
             // Read from the dataset.
 	    read( buf.data(), type, mem_space, file_space, comm );
+	 }
+
+	 template< class BufT,
+		   typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+         void
+	 reada( typename type_traits<BufT>::reference buf,
+		mpi::comm const& comm = mpi::comm::self ) const
+	 {
+	    buf.resize( extent() );
+	    read<BufT>( buf, 0, comm );
 	 }
 
 	 template< class Buffer,
@@ -215,7 +216,7 @@ namespace hpc {
 		h5::dataspace const& mem_space = h5::dataspace::all,
 		h5::dataspace const& file_space = h5::dataspace::all,
 		mpi::comm const& comm = mpi::comm::self,
-                h5::property_list const& props = h5::property_list() );
+                h5::property_list const& props = h5::property_list() ) const;
 
          void
          write( void const* buf,
@@ -223,7 +224,7 @@ namespace hpc {
                 hsize_t size,
                 hsize_t offset,
                 mpi::comm const& comm = mpi::comm::self,
-                h5::property_list const& props = h5::property_list() );
+                h5::property_list const& props = h5::property_list() ) const;
 
 	 template< class DataT >
          typename boost::disable_if<random_access_trait<DataT> >::type
@@ -244,16 +245,17 @@ namespace hpc {
 	    write( &data, type, mem_space, file_space );
 	 }
 
-	 template< class Buffer >
-         typename boost::enable_if<random_access_trait<Buffer> >::type
-	 write( typename type_traits<Buffer>::const_reference buf,
-                hsize_t offset = 0,
-                mpi::comm const& comm = mpi::comm::self )
+	 template< class BufT,
+		   typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+	 void
+	 write( BufT const& buf,
+                hsize_t offs = 0,
+                mpi::comm const& comm = mpi::comm::self ) const
 	 {
-            typedef typename Buffer::value_type value_type;
+            typedef typename BufT::value_type value_type;
 	    BOOST_MPL_ASSERT( (boost::mpl::has_key<h5::datatype::type_map,value_type>) );
 	    h5::datatype type( boost::mpl::at<h5::datatype::type_map,value_type>::type::value );
-            write( buf.data(), type, buf.size(), offset, comm );
+            write( buf.data(), type, buf.size(), offs, comm );
 	 }
 
       protected:
@@ -313,6 +315,27 @@ namespace hpc {
 
          file_set.write( buf, type, mem_space, file_space, comm );
       }
+
+      template< class BufT,
+		typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+      h5::dataset const&
+      operator>>( h5::dataset const& ds,
+		  BufT&& buf )
+      {
+	 ds.reada<BufT>( std::forward<BufT>( buf ) );
+	 return ds;
+      }
+
+      template< class BufT,
+		typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+      h5::dataset const&
+      operator<<( h5::dataset const& ds,
+		  BufT&& buf )
+      {
+	 ds.write<BufT>( std::forward<BufT>( buf ) );
+	 return ds;
+      }
+
    }
 }
 

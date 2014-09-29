@@ -19,6 +19,7 @@
 #define hpc_numerics_generators_hh
 
 #include <math.h>
+#include <numeric>
 #include "libhpc/debug/assert.hh"
 
 namespace hpc {
@@ -51,6 +52,21 @@ namespace hpc {
             for( unsigned ii = 0; ii < size; ++start, ++ii )
                *start = min + ii*step;
          }
+      }
+
+   }
+
+   namespace gen {
+
+      template< class T,
+		class SeqT = std::vector<T> >
+      SeqT
+      iota( T size,
+	    T init = 0 )
+      {
+	 SeqT seq( size );
+	 std::iota( seq.begin(), seq.end(), init );
+	 return seq;
       }
 
    }

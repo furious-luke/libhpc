@@ -58,10 +58,7 @@ namespace hpc {
 	 bool
 	 is_open() const;
 
-         h5::dataset const
-         dataset( std::string const& name ) const;
-
-	 h5::group const
+	 h5::group
 	 group( std::string const& name ) const;
 
 	 template< class BufT,

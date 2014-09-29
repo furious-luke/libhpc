@@ -26,6 +26,9 @@
 
 namespace hpc {
 
+   template< class CoordT >
+   class kdtree_iterator;
+
    template< class CoordT = double >
    class kdtree
    {
@@ -38,6 +41,8 @@ namespace hpc {
          coord_type pos;
          unsigned dim;
       };
+
+      typedef kdtree_iterator<coord_type> iterator;
 
    public:
 
@@ -166,17 +171,24 @@ namespace hpc {
       //       return cell < ;
       // }
 
-      // unsigned
-      // left_child( unsigned cell ) const
-      // {
-      //    return (cell + 1)*2;
-      // }
+      unsigned
+      left_child( unsigned cell ) const
+      {
+         return (cell + 1)*2 - 1;
+      }
 
-      // void
-      // right_child( unsigned cell ) const
-      // {
-      //    return _left_child( cell ) + 1;
-      // }
+      unsigned
+      right_child( unsigned cell ) const
+      {
+         return (cell + 1)*2;
+      }
+
+      unsigned
+      parent( unsigned cell ) const
+      {
+         ASSERT( cell > 0 );
+         return (cell - 1) >> 1;
+      }
 
       unsigned
       n_dims() const
@@ -230,7 +242,7 @@ namespace hpc {
          std::fill( done.begin(), done.end(), false );
          while( cell > 0 )
          {
-            auto split = _splits[_parent( cell )];
+            auto split = _splits[parent( cell )];
             unsigned idx = 2*split.dim;
             if( (cell & 1) != 0 )
                ++idx;
@@ -239,7 +251,7 @@ namespace hpc {
                *(result + idx) = split.pos;
                done[idx] = true;
             }
-            cell = _parent( cell );
+            cell = parent( cell );
          }
          for( unsigned ii = 0; ii < done.size(); ++ii )
          {
@@ -276,6 +288,18 @@ namespace hpc {
          return dep;
       }
 
+      iterator
+      begin() const
+      {
+	 return iterator( *this, 0 );
+      }
+
+      iterator
+      end() const
+      {
+	 return iterator( *this );
+      }
+
    protected:
 
       unsigned
@@ -288,19 +312,78 @@ namespace hpc {
             return 0;
       }
 
-      unsigned
-      _parent( unsigned cell ) const
-      {
-         ASSERT( cell > 0 );
-         return (cell - 1) >> 1;
-      }
-
    protected:
 
       std::vector<std::array<coord_type,2> > _bnds;
       std::vector<std::tuple<coord_type,unsigned,int> > _root_splits;
       std::vector<split_type> _splits;
       mpi::comm const* _comm;
+
+      template< class U >
+      friend
+      h5::location const&
+      operator>>( h5::location const& loc,
+		  kdtree<U>& kdt );
+   };
+
+   template< class CoordT >
+   class kdtree_iterator
+   {
+   public:
+
+      typedef CoordT coord_type;
+      typedef kdtree<coord_type> kdtree_type;
+
+   public:
+
+      kdtree_iterator( kdtree const& kdt,
+		       unsigned cell = std::numeric_limits<unsigned>::max() )
+	 : _kdt( &kdt )
+      {
+	 if( cell == std::numeric_limits<unsigned>::max() )
+	    _cell = kdt.n_cells();
+	 else
+	    _cell = cell;
+      }
+
+      void
+      operator++()
+      {
+	 unsigned ch = _kdt->left_child( _cell );
+	 unsigned nc = _kdt->n_cells();
+	 if( ch < nc )
+	    _cell = ch;
+	 else
+	 {
+	    while( _cell != 0 )
+	    {
+	       unsigned pr = _kdt->parent( cell );
+	       ch = _kdt->right_child( pr );
+	       if( _cell != ch )
+	       {
+		  _cell = ch;
+		  break;
+	       }
+	       else
+		  _cell = pr;
+	    }
+	    if( _cell == 0 )
+	       _cell = nc;
+	 }
+	 else
+	    _cell = nc;
+      }
+
+      void
+      skip()
+      {
+	 ++_cell;
+      }
+
+   protected:
+
+      kdtree_type const* _kdt;
+      unsigned _cell;
    };
 
    template< class CoordT >
@@ -321,7 +404,7 @@ namespace hpc {
 
       // Write splits.
       {
-         h5::derive der( sizeof(kdtree<CoordT>::split_type) );
+         h5::derive der( sizeof(typename kdtree<CoordT>::split_type) );
          der.add2( h5::datatype::native_double, HOFFSET( typename kdtree<CoordT>::split_type, pos ), "position" );
          der.add2( h5::datatype::native_uint, HOFFSET( typename kdtree<CoordT>::split_type, dim ), "dimension" );
          h5::datatype mdt, fdt;
@@ -338,6 +421,33 @@ namespace hpc {
    operator>>( h5::location const& loc,
 	       kdtree<CoordT>& kdt )
    {
+      kdt.clear();
+
+      // Load bounds.
+      {
+         h5::derive der( 2*sizeof(CoordT) );
+         der.add2( h5::datatype::native_double, 0, "minimum" );
+         der.add2( h5::datatype::native_double, sizeof(double), "maximum" );
+         h5::datatype mdt, fdt;
+         der.commit( mdt, fdt );
+         h5::dataset ds( loc, "bounds" );
+	 kdt._bnds.resize( ds.extent() );
+         ds.read( kdt._bnds.data(), mdt, ds.extent(), 0 );
+      }
+
+      // Load splits.
+      {
+         h5::derive der( sizeof(typename kdtree<CoordT>::split_type) );
+         der.add2( h5::datatype::native_double, HOFFSET( typename kdtree<CoordT>::split_type, pos ), "position" );
+         der.add2( h5::datatype::native_uint, HOFFSET( typename kdtree<CoordT>::split_type, dim ), "dimension" );
+         h5::datatype mdt, fdt;
+         der.commit( mdt, fdt );
+         h5::dataset ds( loc, "splits" );
+	 kdt._splits.resize( ds.extent() );
+         ds.read( kdt._splits.data(), mdt, ds.extent(), 0 );
+      }
+
+      return loc;
    }
 
 }

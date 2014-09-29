@@ -27,6 +27,8 @@
 namespace hpc {
    namespace h5 {
 
+      class dataset;
+
       class location
       {
       public:
@@ -50,6 +52,9 @@ namespace hpc {
 
 	 hsize_t
 	 extent( const std::string& name ) const;
+
+	 h5::dataset
+	 dataset( std::string const& name ) const;
 
 	 template< class T >
 	 void

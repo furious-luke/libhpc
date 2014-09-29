@@ -67,5 +67,11 @@ namespace hpc {
 	 return h5::dataset( *this, name ).extent();
       }
 
+      h5::dataset
+      location::dataset( std::string const& name ) const
+      {
+	 return h5::dataset( *this, name );
+      }
+
    }
 }
