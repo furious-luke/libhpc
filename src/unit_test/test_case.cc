@@ -55,6 +55,18 @@ namespace hpc {
          return _runner;
       }
 
+      bool
+      test_case_base::is_parallel() const
+      {
+         return !_ranks.empty();
+      }
+
+      std::vector<int> const&
+      test_case_base::ranks() const
+      {
+         return _ranks;
+      }
+
       void
       test_case_base::_add_test_case()
       {

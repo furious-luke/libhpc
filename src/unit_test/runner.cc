@@ -16,6 +16,7 @@
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include "libhpc/system/filesystem.hh"
 #include "runner.hh"
 #include "failures.hh"
 
@@ -37,14 +38,46 @@ namespace hpc {
       }
 
       void
-      runner::run_all()
+      runner::run_one( unsigned idx )
       {
+         unsigned ii = 0;
          test_case_node_t* node = head;
          while( node )
          {
-            node->tc->set_runner( this );
-            run( *node->tc );
+            if( ii == idx )
+            {
+               node->tc->set_runner( this );
+               run( *node->tc );
+               break;
+            }
             node = node->next;
+            ++ii;
+         }
+      }
+
+      void
+      runner::run_all()
+      {
+         unsigned ii = 0;
+         test_case_node_t* node = head;
+         while( node )
+         {
+            char buf[5000];
+            if( node->tc->is_parallel() )
+            {
+               for( auto np : node->tc->ranks() )
+               {
+                  sprintf( buf, "mpirun -np %d %s %d", np, executable_path().native().c_str(), ii );
+                  system( buf );
+               }
+            }
+            else
+            {
+               sprintf( buf, "%s %d", executable_path().native().c_str(), ii );
+               system( buf );
+            }
+            node = node->next;
+            ++ii;
          }
       }
 

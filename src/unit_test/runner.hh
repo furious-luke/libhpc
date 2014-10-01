@@ -32,6 +32,9 @@ namespace hpc {
          run( test_case_base& tc );
 
          void
+         run_one( unsigned idx );
+
+         void
          run_all();
       };
 

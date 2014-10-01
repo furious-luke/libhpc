@@ -128,6 +128,12 @@ namespace hpc {
          void
          print_results() const = 0;
 
+         bool
+         is_parallel() const;
+
+         std::vector<int> const&
+         ranks() const;
+
       protected:
 
          void
@@ -139,6 +145,7 @@ namespace hpc {
          std::string _desc;
          test::runner const* _runner;
          bool _succ;
+         std::vector<int> _ranks;
       };
 
       class test_case

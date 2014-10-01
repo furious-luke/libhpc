@@ -25,39 +25,45 @@
 #ifdef HPC_UT_LOG
 #include <libhpc/logging.hh>
 #endif
-#ifdef HPC_UT_MPI
+// #ifdef HPC_UT_MPI
 #include <libhpc/mpi.hh>
 #include "mpi_runner.hh"
-#endif
+// #endif
 
 int
 main( int argc,
       char* argv[] )
 {
    int rc = EXIT_SUCCESS;
-#ifdef HPC_UT_MPI
+// #ifdef HPC_UT_MPI
    hpc::mpi::initialise( argc, argv );
-#endif
+// #endif
 #ifdef HPC_UT_LOG
    LOG_PUSH( new hpc::log::stdout );
 #endif
-#ifdef HPC_UT_MPI
+// #ifdef HPC_UT_MPI
    hpc::test::mpi_runner runner;
-#else
-   hpc::test::runner runner;
-#endif
+// #else
+//    hpc::test::runner runner;
+// #endif
    try
    {
-      runner.run_all();
+      if( argc > 1 )
+      {
+         int idx = atoi( argv[1] );
+         runner.run_one( idx );
+      }
+      else
+         runner.run_all();
    }
    catch( hpc::test::test_failed const& ex )
    {
       std::cout << "\n" << ex.what() << "\n";
       rc = EXIT_FAILURE;
    }
-#ifdef HPC_UT_MPI
+// #ifdef HPC_UT_MPI
    hpc::mpi::finalise();
-#endif
+// #endif
    return rc;
 }
 
