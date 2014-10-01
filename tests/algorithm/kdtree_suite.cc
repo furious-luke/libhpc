@@ -18,27 +18,9 @@
 #include <libhpc/unit_test/main_mpi.hh>
 #include <libhpc/algorithm/binary_partitioner.hh>
 #include <libhpc/algorithm/kdtree.hh>
-
-typedef hpc::mpi::comm comm;
+#include "../fixtures/kdtree_fixture.hh"
 
 SUITE_PREFIX( "/hpc/algorithm/kdtree/" );
-
-struct permute
-{
-   permute( std::array<std::vector<double>,3>& crds )
-      : crds( crds )
-   {
-   }
-
-   void
-   operator()( hpc::mpi::balanced_partition const& part )
-   {
-      for( unsigned ii = 0; ii < 3; ++ii )
-         part.transfer( crds[ii] );
-   }
-
-   std::array<std::vector<double>,3>& crds;
-};
 
 TEST_CASE( "construct" )
 {
@@ -76,47 +58,32 @@ TEST_CASE( "construct/parallel" )
 {
    unsigned n_ranks = comm::world.size();
    unsigned rank = comm::world.rank();
-   std::array<std::vector<double>,3> crds;
-   for( unsigned ii = 0; ii < 3; ++ii )
-      crds[ii].reserve( 5 );
+   kdtree_fixture fix;
 
-   crds[0].push_back(  1.0 ); crds[1].push_back(  1.0 ); crds[2].push_back(  1.0 );
-   crds[0].push_back(  2.0 ); crds[1].push_back(  2.0 ); crds[2].push_back( 10.0 );
-   crds[0].push_back(  3.0 ); crds[1].push_back( 11.0 ); crds[2].push_back(  2.0 );
-   crds[0].push_back( 11.0 ); crds[1].push_back(  4.0 ); crds[2].push_back(  2.5 );
-   crds[0].push_back( 12.0 ); crds[1].push_back(  8.0 ); crds[2].push_back(  3.0 );
-   double base = 13.0*(double)rank;
-   for( auto& x : crds[0] )
-      x += base;
-
-   permute perm( crds );
-   auto bp = hpc::make_binary_partitioner( crds.begin(), crds.end(), perm, 1 );
-   hpc::kdtree<> kdt( bp );
-
-   TEST( kdt.n_dims() == 3 );
-   TEST( kdt.n_cells() == 9 );
-   TEST( kdt.n_leafs() == 5 );
-   TEST( kdt.n_branches() == 4 );
-   TEST( kdt.bounds().size() == 3 );
+   TEST( fix.kdt.n_dims() == 3 );
+   TEST( fix.kdt.n_cells() == 9 );
+   TEST( fix.kdt.n_leafs() == 5 );
+   TEST( fix.kdt.n_branches() == 4 );
+   TEST( fix.kdt.bounds().size() == 3 );
    if( rank == 0 )
-      TEST( kdt.bounds()[0][0] == 1.0 );
+      TEST( fix.kdt.bounds()[0][0] == 1.0 );
    else
-      DELTA( kdt.bounds()[0][0], base, 1.0 );
+      DELTA( fix.kdt.bounds()[0][0], fix.base, 1.0 );
    if( rank == n_ranks - 1 )
-      TEST( kdt.bounds()[0][1] == 12.0 + base );
+      TEST( fix.kdt.bounds()[0][1] == 12.0 + fix.base );
    else
-      DELTA( kdt.bounds()[0][1], base + 13.0, 1.0 );
-   TEST( kdt.bounds()[1][0] == 1.0 ); TEST( kdt.bounds()[1][1] == 11.0 );
-   TEST( kdt.bounds()[2][0] == 1.0 ); TEST( kdt.bounds()[2][1] == 10.0 );
+      DELTA( fix.kdt.bounds()[0][1], fix.base + 13.0, 1.0 );
+   TEST( fix.kdt.bounds()[1][0] == 1.0 ); TEST( fix.kdt.bounds()[1][1] == 11.0 );
+   TEST( fix.kdt.bounds()[2][0] == 1.0 ); TEST( fix.kdt.bounds()[2][1] == 10.0 );
 
-   TEST( bp.n_elems() == 5 );
-   TEST( bp.n_gelems() == 5*n_ranks );
+   TEST( fix.bp.n_elems() == 5 );
+   TEST( fix.bp.n_gelems() == 5*n_ranks );
 
-   DELTA( crds[0][0],  1.0 + base, 1e-1 ); DELTA( crds[1][0],  1.0, 1e-1 ); DELTA( crds[2][0],  1.0, 1e-1 );
-   DELTA( crds[0][1],  2.0 + base, 1e-1 ); DELTA( crds[1][1],  2.0, 1e-1 ); DELTA( crds[2][1], 10.0, 1e-1 );
-   DELTA( crds[0][2],  3.0 + base, 1e-1 ); DELTA( crds[1][2], 11.0, 1e-1 ); DELTA( crds[2][2],  2.0, 1e-1 );
-   DELTA( crds[0][3], 11.0 + base, 1e-1 ); DELTA( crds[1][3],  4.0, 1e-1 ); DELTA( crds[2][3],  2.5, 1e-1 );
-   DELTA( crds[0][4], 12.0 + base, 1e-1 ); DELTA( crds[1][4],  8.0, 1e-1 ); DELTA( crds[2][4],  3.0, 1e-1 );
+   DELTA( fix.crds[0][0],  1.0 + fix.base, 1e-1 ); DELTA( fix.crds[1][0],  1.0, 1e-1 ); DELTA( fix.crds[2][0],  1.0, 1e-1 );
+   DELTA( fix.crds[0][1],  2.0 + fix.base, 1e-1 ); DELTA( fix.crds[1][1],  2.0, 1e-1 ); DELTA( fix.crds[2][1], 10.0, 1e-1 );
+   DELTA( fix.crds[0][2],  3.0 + fix.base, 1e-1 ); DELTA( fix.crds[1][2], 11.0, 1e-1 ); DELTA( fix.crds[2][2],  2.0, 1e-1 );
+   DELTA( fix.crds[0][3], 11.0 + fix.base, 1e-1 ); DELTA( fix.crds[1][3],  4.0, 1e-1 ); DELTA( fix.crds[2][3],  2.5, 1e-1 );
+   DELTA( fix.crds[0][4], 12.0 + fix.base, 1e-1 ); DELTA( fix.crds[1][4],  8.0, 1e-1 ); DELTA( fix.crds[2][4],  3.0, 1e-1 );
 }
 
 TEST_CASE( "leaf_geometry/depth_1" )
@@ -216,5 +183,87 @@ TEST_CASE( "leaf_geometry/depth_2" )
       DELTA( bnds[3], 1.0, 1e-2 );
       DELTA( bnds[4], 0.0, 1e-2 );
       DELTA( bnds[5], 7.0, 1e-2 );
+   }
+}
+
+TEST_CASE( "iterator/next" )
+{
+   unsigned n_ranks = comm::world.size();
+   unsigned rank = comm::world.rank();
+   kdtree_fixture fix;
+
+   auto it = fix.kdt.begin();
+   TEST( it.cell() == 0 );
+   ++it; TEST( it.cell() == 1 );
+   ++it; TEST( it.cell() == 3 );
+   ++it; TEST( it.cell() == 7 );
+   ++it; TEST( it.cell() == 8 );
+   ++it; TEST( it.cell() == 4 );
+   ++it; TEST( it.cell() == 2 );
+   ++it; TEST( it.cell() == 5 );
+   ++it; TEST( it.cell() == 6 );
+   ++it; TEST( it.cell() == 9 );
+}
+
+TEST_CASE( "iterator/skip" )
+{
+   unsigned n_ranks = comm::world.size();
+   unsigned rank = comm::world.rank();
+   kdtree_fixture fix;
+
+   auto it = fix.kdt.begin();
+   TEST( it.cell() == 0 );
+   ++it;      TEST( it.cell() == 1 );
+   ++it;      TEST( it.cell() == 3 );
+   it.skip(); TEST( it.cell() == 4 );
+   ++it;      TEST( it.cell() == 2 );
+   it.skip(); TEST( it.cell() == 9 );
+}
+
+TEST_CASE( "iterator/bounds" )
+{
+   unsigned n_ranks = comm::world.size();
+   unsigned rank = comm::world.rank();
+
+   if( n_ranks == 1 )
+   {
+      kdtree_fixture fix;
+
+      auto it = fix.kdt.begin();
+      TEST( it.bounds()[0][0] == 1.0 ); TEST( it.bounds()[0][1] == 12.0 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 11.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 1.0 ); TEST( it.bounds()[0][1] == 6.5 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 11.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 1.0 ); TEST( it.bounds()[0][1] == 6.5 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 6.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 1.0 ); TEST( it.bounds()[0][1] == 6.5 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 6.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 5.5 );
+      ++it;
+      TEST( it.bounds()[0][0] == 1.0 ); TEST( it.bounds()[0][1] == 6.5 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 6.0 );
+      TEST( it.bounds()[2][0] == 5.5 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 1.0 ); TEST( it.bounds()[0][1] == 6.5 );
+      TEST( it.bounds()[1][0] == 6.0 ); TEST( it.bounds()[1][1] == 11.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 6.5 ); TEST( it.bounds()[0][1] == 12.0 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 11.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 6.5 ); TEST( it.bounds()[0][1] == 12.0 );
+      TEST( it.bounds()[1][0] == 1.0 ); TEST( it.bounds()[1][1] == 4.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
+      ++it;
+      TEST( it.bounds()[0][0] == 6.5 ); TEST( it.bounds()[0][1] == 12.0 );
+      TEST( it.bounds()[1][0] == 4.0 ); TEST( it.bounds()[1][1] == 11.0 );
+      TEST( it.bounds()[2][0] == 1.0 ); TEST( it.bounds()[2][1] == 10.0 );
    }
 }

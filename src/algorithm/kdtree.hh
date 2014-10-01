@@ -288,6 +288,12 @@ namespace hpc {
          return dep;
       }
 
+      unsigned
+      depth( unsigned cell ) const
+      {
+         return log2i( cell + 1 );
+      }
+
       iterator
       begin() const
       {
@@ -336,14 +342,20 @@ namespace hpc {
 
    public:
 
-      kdtree_iterator( kdtree const& kdt,
+      kdtree_iterator( kdtree_type const& kdt,
 		       unsigned cell = std::numeric_limits<unsigned>::max() )
-	 : _kdt( &kdt )
+	 : _kdt( &kdt ),
+           _geom( kdt.n_dims() ),
+           _buf( kdt.max_depth() )
       {
 	 if( cell == std::numeric_limits<unsigned>::max() )
 	    _cell = kdt.n_cells();
 	 else
+         {
 	    _cell = cell;
+            for( unsigned ii = 0; ii < kdt.n_dims(); ++ii )
+               _geom[ii] = kdt.bounds()[ii];
+         }
       }
 
       void
@@ -352,38 +364,102 @@ namespace hpc {
 	 unsigned ch = _kdt->left_child( _cell );
 	 unsigned nc = _kdt->n_cells();
 	 if( ch < nc )
+         {
+            auto const& sp = _kdt->splits()[_cell];
+            unsigned dep = _kdt->depth( _cell );
+            _buf[dep] = _geom[sp.dim][1];
+            _geom[sp.dim][1] = sp.pos;
+
 	    _cell = ch;
+         }
 	 else
-	 {
-	    while( _cell != 0 )
-	    {
-	       unsigned pr = _kdt->parent( cell );
-	       ch = _kdt->right_child( pr );
-	       if( _cell != ch )
-	       {
-		  _cell = ch;
-		  break;
-	       }
-	       else
-		  _cell = pr;
-	    }
-	    if( _cell == 0 )
-	       _cell = nc;
-	 }
-	 else
-	    _cell = nc;
+            _ascend();
       }
 
       void
       skip()
       {
-	 ++_cell;
+         if( _cell & 1 )
+         {
+            unsigned pr = _kdt->parent( _cell );
+            auto const& sp = _kdt->splits()[pr];
+            unsigned dep = _kdt->depth( pr );
+            _geom[sp.dim][1] = _buf[dep];
+            _buf[dep] = _geom[sp.dim][0];
+            _geom[sp.dim][0] = sp.pos;
+
+            ++_cell;
+         }
+         else
+            _ascend();
+      }
+
+      unsigned
+      cell() const
+      {
+         return _cell;
+      }
+
+      std::vector<std::array<coord_type,2> > const&
+      bounds() const
+      {
+         return _geom;
+      }
+
+      bool
+      operator==( kdtree_iterator const& op ) const
+      {
+         return _cell == op._cell;
+      }
+
+      bool
+      operator!=( kdtree_iterator const& op ) const
+      {
+         return _cell != op._cell;
+      }
+
+   protected:
+
+      void
+      _ascend()
+      {
+         unsigned dep;
+         if( _cell != 0 )
+            dep = _kdt->depth( _cell ) - 1;
+
+         while( _cell != 0 )
+         {
+            unsigned pr = _kdt->parent( _cell );
+            unsigned ch = _kdt->right_child( pr );
+            auto const& sp = _kdt->splits()[pr];
+            if( _cell != ch )
+            {
+               _geom[sp.dim][1] = _buf[dep];
+               _buf[dep] = _geom[sp.dim][0];
+               _geom[sp.dim][0] = sp.pos;
+
+               _cell = ch;
+               break;
+            }
+            else
+            {
+               _geom[sp.dim][0] = _buf[dep];
+
+               _cell = pr;
+            }
+
+            --dep;
+         }
+         if( _cell == 0 )
+            _cell = _kdt->n_cells();
       }
 
    protected:
 
       kdtree_type const* _kdt;
       unsigned _cell;
+      std::vector<std::array<coord_type,2> > _geom;
+      std::vector<coord_type> _buf;
    };
 
    template< class CoordT >

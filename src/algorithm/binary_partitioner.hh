@@ -152,16 +152,78 @@ namespace hpc {
 
    public:
 
+      binary_partitioner()
+      {
+      }
+
       binary_partitioner( dim_iter_type dims_begin,
 			  dim_iter_type dims_end,
 			  permute_type& perm,
 			  unsigned ppc = 1000,
 			  mpi::comm const& comm = mpi::comm::world )
-	 : _dims_begin( dims_begin ),
-	   _dims_end( dims_end ),
-	   _perm( perm ),
-	   _max_ppc( ppc )
       {
+         construct( dims_begin, dims_end, perm, ppc, comm );
+      }
+
+      binary_partitioner( binary_partitioner&& src )
+         : _dims_begin( src._dims_begin ),
+           _dims_end( src._dims_end ),
+           _perm( src._perm ),
+           _max_ppc( src._max_ppc ),
+           _depth( src._depth ),
+           _lsize( src._lsize ),
+           _gsize( src._gsize ),
+           _n_leaf_cells( src._n_leaf_cells ),
+           _n_cells( src._n_cells ),
+           _n_inc_leaf_cells( src._n_inc_leaf_cells ),
+           _bnds( std::move( src._bnds ) ),
+           _min( std::move( src._min ) ),
+           _max( std::move( src._max ) ),
+           _offs( std::move( src._offs ) ),
+           _cnts( std::move( src._cnts ) ),
+           _split( src._split ),
+           _split_and_side( src._split_and_side ),
+           _sub_size( src._sub_size ),
+           _sub_comm( src._sub_comm )
+      {
+      }
+
+      binary_partitioner&
+      operator=( binary_partitioner&& src )
+      {
+         _dims_begin = src._dims_begin;
+         _dims_end = src._dims_end;
+         _perm = src._perm;
+         _max_ppc = src._max_ppc;
+         _depth = src._depth;
+         _lsize = src._lsize;
+         _gsize = src._gsize;
+         _n_leaf_cells = src._n_leaf_cells;
+         _n_cells = src._n_cells;
+         _n_inc_leaf_cells = src._n_inc_leaf_cells;
+         _bnds = std::move( src._bnds );
+         _min = std::move( src._min );
+         _max = std::move( src._max );
+         _offs = std::move( src._offs );
+         _cnts = std::move( src._cnts );
+         _split = src._split;
+         _split_and_side = src._split_and_side;
+         _sub_size = src._sub_size;
+         _sub_comm = src._sub_comm;
+      }
+
+      void
+      construct( dim_iter_type dims_begin,
+                 dim_iter_type dims_end,
+                 permute_type& perm,
+                 unsigned ppc = 1000,
+                 mpi::comm const& comm = mpi::comm::world )
+      {
+	 _dims_begin = dims_begin;
+         _dims_end = dims_end;
+         _perm = perm;
+         _max_ppc = ppc;
+
 	 _lsize = dims_begin->end() - dims_begin->begin();
 	 _gsize = comm.all_reduce( _lsize );
 	 _n_leaf_cells = _lsize/_max_ppc;
