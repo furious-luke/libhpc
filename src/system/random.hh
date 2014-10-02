@@ -18,7 +18,6 @@
 #ifndef libhpc_system_random_hh
 #define libhpc_system_random_hh
 
-#include <ctime>
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>

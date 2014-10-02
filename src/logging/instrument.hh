@@ -18,8 +18,6 @@
 #ifndef libhpc_logging_instrument_hh
 #define libhpc_logging_instrument_hh
 
-#include "config.hh"
-
 #ifndef NINSTRUMENT
 
 #include "libhpc/debug/instrumentation.hh"

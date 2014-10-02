@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "instrumentation.hh"
-
 #ifndef NINSTRUMENT
 
 #include <stdlib.h>
@@ -25,6 +23,7 @@
 #include <list>
 #include <dlfcn.h>
 #include <cxxabi.h>
+#include "instrumentation.hh"
 #include "assert.hh"
 #include "omp_help.hh"
 #include "func.hh"

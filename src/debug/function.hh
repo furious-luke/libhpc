@@ -15,10 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_debug_function_hh
-#define hpc_debug_function_hh
-
-#include "config.hh"
+#ifndef libhpc_debug_function_hh
+#define libhpc_debug_function_hh
 
 #if !defined( NINSTRUMENT ) || !defined( NSTACKTRACE )
 
