@@ -18,6 +18,7 @@
 #ifndef hpc_debug_assert_hh
 #define hpc_debug_assert_hh
 
+#include "config.hh"
 #include "libhpc/system/cuda.hh"
 
 #if (!defined( NDEBUG ) || !defined( NEXCEPT ))

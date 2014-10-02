@@ -214,7 +214,7 @@ namespace hpc {
             local_props.set_collective();
 	 }
 #else
-         ASSERT( *_comm == mpi::comm::null || _comm->size() == 1,
+         ASSERT( comm == mpi::comm::null || comm.size() == 1,
                  "Attempting to create parallel HDF5 file without parallel extensions." );
 #endif
 

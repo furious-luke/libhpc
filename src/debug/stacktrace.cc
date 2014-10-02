@@ -15,11 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "stacktrace.hh"
+
 #ifndef NSTACKTRACE
 
 #include <stdlib.h>
 #include <execinfo.h>
-#include "stacktrace.hh"
 #include "function.hh"
 
 namespace hpc {

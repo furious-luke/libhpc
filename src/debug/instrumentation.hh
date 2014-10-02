@@ -15,8 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_debug_instrumentation_hh
-#define libhpc_debug_instrumentation_hh
+#ifndef hpc_debug_instrumentation_hh
+#define hpc_debug_instrumentation_hh
+
+#include "config.hh"
 
 #ifndef NINSTRUMENT
 

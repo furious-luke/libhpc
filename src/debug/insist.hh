@@ -18,6 +18,8 @@
 #ifndef libhpc_debug_insist_hh
 #define libhpc_debug_insist_hh
 
+#include "config.hh"
+
 #ifndef NDEBUG
 
 #include "assert.hh"
