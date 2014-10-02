@@ -85,13 +85,7 @@ namespace hpc {
 	 return _id >= 0;
       }
 
-      h5::dataset const
-      file::dataset( std::string const& name ) const
-      {
-         return h5::dataset( *this, name );
-      }
-
-      h5::group const
+      h5::group
       file::group( std::string const& name ) const
       {
 	 h5::group grp;

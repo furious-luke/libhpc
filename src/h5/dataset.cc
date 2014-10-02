@@ -197,7 +197,7 @@ namespace hpc {
 		      h5::dataspace const& mem_space,
 		      h5::dataspace const& file_space,
 		      mpi::comm const& comm,
-                      h5::property_list const& props )
+                      h5::property_list const& props ) const
       {
 #ifndef NDEBUG
 	 hssize_t mem_size = H5Sget_select_npoints(mem_space.id());
@@ -227,7 +227,7 @@ namespace hpc {
                       hsize_t size,
                       hsize_t offset,
                       mpi::comm const& comm,
-                      h5::property_list const& props )
+                      h5::property_list const& props ) const
       {
          h5::dataspace file_space( dataspace() );
 #ifndef NDEBUG
