@@ -336,7 +336,7 @@ namespace hpc {
 
    public:
 
-      kdtree_iterator( kdtree const& kdt,
+      kdtree_iterator( kdtree_type const& kdt,
 		       unsigned cell = std::numeric_limits<unsigned>::max() )
 	 : _kdt( &kdt )
       {
@@ -357,7 +357,7 @@ namespace hpc {
 	 {
 	    while( _cell != 0 )
 	    {
-	       unsigned pr = _kdt->parent( cell );
+	       unsigned pr = _kdt->parent( _cell );
 	       ch = _kdt->right_child( pr );
 	       if( _cell != ch )
 	       {
@@ -370,8 +370,6 @@ namespace hpc {
 	    if( _cell == 0 )
 	       _cell = nc;
 	 }
-	 else
-	    _cell = nc;
       }
 
       void

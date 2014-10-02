@@ -51,4 +51,7 @@ AS_IF([test "x$enable_debug" = "xyes"], [
   AC_SUBST([CXXFLAGS], ['-g -O0'])
 ])
 
-AC_OUTPUT(makefile src/makefile)
+# Flags.
+AC_SUBST([AM_CXXFLAGS], ['-std=c++11'])
+
+AC_OUTPUT(makefile src/makefile tests/makefile tests/system/makefile)

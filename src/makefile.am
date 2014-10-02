@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CXXFLAGS = -std=c++11
+AM_CXXFLAGS += -std=c++11
 AM_LDFLAGS = 
 
 lib_LIBRARIES = libhpc.a
