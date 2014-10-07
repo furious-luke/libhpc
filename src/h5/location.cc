@@ -73,5 +73,15 @@ namespace hpc {
 	 return h5::dataset( *this, name );
       }
 
+      void
+      copy( location const& src,
+            std::string const& src_name,
+            location const& dst,
+            std::string const& dst_name )
+      {
+         char const* dn = dst_name.empty() ? src_name.c_str() : dst_name.c_str();
+         INSIST( H5Ocopy( src.id(), src_name.c_str(), dst.id(), dn, H5P_DEFAULT, H5P_DEFAULT ), >= 0 );
+      }
+
    }
 }

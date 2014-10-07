@@ -17,27 +17,11 @@
 
 #include <libhpc/unit_test/main_mpi.hh>
 #include <libhpc/algorithm/binary_partitioner.hh>
+#include "../fixtures/kdtree_fixture.hh"
 
 typedef hpc::mpi::comm comm;
 
 SUITE_PREFIX( "/hpc/algorithm/binary_partitioner/" );
-
-struct permute
-{
-   permute( std::array<std::vector<double>,3>& crds )
-      : crds( crds )
-   {
-   }
-
-   void
-   operator()( hpc::mpi::balanced_partition const& part )
-   {
-      for( unsigned ii = 0; ii < 3; ++ii )
-         part.transfer( crds[ii] );
-   }
-
-   std::array<std::vector<double>,3>& crds;
-};
 
 TEST_CASE( "construct" )
 {

@@ -176,6 +176,16 @@ namespace hpc {
 	 template< class BufT,
 		   typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
          void
+	 read( BufT&& buf,
+               hsize_t offs = 0,
+               mpi::comm const& comm = mpi::comm::self ) const
+	 {
+            read<BufT>( std::forward<BufT>( buf ), offs, comm );
+         }
+
+	 template< class BufT,
+		   typename boost::disable_if<is_fundamental_r<BufT>,int>::type = 0 >
+         void
 	 reada( typename type_traits<BufT>::reference buf,
 		mpi::comm const& comm = mpi::comm::self ) const
 	 {

@@ -262,6 +262,25 @@ namespace hpc {
       return false;
    }
 
+   template< class BndIterA,
+             class BndIterB >
+   bool
+   box_box_collision( BndIterA a_begin,
+                      BndIterA const& a_end,
+                      BndIterB b_begin )
+   {
+      typedef typename std::iterator_traits<BndIterA>::value_type value_type;
+      typedef typename value_type::value_type num_type;
+      while( a_begin != a_end )
+      {
+         value_type a = *a_begin++;
+         value_type b = *b_begin++;
+         if( std::min( a[1], b[1] ) - std::max( a[0], b[0] ) > (num_type)0 )
+            return true;
+      }
+      return false;
+   }
+
    template< class MinIterator,
 	     class MaxIterator,
 	     class MinBndIterator,

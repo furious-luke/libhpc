@@ -230,6 +230,11 @@ namespace hpc {
 	 if( _n_leaf_cells*_max_ppc < _lsize )
 	    ++_n_leaf_cells;
 
+         // Always have at least one leaf cell. This is the root
+         // cell, and helps make other code more uniform.
+         if( !_n_leaf_cells )
+            _n_leaf_cells = 1;
+
          // Calculate depth.
 	 _depth = log2i( _n_leaf_cells );
 	 if( (1 << _depth) < _n_leaf_cells )
@@ -267,8 +272,8 @@ namespace hpc {
          {
             auto mm = std::minmax_element( it->begin(), it->end() );
             unsigned ii = it - dims_begin;
-            _bnds[ii][0] = *mm.first;
-            _bnds[ii][1] = *mm.second;
+            _bnds[ii][0] = (mm.first != it->end()) ? *mm.first : 0.0;
+            _bnds[ii][1] = (mm.second != it->end()) ? *mm.second : 0.0;
          }
       }
 
@@ -317,6 +322,7 @@ namespace hpc {
       bool
       need_refinement( unsigned cell ) const
       {
+         ASSERT( cell < _n_cells );
          return _cnts[cell] > _max_ppc;
       }
 

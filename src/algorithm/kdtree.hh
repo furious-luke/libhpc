@@ -214,6 +214,13 @@ namespace hpc {
          return n_leafs() + n_branches();
       }
 
+      bool
+      is_leaf( unsigned cell ) const
+      {
+         ASSERT( cell < n_cells() );
+         return cell >= n_branches();
+      }
+
       mpi::comm const&
       comm() const
       {
@@ -342,6 +349,11 @@ namespace hpc {
 
    public:
 
+      kdtree_iterator()
+         : _kdt( nullptr )
+      {
+      }
+
       kdtree_iterator( kdtree_type const& kdt,
 		       unsigned cell = std::numeric_limits<unsigned>::max() )
 	 : _kdt( &kdt ),
@@ -404,6 +416,12 @@ namespace hpc {
       bounds() const
       {
          return _geom;
+      }
+
+      bool
+      is_leaf() const
+      {
+         return _kdt->is_leaf( _cell );
       }
 
       bool

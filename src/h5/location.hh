@@ -71,6 +71,13 @@ namespace hpc {
 
 	 hid_t _id;
       };
+
+
+      void
+      copy( location const& src,
+            std::string const& src_name,
+            location const& dst,
+            std::string const& dst_name = std::string() );
    }
 }
 
