@@ -22,6 +22,10 @@
 
 namespace hpc {
 
+   ///
+   /// Permute a sequence. The permutation operates as 'move
+   /// the element at index i to a new index at idx[i]'.
+   ///
    template< class SeqT,
              class IdxT >
    void
