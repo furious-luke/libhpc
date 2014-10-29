@@ -101,6 +101,12 @@ namespace hpc {
          ASSERT( _id >= 0, "Failed to create HDF5 dataset." );
       }
 
+      bool
+      dataset::is_open() const
+      {
+         return _id >= 0;
+      }
+
       void
       dataset::close()
       {

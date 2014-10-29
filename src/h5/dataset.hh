@@ -95,6 +95,9 @@ namespace hpc {
                  hsize_t size,
                  property_list const& props = property_list() );
 
+         bool
+         is_open() const;
+
 	 void
 	 close();
 

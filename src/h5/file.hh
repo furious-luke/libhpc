@@ -197,19 +197,21 @@ namespace hpc {
 	       hsize_t offs = 0 )
 	 {
             h5::dataset ds( *this, name );
-	    typename type_traits<BufT>::value buf( ds.extent() );
+            ASSERT( ds.extent() >= offs, "Invalid offset for reading." );
+	    typename type_traits<BufT>::value buf( ds.extent() - offs );
             ds.read<BufT>( buf, offs, *_comm );
 	    return buf;
 	 }
 
-	 // template< class Buffer >
+	 // template< class BufferT >
 	 // void
-	 // reada( const std::string& name,
-         //        typename type_traits<Buffer>::reference buf,
+	 // reada( std::string const& name,
+         //        typename type_traits<BufferT>::reference buf,
 	 // 	mpi::comm const& comm = mpi::comm::self )
 	 // {
-	 //    // TODO: Needs to be parallel.
-	 //    hsize_t size = read_local_data_size( name );
+	 //    // hsize_t size = read_local_data_size( name );
+         //    hpc::dataset ds( *this, name );
+         //    hsize_t size = ds.extent();
 	 //    buf.resize( size );
 	 //    this->read<T>( name, data );
 	 // }
