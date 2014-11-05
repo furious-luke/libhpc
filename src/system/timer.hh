@@ -136,6 +136,13 @@ namespace hpc {
    typedef timer<> real_timer;
    typedef timer<boost::chrono::nanoseconds,boost::chrono::high_resolution_clock> hr_timer;
 
+   template< class T >
+   boost::chrono::duration<double>
+   to_seconds( T const& dur )
+   {
+      return boost::chrono::duration<double>( dur );
+   }
+
 }
 
 #endif
