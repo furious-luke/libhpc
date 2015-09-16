@@ -15,17 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef libhpc_containers_po2_ring_buffer_hh
-#define libhpc_containers_po2_ring_buffer_hh
+#ifndef hpc_containers_po2_ring_buffer_hh
+#define hpc_containers_po2_ring_buffer_hh
 
 #include <boost/iterator/iterator_facade.hpp>
 #include "libhpc/debug/assert.hh"
-#include "libhpc/memory/memory.hh"
-#include "vector.hh"
-#include "functors.hh"
-#include "mymath.hh"
-
-class po2_ring_buffer_suite;
+#include "libhpc/system/math.hh"
+#include "libhpc/system/view.hh"
 
 namespace hpc {
 
@@ -38,8 +34,6 @@ namespace hpc {
    template< class T >
    class po2_ring_buffer
    {
-      friend class ::po2_ring_buffer_suite;
-
    public:
 
       typedef T value_type;
@@ -142,7 +136,7 @@ namespace hpc {
          return _buf[pos];
       }
 
-      typename vector<value_type>::view
+      typename hpc::view<std::vector<value_type> >
       first_vacant_chunk() const
       {
          size_t start = norm( _start + _size );
@@ -151,10 +145,10 @@ namespace hpc {
             size = _start - start;
          else
             size = _buf.size() - (_start + _size);
-         return typename vector<value_type>::view( _buf, size, start );
+         return typename hpc::view<std::vector<value_type> >( _buf, size, start );
       }
 
-      typename vector<value_type>::view
+      typename hpc::view<std::vector<value_type> >
       second_vacant_chunk() const
       {
          size_t start = norm( _start + _size );
@@ -163,7 +157,7 @@ namespace hpc {
             size = 0;
          else
             size = _start;
-         return typename vector<value_type>::view( _buf, size );
+         return typename hpc::view<std::vector<value_type> >( _buf, size );
       }
 
       size_t
@@ -238,7 +232,7 @@ namespace hpc {
 
    protected:
 
-      vector<value_type> _buf;
+      std::vector<value_type> _buf;
       size_type _start;
       size_type _size;
       size_type _mask;
@@ -324,6 +318,7 @@ namespace hpc {
       const po2_ring_buffer<value_type>& _buf;
       size_type _idx;
    };
-};
+
+}
 
 #endif

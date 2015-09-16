@@ -15,26 +15,43 @@
 // You should have received a copy of the GNU General Public License
 // along with libhpc.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef hpc_system_hh
-#define hpc_system_hh
+#ifndef hpc_system_process_hh
+#define hpc_system_process_hh
 
-#include "system/anon.hh"
-#include "system/stream.hh"
-#include "system/timer.hh"
-#include "system/id.hh"
-#include "system/filesystem.hh"
-#include "system/shared_library.hh"
-#include "system/daemon.hh"
-#include "system/file_descriptor.hh"
-#include "system/epoll.hh"
-#include "system/inotify.hh"
-#include "system/path_finder.hh"
-#include "system/tmpfile.hh"
-#include "system/view.hh"
-#include "system/matrix.hh"
-#include "system/has.hh"
-#include "system/string.hh"
-#include "system/process.hh"
-#include "system/inotify.hh"
+#ifndef DARWIN
+
+#include <sys/ptrace.h>
+#include "file_descriptor.hh"
+
+namespace hpc {
+   namespace os {
+
+      class process
+      {
+      public:
+
+         process( pid_t pid = -1 );
+
+	 int
+	 wait( int* stat = nullptr,
+	       int opts = 0 );
+
+	 void
+	 ptrace( enum __ptrace_request req,
+		 void* addr = nullptr,
+		 void* data = nullptr ) const;
+
+         bool
+         operator<( process const& op ) const;
+
+      protected:
+
+	 pid_t _pid;
+      };
+
+   }
+}
+
+#endif
 
 #endif
