@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <libhpc/debug.hh>>
+#include <libhpc/debug.hh>
 #include "file_descriptor.hh"
 
 namespace hpc {
