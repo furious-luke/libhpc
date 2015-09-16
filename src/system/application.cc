@@ -101,4 +101,10 @@ namespace hpc {
       }
    }
 
+   bool
+   application::has_option( std::string const& opt ) const
+   {
+      return _vm.count( opt ) > 0;
+   }
+
 }

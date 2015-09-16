@@ -59,6 +59,9 @@ namespace hpc {
       parse_options( int argc,
                      char* argv[] );
 
+      bool
+      has_option( std::string const& opt ) const;
+
    protected:
 
       po::options_description _opt_desc;
