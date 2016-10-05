@@ -85,7 +85,7 @@ namespace hpc {
 
       template< class InputIterator >
       T
-      project( InputIterator first )
+      project( InputIterator first ) const
       {
          T idx = 0;
          for( unsigned ii = 0; ii < this->dimension(); ++ii, ++first )
