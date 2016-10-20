@@ -96,7 +96,7 @@ namespace hpc {
       template< class OutputIterator >
       void
       lift( T index,
-            OutputIterator result )
+            OutputIterator result ) const
       {
          result += this->dimension() - 1;
          for( unsigned ii = this->dimension(); ii > 0; --ii )
