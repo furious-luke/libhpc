@@ -54,7 +54,7 @@ main( int argc,
          runner.run_one( idx );
       }
       else
-         runner.run_all();
+         rc = runner.run_all() || rc;
    }
    catch( hpc::test::test_failed const& ex )
    {

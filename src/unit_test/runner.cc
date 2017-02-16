@@ -55,10 +55,11 @@ namespace hpc {
          }
       }
 
-      void
+      int
       runner::run_all()
       {
          unsigned ii = 0;
+         int retval = EXIT_SUCCESS;
          test_case_node_t* node = head;
          while( node )
          {
@@ -68,17 +69,22 @@ namespace hpc {
                for( auto np : node->tc->ranks() )
                {
                   sprintf( buf, "mpirun -np %d %s %d", np, executable_path().native().c_str(), ii );
-                  system( buf );
+                  int thisretval = system(buf);
+                  // Needs to be a separate line as macro expects argument to be a variable
+                  retval = WEXITSTATUS(thisretval) ||  retval;
                }
             }
             else
             {
                sprintf( buf, "%s %d", executable_path().native().c_str(), ii );
-               system( buf );
+               int thisretval = system(buf);
+               // Needs to be a separate line as macro expects argument to be a variable
+               retval = WEXITSTATUS(thisretval) ||  retval;
             }
             node = node->next;
             ++ii;
          }
+         return retval;
       }
 
    }
