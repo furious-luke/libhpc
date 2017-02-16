@@ -34,7 +34,7 @@ namespace hpc {
          void
          run_one( unsigned idx );
 
-         void
+         int
          run_all();
       };
 
