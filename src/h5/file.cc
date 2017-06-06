@@ -85,6 +85,12 @@ namespace hpc {
 	 return _id >= 0;
       }
 
+      void
+      file::flush() const
+      {
+         INSIST( H5Fflush( _id, H5F_SCOPE_GLOBAL ), >= 0 );
+      }
+
       h5::group
       file::group( std::string const& name ) const
       {

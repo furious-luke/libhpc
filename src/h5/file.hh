@@ -142,6 +142,9 @@ namespace hpc {
 	    file_set.write( buf.data(), type, mem_space, file_space, *_comm );
 	 }
 
+         void
+         flush() const;
+
 	 // void
 	 // read_data_dims( const std::string& name,
          //                 std::vector<hsize_t>& dims );
